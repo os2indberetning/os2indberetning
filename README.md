@@ -259,7 +259,21 @@ Udfyldes med adgangskode til databasen
 
 ### Mailadviseringer er ikke sendt
 
-* Tjek, at der er opsat en mailadvisering under Administrator.
+* Kontroller at der er opsat en mailadvisering under Administrator.
 * Kontroller at alle felter er udfyldt korrekt under ConsoleApplications/Mail/CustomSettings.config
 * Kontroller at alle felter er udfyldt korrekt under Presentation.Web/CustomSettings.config
 
+### Fejlbeskeder i log
+
+#### AD-bruger ikke fundet i databasen
+* Kontroller at "PROTECTED_AD_DOMAIN" er udfyldt korrekt i Presentation.Web/CustomSettings.config
+
+#### Gyldig domænebruger ikke fundet
+* Kontroller at "PROTECTED_AD_DOMAIN" er udfyldt korrekt i Presentation.Web/CustomSettings.config
+* Kontroller at brugeren har et gyldigt AD-login
+
+#### Fejl ved adressevask
+* Kontroller at de indtastede adresser findes og er i korrekt format (Vejnavn husnummer, postnr by)
+
+#### Fejl ved opslag af adressekoordinater
+* Kontroller at de indtastede adresser findes og er i korrekt format (Vejnavn husnummer, postnr by)

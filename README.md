@@ -259,7 +259,7 @@ Udfyldes med adgangskode til databasen
 
 ### Mailadviseringer er ikke sendt
 
-Tjek, at der er opsat en mailadvisering under Administrator.
-Kontroller at alle felter er udfyldt korrekt under ConsoleApplications/Mail/CustomSettings.config
-Kontroller at alle felter er udfyldt korrekt under Presentation.Web/CustomSettings.config
+* Tjek, at der er opsat en mailadvisering under Administrator.
+* Kontroller at alle felter er udfyldt korrekt under ConsoleApplications/Mail/CustomSettings.config
+* Kontroller at alle felter er udfyldt korrekt under Presentation.Web/CustomSettings.config
 

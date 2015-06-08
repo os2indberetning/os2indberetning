@@ -254,3 +254,12 @@ Udfyldes med brugernavn til login på databasen.
 
 ###### pwd
 Udfyldes med adgangskode til databasen
+
+## Fejl og løsninger
+
+### Mailadviseringer er ikke sendt
+
+Tjek, at der er opsat en mailadvisering under Administrator.
+Kontroller at alle felter er udfyldt korrekt under ConsoleApplications/Mail/CustomSettings.config
+Kontroller at alle felter er udfyldt korrekt under Presentation.Web/CustomSettings.config
+

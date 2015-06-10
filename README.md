@@ -182,6 +182,8 @@ Bruges til at oprette forbindelse til databasen der opbevarer data fra app'en, d
 
 #### Fejl ved adressevask
 * Kontroller at de indtastede adresser findes og er i korrekt format (Vejnavn husnummer, postnr by)
+* Kontroller at PROTECTED_SEPTIMA_API_KEY er sat korrekt i CustomSettings.config
 
 #### Fejl ved opslag af adressekoordinater
 * Kontroller at de indtastede adresser findes og er i korrekt format (Vejnavn husnummer, postnr by)
+* Kontroller at PROTECTED_SEPTIMA_API_KEY er sat korrekt i CustomSettings.config

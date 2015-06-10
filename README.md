@@ -1,5 +1,9 @@
 # OS2Indberetning
 
+## Indberetningsflow
+
+![Indberetningsflow](https://github.com/os2indberetning/os2indberetning/blob/development/state.png)
+
 ## Opsætning
 
 Tilpasning og opsætning af løsning gøres igennem konfigurationsfiler som ligger i projekternes rodmapper. Herunder gennemgåes de forskellige projekter og de relevante konfigurationsfiler, hvor der skal foretages ændringer.

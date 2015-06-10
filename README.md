@@ -3,8 +3,7 @@
 ## Opsætning
 
 Tilpasning og opsætning af løsning gøres igennem konfigurationsfiler som ligger i projekternes rodmapper. Herunder gennemgåes de forskellige projekter og de relevante konfigurationsfiler, hvor der skal foretages ændringer.
-
-### Presentation.Web
+Der er to konfigurationsfiler CustomSettings.config og connections.config som skal sættes op før projektet kan køre. Der ligger skeletter af de to filer i Configuration mappen i roden af projektet.
 
 #### CustomSettings.config
 
@@ -53,6 +52,12 @@ Udfyldes med kommunenummer til KMD
 
 ###### PROTECTED_KMDReservedNr
 Udfyldes med reserveret KMD-nummer
+
+###### PROTECTED_AdministrativeCostCenterPrefix
+Administrative medarbejdere genkendes på at de har et omkostningssted som starter med en særlig sekvens f.eks. 1012
+
+###### PROTECTED_AdministrativeAccount
+Udfyldes med den konto hvor kørsel fra administrative medarbejdere skal konteres 
 
 ##### Startadresse til kort
 Nedenfor beskrives de oplysninger der skal indtastes for at vælge den adresse kortet skal starte med at vise i kørselsindberetning.
@@ -143,117 +148,16 @@ Erstattes med kommunelogo til visning på fane i browser.
 #### logo.png
 Erstattes med kommunelogo til visning på hjemmesiden øverst til højre.
 
-### DBUpdater
-Dette projekt bruges til at migrere oplysninger om medarbejdere og organisationer fra kommunen til OS2Indberetning.
-
 #### connections.config
 
 ##### DefaultConnection
-Bruges til at oprette forbindelse til OS2Indberetningsdatabasen.
-
-###### Data Source
-Udfyldes med adressen på databaseserveren.
-
-###### Initial Catalog
-Udfyldes med navnet på databasen.
-
-###### uid
-Udfyldes med brugernavn til login på databasen.
-
-###### pwd
-Udfyldes med adgangskode til databasen
+Bruges til at opsætte connection string for forbindelse til OS2Indberetningsdatabasen.
 
 ##### DBUpdaterConnection
-Bruges til at oprette forbindelse til kommunedatabasen.
-
-###### Data Source
-Udfyldes med adressen på databaseserveren.
-
-###### Initial Catalog
-Udfyldes med navnet på databasen.
-
-###### uid
-Udfyldes med brugernavn til login på databasen.
-
-###### pwd
-Udfyldes med adgangskode til databasen
-
-### Mail
-Dette projekt bruges til at sende planlagte mailadviseringer til ledere, der har afventende indberetninger til godkendelse.
-
-#### connections.config
-Udfyldes med oplysninger om OS2Indberetnings databasen.
-
-###### Data Source
-Udfyldes med adressen på databaseserveren.
-
-###### Initial Catalog
-Udfyldes med navnet på databasen.
-
-###### uid
-Udfyldes med brugernavn til login på databasen.
-
-###### pwd
-Udfyldes med adgangskode til databasen
-
-#### CustomSettings.config
-Nedenfor beskrives de oplysninger der skal bruges til at sende mails til ledere, der har afventende indberetninger til godkendelse.
-
-###### PROTECTED_SMTP_PASSWORD
-Udfyldes med password til SMTP-server
-
-###### PROTECTED_SMTP_HOST
-udfyldes med adresse til SMTP-server
-
-###### PROTECTED_SMTP_USER
-udfyldes med brugernavn til SMTP-server
-
-###### PROTECTED_SMTP_HOST_PORT
-Udfyldes med port til SMTP-server
-
-###### PROTECTED_MAIL_FROM_ADDRESS
-Udfyldes med den mail der skal stå som afsender
-
-###### PROTECTED_MAIL_SUBJECT
-Udfyldes med emnet på mails om afventende indberetninger til ledere
-
-###### PROTECTED_MAIL_BODY
-Udfyldes med indholdet af mails om afventende indberetninger
-
-### Infrastructure.DmzSync
-Dette projekt bruges til at synkronisere indberetninger fra mobilapp til OS2Indberetnings databasen.
-
-#### connections.config
-
-##### DefaultConnection
-Bruges til at oprette forbindelse til OS2Indberetningsdatabasen.
-
-###### Data Source
-Udfyldes med adressen på databaseserveren.
-
-###### Initial Catalog
-Udfyldes med navnet på databasen.
-
-###### uid
-Udfyldes med brugernavn til login på databasen.
-
-###### pwd
-Udfyldes med adgangskode til databasen
+Bruges til at oprette forbindelse til kommunedatabasen hvor information om medarbejdere og organisationsenheder hentes hver nat.
 
 ##### DMZConnection
-Bruges til at oprette forbindelse til DMZ-databasen.
-
-###### Data Source
-Udfyldes med adressen på databaseserveren.
-
-###### Initial Catalog
-Udfyldes med navnet på databasen.
-
-###### uid
-Udfyldes med brugernavn til login på databasen.
-
-###### pwd
-Udfyldes med adgangskode til databasen
+Bruges til at oprette forbindelse til databasen der opbevarer data fra app'en, denne database ligger i en DMZn.
 
 ## Fejl og løsninger
 

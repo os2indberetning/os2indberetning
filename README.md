@@ -4,6 +4,41 @@
 
 ![Indberetningsflow](https://github.com/os2indberetning/os2indberetning/blob/development/state.png)
 
+## Installationsvejeledning
+
+### Krav
+Løsningen kræver adgang til en MySQL database.
+
+### Installation
+
+Database integreringen er lavet med entity framework code first, så når koden er hentet ned kan det åbnes i visual studio, og herfra kan databasen sættes op ved hjælp af migrations som ligger i Infrastructure.DataAccess projektet. Dette gøres ved at køre update-database fra package manager consolen i det nævntt projekt.
+
+Løsningen består af 4 individuelle applikationer som alle er en del af en samlet solution, og de er beskrevet hver for sig herunder. 
+
+Hvert program har brug for noget opsætning der er specifik for de enkelte kommuner, denne opsætning laves i to .config filer som beskrevet i afsnittet opsætning.
+
+#### Presentation.Web
+Dette er web applikationen som viser hjemmesiden for brugerne.
+
+Denne skal deployes til en IIS. Da den genererer en IND01 fil til KMD, skal den application pool den kører under have adgang til filens placering som er sat op ved hjælp af PROTECTED_KMDFilePath som beskrevet i afsnittet Opsætning.
+IIS'en skal desuden være sat op til kun at tillade windows authentication hvilket lader brugerne logge ind via deres AD informationer. Senere udvidelser til OS2indberetning vil muligvis også tillade nemID login.
+
+#### Mail (under ConsoleApplications)
+Når dette program kører ser det i databasen om de er sat en mail advisering op til i dag (opsættes af administratorere i web klienten), og sender i så fald mails til de personer der måtte mangle at godkende indberetninger.
+
+Programmet kan sættes op til at køre som et scheduled task i windows.
+
+#### DBUpdater (under ConsoleApplications)
+Dette program står for at hente informationer fra views som kommunen stiller til rådighed angående personer, deres ansættelsesforhold samt organisationsenheder.
+
+Programmet kan sættes op til at køre som et scheduled task i windows. Det skal sættes op til at køre efter at views er genereret af kommunen, men også før det forventes at brugere tilgår løsningen om morgenen.
+Det er også dette program der opdaterer eventuelle beskidte adresser som en administrator har vasket i løbet af dagen, så vaskede adresser er altså først tilgængelige dagen efter.
+
+Programmet skal tilpasses de database views som kommunen stiller tilrådighed. Vær opmærsom på at de views som var tilgængelige under udarbejdelsen af løsninge var fra en MS SQL server, og der lykkedes ikke at få entity framework til at spille sammen med de to database typer i det samme projekt, derfor hentes informationen fra views direkte med almindelige sql queries.
+
+#### Infrastructure.DMZsync
+Hvis mobil applikationen bruges, så kører den op mod en webserver og en database der ligger i en DMZ, hvor det personfølsomme data der ligger i DMZ databasen er krypteret. DMZsync sørger så for hver nat at synkronisere det data som webklienten har tilføjet samt det som mobil applikationen har synkroniseret op. 
+
 ## Opsætning
 
 Tilpasning og opsætning af løsning gøres igennem konfigurationsfiler som ligger i projekternes rodmapper. Herunder gennemgåes de forskellige projekter og de relevante konfigurationsfiler, hvor der skal foretages ændringer.
@@ -41,6 +76,9 @@ Nedenfor beskrives de oplysninger der skal indtastes i forbindelse med genererin
 
 ###### PROTECTED_KMDFilePath
 Udfyldes med den sti hvor filen til KMD skal gemmes, når en administrator vælger at generere den
+
+###### PROTECTED_KMDBackupFilePath
+Udfyldes med den sti hvor der skal tages en backup af den fil der er genereret til KMD
 
 ###### PROTECTED_KMDFileName
 Navn på den genererede fil til KMD.

@@ -193,6 +193,9 @@ Erstattes med kommunelogo til visning på hjemmesiden øverst til højre.
 Filen findes i Presentation.Web/logo.png
 Billedet skal være omkring 42 pixels i højden.
 
+#### private.css
+Indeholder attributten background-color, der bestemmer sidens baggrundsfarve, samt farven på markerede faneblade.
+Filen findes i Presentation.Web/Content/private.css
 
 #### connections.config
 

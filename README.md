@@ -186,9 +186,13 @@ Udfyldes med adgangskode til databasen
 
 #### favicon.ico
 Erstattes med kommunelogo til visning på fane i browser.
+Filens findes i Presentation.Web/Content/favicon.ico
 
 #### logo.png
 Erstattes med kommunelogo til visning på hjemmesiden øverst til højre.
+Filen findes i Presentation.Web/logo.png
+Billedet skal være omkring 42 pixels i højden.
+
 
 #### connections.config
 

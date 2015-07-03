@@ -1,7 +1,11 @@
+using MySql.Data.Entity;
+
 namespace Infrastructure.DataAccess.Migrations
 {
+    using System;
+    using System.Data.Entity;
     using System.Data.Entity.Migrations;
-    using MySql.Data.Entity;
+    using System.Linq;
 
     internal sealed class Configuration : DbMigrationsConfiguration<Infrastructure.DataAccess.DataContext>
     {

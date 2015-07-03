@@ -1,0 +1,75 @@
+﻿<div class="panel panel-default">
+
+
+
+
+    <div class="panel-body">
+
+
+        <div class="col-xs-12 col-lg-6">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <h2 class="pull-left">Opret afvigende kontering</h2>
+                </div>
+            </div>
+
+
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Type</label>
+                </div>
+                <div class="col-sm-8">
+                    <select kendo-drop-down-list ng-model="container.newAccountType" ng-change="accountTypeChanged()" class="fill-width">
+                        <option value="0">Omkostningssted</option>
+                        <option value="1">PSP-element</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Kontonummer</label>
+                </div>
+                <div class="col-sm-8">
+                    <input ng-enter="addNewAccountClick()" ng-show="container.newAccountType == '0'" kendo-masked-text-box options="maskOptions" class="form-control fill-width" ng-model="container.newAccountAccountNumber" />
+                </div>
+                <div class="col-sm-8">
+                    <input ng-enter="addNewAccountClick()" ng-show="container.newAccountType == '1'" kendo-masked-text-box options="PSPMaskOptions" class="form-control fill-width" ng-model="container.newAccountAccountNumber" />
+                </div>
+            </div>
+
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Beskrivelse</label>
+                </div>
+                <div class="col-sm-8">
+                    <textarea ng-enter="addNewAccountClick()" type="text" class="form-control min-height-100 max-width-100p" ng-model="container.newAccountDescription"></textarea>
+                </div>
+            </div>
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-3 pull-right">
+                    <button class="btn btn-primary fill-width" ng-click="addNewAccountClick()">Opret</button>
+                </div>
+
+            </div>
+            <label class="text-danger" ng-bind="accountNumberRegNumberErrorMessage"></label><br />
+            <label class="text-danger" ng-bind="accountNumberErrorMessage"></label><br />
+            <label class="text-danger" ng-bind="accountDescriptionErrorMessage"></label>
+
+
+        </div>
+
+
+        <div class="col-xs-12 col-lg-6">
+
+            <h2>
+                Afvigende konteringer
+            </h2>
+                <div kendo-grid="container.accountGrid" class="margin-5 scrollable" options="accounts"></div>
+        </div>
+
+
+
+    </div>
+</div>

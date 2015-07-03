@@ -1,0 +1,17 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title">Tilføj personlig adresse</h3>
+</div>
+<div class="modal-body">
+
+    <label>Adresse</label>
+    <input ng-enter="saveEditedAddress()" type="text" kendo-auto-complete k-data-text-field="'tekst'" k-data-value-field="'tekst'"
+           k-data-source="SmartAddress" ng-model="oldAddress" class="fill-width" k-placeholder="'Skriv her'" />
+    <div class="seperator"></div>
+    <label>Beskrivelse</label>
+    <input ng-enter="saveEditedAddress()" class="form-control" ng-model="addressDescription" />
+
+</div>
+<div class="modal-footer">
+    <button class="btn btn-success pull-left new-token-btn" ng-click="saveEditedAddress()">Gem</button>
+    <button class="btn btn-danger pull-right close-token-modal" ng-click="closeAddressEditModal()">Luk</button>
+</div>

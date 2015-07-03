@@ -1,17 +1,25 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.DomainModel
 {
     public class Person
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
         public string CprNumber { get; set; }
-        public int PersonId { get; set; }
         public string FirstName { get; set; }
-        public string MiddleName { get; set; }
         public string LastName { get; set; }
         public string Mail { get; set; }
-        public float WorkDistanceOverride { get; set; }
+        public bool RecieveMail { get; set; }
+        public double DistanceFromHomeToBorder { get; set; }
+        public string Initials { get; set; }
+        public string FullName { get; set; }
+        public bool IsAdmin { get; set; }
+        public bool IsSubstitute { get; set; }
+        public bool IsActive { get; set; }
 
         public virtual ICollection<PersonalAddress> PersonalAddresses { get; set; }
         public virtual ICollection<PersonalRoute> PersonalRoutes { get; set; }

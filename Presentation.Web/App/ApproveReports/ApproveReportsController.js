@@ -1,1 +1,5 @@
-//# sourceMappingURL=ApproveReportsController.js.map
+﻿angular.module("application").controller("ApproveReportsController", [
+   "$scope", function ($scope) {
+ 
+   }
+]);

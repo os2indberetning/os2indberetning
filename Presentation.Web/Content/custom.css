@@ -1,11 +1,434 @@
-﻿.nav-tabs.nav-justified>li>a {
-    border-bottom: none;
-    border-radius: 4px;
-    border: none;
-    color: #555;
+﻿.margin-top-15 {
+    margin-top: 15px;
 }
 
-.nav-tabs.nav-justified>.active>a, .nav-tabs.nav-justified>.active>a:focus, .nav-tabs.nav-justified>.active>a:hover {
-    background-color: #F5F5F5;
+.margin-top-20 {
+    margin-top: 20px;
+}
+
+.margin-top-28 {
+    margin-top: 28px;
+}
+
+.margin-top-30 {
+    margin-top: 30px;
+}
+
+.margin-right-10 {
+    margin-right: 10px;
+}
+
+.margin-right-15 {
+    margin-right: 15px;
+}
+
+.margin-right-20 {
+    margin-right: 20px;
+}
+
+.margin-right-25 {
+    margin-right: 25px;
+}
+
+.margin-5 {
+    margin: 5px;
+}
+
+.margin-left-5 {
+    margin-left: 5px;
+}
+
+.margin-left-10 {
+    margin-left: 10px;
+}
+
+.margin-left-15 {
+    margin-left: 15px;
+}
+
+.errorOutline {
+    border: 2px solid red;
+}
+
+.info-popup {
+    border-radius: 8px;
+    border-style: solid;
+    border-width: 1px;
+    padding-left: 4px;
+    padding-right: 4px;
+}
+
+a {
+    cursor: hand;
+    cursor: pointer;
+}
+
+.rounded-border {
+    border: 1px solid;
+    border-radius: 20px;
+    border-color: #8a2be2;
+}
+
+.margin-top-5 {
+    margin-top: 5px;
+}
+
+.margin-10 {
+    margin: 10px;
+}
+
+.margin-15 {
+    margin: 15px;
+}
+
+
+
+.no-border {
+    border: none;
+}
+
+.inline {
+    display: inline;
+}
+
+.vertical-text-bottom {
+    vertical-align: bottom;
+}
+
+.margin-top-10 {
+    margin-top: 10px;
+}
+
+.margin-top-40 {
+    margin-top: 40px;
+}
+
+.k-tooltip {
+    text-align: left;
+    padding: 1em;
+}
+
+.k-group {
+    display: inline-block;
+    text-align: left;
+    /*width: 200px;*/
+    white-space: nowrap;
+    /*padding: 2em;*/
+    margin: 6px;
+}
+
+.margin-bottom-5 {
+    margin-bottom: 5px;
+}
+
+.margin-bottom-10 {
+    margin-bottom: 10px;
+}
+
+.margin-bottom-20 {
+    margin-bottom: 20px;
+}
+
+.margin-bottom-30 {
+    margin-bottom: 30px;
+}
+
+.margin-bottom-40 {
+    margin-bottom: 40px;
+}
+
+.nav-tabs.nav > .active > a, .nav-tabs.nav > .active > a:focus, .nav-tabs.nav > .active > a:hover {
+    color: #fff;
+    opacity: 0.75;
     border-color: #ddd;
+}
+
+.nav-tabs.nav > li > a {
+    border-bottom: none;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border: #ddd;
+    border-style: solid;
+    border-width: 1px;
+    color: #555;
+    margin: 0;
+}
+
+
+
+.k-combobox {
+    width: 100% !important;
+    max-width: none;
+}
+
+    .k-combobox .k-input {
+        max-width: none;
+        width: 100%;
+    }
+
+.setting-area {
+    background-color: #dddddd;
+    border: 5px solid #fff;
+}
+
+a.informationHelpLink {
+    color: white;
+    text-decoration: underline;
+}
+
+
+.modal-dialog {
+    right: auto;
+    left: auto;
+    width: 600px;
+    padding-top: 30px;
+    padding-bottom: 30px;
+}
+
+li.mainMenuLink.active {
+    text-decoration: underline !important;
+}
+
+li.mainMenuLink > a {
+    color: white !important;
+}
+
+    li.mainMenuLink > a:hover {
+        text-decoration: underline !important;
+    }
+
+a:hover > i.fa {
+    text-decoration: underline !important;
+}
+
+li.mainMenuLink.active > a > i.fa {
+    text-decoration: underline !important;
+}
+
+.new-token-btn {
+    width: 79%;
+}
+
+.k-pager-wrap .k-dropdown {
+    width: 5.000em !important;
+}
+
+.close-token-modal {
+    width: 19%;
+}
+
+.seperator {
+    margin-top: 20px;
+}
+
+.margin-right-5 {
+    margin-right: 5px;
+}
+
+.no-max-width {
+    max-width: none;
+}
+
+.min-height-100 {
+    min-height: 100px;
+}
+
+.max-width-100 {
+    max-width: 100px;
+}
+
+.max-width-100p {
+    max-width: 100%;
+}
+
+.fill-width {
+    width: 100% !important;
+}
+
+.fill-fifty {
+    width: 50%;
+}
+
+.fill-90 {
+    width: 90%;
+}
+
+.set-margin-top-10 {
+    margin-top: 10px;
+}
+
+/*CUSTOM CSS FOR NOTIFICATION SERVICE*/
+.errors-container {
+    position: fixed;
+    z-index: 2000;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+    /* line 554, C:/Users/larsvonqualen/development/cheetah-webapp/src/cheetah-webapp/cheetah.webapp.WebAPI/Content/app/style/sass/app.scss */
+    .errors-container .alert {
+        -webkit-border-radius: 0 !important;
+        border-radius: 0 !important;
+        border-bottom: 0;
+        margin: 0;
+    }
+/*************************************/
+
+.remove-box {
+    border-color: #4d4d4d;
+    background-color: #606060;
+    -ms-border-radius: 2px;
+    border-radius: 2px;
+    min-height: 2.214em;
+    width: 2.7em;
+    vertical-align: middle;
+    -moz-box-sizing: border-box;
+    text-align: center;
+    height: 2.7em;
+    border-style: solid;
+    border-width: 1px;
+    color: #fff;
+    outline: none;
+    line-height: 2.4em;
+}
+
+    .remove-box:hover {
+        background-color: #363636;
+        border-color: #4d4d4d;
+    }
+
+.k-custom {
+    height: 2.214em;
+    line-height: 2.214em;
+    padding: .177em 0;
+    text-indent: .8em;
+    border: 0;
+    margin: 0;
+}
+
+    .k-custom .k-input {
+        display: block;
+    }
+
+.k-button-no-shadow {
+    box-shadow: none;
+    border-color: #e5e5e5;
+    -ms-border-radius: 1px;
+    border-radius: 1px;
+}
+
+    .k-button-no-shadow:focus, .k-button-no-shadow:hover, .k-button-no-shadow:active {
+        -webkit-box-shadow: 0 2px 6px rgba(0,0,0,0.2),0 2px 3px rgba(0,0,0,0.05);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.2),0 2px 3px rgba(0,0,0,0.05);
+    }
+
+/*CUSTOM CSS FOR NOTIFICATION SERVICE*/
+.errors-container {
+    position: fixed;
+    z-index: 2000;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}
+    /* line 554, C:/Users/larsvonqualen/development/cheetah-webapp/src/cheetah-webapp/cheetah.webapp.WebAPI/Content/app/style/sass/app.scss */
+    .errors-container .alert {
+        -webkit-border-radius: 0 !important;
+        border-radius: 0 !important;
+        border-bottom: 0;
+        margin: 0;
+    }
+/*************************************/
+
+.m-t-l {
+    margin-top: 5px;
+}
+
+.m-b-l {
+    margin-bottom: 5px;
+}
+
+.opaque {
+    opacity: 0.5;
+}
+
+.k-grid .k-header {
+    font-weight: bold !important;
+}
+
+.k-grid {
+    font-size: 11px;
+}
+
+.k-toolbar {
+    border: none;
+    margin: 0;
+}
+
+    .k-toolbar .k-split-button {
+        border-radius: 4px;
+    }
+
+        .k-toolbar .k-split-button .k-button {
+            margin: 0;
+            color: #ffffff;
+            background-color: #5cb85c;
+            border-color: #4cae4c;
+            text-align: center;
+            vertical-align: text-top;
+        }
+
+            .k-toolbar .k-split-button .k-button:hover,
+            .k-toolbar .k-split-button .k-button:focus,
+            .k-toolbar .k-split-button .k-button:active,
+            .k-toolbar .k-split-button .k-button.active,
+            .open .dropdown-toggle.k-toolbar .k-split-button .k-button {
+                color: #ffffff;
+                background-color: #47a447;
+                border-color: #398439;
+            }
+
+            .k-toolbar .k-split-button .k-button:active,
+            .k-toolbar .k-split-button .k-button.active,
+            .open .dropdown-toggle.k-toolbar .k-split-button .k-button {
+                background-image: none;
+            }
+
+            .k-toolbar .k-split-button .k-button.disabled,
+            .k-toolbar .k-split-button .k-button[disabled],
+            fieldset[disabled] .k-toolbar .k-split-button .k-button,
+            .k-toolbar .k-split-button .k-button.disabled:hover,
+            .k-toolbar .k-split-button .k-button[disabled]:hover,
+            fieldset[disabled] .k-toolbar .k-split-button .k-button:hover,
+            .k-toolbar .k-split-button .k-button.disabled:focus,
+            .k-toolbar .k-split-button .k-button[disabled]:focus,
+            fieldset[disabled] .k-toolbar .k-split-button .k-button:focus,
+            .k-toolbar .k-split-button .k-button.disabled:active,
+            .k-toolbar .k-split-button .k-button[disabled]:active,
+            fieldset[disabled] .k-toolbar .k-split-button .k-button:active,
+            .k-toolbar .k-split-button .k-button.disabled.active,
+            .k-toolbar .k-split-button .k-button[disabled].active,
+            fieldset[disabled] .k-toolbar .k-split-button .k-button.active {
+                background-color: #5cb85c;
+                border-color: #4cae4c;
+            }
+
+
+.transparent-background {
+    background: transparent;
+}
+
+.app-modal-window-full .modal-dialog {
+    width: 95%;
+}
+
+.scrollable {
+    overflow-x: auto;
+}
+
+.mainMenuCollapse {
+    padding-left: 50px !important;
+}
+
+.k-ff {
+    overflow: inherit !important;
 }

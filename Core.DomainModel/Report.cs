@@ -5,23 +5,28 @@ namespace Core.DomainModel
 {
     public enum ReportStatus
     {
+        Pending,
         Accepted,
         Rejected,
-        Invoiced,
-        Reported
+        Invoiced
     }
 
     public class Report
     {
         public int Id { get; set; }
-        public ReportStatus status { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public DateTime EditedDate { get; set; }
+        public ReportStatus Status { get; set; }
+        public long CreatedDateTimestamp { get; set; }
+        public long EditedDateTimestamp { get; set; }
         public String Comment { get; set; }
-        public DateTime ClosedDate { get; set; }
-        public DateTime ProcessedDate { get; set; }
+        public long ClosedDateTimestamp { get; set; }
+        public long ProcessedDateTimestamp { get; set; }
+        public Person ResponsibleLeader { get; set; }
+        public virtual Person ApprovedBy { get; set; }
+        public int? ApprovedById { get; set; }
 
+        public int PersonId { get; set; }
         public virtual Person Person { get; set; }
+        public int EmploymentId { get; set; }
         public virtual Employment Employment { get; set; }
     }
 }

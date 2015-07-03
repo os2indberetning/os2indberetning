@@ -8,8 +8,11 @@ namespace Core.DomainModel
         public int OrgId { get; set; }
         public string ShortDescription { get; set; }
         public string LongDescription { get; set; }
+        public bool HasAccessToFourKmRule { get; set; }
+        public virtual WorkAddress Address { get; set; }
+        public int AddressId { get; set; }
         public int Level { get; set; }
-
+        public int? ParentId { get; set; }
         public virtual OrgUnit Parent { get; set; }
         public virtual ICollection<OrgUnit> Children { get; set; }
         public virtual ICollection<Substitute> Substitutes { get; set; }

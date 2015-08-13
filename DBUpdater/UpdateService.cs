@@ -13,6 +13,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using DBUpdater.Models;
 using Infrastructure.AddressServices.Interfaces;
+using MoreLinq;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 
@@ -75,7 +76,11 @@ namespace DBUpdater
             foreach (var org in orgs)
             {
                 i++;
-                Console.WriteLine("Migrating organisation " + i + " of " + orgs.Count() + ".");
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Migrating organisation " + i + " of " + orgs.Count() + ".");
+                }
+
                 var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgId == org.LOSOrgId);
 
                 var workAddress = GetWorkAddress(org);
@@ -97,7 +102,7 @@ namespace DBUpdater
 
                 orgToInsert.Address = workAddress;
 
-                if(  workAddress.Id != 0)
+                if (workAddress.Id != 0)
                 {
                     orgToInsert.Address = null;
                     orgToInsert.AddressId = workAddress.Id;
@@ -109,9 +114,9 @@ namespace DBUpdater
                 {
                     orgToInsert.ParentId = _orgRepo.AsQueryable().Single(x => x.OrgId == org.ParentLosOrgId).Id;
                 }
-
                 _orgRepo.Save();
             }
+
             Console.WriteLine("Done migrating organisations.");
         }
 
@@ -120,16 +125,27 @@ namespace DBUpdater
         /// </summary>
         public void MigrateEmployees()
         {
+            foreach (var person in _personRepo.AsQueryable())
+            {
+                person.IsActive = false;
+            }
+            _personRepo.Save();
+
             var empls = _dataProvider.GetEmployeesAsQueryable();
 
             var i = 0;
-            foreach (var employee in empls)
+            var distinctEmpls = empls.DistinctBy(x => x.CPR).ToList();
+            foreach (var employee in distinctEmpls)
             {
                 i++;
-                Console.WriteLine("Migrating person " + i + " of " + empls.Count() + ".");
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Migrating person " + i + " of " + distinctEmpls.Count() + ".");
+                }
 
-                var personToInsert = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber == employee.CPR);
-                
+
+                var personToInsert = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber.Equals(employee.CPR));
+
                 if (personToInsert == null)
                 {
                     personToInsert = _personRepo.Insert(new Person());
@@ -143,30 +159,41 @@ namespace DBUpdater
                 personToInsert.Initials = employee.ADBrugerNavn ?? " ";
                 personToInsert.FullName = personToInsert.FirstName + " " + personToInsert.LastName + " [" + personToInsert.Initials + "]";
                 personToInsert.Mail = employee.Email ?? "";
+                personToInsert.IsActive = true;
 
-                _personRepo.Save(); 
+
             }
+            _personRepo.Save();
+
+            foreach (var employment in _emplRepo.AsQueryable())
+            {
+                employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            }
+            _emplRepo.Save();
 
             i = 0;
             foreach (var employee in empls)
             {
                 i++;
-                Console.WriteLine("Adding employment and address to person " + i + " of " + empls.Count());
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Adding employment and address to person " + i + " of " + empls.Count());
+                }
                 var personToInsert = _personRepo.AsQueryable().First(x => x.CprNumber == employee.CPR);
 
                 CreateEmployment(employee, personToInsert.Id);
-                UpdateHomeAddress(employee, personToInsert.Id); 
-                _personalAddressRepo.Save();
+                UpdateHomeAddress(employee, personToInsert.Id);
             }
+            _personalAddressRepo.Save();
             _emplRepo.Save();
 
             Console.WriteLine("Done migrating employees");
             var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
-            if ( dirtyAddressCount > 0)
+            if (dirtyAddressCount > 0)
             {
                 foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin))
                 {
-                    _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");    
+                    _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
                 }
             }
         }
@@ -191,20 +218,14 @@ namespace DBUpdater
                 throw new Exception("OrgUnit does not exist.");
             }
 
-            if (!_personRepo.AsQueryable().Any(x => x.Id == personId))
-            {
-                throw new Exception("Person does not exist.");
-            }
+            var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnitId == orgUnit.Id && x.EmploymentId == empl.MaNr);
 
-            var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnitId == orgUnit.Id 
-                                                                            && x.PersonId == personId
-                                                                            && x.Position.Equals(empl.Stillingsbetegnelse));
             //It is ok that we do not save after inserting untill
             //we are done as we loop over employments from the view, and 
             //two view employments will not share an employment in the db. 
             if (employment == null)
             {
-                employment = _emplRepo.Insert(new Employment()); 
+                employment = _emplRepo.Insert(new Employment());
             }
 
             employment.OrgUnitId = orgUnit.Id;
@@ -216,6 +237,7 @@ namespace DBUpdater
             employment.ExtraNumber = empl.EkstraCiffer ?? 0;
             employment.EmploymentType = int.Parse(empl.AnsatForhold);
             employment.CostCenter = empl.Omkostningssted;
+            employment.EmploymentId = empl.MaNr ?? 0;
 
             if (empl.OphoersDato != null)
             {

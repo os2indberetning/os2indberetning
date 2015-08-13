@@ -87,33 +87,6 @@ namespace OS2Indberetning.Controllers
             return GetQueryable(key, queryOptions);
         }
 
-        /// <summary>
-        /// Takes an address without coordinates and performs a lookup on the coordinates.
-        /// </summary>
-        /// <param name="address"></param>
-        /// <returns>An address with coordinates</returns>
-        [EnableQuery]
-        public IQueryable<Address> SetCoordinatesOnAddress(Address address)
-        {
-            var result = _coordinates.GetAddressCoordinates(address);
-            var list = new List<Address>()
-            {
-                result
-            }.AsQueryable();
-            return list;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="addresses"></param>
-        /// <returns></returns>
-        public IHttpActionResult SetCoordinatesOnAddressList(AddressDTO addresses)
-        {
-            return Ok(2);
-        }
-
-
         //PUT: odata/Addresses(5)
         /// <summary>
         /// Is not implemented
@@ -193,7 +166,12 @@ namespace OS2Indberetning.Controllers
             // Add personal addresses to addresses.
             addresses.AddRange(_personalAddressRepo.AsQueryable().Where(elem => (elem.PersonId.Equals(personId))));
 
-            var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId.Equals(personId)).ToList();
+
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId.Equals(personId) 
+                                                                            && x.StartDateTimestamp < currentTimestamp 
+                                                                            && (x.EndDateTimestamp > currentTimestamp ||x.EndDateTimestamp == 0))
+                                                                  .ToList();
             // Add the workAddress of each of the user's employments.
             foreach (var empl in employments)
             {

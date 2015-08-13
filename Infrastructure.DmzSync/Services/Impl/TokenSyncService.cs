@@ -53,7 +53,7 @@ namespace Infrastructure.DmzSync.Services.Impl
         /// </summary>
         public void SyncToDmz()
         {
-            var tokens = _masterTokenRepo.AsQueryable().ToList();
+            var tokens = _masterTokenRepo.AsQueryable().Where(x => x.Person.IsActive).ToList();
             var max = tokens.Count;
 
             for (var i = 0; i < max; i++)
@@ -80,10 +80,7 @@ namespace Infrastructure.DmzSync.Services.Impl
         public void ClearDmz()
         {
             var list = _dmzTokenRepo.AsQueryable().ToList();
-            foreach (var token in list)
-            {
-                  _dmzTokenRepo.Delete(token);
-            }
+            _dmzTokenRepo.DeleteRange(list);
             _dmzTokenRepo.Save();
         }
 

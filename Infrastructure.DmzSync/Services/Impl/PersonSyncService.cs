@@ -44,7 +44,7 @@ namespace Infrastructure.DmzSync.Services.Impl
         public void SyncToDmz()
         {
             var i = 0;
-            var personList = _masterPersonRepo.AsQueryable().ToList();
+            var personList = _masterPersonRepo.AsQueryable().Where(x => x.IsActive).ToList();
             var max = personList.Count;
 
             foreach (var person in personList)  
@@ -81,7 +81,8 @@ namespace Infrastructure.DmzSync.Services.Impl
         private void SyncEmployments()
         {
             var i = 0;
-            var personList = _masterPersonRepo.AsQueryable().ToList();
+            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var personList = _masterPersonRepo.AsQueryable().Where(x => x.IsActive).ToList();
             var max = personList.Count;
 
             foreach (var person in personList)
@@ -95,7 +96,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                 var employments = new List<Employment>();
 
                 // Migrate list of employees as the model is not the same in DMZ and OS2.
-                foreach (var masterEmployment in person.Employments)
+                foreach (var masterEmployment in person.Employments.Where(x => x.EndDateTimestamp > currentDateTimestamp || x.EndDateTimestamp == 0))
                 {
                     var dmzEmployment = new Employment 
                     {
@@ -117,19 +118,8 @@ namespace Infrastructure.DmzSync.Services.Impl
         /// </summary>
         public void ClearDmz()
         {
-            var i = 0;
             var personList = _dmzProfileRepo.AsQueryable().ToList();
-            var max = personList.Count;
-
-            foreach (var profile in personList)
-            {
-                i++;
-                if (i % 10 == 0)
-                {
-                    Console.WriteLine("Clearing person " + i + " of " + max);
-                }
-                _dmzProfileRepo.Delete(profile);
-            }
+            _dmzProfileRepo.DeleteRange(personList);
             _dmzProfileRepo.Save();
         }
 

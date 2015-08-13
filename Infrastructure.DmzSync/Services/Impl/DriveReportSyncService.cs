@@ -9,6 +9,7 @@ using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
+using Infrastructure.AddressServices;
 using Infrastructure.DataAccess;
 using Infrastructure.DmzDataAccess;
 using Infrastructure.DmzSync.Encryption;
@@ -48,36 +49,31 @@ namespace Infrastructure.DmzSync.Services.Impl
             var reports = _dmzDriveReportRepo.AsQueryable().ToList();
             var max = reports.Count;
 
-                for ( var i = 0; i < max; i++ )
-                {
+            for (var i = 0; i < max; i++)
+            {
                 var dmzReport = reports[i];
+                dmzReport.Profile = Encryptor.DecryptProfile(dmzReport.Profile);
                 Console.WriteLine("Syncing report " + i + " of " + max + " from DMZ.");
                 var rate = _rateRepo.AsQueryable().First(x => x.Id.Equals(dmzReport.RateId));
                 var points = new List<DriveReportPoint>();
-                for ( var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
+                for (var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
                 {
                     var gpsCoord = dmzReport.Route.GPSCoordinates.ToArray()[j];
                     gpsCoord = Encryptor.DecryptGPSCoordinate(gpsCoord);
-                    var address = _coordinates.GetAddressFromCoordinates(new Address()
-                    {
-                        Latitude = gpsCoord.Latitude,
-                        Longitude = gpsCoord.Longitude
-                    });
 
                     points.Add(new DriveReportPoint
                     {
                         Latitude = gpsCoord.Latitude,
                         Longitude = gpsCoord.Longitude,
-                        StreetName = address.StreetName,
-                        StreetNumber = address.StreetNumber,
-                        ZipCode = address.ZipCode,
-                        Town = address.Town
                     });
                 }
-               
+
+                var licensePlate = _licensePlateRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(dmzReport.ProfileId) && x.IsPrimary);
+                var plate = licensePlate != null ? licensePlate.Plate : "UKENDT";
+
                 var newReport = new Core.DomainModel.DriveReport
                 {
-                    
+
                     IsFromApp = true,
                     Distance = dmzReport.Route.TotalDistance,
                     KilometerAllowance = KilometerAllowance.Read,
@@ -95,15 +91,11 @@ namespace Infrastructure.DmzSync.Services.Impl
                     UserComment = dmzReport.ManualEntryRemark,
                     Status = ReportStatus.Pending,
                     FullName = dmzReport.Profile.FullName,
-                    LicensePlate = _licensePlateRepo.AsQueryable().First(x => x.PersonId.Equals(dmzReport.ProfileId) && x.IsPrimary).Plate,
+                    LicensePlate = plate,
                     Comment = "",
                 };
 
-                var route = _routeService.GetRoute(rate.Type.IsBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, points);
-                if (route != null)
-                {
-                    newReport.RouteGeometry = route.GeoPoints;
-                }
+                newReport.RouteGeometry = GeoService.Encode(points);
 
                 _driveService.Create(newReport);
             }
@@ -123,16 +115,8 @@ namespace Infrastructure.DmzSync.Services.Impl
         /// </summary>
         public void ClearDmz()
         {
-            var i = 0;
             var reports = _dmzDriveReportRepo.AsQueryable().ToList();
-            var max = reports.Count;
-
-            foreach (var report in reports)
-            {
-                i++;
-                Console.WriteLine("Clearing report " + i + " of " + max + " from DMZ.");
-                _dmzDriveReportRepo.Delete(report);
-            }
+            _dmzDriveReportRepo.DeleteRange(reports);
             _dmzDriveReportRepo.Save();
         }
 

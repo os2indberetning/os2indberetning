@@ -39,7 +39,7 @@ namespace OS2Indberetning.Controllers
             base.Initialize(requestContext);
 
 #if DEBUG
-            string[] httpUser = @"syddjursnet\hshu".Split('\\'); // Fissirul Lehmann - administrator
+            string[] httpUser = @"syddjursnet\jbp".Split('\\'); // Fissirul Lehmann - administrator
 #else
                 string[] httpUser = User.Identity.Name.Split('\\');                
 #endif
@@ -48,13 +48,18 @@ namespace OS2Indberetning.Controllers
             {
                 var initials = httpUser[1].ToLower();
                 // DEBUG ON PRODUCTION. Set petsoe = lky
-                if (initials == "petsoe" || initials == "itmind" || initials == "jaoj" || initials == "mraitm") { initials = "hshu"; }
+                if (initials == "itmind" || initials == "jaoj" || initials == "mraitm") { initials = "hshu"; }
                 // END DEBUG
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)
                 {
                     Logger.Error("AD-bruger ikke fundet i databasen (" + User.Identity.Name + ")");
                     throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
+                }
+                if (!CurrentUser.IsActive)
+                {
+                    Logger.Error("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + ")");
+                    throw new UnauthorizedAccessException("Inaktiv bruger forsøgte at logge ind.");
                 }
             }
             else

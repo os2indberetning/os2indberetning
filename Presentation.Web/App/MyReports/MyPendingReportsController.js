@@ -38,7 +38,7 @@
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader",
+                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader &$filter=PersonId eq " + personId,
                        dataType: "json",
                        cache: false
                    },
@@ -65,7 +65,6 @@
                serverAggregates: false,
                serverSorting: true,
                serverFiltering: true,
-               filter: [{ field: "PersonId", operator: "eq", value: personId }, { field: "DriveDateTimestamp", operator: "gte", value: fromDateFilter }, { field: "DriveDateTimestamp", operator: "lte", value: toDateFilter }],
                sort: { field: "DriveDateTimestamp", dir: "desc" },
                aggregate: [
                { field: "Distance", aggregate: "sum" },
@@ -126,27 +125,38 @@
                    field: "DriveReportPoints",
                    template: function (data) {
                        var tooltipContent = "";
-                       angular.forEach(data.DriveReportPoints, function (point, key) {
-                           if (key != data.DriveReportPoints.length - 1) {
-                               tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + " <br/> ";
-                           } else {
-                               tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
-                           }
-                       });
+                       if (data.DriveReportPoints != null && data.DriveReportPoints != undefined && data.DriveReportPoints.length > 0) {
+                           angular.forEach(data.DriveReportPoints, function (point, key) {
+                               if (key != data.DriveReportPoints.length - 1) {
+                                   tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + " <br/> ";
+                               } else {
+                                   tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
+                               }
+                           });
+                       } else {
+                           tooltipContent = data.UserComment;
+                       }
                        var gridContent = "<i class='fa fa-road fa-2x'></i>";
                        var toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">" + gridContent + "</div>";
                        var globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Se rute på kort'\"><a ng-click='showRouteModal(" + data.Id + ")'><i class='fa fa-globe fa-2x'></i></a></div>";
                        if (data.IsOldMigratedReport) {
                            globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning er overført fra eIndberetning og der kan ikke genereres en rute på et kort'\"><i class='fa fa-circle-thin fa-2x'></i></a></div>";
                        }
-                       var result = toolTip + globe;
+
+
+                       var roundTrip = "";
+                       if (data.IsRoundTrip) {
+                               roundTrip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'Ruten er tur/retur'\"><i class='fa fa-exchange fa-2x'></i></div>";
+                       }
+
+                       var result = toolTip + roundTrip + globe;
                        var comment = data.UserComment != null ? data.UserComment : "Ingen kommentar angivet";
 
                        if (data.KilometerAllowance != "Read") {
                            return result;
                        } else {
                            if (data.IsFromApp) {
-                               toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + comment + "'\">Indberettet fra mobil app</div>";
+                               toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">Indberettet fra mobil app</div>";
                                result = toolTip + globe;
                                return result;
                            } else {
@@ -158,7 +168,7 @@
                    field: "Distance",
                    title: "Km",
                    template: function (data) {
-                       return data.Distance.toFixed(2).toString().replace('.', ',') + " km";
+                       return data.Distance.toFixed(2).toString().replace('.', ',') + " km ";
                    },
                    footerTemplate: "Total: #= kendo.toString(sum, '0.00').replace('.',',') # km"
                }, {
@@ -253,30 +263,25 @@
            });
        }
 
-       var initialLoad = 2;
-       $scope.dateChanged = function () {
-           // $timeout is a bit of a hack, but it is needed to get the current input value because ng-change is called before ng-model updates.
-           $timeout(function () {
-
-               var from = $scope.getStartOfDayStamp($scope.dateContainer.fromDate);
-               var to = $scope.getEndOfDayStamp($scope.dateContainer.toDate);
-
-               // Initial load is also a bit of a hack.
-               // dateChanged is called twice when the default values for the datepickers are set.
-               // This leads to sorting the grid content on load, which is not what we want.
-               // Therefore the sorting is not done the first 2 times the dates change - Which are the 2 times we set the default values.
-               if (initialLoad <= 0) {
-
-                   $scope.applyDateFilter(from, to);
-               }
-               initialLoad--;
-           }, 0);
-       }
-
        $scope.clearClicked = function () {
-           $scope.gridContainer.grid.dataSource.filter([{ field: "PersonId", operator: "eq", value: personId }]);
            $scope.loadInitialDates();
+           $scope.searchClicked();
        }
+
+       $scope.searchClicked = function () {
+           var from = $scope.getStartOfDayStamp($scope.dateContainer.fromDate);
+           var to = $scope.getEndOfDayStamp($scope.dateContainer.toDate);
+           $scope.gridContainer.grid.dataSource.transport.options.read.url = getDataUrl(from, to);
+           $scope.gridContainer.grid.dataSource.read();
+       }
+
+       var getDataUrl = function (from, to) {
+           var url = "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader";
+           var filters = "&$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
+           var result = url + filters;
+           return result;
+       }
+
 
        // Contains references to kendo ui grids.
        $scope.gridContainer = {};
@@ -294,20 +299,6 @@
            /// Refreshes kendo grid datasource.
            /// </summary>
            $scope.gridContainer.grid.dataSource.read();
-       }
-
-
-       $scope.applyDateFilter = function (fromDateStamp, toDateStamp) {
-           /// <summary>
-           /// Applies date filters.
-           /// </summary>
-           /// <param name="fromDateStamp"></param>
-           /// <param name="toDateStamp"></param>
-           var newFilters = [];
-           newFilters.push({ field: "PersonId", operator: "eq", value: personId });
-           newFilters.push({ field: "DriveDateTimestamp", operator: "gte", value: fromDateStamp });
-           newFilters.push({ field: "DriveDateTimestamp", operator: "lte", value: toDateStamp });
-           $scope.gridContainer.grid.dataSource.filter(newFilters);
        }
 
        $scope.showRouteModal = function (routeId) {

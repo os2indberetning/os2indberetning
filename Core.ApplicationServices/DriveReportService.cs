@@ -110,7 +110,8 @@ namespace Core.ApplicationServices
             var createdReport = _driveReportRepository.Insert(report);
             _driveReportRepository.Save();
 
-            if (report.KilometerAllowance != KilometerAllowance.Read)
+            // If the report is calculated or from an app, then we would like to store the points.
+            if (report.KilometerAllowance != KilometerAllowance.Read || report.IsFromApp)
             {
                 for (var i = 0; i < createdReport.DriveReportPoints.Count; i++)
                 {
@@ -202,16 +203,19 @@ namespace Core.ApplicationServices
             }
         }
 
-        /// <summary>
-        /// Gets the Responsible Leader and sets it for each of the reports in repo.
-        /// </summary>
-        /// <param name="repo"></param>
-        /// <returns>DriveReports with ResponsibleLeader attached</returns>
-        public IQueryable<DriveReport> AttachResponsibleLeader(IQueryable<DriveReport> repo)
+        public IQueryable<DriveReport> AttachResponsibleLeader(IQueryable<DriveReport> repo, int offset, int number)
         {
+            var i = 0;
             var res = repo.ToList();
             foreach (var driveReport in res)
             {
+                
+                if (i < offset || i - offset >= number)
+                {
+                    i++;
+                    continue;
+                }
+                i++;
                 var responsibleLeader = GetResponsibleLeaderForReport(driveReport);
 
                 if (responsibleLeader != null)
@@ -232,6 +236,16 @@ namespace Core.ApplicationServices
             }
 
             return res.AsQueryable();
+        }
+
+        /// <summary>
+        /// Gets the Responsible Leader and sets it for each of the reports in repo.
+        /// </summary>
+        /// <param name="repo"></param>
+        /// <returns>DriveReports with ResponsibleLeader attached</returns>
+        public IQueryable<DriveReport> AttachResponsibleLeader(IQueryable<DriveReport> repo)
+        {
+            return AttachResponsibleLeader(repo, 0, repo.Count());
         }
 
         /// <summary>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -57,7 +58,7 @@ namespace EIndberetningMigration
             {
                 var cmd = new SqlCommand
                 {
-                    CommandText = @"select report.Id, Date, Purpose, report.VehicleRegistrationNr, EmploymentId, AmountToReimburse, ManualEntryRemark, IsExtraDistance, ReimburseableDistance, ApproverEmploymentId, ApprovalDate, Rate_Id, CreationDate, Approved, Rejected, Reimbursed, ReimbursementDate, CprNr, RouteDescription 
+                    CommandText = @"select report.Id, Date, Purpose, report.VehicleRegistrationNr, EmploymentId, AmountToReimburse, ManualEntryRemark, IsExtraDistance, ReimburseableDistance, ApproverEmploymentId, ApprovalDate, Rate_Id, CreationDate, Approved, Rejected, Reimbursed, ReimbursementDate, CprNr, RouteDescription, LongRouteDescription 
                                     from Koerselsindberetning.dbo.DriveReports as report
                                     LEFT JOIN Koerselsindberetning.dbo.Status as status
                                     ON report.Id = status.DriveReport_Id
@@ -96,7 +97,8 @@ namespace EIndberetningMigration
                         Reimbursed = SafeGetBool(reader, 15),
                         ReimbursementDate = SafeGetDateTime(reader, 16),
                         CPR = SafeGetString(reader, 17),
-                        RouteDescription = SafeGetString(reader ,18)
+                        RouteDescription = SafeGetString(reader ,18),
+                        LongRouteDescription = SafeGetString(reader, 19)
                     };
 
                     result.Add(currentRow);
@@ -223,7 +225,7 @@ namespace EIndberetningMigration
             {
                 str = "0" + str;
             }
-            return Convert.ToDouble(str);
+            return Convert.ToDouble(str, CultureInfo.InvariantCulture);
         }
 
         private static DateTime? SafeGetDateTime(SqlDataReader reader, int colIndex)

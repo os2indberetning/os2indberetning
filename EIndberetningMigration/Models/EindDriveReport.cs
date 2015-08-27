@@ -24,5 +24,6 @@ namespace EIndberetningMigration.Models
         public DateTime? ReimbursementDate { get; set; }
         public string CPR { get; set; }
         public string RouteDescription { get; set; }
+        public string LongRouteDescription { get; set; }
     }
 }

@@ -81,9 +81,19 @@ namespace EIndberetningMigration
                     MissingReports++; 
                     continue;
                 }
-                
-                //Fetch drive report points
-                var points = DataProvider.GetDriveReportPoints(oldReport.Id);
+
+                ICollection<DriveReportPoint> points = new List<DriveReportPoint>();
+                //Only fetch drive report points for reports where
+                //we do not have a long description. The reason is that
+                //the long description contains the entire route, where
+                //as the points only contains the route one way if it
+                //is a return trip. This way we can use the same logic on
+                //the front end where we display the route description iff
+                //there are no drive report points on the new report.
+                if (oldReport.LongRouteDescription == null)
+                {
+                    points = DataProvider.GetDriveReportPoints(oldReport.Id);
+                }
 
                 var status = ReportStatus.Pending;
                 if (oldReport.Approved)
@@ -154,7 +164,13 @@ namespace EIndberetningMigration
                     //Some reports in the old system did not have a route but saved the cities in the route description
                     //Since calculated reports does not have a comment, we save this route description in the comment
                     //this way we can fetch it if needed when displaying the users on the front page and the report does not have a route.
-                    newReport.UserComment = oldReport.RouteDescription;
+                    if (oldReport.LongRouteDescription != null)
+                    {
+                        newReport.UserComment = oldReport.LongRouteDescription;
+                    }
+                    else { 
+                        newReport.UserComment = oldReport.RouteDescription;
+                    }
                 }
 
 

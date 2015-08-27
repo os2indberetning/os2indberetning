@@ -32,9 +32,12 @@
         //    $scope.currentPerson = data;
         //});
 
-        Person.getAll({ query: "$select=Id,FullName &$filter=IsActive eq true" }).$promise.then(function(res) {
+        Person.getAll({ query: "$select=Id,FullName &$filter=IsActive eq true" }).$promise.then(function (res) {
             $scope.persons = res.value;
+            $scope.personsIsLoaded = true;
         });
+
+        $scope.personsIsLoaded = false;
 
         OrgUnit.get(function (data) {
             $scope.orgUnits = data.value;
@@ -391,6 +394,7 @@
         }
 
         $scope.createNewApprover = function () {
+            console.log($scope.persons);
             var modalInstance = $modal.open({
                 templateUrl: 'App/ApproveReports/Modals/newApproverModal.html',
                 controller: 'NewApproverModalInstanceController',

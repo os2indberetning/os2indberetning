@@ -42,7 +42,8 @@ namespace Core.ApplicationServices
             foreach (var childOrg in childOrgs)
             {
                 var org = childOrg;
-                if (!_emplRepo.AsQueryable().Any(e => e.IsLeader && e.OrgUnitId == org.Id))
+                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                if (!_emplRepo.AsQueryable().Any(e => e.IsLeader && e.OrgUnitId == org.Id && (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp)))
                 {
                     result.Add(org);
                     result.AddRange(GetChildOrgsWithoutLeader(org.Id));

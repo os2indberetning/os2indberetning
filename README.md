@@ -42,9 +42,54 @@ Hvis mobil applikationen bruges, så kører den op mod en webserver og en databa
 ## Opsætning
 
 Tilpasning og opsætning af løsning gøres igennem konfigurationsfiler som ligger i projekternes rodmapper. Herunder gennemgåes de forskellige projekter og de relevante konfigurationsfiler, hvor der skal foretages ændringer.
-Der er to konfigurationsfiler CustomSettings.config og connections.config som skal sættes op før projektet kan køre. Der ligger skeletter af de to filer i Configuration mappen i roden af projektet.
+Der er to konfigurationsfiler CustomSettings.config og connections.config som skal sættes op før projektet kan køre.
 
 #### CustomSettings.config
+
+CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuelt. Formatet er som følger og en beskrivelse af hvert felt står nedenunder:
+
+```
+<appSettings>
+  <add key="PROTECTED_SMTP_PASSWORD" value=""/>
+  <add key="PROTECTED_SMTP_HOST" value="1"/>
+  <add key="PROTECTED_SMTP_USER" value=""/>
+  <add key="PROTECTED_SMTP_HOST_PORT" value=""/>
+  <add key="PROTECTED_MAIL_FROM_ADDRESS" value=""/>
+  <add key="PROTECTED_MAIL_SUBJECT" value=""/>
+  <add key="PROTECTED_MAIL_BODY" value=""/>
+
+  <add key="PROTECTED_KMDFilePath" value=""/>
+  <add key="PROTECTED_KMDBackupFilePath" value=""/>
+  <add key="PROTECTED_KMDFileName" value=""/>
+  <add key="PROTECTED_KMDHeader" value=""/>
+  <add key="PROTECTED_KMDStaticNr" value=""/>
+  <add key="PROTECTED_CommuneNr" value=""/>
+  <add key="PROTECTED_KMDReservedNr" value=""/>
+  <add key="PROTECTED_AdministrativeCostCenterPrefix" value=""/>
+  <add key="PROTECTED_AdministrativeAccount" value=""/>
+
+  <add key="MapStartStreetName" value=""/>
+  <add key="MapStartStreetNumber" value=""/>
+  <add key="MapStartZipCode" value=""/>
+  <add key="MapStartTown" value=""/>
+
+  <add key="PROTECTED_AD_DOMAIN" value=""/>
+
+  <add key="InformationHelpLink" value=""/>
+  <add key="TableSortHelp" value=""/>
+  <add key="FourKmRuleHelpText" value=""/>
+  <add key="MobileTokenHelpText" value=""/>
+  <add key="AlternativeWorkAddressHelpText" value=""/>
+  <add key="AlternativeHomeAddressHelpText" value=""/>
+  <add key="AlternativeWorkDistanceHelpText" value=""/>
+  <add key="PrimaryLicensePlateHelpText" value=""/>
+  <add key="PersonalApproverHelpText" value=""/>
+  <add key="EmailHelpText" value=""/>
+  <add key="PurposeHelpText" value=""/>
+  <add key="ReadReportCommentHelp" value=""/>
+  <add key="PROTECTED_SEPTIMA_API_KEY" value=""/>
+</appSettings>
+```
 
 ##### Mailopsætning
 Nedenfor beskrives de oplysninger der skal indtastes til opsætning af SMTP-server.
@@ -144,6 +189,14 @@ Hjælpeteksten vises under Personlige indstillinger.
 Udfyldes med hjælpetekst der beskriver afvigende arbejdsadresse.
 Hjælpeteksten vises under Personlige indstillinger.
 
+###### AlternativeHomeAddressHelpText
+Udfyldes med hjælpetekst der beskriver afvigende hjemmeadresse.
+Hjælpeteksten vises under Personlige indstillinger.
+
+###### AlternativeWorkDistanceHelpText
+Udfyldes med hjælpetekst der beskriver afvigende afstand mellem hjemme- og arbejdsadresse.
+Hjælpeteksten vises under Personlige indstillinger.
+
 ###### PrimaryLicensePlateHelpText
 Udfyldes med hjælpetekst der beskriver primær nummerplade.
 Hjælpeteksten vises under Personlige indstillinger.
@@ -170,6 +223,19 @@ Hjælpeteksten vises under Indberet tjenestekørsel, når man har valgt aflæst 
 Udfyldes med api-nøgle til Septimas ruteberegner.
 
 #### connections.config
+connections.config ligger ikke i repositoriet og skal derfor tilføjes manuelt. Formatet er som følger og en beskrivelse af de enkelte felter findes nedenunder.
+
+```
+<connectionStrings>
+  <!-- Default connection for OS2 database  -->
+  <add name="DefaultConnection" providerName="MySql.Data.MySqlClient" connectionString="Data Source=; port=; Initial Catalog=; uid=; pwd=; CharSet=utf8; Allow User Variables=True" />
+  <!-- DBUpdaterConnection for connection to data views with Persons and OrgUnits -->
+ <add name="DBUpdaterConnection" connectionString="data source=; initial catalog=; persist security info=True;user id=; password="/>
+  <!-- DMZConnection for connection to app database in the DMZ -->
+  <add name="DMZConnection" providerName="MySql.Data.MySqlClient" connectionString="Data Source=; port=; Initial Catalog=; uid=;  pwd=; CharSet=utf8; Allow User Variables=True" />
+</connectionStrings>
+```
+
 Udfyldes med oplysninger om OS2Indberetnings databasen.
 
 ###### Data Source

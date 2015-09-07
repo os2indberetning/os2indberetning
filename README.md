@@ -51,7 +51,7 @@ CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuel
 ```
 <appSettings>
   <add key="PROTECTED_SMTP_PASSWORD" value=""/>
-  <add key="PROTECTED_SMTP_HOST" value="1"/>
+  <add key="PROTECTED_SMTP_HOST" value=""/>
   <add key="PROTECTED_SMTP_USER" value=""/>
   <add key="PROTECTED_SMTP_HOST_PORT" value=""/>
   <add key="PROTECTED_MAIL_FROM_ADDRESS" value=""/>

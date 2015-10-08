@@ -1,11 +1,21 @@
 ﻿angular.module("application").controller("PendingReportsController", [
-   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "RateType", function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, RateType) {
+   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "RateType", "OrgUnit", "Person", "Autocomplete", function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, RateType, OrgUnit, Person, Autocomplete) {
 
        // Load people for auto-complete textbox
-       $scope.people = [];
+       $scope.people = Autocomplete.activeUsers();
+       $scope.orgUnits = Autocomplete.orgUnits();
        $scope.person = {};
        $scope.orgUnit = {};
-       $scope.orgUnits = [];
+
+
+
+
+       // Contains references to kendo ui grids.
+       $scope.gridContainer = {};
+       $scope.dateContainer = {};
+
+
+
 
        $scope.tableSortHelp = $rootScope.HelpTexts.TableSortHelp.text;
 
@@ -13,8 +23,7 @@
        var personId = $rootScope.CurrentUser.Id;
        $scope.isLeader = $rootScope.CurrentUser.IsLeader;
 
-       $scope.orgUnits = $rootScope.OrgUnits;
-       $scope.people = $rootScope.People;
+
 
        $scope.orgUnitAutoCompleteOptions = {
            filter: "contains",
@@ -90,7 +99,14 @@
        }
 
        var getDataUrl = function (from, to, fullName, longDescription) {
-           var url = "/odata/DriveReports?leaderId=" + personId + "&status=Pending" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader";
+           var url = "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader";
+
+           var leaderFilter = " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id;
+
+           if ($scope.checkboxes.showSubbed) {
+               leaderFilter = " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")";
+           }
+
            var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            if (fullName != undefined && fullName != "") {
                filters += " and PersonId eq " + $scope.person.chosenId;
@@ -98,6 +114,8 @@
            if (longDescription != undefined && longDescription != "") {
                filters += " and Employment/OrgUnitId eq " + $scope.orgUnit.chosenId;
            }
+           filters += leaderFilter;
+
            var result = url + filters;
            return result;
        }
@@ -115,7 +133,9 @@
                type: "odata-v4",
                transport: {
                    read: {
-                       url: "/odata/DriveReports?leaderId=" + personId + "&status=Pending" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
+                       url: "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
+                       dataType: "json",
+                       cache: false
                    },
 
                },
@@ -125,7 +145,7 @@
                        return data.value;
                    },
                },
-               pageSize: 20,
+               pageSize: 50,
                serverPaging: true,
                serverAggregates: false,
                serverSorting: true,
@@ -294,7 +314,7 @@
                        }
 
                    },
-                   headerTemplate: "<span>Muligheder</span> <div style='margin: 0' class='col-sm-1 pull-right'><input style='margin: 0' ng-change='checkAllBoxesOnPage()' type='checkbox' ng-model='checkAllBox.isChecked'></input></div>",
+                   headerTemplate: "<div style='margin: 0' class='col-sm-1 pull-right'><input style='margin: 0' ng-change='checkAllBoxesOnPage()' type='checkbox' ng-model='checkAllBox.isChecked'></input></div><span class='pull-right'>Marker alle</span> ",
                    footerTemplate: "<div class='pull-right fill-width' kendo-toolbar k-options='approveSelectedToolbar'></div>"
                }
            ],
@@ -500,9 +520,7 @@
            $scope.gridContainer.grid.dataSource.read();
        }
 
-       // Contains references to kendo ui grids.
-       $scope.gridContainer = {};
-       $scope.dateContainer = {};
+
 
        $scope.loadInitialDates();
 
@@ -518,9 +536,6 @@
        RateType.getAll().$promise.then(function (res) {
            $scope.rateTypes = res;
        });
-
-
-
 
    }
 ]);

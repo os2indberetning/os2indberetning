@@ -16,6 +16,7 @@ using Infrastructure.AddressServices.Interfaces;
 using Infrastructure.DataAccess;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
+using Core.ApplicationServices.Interfaces;
 
 namespace DBUpdater
 {
@@ -24,6 +25,9 @@ namespace DBUpdater
         static void Main(string[] args)
         {
             var ninjectKernel = NinjectWebKernel.CreateKernel();
+
+            IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
+            
             var service = new UpdateService(ninjectKernel.Get<IGenericRepository<Employment>>(),
                 ninjectKernel.Get<IGenericRepository<OrgUnit>>(),
                 ninjectKernel.Get<IGenericRepository<Person>>(),
@@ -31,10 +35,19 @@ namespace DBUpdater
                 ninjectKernel.Get<IGenericRepository<PersonalAddress>>(),
                 ninjectKernel.Get<IAddressLaunderer>(),
                 ninjectKernel.Get<IAddressCoordinates>(), new DataProvider(),
-                ninjectKernel.Get<IMailSender>());
+                ninjectKernel.Get<IMailSender>(),
+                historyService,
+                ninjectKernel.Get<IGenericRepository<DriveReport>>(),
+                ninjectKernel.Get<IDriveReportService>(),
+                ninjectKernel.Get<ISubstituteService>(),
+                ninjectKernel.Get<IGenericRepository<Substitute>>());
 
             service.MigrateOrganisations();
             service.MigrateEmployees();
+            historyService.CreateNonExistingHistories();
+            historyService.UpdateAddressHistories();
+            historyService.CreateNonExistingHistories();
+            service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
         }
 
 

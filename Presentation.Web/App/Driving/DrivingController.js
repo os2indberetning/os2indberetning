@@ -1,11 +1,12 @@
 ﻿angular.module("application").controller("DrivingController", [
-    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal",
-    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal) {
+    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal", "$location",
+    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal, $location) {
 
 
         $scope.ReadReportCommentHelp = $rootScope.HelpTexts.ReadReportCommentHelp.text;
         $scope.PurposeHelpText = $rootScope.HelpTexts.PurposeHelpText.text;
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
+        $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
 
         // Setup functions in scope.
         $scope.Number = Number;
@@ -25,6 +26,7 @@
 
         var isEditingReport = ReportId > 0;
         $scope.container = {};
+        $scope.container.addressNotFound = false;
         $scope.isEditingReport = isEditingReport;
         var kendoPromise = $q.defer();
         var loadingPromises = [kendoPromise.promise];
@@ -36,14 +38,18 @@
         // Is true the first time the map is loaded to prevent filling the address textboxes with the mapstart addresses.
         // Is initially false when loading a report to edit.
         var firstMapLoad = true;
-        
+
 
         $scope.container.addressFieldOptions = {
             select: function () {
                 $timeout(function () {
                     $scope.addressInputChanged();
                 });
-            }
+            },
+            dataBound: function () {
+                $scope.container.addressNotFound = this.dataSource._data.length == 0;
+                $scope.$apply();
+            },
         }
 
         $scope.addressPlaceholderText = "Eller indtast adresse her";
@@ -209,7 +215,7 @@
                         $scope.DriveReport.Addresses.push(temp);
                     });
                     var res = "[";
-                    angular.forEach($scope.DriveReport.Addresses, function(addr, key) {
+                    angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
                         res += "{name: \"" + addr.Name + "\", lat: " + addr.Latitude + ", lng: " + addr.Longitude + "},";
                     });
                     res += "]";
@@ -221,7 +227,7 @@
                             $scope.addressInputChanged();
                         }
                     });
-            
+
                 }
 
                 $scope.DriveReport.IsRoundTrip = report.IsRoundTrip;
@@ -247,6 +253,7 @@
         // Load user's license plates.
         var plates = currentUser.LicensePlates.slice(0);
         if (plates.length > 0) {
+            $scope.userHasLicensePlate = true;
             angular.forEach(plates, function (value, key) {
                 if (value.Description != "") {
                     value.PresentationString = value.Plate + " - " + value.Description;
@@ -256,6 +263,7 @@
             });
             $scope.LicensePlates = plates;
         } else {
+            $scope.userHasLicensePlate = false;
             $scope.LicensePlates = [{ PresentationString: "Ingen nummerplader", Plate: "0000000" }];
         }
 
@@ -447,6 +455,7 @@
             /// </summary>
             $scope.licensePlateErrorMessage = "";
             if (getKmRate($scope.DriveReport.KmRate).Type.RequiresLicensePlate && $scope.LicensePlates[0].PresentationString == "Ingen nummerplader") {
+                $scope.openNoLicensePlateModal();
                 $scope.licensePlateErrorMessage = "* Det valgte transportmiddel kræver en nummerplade.";
                 return false;
             }
@@ -952,6 +961,22 @@
 
             modalInstance.result.then(function () {
                 $scope.clearReport();
+            });
+        }
+
+        $scope.openNoLicensePlateModal = function () {
+            /// <summary>
+            /// Opens no license plate modal.
+            /// </summary>
+            /// <param name="id"></param>
+            var modalInstance = $modal.open({
+                templateUrl: '/App/Driving/NoLicensePlateModalTemplate.html',
+                controller: 'NoLicensePlateModalController',
+                backdrop: "static",
+            });
+
+            modalInstance.result.then(function () {
+                $location.path("/settings");
             });
         }
     }

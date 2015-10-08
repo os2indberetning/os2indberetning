@@ -81,23 +81,23 @@
 
                         var currentAddress = AddressFormatter.fn(tempAddress);
 
+                        if (address.Latitude == undefined) {
+                            address.Latitude = "";
+                        }
+                        if (address.Longitude == undefined) {
+                            address.Longitude = "";
+                        }
+
                         driveReport.DriveReportPoints.push({
                             StreetName: currentAddress.StreetName,
                             StreetNumber: currentAddress.StreetNumber,
                             ZipCode: currentAddress.ZipCode,
                             Town: currentAddress.Town,
                             Description: "",
-                            Latitude: "",
-                            Longitude: ""
+                            Latitude: address.Latitude.toString(),
+                            Longitude: address.Longitude.toString()
                         });
-
                     });
-
-                    if (typeof $scope.DriveReport.RoundTrip !== "undefined" && $scope.DriveReport.RoundTrip === true) {
-                        for (var i = driveReport.DriveReportPoints.length - 2; i >= 0; --i) {
-                            driveReport.DriveReportPoints.push(driveReport.DriveReportPoints[i]);
-                        }
-                    }
 
                     // go through addresses and see which is going to be saved
                     angular.forEach($scope.DriveReport.Addresses, function (address, key) {
@@ -113,9 +113,24 @@
 
                             delete personalAddress.Id;
 
-                            personalAddress.$save();
+                            personalAddress.$save(function (res) {
+                                res.PresentationString = res.StreetName + " " + res.StreetNumber + ", " + res.ZipCode + " " + res.Town,
+                                res.address = res.StreetName + " " + res.StreetNumber + ", " + res.ZipCode + " " + res.Town
+
+                                $scope.PersonalAddresses.push(res);
+                                console.log($scope.PersonalAddresses);
+                                angular.forEach($scope.container.PersonalAddressDropDown, function (entry, innerKey) {
+                                    entry.dataSource.read();
+                                });
+                                
+                            });
+
+                            
                         }
                     });
+
+                    
+                    
                 }
 
                 if (typeof $scope.DriveReport.FourKmRule !== "undefined" && $scope.DriveReport.FourKmRule.Using === true) {
@@ -174,7 +189,6 @@
                     if (Number(driveReport.Distance) < 0) {
                         driveReport.Distance = 0;
                     }
-                   
                     driveReport.UserComment = $scope.DriveReport.UserComment;
 
                     if ($scope.DriveReport.StartOrEndedAtHome === 'Started') {
@@ -203,23 +217,23 @@
 
                         var currentAddress = AddressFormatter.fn(tempAddress);
 
+                        if (address.Latitude == undefined) {
+                            address.Latitude = "";
+                        }
+                        if (address.Longitude == undefined) {
+                            address.Longitude = "";
+                        }
+
                         driveReport.DriveReportPoints.push({
                             StreetName: currentAddress.StreetName,
                             StreetNumber: currentAddress.StreetNumber,
                             ZipCode: currentAddress.ZipCode,
                             Town: currentAddress.Town,
                             Description: "",
-                            Latitude: "",
-                            Longitude: ""
+                            Latitude: address.Latitude.toString(),
+                            Longitude: address.Longitude.toString()
                         });
-
                     });
-
-                    if (typeof $scope.DriveReport.RoundTrip !== "undefined" && $scope.DriveReport.RoundTrip === true) {
-                        for (var i = driveReport.DriveReportPoints.length - 2; i >= 0; --i) {
-                            driveReport.DriveReportPoints.push(driveReport.DriveReportPoints[i]);
-                        }
-                    }
 
                     // go through addresses and see which is going to be saved
                     angular.forEach($scope.DriveReport.Addresses, function (address, key) {

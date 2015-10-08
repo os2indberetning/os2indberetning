@@ -1,6 +1,6 @@
 ﻿angular.module("application").controller("AcceptedReportsController", [
-   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "BankAccount", "RateType",
-   function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, BankAccount, RateType) {
+   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "BankAccount", "RateType", "Autocomplete",
+   function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, BankAccount, RateType, Autocomplete) {
 
        // Set personId. The value on $rootScope is set in resolve in application.js
        var personId = $rootScope.CurrentUser.Id;
@@ -38,7 +38,7 @@
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setDate(fromDateFilter.getDate() - 30);
+       fromDateFilter.setMonth(fromDateFilter.getMonth() - 3);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -48,14 +48,11 @@
        var allReports = [];
 
        $scope.orgUnit = {};
-       $scope.orgUnits = [];
+       $scope.orgUnits = Autocomplete.orgUnits();
 
-       // Load people for auto-complete textbox
-       $scope.people = [];
+       $scope.people = Autocomplete.activeUsers();
        $scope.person = {};
 
-       $scope.orgUnits = $rootScope.OrgUnits;
-       $scope.people = $rootScope.People;
 
        $scope.showSubsChanged = function () {
            /// <summary>
@@ -84,12 +81,17 @@
        var getDataUrl = function (from, to, fullName, longDescription) {
            var url = "/odata/DriveReports?leaderId=" + personId + "&status=Accepted" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints";
            var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
+           var leaderFilter = " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id;
+           if ($scope.checkboxes.showSubbed) {
+               leaderFilter = " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")";
+           }
            if (fullName != undefined && fullName != "") {
                filters += " and PersonId eq " + $scope.person.chosenId;
            }
            if (longDescription != undefined && longDescription != "") {
                filters += " and Employment/OrgUnitId eq " + $scope.orgUnit.chosenId;
            }
+           filters += leaderFilter;
            var result = url + filters;
            return result;
        }
@@ -105,7 +107,7 @@
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?leaderId=" + personId + "&status=Accepted" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
+                       url: "/odata/DriveReports?status=Accepted &$expand=Employment($expand=OrgUnit),DriveReportPoints &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
                        dataType: "json",
                        cache: false
                    },
@@ -128,7 +130,7 @@
                        return data['@odata.count']; // <-- The total items count is the data length, there is no .Count to unpack.
                    },
                },
-               pageSize: 20,
+               pageSize: 50,
                serverPaging: true,
                serverAggregates: false,
                serverSorting: true,
@@ -322,7 +324,7 @@
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setDate(from.getDate() - 30);
+           from.setMonth(from.getMonth() - 3);
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;
        }
@@ -350,12 +352,7 @@
            });
        }
 
-       $scope.refreshGrid = function () {
-           /// <summary>
-           /// Refreshes kendo grid datasource.
-           /// </summary>
-           $scope.gridContainer.grid.dataSource.read();
-       }
+
 
        // Init
 

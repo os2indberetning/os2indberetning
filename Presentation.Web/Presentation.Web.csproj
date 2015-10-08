@@ -25,6 +25,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>bb2330ea</NuGetPackageImportStamp>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -372,6 +373,7 @@
     <Content Include="App\ApproveReports\Modals\ConfirmRejectTemplate.html" />
     <Content Include="App\ApproveReports\SettingsView.html" />
     <Content Include="App\ApproveReports\View.html" />
+    <Content Include="App\Directives\CheckIeDirective.js" />
     <Content Include="App\Directives\EnterKeypress.js" />
     <Content Include="App\Directives\RouteLoader.js" />
     <Content Include="App\Driving\ConfirmDiscardChangesController.js" />
@@ -388,6 +390,7 @@
     <Content Include="App\Services\HelpTextResource.js" />
     <Content Include="App\Services\RateTypeResource.js" />
     <Content Include="App\Services\Error\ServiceError.html" />
+    <Content Include="App\Services\AutocompleteResource.js" />
     <Content Include="App\Services\StandardAddressResource.js" />
     <Content Include="App\Services\OrgUnitResource.js" />
     <Content Include="App\Services\RouteContainerResource.js" />
@@ -1196,8 +1199,8 @@
     <Content Include="App\Directives\AwsDirective.js" />
     <Content Include="App\Driving\DrivingView.html" />
     <Content Include="App\Driving\DrivingController.js" />
-    <Content Include="App\Driving\noLicensePlateModal.html" />
-    <Content Include="App\Driving\noLicensePlateModalController.js" />
+    <Content Include="App\Driving\NoLicensePlateModalTemplate.html" />
+    <Content Include="App\Driving\NoLicensePlateModalController.js" />
     <Content Include="App\MyReports\ConfirmDeleteReportController.js" />
     <Content Include="App\MyReports\ConfirmDeleteTemplate.html" />
     <Content Include="App\MyReports\EditReportTemplate.html" />

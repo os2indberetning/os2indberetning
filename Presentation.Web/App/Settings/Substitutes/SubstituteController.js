@@ -1,6 +1,6 @@
 ﻿angular.module("application").controller("SubstituteController", [
-    "$scope", "$rootScope", "$modal", "NotificationService", "$timeout", "Person", "OrgUnit",
-    function ($scope, $rootScope, $modal, NotificationService, $timeout, Person, OrgUnit) {
+    "$scope", "$rootScope", "$modal", "NotificationService", "$timeout", "Person", "OrgUnit", "Autocomplete",
+    function ($scope, $rootScope, $modal, NotificationService, $timeout, Person, OrgUnit, Autocomplete) {
 
         $scope.container = {};
 
@@ -28,20 +28,9 @@
 
         $scope.currentPerson = $rootScope.CurrentUser;
 
-        //Person.get({ id: personId }, function (data) {
-        //    $scope.currentPerson = data;
-        //});
+        $scope.persons = Autocomplete.activeUsers();
 
-        Person.getAll({ query: "$select=Id,FullName &$filter=IsActive eq true" }).$promise.then(function (res) {
-            $scope.persons = res.value;
-            $scope.personsIsLoaded = true;
-        });
-
-        $scope.personsIsLoaded = false;
-
-        OrgUnit.get(function (data) {
-            $scope.orgUnits = data.value;
-        });
+        $scope.orgUnits = Autocomplete.orgUnits();
 
         $scope.substitutes = {
             dataSource: {
@@ -418,6 +407,7 @@
             }, function () {
 
             });
+
         };
 
         $scope.createNewSubstitute = function () {

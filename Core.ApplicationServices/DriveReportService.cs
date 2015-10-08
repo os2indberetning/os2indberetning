@@ -71,10 +71,20 @@ namespace Core.ApplicationServices
 
             if (report.KilometerAllowance != KilometerAllowance.Read)
             {
-                var pointsWithCoordinates =
-                    report.DriveReportPoints.Select((t, i) => report.DriveReportPoints.ElementAt(i))
-                        .Select(currentPoint => (DriveReportPoint) _coordinates.GetAddressCoordinates(currentPoint))
-                        .ToList();
+                var pointsWithCoordinates = new List<DriveReportPoint>();
+                foreach (var driveReportPoint in report.DriveReportPoints)
+                {
+                    if (string.IsNullOrEmpty(driveReportPoint.Latitude) || driveReportPoint.Latitude == "0" ||
+                        string.IsNullOrEmpty(driveReportPoint.Longitude) || driveReportPoint.Longitude == "0")
+                    {
+                        pointsWithCoordinates.Add(
+                            (DriveReportPoint) _coordinates.GetAddressCoordinates(driveReportPoint));
+                    }
+                    else
+                    {
+                        pointsWithCoordinates.Add(driveReportPoint);
+                    }
+                }
 
                 report.DriveReportPoints = pointsWithCoordinates;
 
@@ -108,6 +118,8 @@ namespace Core.ApplicationServices
             report.AmountToReimburse = Convert.ToDouble(report.AmountToReimburse.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
 
             var createdReport = _driveReportRepository.Insert(report);
+            createdReport.ResponsibleLeaderId = GetResponsibleLeaderForReport(report).Id;
+            createdReport.ActualLeaderId = GetActualLeaderForReport(report).Id;
             _driveReportRepository.Save();
 
             // If the report is calculated or from an app, then we would like to store the points.
@@ -203,50 +215,14 @@ namespace Core.ApplicationServices
             }
         }
 
-        public IQueryable<DriveReport> AttachResponsibleLeader(IQueryable<DriveReport> repo, int offset, int number)
-        {
-            var i = 0;
-            var res = repo.ToList();
-            foreach (var driveReport in res)
-            {
-                
-                if (i < offset || i - offset >= number)
-                {
-                    i++;
-                    continue;
-                }
-                i++;
-                var responsibleLeader = GetResponsibleLeaderForReport(driveReport);
-
-                if (responsibleLeader != null)
-                {
-                    SetResponsibleLeaderOnReport(driveReport, responsibleLeader);
-
-                }
-                else
-                {
-                    //Indicate drivereports where we could not find a leader
-                    SetResponsibleLeaderOnReport(driveReport, new Person()
-                    {
-                        FirstName = "Var ikke i stand til at finde godkendende leder",
-                        LastName = "",
-                        Initials = "FEJL"
-                    });
-                }
-            }
-
-            return res.AsQueryable();
-        }
+    
 
         /// <summary>
         /// Gets the Responsible Leader and sets it for each of the reports in repo.
         /// </summary>
         /// <param name="repo"></param>
         /// <returns>DriveReports with ResponsibleLeader attached</returns>
-        public IQueryable<DriveReport> AttachResponsibleLeader(IQueryable<DriveReport> repo)
-        {
-            return AttachResponsibleLeader(repo, 0, repo.Count());
-        }
+        
 
         /// <summary>
         /// Gets the ResponsibleLeader for driveReport
@@ -274,7 +250,7 @@ namespace Core.ApplicationServices
             //Find an org unit where the person is not the leader, and then find the leader of that org unit to attach to the drive report
             var orgUnit = _orgUnitRepository.AsQueryable().SingleOrDefault(o => o.Id == driveReport.Employment.OrgUnitId);
             var leaderOfOrgUnit =
-                _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader);
+                _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
             if (orgUnit == null)
             {
@@ -302,118 +278,78 @@ namespace Core.ApplicationServices
             }
 
             var leader = leaderOfOrgUnit.Person;
-            var sub = _substituteRepository.AsQueryable().SingleOrDefault(s => s.PersonId == leader.Id && s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp && s.PersonId.Equals(s.LeaderId));
 
-            return sub != null ? sub.Sub : leaderOfOrgUnit.Person;
-        }
-
-        /// <summary>
-        /// Sets Person as ResponsibleLeader on driveReport.
-        /// </summary>
-        /// <param name="driveReport"></param>
-        /// <param name="person"></param>
-        private void SetResponsibleLeaderOnReport(DriveReport driveReport, Person person)
-        {
-            driveReport.ResponsibleLeader = person;
-        }
-
-        /// <summary>
-        /// Filters the reports in repo by leaderId and getReportsWhereSubExists.
-        /// </summary>
-        /// <param name="repo">Reports to be filtered.</param>
-        /// <param name="leaderId">Id of leader to filter for</param>
-        /// <param name="getReportsWhereSubExists">Includes reports where a substitute exists if true</param>
-        /// <returns>Filtered list of DriveReports</returns>
-        public IQueryable<DriveReport> FilterByLeader(IQueryable<DriveReport> repo, int leaderId, bool getReportsWhereSubExists = false)
-        {
-            var result = new List<DriveReport>();
-
-            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-
-            var leaderOrgs = _employmentRepository.AsQueryable().Where(e => e.Person.Id == leaderId && e.IsLeader).Select(e => e.OrgUnit).ToList();
-
-            var subOrgs = _substituteRepository.AsQueryable().Where(sub => sub.Sub.Id.Equals(leaderId) && sub.PersonId.Equals(sub.LeaderId)).Select(s => s.OrgUnit).ToList();
-
-            leaderOrgs.AddRange(subOrgs);
-
-            // Iterate all orgs belonging to the leader or sub.
-            foreach (var org in leaderOrgs)
+            // Recursively look for substitutes in child orgs, up to the org of the actual leader.
+            // Say the actual leader is leader of orgunit 1 with children 2 and 3. Child 2 has another child 4.
+            // A report comes in for orgUnit 4. Check if leader has a substitute for that org.
+            // If not then check if leader has a substitute for org 2.
+            // If not then return the actual leader.
+            var orgToCheck = driveReport.Employment.OrgUnit;
+            Substitute sub = null;
+            var loopHasFinished = false;
+            while (!loopHasFinished)
             {
-                // Get the orgunit of the empl.
-                var orgUnitId = org.Id;
-
-                if (getReportsWhereSubExists)
+                sub = _substituteRepository.AsQueryable().SingleOrDefault(s => s.OrgUnitId == orgToCheck.Id && s.PersonId == leader.Id && s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp && s.PersonId.Equals(s.LeaderId));
+                if (sub != null)
                 {
-                    AddReportsOfOrgAndChildOrgLeaders(repo, orgUnitId, result);
+                    if(sub.Sub == null)
+                    {
+                        // This is a hack fix for a weird bug that happens, where sometimes the Sub navigation property on a Substitute is null, even though the SubId is not.
+                        sub.Sub = _employmentRepository.AsQueryable().FirstOrDefault(x => x.PersonId == sub.SubId).Person;
+                    }
+                    loopHasFinished = true;
                 }
                 else
                 {
-                    if (!(_substituteRepository.AsQueryable().Any(s => s.Person.Id == leaderId && s.StartDateTimestamp < currentTimestamp && s.EndDateTimestamp > currentTimestamp && s.OrgUnit.Id == orgUnitId)))
+                    orgToCheck = orgToCheck.Parent;
+                    if (orgToCheck == null || orgToCheck.Id == orgUnit.Parent.Id)
                     {
-                        AddReportsOfOrgAndChildOrgLeaders(repo, orgUnitId, result);
+                        loopHasFinished = true;
                     }
                 }
             }
-
-            var personalApproverFor = _substituteRepository.AsQueryable().Where(s => s.Sub.Id == leaderId && !s.PersonId.Equals(s.LeaderId)).ToList();
-            foreach (var substitute in personalApproverFor)
-            {
-                var sub = substitute;
-                result.AddRange(repo.AsQueryable().Where(report => report.PersonId.Equals(sub.PersonId)).ToList());
-            }
-            result = result.Distinct().ToList();
-
-            if (!getReportsWhereSubExists)
-            {
-                var finalResult = new List<DriveReport>();
-
-                // Remove all reports with personal approver.
-                foreach (var driveReport in result)
-                {
-                    var responsibleLeader = GetResponsibleLeaderForReport(driveReport);
-                    if (responsibleLeader.Id.Equals(leaderId))
-                    {
-                        finalResult.Add(driveReport);
-                    }
-                }
-                return finalResult.AsQueryable();
-            }
-
-            return result.AsQueryable();
+            return sub != null ? sub.Sub : leaderOfOrgUnit.Person;
         }
 
-        /// <summary>
-        /// Adds reports belonging to non leaders of the OrgUnit identified by orgUnitId and reports belonging to leaders of child orgs to driveReportList.
-        /// </summary>
-        /// <param name="repo"></param>
-        /// <param name="orgUnitId"></param>
-        /// <param name="driveReportList"></param>
-        private void AddReportsOfOrgAndChildOrgLeaders(IQueryable<DriveReport> repo, int orgUnitId, List<DriveReport> driveReportList)
+        public Person GetActualLeaderForReport(DriveReport driveReport)
         {
-            //The reports for the leaders of the child org units should also be approved
-            var childOrgs = _orgUnitRepository.AsQueryable().Where(o => o.ParentId == orgUnitId).ToList(); //to list to force a data reader to close
-            foreach (var childOrg in childOrgs)
+            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+            var person = driveReport.Person;
+
+            //Find an org unit where the person is not the leader, and then find the leader of that org unit to attach to the drive report
+            var orgUnit = _orgUnitRepository.AsQueryable().SingleOrDefault(o => o.Id == driveReport.Employment.OrgUnitId);
+            var leaderOfOrgUnit =
+                _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
+
+            if (orgUnit == null)
             {
-                var org = childOrg;
-                var childEmpls = _employmentRepository.AsQueryable().Where(e => e.IsLeader && e.OrgUnit.Id == org.Id).ToList();
-                if (!childEmpls.Any())
-                {
-                    AddReportsOfOrgAndChildOrgLeaders(repo, org.Id, driveReportList);
-                }
-                foreach (var childEmpl in childEmpls)
-                {
-                    // Get and add all reports belonging to the leader of the child org.
-                    var childLeader = childEmpl.Person;
-                    var childLeaderReports = repo.AsQueryable().Where(dr => dr.Person.Id == childLeader.Id && dr.Employment.OrgUnit.Id == org.Id);
-                    driveReportList.AddRange(childLeaderReports);
-                }
+                return null;
+            }
+
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+            while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+            {
+                leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
+                                                                                            e.StartDateTimestamp < currentTimestamp &&
+                                                                                            (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                orgUnit = orgUnit.Parent;
             }
 
 
+            if (orgUnit == null)
+            {
+                return null;
+            }
+            if (leaderOfOrgUnit == null)
+            {
+                return null;
+            }
 
-            driveReportList.AddRange(
-                repo.AsQueryable()
-                    .Where(dr => dr.Employment.OrgUnit.Id == orgUnitId && !dr.Employment.IsLeader));
+            return leaderOfOrgUnit.Person;
         }
+
+       
     }
 }

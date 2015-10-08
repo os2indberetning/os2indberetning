@@ -37,19 +37,29 @@ namespace Core.ApplicationServices
 
         public IEnumerable<OrgUnit> GetChildOrgsWithoutLeader(int parentOrgId)
         {
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             var result = new List<OrgUnit>();
             var childOrgs = _orgRepo.AsQueryable().Where(org => org.ParentId == parentOrgId).ToList(); // ToList to force close the datareader.
             foreach (var childOrg in childOrgs)
             {
                 var org = childOrg;
-                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                if (!_emplRepo.AsQueryable().Any(e => e.IsLeader && e.OrgUnitId == org.Id && (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp)))
+
+                // Add all orgs that dont have an active leader.
+                if (!_emplRepo.AsQueryable().Any(e => e.IsLeader && e.OrgUnitId == org.Id && e.StartDateTimestamp < currentTimestamp && (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp)))
                 {
                     result.Add(org);
                     result.AddRange(GetChildOrgsWithoutLeader(org.Id));
                 }
             }
             return result;
+        }
+
+        public IEnumerable<int> GetIdsOfLeadersInImmediateChildOrgs(int parentOrgId)
+        {
+           
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var immediateChildOrgsWithLeader = _emplRepo.AsQueryable().Where(e => e.IsLeader && e.OrgUnit.ParentId == parentOrgId && e.StartDateTimestamp < currentTimestamp && (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp)).Select(x => x.PersonId).ToList();
+            return immediateChildOrgsWithLeader;
         }
     }
 }

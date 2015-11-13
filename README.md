@@ -87,6 +87,7 @@ CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuel
   <add key="EmailHelpText" value=""/>
   <add key="PurposeHelpText" value=""/>
   <add key="ReadReportCommentHelp" value=""/>
+  <add key="NoLicensePlateHelpText" value=""/>
   <add key="SEPTIMA_API_KEY" value=""/>
 </appSettings>
 ```
@@ -216,6 +217,9 @@ Hjælpeteksten vises under Indberet tjenestekørsel.
 ###### ReadReportCommentHelp
 Udfyldes med hjælpetekst der beskriver kommentar til aflæst tjenestekørselsindberetning.
 Hjælpeteksten vises under Indberet tjenestekørsel, når man har valgt aflæst indberetning.
+
+###### NoLicensePlateHelpText
+Udfyles med hjælpetekst der fortæller brugeren han ingen nummerplader har. Hjælpeteksten vises under Indberet tjenestekørsel, når man ingen nummerplader har.
 
 ##### Ruteberegning
 

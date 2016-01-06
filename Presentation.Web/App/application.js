@@ -1,4 +1,4 @@
-﻿var application = angular.module("application", ["kendo.directives", "ui.router", "ui.bootstrap", "ui.bootstrap.tooltip", "ngResource", "template/modal/window.html", "template/modal/window.html", "template/modal/backdrop.html", "template/tabs/tab.html", "template/tabs/tabset.html", "angularMoment", "template/popover/popover.html", "kendo-ie-fix", 'angular-loading-bar'])
+﻿var application = angular.module("application", ["kendo.directives", "ui.router", "ui.bootstrap", "ui.bootstrap.tooltip", "ngResource", "template/modal/window.html", "template/modal/window.html", "template/modal/backdrop.html", "template/tabs/tab.html", "template/tabs/tabset.html", "angularMoment", "template/popover/popover.html", "kendo-ie-fix", 'angular-loading-bar','checkie','cgBusy'])
     .config([
         'cfpLoadingBarProvider', function (cfpLoadingBarProvider) {
             cfpLoadingBarProvider.includeSpinner = false;
@@ -67,7 +67,7 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
             templateUrl: "/App/ApproveReports/ApproveReportsView.html",
             resolve: {
                 CurrentUser: ["Person", "$location", "$rootScope", function (Person, $location, $rootScope) {
-                    if ($rootScope.CurrentUser == undefined) {
+                    if ($rootScope.CurrentUser == undefined || ($rootScope.CurrentUser.$$state != undefined && $rootScope.CurrentUser.$$state.status == 0)) {
                         return Person.GetCurrentUser().$promise.then(function (data) {
                             $rootScope.CurrentUser = data;
                             if (!data.IsLeader && !data.IsSubstitute) {
@@ -81,25 +81,6 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
                         return $rootScope.CurrentUser;
                     }
                 }],
-                OrgUnits: ["$rootScope", "OrgUnit", function ($rootScope, OrgUnit) {
-                    if ($rootScope.OrgUnits == undefined) {
-                        return OrgUnit.get({ query: "$select=Id, LongDescription, HasAccessToFourKmRule" }).$promise.then(function (res) {
-                            $rootScope.OrgUnits = res.value;
-                        });
-                    } else {
-                        return $rootScope.OrgUnits;
-                    }
-                }],
-                People: ["$rootScope", "Person", function ($rootScope, Person) {
-                    if ($rootScope.People == undefined) {
-                        return Person.getAll({ query: "$select=Id,FullName,IsActive" }).$promise.then(function (res) {
-                            $rootScope.People = res.value;
-                        });
-                    } else {
-                        return $rootScope.People;
-                    }
-                }]
-
             }
         })
         .state("settings", {
@@ -124,7 +105,8 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
             controller: "AdminMenuController",
             resolve: {
                 CurrentUser: ["Person", "$location", "$rootScope", function (Person, $location, $rootScope) {
-                    if ($rootScope.CurrentUser == undefined) {
+                    if ($rootScope.CurrentUser == undefined || ($rootScope.CurrentUser.$$state != undefined && $rootScope.CurrentUser.$$state.status == 0)) {
+
                         return Person.GetCurrentUser().$promise.then(function (data) {
                             $rootScope.CurrentUser = data;
                             if (!data.IsAdmin) {
@@ -138,27 +120,17 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
                         return $rootScope.CurrentUser;
                     }
                 }],
-                OrgUnits: ["$rootScope", "OrgUnit", function ($rootScope, OrgUnit) {
-                    if ($rootScope.OrgUnits == undefined) {
-                        return OrgUnit.get({ query: "$select=Id, LongDescription, HasAccessToFourKmRule" }).$promise.then(function (res) {
-                            $rootScope.OrgUnits = res.value;
-                        });
-                    } else {
-                        return $rootScope.OrgUnits;
-                    }
-                }],
-                People: ["$rootScope", "Person", function ($rootScope, Person) {
-                    if ($rootScope.People == undefined) {
-                        return Person.getAll({ query: "$select=Id,FullName,IsActive" }).$promise.then(function (res) {
-                            $rootScope.People = res.value;
-                        });
-                    } else {
-                        return $rootScope.People;
-                    }
-                }]
             }
         });
 }]);
+
+angular.module('application').value('cgBusyDefaults',{
+  message:'Vent venligst..',
+  backdrop: true,
+  templateUrl: 'template/loading-template.html',
+  delay: 100,
+  minDuration: 700
+});
 
 application.constant('angularMomentConfig', {
     preprocess: 'utc',

@@ -1,6 +1,6 @@
 ﻿angular.module("application").controller("SubstituteController", [
-    "$scope", "$rootScope", "$modal", "NotificationService", "$timeout", "Person", "OrgUnit",
-    function ($scope, $rootScope, $modal, NotificationService, $timeout, Person, OrgUnit) {
+    "$scope", "$rootScope", "$modal", "NotificationService", "$timeout", "Person", "OrgUnit", "Autocomplete",
+    function ($scope, $rootScope, $modal, NotificationService, $timeout, Person, OrgUnit, Autocomplete) {
 
         $scope.container = {};
 
@@ -28,20 +28,9 @@
 
         $scope.currentPerson = $rootScope.CurrentUser;
 
-        //Person.get({ id: personId }, function (data) {
-        //    $scope.currentPerson = data;
-        //});
+        $scope.persons = Autocomplete.activeUsers();
 
-        Person.getAll({ query: "$select=Id,FullName &$filter=IsActive eq true" }).$promise.then(function (res) {
-            $scope.persons = res.value;
-            $scope.personsIsLoaded = true;
-        });
-
-        $scope.personsIsLoaded = false;
-
-        OrgUnit.get(function (data) {
-            $scope.orgUnits = data.value;
-        });
+        $scope.orgUnits = Autocomplete.orgUnits();
 
         $scope.substitutes = {
             dataSource: {
@@ -52,7 +41,7 @@
                         beforeSend: function (req) {
                             req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                         },
-                        url: "odata/Substitutes/Service.Substitute?$expand=OrgUnit,Sub,Person,Leader",
+                        url: "odata/Substitutes/Service.Substitute?$expand=OrgUnit,Sub,Person,Leader,CreatedBy",
                         dataType: "json",
                         cache: false
                     },
@@ -114,7 +103,11 @@
                 title: "Organisationsenhed"
             }, {
                 field: "Leader.FullName",
-                title: "Opsat af"
+                title: "Opsat af",
+                template: function (data) {
+                    if (data.CreatedBy == undefined) return "<i>Ikke tilgængelig</i>";
+                    return data.CreatedBy.FullName;
+                }
             },
             {
                 field: "StartDateTimestamp",
@@ -176,7 +169,7 @@
                         beforeSend: function (req) {
                             req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                         },
-                        url: "odata/Substitutes/Service.Personal?$expand=OrgUnit,Sub,Leader,Person",
+                        url: "odata/Substitutes/Service.Personal?$expand=OrgUnit,Sub,Leader,Person,CreatedBy",
                         dataType: "json",
                         cache: false
                     },
@@ -230,8 +223,12 @@
                 field: "Person.FullName",
                 title: "Godkender for"
             }, {
-                field: "Leader.FullName",
+                field: "CreatedBy",
                 title: "Opsat af",
+                template: function(data) {
+                    if (data.CreatedBy == undefined) return "<i>Ikke tilgængelig</i>";
+                    return data.CreatedBy.FullName;
+                }
             }, {
                 field: "StartDateTimestamp",
                 title: "Fra",
@@ -394,7 +391,6 @@
         }
 
         $scope.createNewApprover = function () {
-            console.log($scope.persons);
             var modalInstance = $modal.open({
                 templateUrl: 'App/ApproveReports/Modals/newApproverModal.html',
                 controller: 'NewApproverModalInstanceController',
@@ -418,6 +414,7 @@
             }, function () {
 
             });
+
         };
 
         $scope.createNewSubstitute = function () {

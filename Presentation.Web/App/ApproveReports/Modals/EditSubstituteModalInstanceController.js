@@ -1,10 +1,19 @@
 ﻿angular.module('application').controller('EditSubstituteModalInstanceController',
     ["$scope", "$modalInstance", "persons", "OrgUnit", "leader", "Substitute", "Person", "NotificationService", "substituteId", function ($scope, $modalInstance, persons, OrgUnit, leader, Substitute, Person, NotificationService, substituteId) {
 
+        $scope.container = {};
 
         $scope.persons = persons;
 
+        $scope.loadingPromise = null;
+
         $scope.person = [];
+
+        $scope.autoCompleteOptions = {
+            select: function (e) {
+                $scope.person[0] = this.dataItem(e.item.index());
+            }
+        }
 
         $scope.substitute = Substitute.get({ id: substituteId }, function (data) {
             if (data.value[0].EndDateTimestamp == 9999999999) {
@@ -16,11 +25,11 @@
             });
 
             $scope.substitute = data.value[0]; // This is bad, but can't change the service
-
-
+            $scope.orgUnit = $scope.substitute.OrgUnit;
             $scope.person[0] = $scope.substitute.Sub;
             $scope.substituteFromDate = new Date($scope.substitute.StartDateTimestamp * 1000);
             $scope.substituteToDate = new Date($scope.substitute.EndDateTimestamp * 1000);
+            $scope.container.autoComplete.value($scope.substitute.Sub.FullName);
         });
 
         $scope.saveNewSubstitute = function () {
@@ -33,14 +42,17 @@
                 StartDateTimestamp: Math.floor($scope.substituteFromDate.getTime() / 1000),
                 EndDateTimestamp: Math.floor($scope.substituteToDate.getTime() / 1000),
                 SubId: $scope.person[0].Id,
-                OrgUnitId: $scope.orgUnit.Id
+                OrgUnitId: $scope.orgUnit.Id,
+                CreatedById: leader.Id
             });
 
             if ($scope.infinitePeriod) {
                 sub.EndDateTimestamp = 9999999999;
             }
 
-            sub.$patch({ id: $scope.substitute.Id }, function (data) {
+            $scope.showSpinner = true;
+            
+            $scope.loadingPromise = sub.$patch({ id: $scope.substitute.Id }, function (data) {
                 NotificationService.AutoFadeNotification("success", "", "Stedfortræder blev gemt");
                 $modalInstance.close();
             }, function () {

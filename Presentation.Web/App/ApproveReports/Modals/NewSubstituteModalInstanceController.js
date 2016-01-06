@@ -1,6 +1,8 @@
 ﻿angular.module('application').controller('NewSubstituteModalInstanceController',
-    ["$scope", "$modalInstance", "persons", "OrgUnit", "leader", "Substitute", "Person", "NotificationService", function ($scope, $modalInstance, persons, OrgUnit, leader, Substitute, Person, NotificationService) {
-       
+    ["$scope", "$modalInstance", "persons", "OrgUnit", "leader", "Substitute", "Person", "NotificationService", "Autocomplete", function ($scope, $modalInstance, persons, OrgUnit, leader, Substitute, Person, NotificationService, Autocomplete) {
+
+        $scope.loadingPromise = null;
+
         $scope.persons = persons;
         $scope.substituteFromDate = new Date();
         $scope.substituteToDate = new Date();
@@ -13,13 +15,7 @@
             filter: "contains"
         };
 
-        $scope.personsWithoutLeader = $scope.persons.slice(0); // Clone array;
-        // Remove leader from array
-        angular.forEach($scope.persons, function (value, key) {
-            if (value.Id == leader.Id) {
-                $scope.personsWithoutLeader.splice(key, 1);
-            }
-        });
+        $scope.personsWithoutLeader = Autocomplete.activeUsersWithoutLeader(leader.Id);
 
         $scope.saveNewSubstitute = function () {
             if ($scope.person == undefined) {
@@ -33,14 +29,17 @@
                 LeaderId: leader.Id,
                 SubId: $scope.person[0].Id,
                 OrgUnitId: $scope.orgUnit.Id,
-                PersonId: leader.Id
+                PersonId: leader.Id,
+                CreatedById: leader.Id
             });
 
             if ($scope.infinitePeriod) {
                 sub.EndDateTimestamp = 9999999999;
             }
 
-            sub.$post(function (data) {
+            $scope.showSpinner = true;
+
+            $scope.loadingPromise = sub.$post(function (data) {
                 NotificationService.AutoFadeNotification("success", "", "Stedfortræder blev oprettet");
                 $modalInstance.close();
             }, function () {

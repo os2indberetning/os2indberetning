@@ -1,11 +1,12 @@
 ﻿angular.module("application").controller("DrivingController", [
-    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal",
-    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal) {
+    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal", "$location",
+    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal, $location) {
 
 
         $scope.ReadReportCommentHelp = $rootScope.HelpTexts.ReadReportCommentHelp.text;
         $scope.PurposeHelpText = $rootScope.HelpTexts.PurposeHelpText.text;
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
+        $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
 
         // Setup functions in scope.
         $scope.Number = Number;
@@ -25,6 +26,7 @@
 
         var isEditingReport = ReportId > 0;
         $scope.container = {};
+        $scope.container.addressNotFound = false;
         $scope.isEditingReport = isEditingReport;
         var kendoPromise = $q.defer();
         var loadingPromises = [kendoPromise.promise];
@@ -36,18 +38,21 @@
         // Is true the first time the map is loaded to prevent filling the address textboxes with the mapstart addresses.
         // Is initially false when loading a report to edit.
         var firstMapLoad = true;
-        
+
 
         $scope.container.addressFieldOptions = {
             select: function () {
                 $timeout(function () {
                     $scope.addressInputChanged();
                 });
-            }
+            },
+            dataBound: function () {
+                $scope.container.addressNotFound = this.dataSource._data.length == 0;
+                $scope.$apply();
+            },
         }
 
         $scope.addressPlaceholderText = "Eller indtast adresse her";
-        $scope.addressDropDownPlaceholderText = "Vælg fast adresse";
         $scope.SmartAddress = SmartAdresseSource;
         $scope.IsRoute = false;
 
@@ -143,21 +148,6 @@
             });
             $scope.container.LicensePlateDropDown.trigger("change");
 
-            // Select kilometer allowance.
-            switch (report.KilometerAllowance) {
-                case "Calculated":
-                    $scope.container.KilometerAllowanceDropDown.select(0);
-                    break;
-                case "Read":
-                    $scope.container.KilometerAllowanceDropDown.select(1);
-                    break;
-                case "CalculatedWithoutExtraDistance":
-                    $scope.container.KilometerAllowanceDropDown.select(2);
-                    break;
-            }
-
-            $scope.DriveReport.KilometerAllowance = $scope.container.KilometerAllowanceDropDown._selectedValue;
-
             // Select KmRate
 
             $scope.container.KmRateDropDown.select(function (item) {
@@ -175,6 +165,22 @@
 
             // Load additional data if a report is being edited.
             if (isEditingReport) {
+
+                // Select kilometer allowance.
+                switch (report.KilometerAllowance) {
+                    case "Calculated":
+                        $scope.container.KilometerAllowanceDropDown.select(0);
+                        break;
+                    case "Read":
+                        $scope.container.KilometerAllowanceDropDown.select(1);
+                        break;
+                    case "CalculatedWithoutExtraDistance":
+                        $scope.container.KilometerAllowanceDropDown.select(2);
+                        break;
+                }
+
+                $scope.DriveReport.KilometerAllowance = $scope.container.KilometerAllowanceDropDown._selectedValue;
+
                 firstMapLoad = false;
                 $scope.DriveReport.Purpose = report.Purpose;
                 $scope.DriveReport.FourKmRule.Using = report.FourKmRule;
@@ -209,11 +215,10 @@
                         $scope.DriveReport.Addresses.push(temp);
                     });
                     var res = "[";
-                    angular.forEach($scope.DriveReport.Addresses, function(addr, key) {
+                    angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
                         res += "{name: \"" + addr.Name + "\", lat: " + addr.Latitude + ", lng: " + addr.Longitude + "},";
                     });
                     res += "]";
-                    console.log(res);
 
                     $scope.$on("kendoWidgetCreated", function (event, widget) {
                         if (widget === $scope.container.lastTextBox) {
@@ -221,7 +226,7 @@
                             $scope.addressInputChanged();
                         }
                     });
-            
+
                 }
 
                 $scope.DriveReport.IsRoundTrip = report.IsRoundTrip;
@@ -247,6 +252,7 @@
         // Load user's license plates.
         var plates = currentUser.LicensePlates.slice(0);
         if (plates.length > 0) {
+            $scope.userHasLicensePlate = true;
             angular.forEach(plates, function (value, key) {
                 if (value.Description != "") {
                     value.PresentationString = value.Plate + " - " + value.Description;
@@ -256,6 +262,7 @@
             });
             $scope.LicensePlates = plates;
         } else {
+            $scope.userHasLicensePlate = false;
             $scope.LicensePlates = [{ PresentationString: "Ingen nummerplader", Plate: "0000000" }];
         }
 
@@ -310,7 +317,6 @@
                 value.PresentationString += value.StreetName + " " + value.StreetNumber + ", " + value.ZipCode + " " + value.Town;
                 value.address = value.StreetName + " " + value.StreetNumber + ", " + value.ZipCode + " " + value.Town;
             });
-            res.unshift({ PresentationString: $scope.addressDropDownPlaceholderText });
             $scope.PersonalAddresses = res;
         }));
 
@@ -385,7 +391,7 @@
         }
 
         $scope.isAddressPersonalSet = function (address) {
-            return !(address.Personal == "" || address.Personal == $scope.addressDropDownPlaceholderText || address.Personal == undefined);
+            return !(address.Personal == undefined || address.Personal == "");
         }
 
         var validateAddressInput = function (setError) {
@@ -398,6 +404,9 @@
                 $scope.addressSelectionErrorMessage = "";
             }
             angular.forEach($scope.DriveReport.Addresses, function (address, key) {
+                if($scope.isAddressNameSet(address) && $scope.isAddressPersonalSet(address)) {
+                    address.Name = "";
+                }
                 if (!$scope.isAddressNameSet(address) && !$scope.isAddressPersonalSet(address)) {
                     res = false;
                     if (setError === true) {
@@ -447,6 +456,7 @@
             /// </summary>
             $scope.licensePlateErrorMessage = "";
             if (getKmRate($scope.DriveReport.KmRate).Type.RequiresLicensePlate && $scope.LicensePlates[0].PresentationString == "Ingen nummerplader") {
+                $scope.openNoLicensePlateModal();
                 $scope.licensePlateErrorMessage = "* Det valgte transportmiddel kræver en nummerplade.";
                 return false;
             }
@@ -492,7 +502,7 @@
             var postRequest = [];
             angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
                 // Format all addresses and add them to postRequest
-                if (!$scope.isAddressNameSet(addr) && addr.Personal != $scope.addressDropDownPlaceholderText) {
+                if (!$scope.isAddressNameSet(addr) && addr.Personal != "") {
                     var format = AddressFormatter.fn(addr.Personal);
                     postRequest.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
                 } else if ($scope.isAddressNameSet(addr)) {
@@ -545,11 +555,31 @@
                 if (angular.element('#map').length) {
                     OS2RouteMap.create({
                         id: 'map',
+                        routeToken: $rootScope.HelpTexts.SEPTIMA_API_KEY.text,
                         change: function (obj) {
+
+                            if (obj.status !== 0 && obj.status != undefined) {
+                                createMap();
+                                var modalInstance = $modal.open({
+                                    templateUrl: '/App/Services/Error/ServiceError.html',
+                                    controller: "ServiceErrorController",
+                                    backdrop: "static",
+                                    resolve: {
+                                        errorMsg: function () {
+                                            return 'OS2Indberetning kunne ikke beregne ruten. Fejlen kan skyldes, at det ikke er muligt at køre til en/eller flere af dine adresser. Prøv igen eller med en anden adresse tæt på.';
+                                        }   
+                                    }
+                                });
+                                return;
+                            }
+
                             if (firstMapLoad) {
                                 firstMapLoad = false;
                                 return;
                             }
+
+                            
+
                             isFormDirty = true;
                             $scope.currentMapAddresses = obj.Addresses;
                             $scope.latestMapDistance = obj.distance;
@@ -952,6 +982,22 @@
 
             modalInstance.result.then(function () {
                 $scope.clearReport();
+            });
+        }
+
+        $scope.openNoLicensePlateModal = function () {
+            /// <summary>
+            /// Opens no license plate modal.
+            /// </summary>
+            /// <param name="id"></param>
+            var modalInstance = $modal.open({
+                templateUrl: '/App/Driving/NoLicensePlateModalTemplate.html',
+                controller: 'NoLicensePlateModalController',
+                backdrop: "static",
+            });
+
+            modalInstance.result.then(function () {
+                $location.path("/settings");
             });
         }
     }

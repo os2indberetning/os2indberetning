@@ -9,9 +9,9 @@ using System.Web.OData;
 using System.Web.OData.Query;
 using Core.ApplicationServices;
 using Core.ApplicationServices.Interfaces;
+using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
-using log4net;
 using Ninject;
 
 namespace OS2Indberetning.Controllers
@@ -21,13 +21,14 @@ namespace OS2Indberetning.Controllers
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<Employment> _employmentRepo;
 
-        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
+        private readonly ILogger _logger;
 
-        public DriveReportsController(IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo)
+        public DriveReportsController(IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, ILogger logger)
             : base(repo, personRepo)
         {
             _driveService = driveService;
             _employmentRepo = employmentRepo;
+            _logger = logger;
         }
 
         // GET: odata/DriveReports
@@ -47,12 +48,6 @@ namespace OS2Indberetning.Controllers
         {
             var queryable = GetQueryable(queryOptions);
 
-            // leaderId == 0 means no leaderId was given.
-            if (leaderId != 0)
-            {
-                queryable = _driveService.FilterByLeader(queryable, leaderId, getReportsWhereSubExists);
-            }
-
             ReportStatus reportStatus;
             if (ReportStatus.TryParse(status, true, out reportStatus))
             {
@@ -69,25 +64,6 @@ namespace OS2Indberetning.Controllers
                     queryable = queryable.Where(dr => dr.Status == reportStatus);
                 }
 
-            }
-            if (reportStatus == ReportStatus.Pending)
-            {
-                if (queryOptions.OrderBy != null)
-                {
-                    queryable = queryOptions.OrderBy.ApplyTo(queryable);
-                }
-                var skip = queryOptions.Skip != null ? queryOptions.Skip.Value : 0;
-
-                if (queryOptions.Top != null)
-                {
-                    queryable = _driveService.AttachResponsibleLeader(queryable, skip, queryOptions.Top.Value);
-                }
-                else
-                {
-                    queryable = _driveService.AttachResponsibleLeader(queryable, skip, queryable.Count());
-                }
-                
-                
             }
             return Ok(queryable);
         }
@@ -123,9 +99,7 @@ namespace OS2Indberetning.Controllers
         /// <returns>A single DriveReport</returns>
         public IHttpActionResult GetDriveReport([FromODataUri] int key, ODataQueryOptions<DriveReport> queryOptions)
         {
-            var res = _driveService.AttachResponsibleLeader(GetQueryable(key, queryOptions));
-
-            return Ok(res);
+            return Ok(GetQueryable(key, queryOptions));
         }
 
         // PUT: odata/DriveReports(5)
@@ -176,12 +150,12 @@ namespace OS2Indberetning.Controllers
 
             var report = Repo.AsQueryable().SingleOrDefault(x => x.Id == key);
 
-            var leader = _driveService.GetResponsibleLeaderForReport(report);
-
             if (report == null)
             {
                 return NotFound();
             }
+
+            var leader = report.ResponsibleLeader;
 
             if (leader == null)
             {
@@ -206,7 +180,7 @@ namespace OS2Indberetning.Controllers
             // User should not be allowed to change a Report which has been accepted or rejected.
             if (report.Status != ReportStatus.Pending)
             {
-                Logger.Info("Forsøg på at redigere indberetning med anden status end afventende.");
+                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende.", "web");
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 

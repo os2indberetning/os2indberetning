@@ -1,15 +1,62 @@
 ﻿angular.module("application").controller("OrgUnitController", [
-    "$scope", "OrgUnit", "NotificationService", "$rootScope", function ($scope, OrgUnit, NotificationService, $rootScope) {
+    "$scope", "OrgUnit", "NotificationService", "$rootScope", "Person", "Autocomplete", function ($scope, OrgUnit, NotificationService, $rootScope, Person, Autocomplete) {
         $scope.gridContainer = {};
 
-        $scope.checkboxes = [];
-        $scope.typeAheadOrgUnits = [];
+        $scope.orgUnits = Autocomplete.orgUnits();
         $scope.orgUnit = {};
-        $scope.people = [];
+        $scope.selectedKmRule = -1;
+
+        $scope.updateSourceUrl = function() {
+            var url = "/odata/OrgUnits";
+
+            if (Object.keys($scope.orgUnit).length !== 0) {
+                url += "?$filter=contains(LongDescription," + "'" + encodeURIComponent($scope.orgUnit.chosenUnit + "')");
+                if ($scope.selectedKmRule !== -1)
+                    url += " and HasAccessToFourKmRule eq " + ($scope.selectedKmRule === 0 ? "false" : "true");
+            } else {
+                if ($scope.selectedKmRule !== -1)
+                    url += "?$filter=HasAccessToFourKmRule eq " + ($scope.selectedKmRule === 0 ? "false" : "true");
+            }
+
+
+            $scope.gridContainer.grid.dataSource.transport.options.read.url = url;
+            $scope.gridContainer.grid.dataSource.read();
+        }
 
         $scope.autoCompleteOptions = {
-            filter: "contains"
-        };
+            filter: "contains",
+            select: function (e) {
+                $scope.orgUnit.chosenId = this.dataItem(e.item.index()).Id;
+            }
+        }
+
+        
+
+        $scope.kmRuleOptions = {
+            dataSource: {
+                data: [{
+                    value: -1,
+                    text: 'Alle'
+                }, {
+                    value: 1,
+                    text: 'Bruger 4 km-reglen'
+                }, {
+                    value: 0,
+                    text: 'Bruger ikke 4 km-reglen'
+                }]
+            },
+            dataTextField: 'text',
+            dataValueField: 'value',
+            select: function(e) {
+                var value = this.dataItem(e.item).value;
+                $scope.selectedKmRule = value;
+
+                $scope.updateSourceUrl();
+            },
+            clear: function() {
+                this.dataSource.read();
+            }
+        }
 
         $scope.$on('4kmClicked', function (event, mass) {
             $scope.gridContainer.grid.dataSource.read();
@@ -87,61 +134,55 @@
                     field: "HasAccessToFourKmRule",
                     title: "Kan benytte 4 km-regel",
                     template: function (data) {
-                        var res = "<input type='checkbox' ng-model='checkboxes[" + data.Id + "]' ng-change='rowChecked(" + data.Id + ")'></input>";
-                        return res;
+                        if (data.HasAccessToFourKmRule) {
+                            return "<input type='checkbox' ng-click='rowChecked(" + data.Id + ", false)' checked></input>";
+                        } else {
+                            return "<input type='checkbox' ng-click='rowChecked(" + data.Id + ", true)'></input>";
+                        }
                     }
                 }
             ]
         };
 
-        $scope.rowChecked = function (id) {
+        $scope.rowChecked = function (id, newValue) {
             /// <summary>
             /// Is called when the user checks an orgunit in the grid.
             /// Patches HasAccessToFourKmRule on the backend.
             /// </summary>
             /// <param name="id"></param>
-            var org = "";
-            for (var i = 0; i < $scope.typeAheadOrgUnits.length; i++) {
-                if ($scope.typeAheadOrgUnits[i].Id == id) {
-                    org = $scope.typeAheadOrgUnits[i].LongDescription;
+
+            OrgUnit.patch({ id: id }, { "HasAccessToFourKmRule": newValue }).$promise.then(function () {
+                if (newValue) {
+                    NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel tilføjet.");
+                } else {
+                    NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel fjernet.");
                 }
-            }
 
-            if ($scope.checkboxes[id]) {
-                // Checkbox has been checked.
-                OrgUnit.patch({ id: id }, { "HasAccessToFourKmRule": true }).$promise.then(function () {
-                    NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel givet til " + org);
+
+                //// Reload CurrentUser to update FourKmRule in DrivingController
+                Person.GetCurrentUser().$promise.then(function (data) {
+                    $rootScope.CurrentUser = data;
                 });
-            } else if (!$scope.checkboxes[id]) {
-                // Checkbox has been unchecked.
-                OrgUnit.patch({ id: id }, { "HasAccessToFourKmRule": false }).$promise.then(function () {
-                    NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel fjernet fra " + org);
-                });
-            }
+            });
         }
-
-        angular.forEach($rootScope.OrgUnits, function (org, key) {
-            $scope.typeAheadOrgUnits.push({ Id: org.Id, LongDescription: org.LongDescription });
-            $scope.checkboxes[org.Id] = org.HasAccessToFourKmRule;
-        });
 
         $scope.orgUnitChanged = function (item) {
             /// <summary>
             /// Filters grid content
             /// </summary>
             /// <param name="item"></param>
-            var filter = [];
-            filter.push({ field: "LongDescription", operator: "startswith", value: $scope.orgUnit.chosenUnit });
-            $scope.gridContainer.grid.dataSource.filter(filter);
+            $scope.updateSourceUrl();
         }
 
         $scope.clearClicked = function () {
             /// <summary>
             /// Clears filters.
             /// </summary>
+            $scope.selectedKmRule = -1;
+            $scope.gridContainer.kmRule.select(0);
             $scope.orgUnit.chosenUnit = "";
-            $scope.gridContainer.grid.dataSource.filter({});
-
+            $scope.gridContainer.grid.dataSource.transport.options.read.url = "/odata/OrgUnits";
+            $scope.gridContainer.grid.dataSource.read();
         }
 
     }

@@ -1,5 +1,5 @@
 ﻿angular.module("application").controller("RejectedReportsController", [
-   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "RateType", function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, RateType) {
+   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "RateType", "Autocomplete","MkColumnFormatter","RouteColumnFormatter", function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, RateType, Autocomplete,MkColumnFormatter,RouteColumnFormatter) {
 
        // Set personId. The value on $rootScope is set in resolve in application.js
        var personId = $rootScope.CurrentUser.Id;
@@ -40,7 +40,7 @@
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setDate(fromDateFilter.getDate() - 30);
+       fromDateFilter.setMonth(fromDateFilter.getMonth() - 3);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -48,14 +48,12 @@
        $scope.checkboxes.showSubbed = false;
 
        $scope.orgUnit = {};
-       $scope.orgUnits = [];
+       $scope.orgUnits = Autocomplete.orgUnits();
 
-       // Load people for auto-complete textbox
-       $scope.people = [];
+       $scope.people = Autocomplete.activeUsers();
        $scope.person = {};
 
-       $scope.orgUnits = $rootScope.OrgUnits;
-       $scope.people = $rootScope.People;
+
 
        $scope.clearClicked = function () {
            /// <summary>
@@ -77,12 +75,22 @@
        var getDataUrl = function (from, to, fullName, longDescription) {
            var url = "/odata/DriveReports?leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints";
            var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
+
+           var leaderFilter = " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id;
+
+           if ($scope.checkboxes.showSubbed) {
+               leaderFilter = " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")";
+           }
+
            if (fullName != undefined && fullName != "") {
                filters += " and PersonId eq " + $scope.person.chosenId;
            }
            if (longDescription != undefined && longDescription != "") {
                filters += " and Employment/OrgUnitId eq " + $scope.orgUnit.chosenId;
            }
+
+           filters += leaderFilter;
+
            var result = url + filters;
            return result;
        }
@@ -103,8 +111,10 @@
                type: "odata-v4",
                transport: {
                    read: {
-                       url: "/odata/DriveReports?leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
-                   },
+                       url: "/odata/DriveReports?leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
+                       dataType: "json",
+                       cache: false
+                 },
                },
                schema: {
                    data: function (data) {
@@ -113,7 +123,7 @@
 
                    },
                },
-               pageSize: 20,
+               pageSize: 50,
                serverPaging: true,
                serverSorting: true,
                serverFiltering: true,
@@ -176,46 +186,7 @@
                title: "Rute",
                field: "DriveReportPoints",
                template: function (data) {
-                   var tooltipContent = "";
-                   if (data.DriveReportPoints != null && data.DriveReportPoints != undefined && data.DriveReportPoints.length > 0) {
-                       angular.forEach(data.DriveReportPoints, function (point, key) {
-                           if (key != data.DriveReportPoints.length - 1) {
-                               tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + "<br/>";
-                               gridContent += point.StreetName + "<br/>";
-                           } else {
-                               tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
-                               gridContent += point.StreetName;
-                           }
-                       });
-                   } else {
-                       tooltipContent = data.UserComment;
-                   }
-                   var gridContent = "<i class='fa fa-road fa-2x'></i>";
-                   var toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">" + gridContent + "</div>";
-                   toolTip = toolTip.replace(/\n/g, '<br>');
-                   var globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Se rute på kort'\"><a ng-click='showRouteModal(" + data.Id + ")'><i class='fa fa-globe fa-2x'></i></a></div>";
-                   if (data.IsOldMigratedReport) {
-                       globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning er overført fra eIndberetning og der kan ikke genereres en rute på et kort'\"><i class='fa fa-circle-thin fa-2x'></i></a></div>";
-                   }
-                   var roundTrip = "";
-                   if (data.IsRoundTrip) {
-                       roundTrip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'Ruten er tur/retur'\"><i class='fa fa-exchange fa-2x'></i></div>";
-                   }
-
-                   var result = toolTip + roundTrip + globe;
-                   var comment = data.UserComment != null ? data.UserComment : "Ingen kommentar angivet";
-
-                   if (data.KilometerAllowance != "Read") {
-                       return result;
-                   } else {
-                       if (data.IsFromApp) {
-                           toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">Indberettet fra mobil app</div>";
-                           result = toolTip + globe;
-                           return result;
-                       } else {
-                           return "<div kendo-tooltip k-content=\"'" + comment + "'\">Aflæst manuelt</div>";
-                       }
-                   }
+                   return RouteColumnFormatter.format(data);
                }
            }, {
                field: "Distance",
@@ -235,10 +206,7 @@
                field: "KilometerAllowance",
                title: "MK",
                template: function (data) {
-                   if (data.IsExtraDistance) {
-                       return "<i class='fa fa-check'></i>";
-                   }
-                   return "";
+                   return MkColumnFormatter.format(data);
                }
            }, {
                field: "FourKmRule",
@@ -277,7 +245,7 @@
        $scope.loadInitialDates = function () {
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setDate(from.getDate() - 30);
+           from.setMonth(from.getMonth() - 3);
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;
        }
@@ -299,9 +267,7 @@
            });
        }
 
-       $scope.refreshGrid = function () {
-           $scope.gridContainer.grid.dataSource.read();
-       }
+
 
        // Init
 
@@ -316,5 +282,9 @@
        $scope.dateOptions = {
            format: "dd/MM/yyyy",
        };
+
+       $scope.refreshGrid = function () {
+           $scope.gridContainer.grid.dataSource.read();
+       }
    }
 ]);

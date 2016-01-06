@@ -1,11 +1,21 @@
 ﻿angular.module("application").controller("PendingReportsController", [
-   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "RateType", function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, RateType) {
+   "$scope", "$modal", "$rootScope", "Report", "OrgUnit", "Person", "$timeout", "NotificationService", "RateType", "OrgUnit", "Person", "Autocomplete", "MkColumnFormatter", "RouteColumnFormatter", function ($scope, $modal, $rootScope, Report, OrgUnit, Person, $timeout, NotificationService, RateType, OrgUnit, Person, Autocomplete,MkColumnFormatter, RouteColumnFormatter) {
 
        // Load people for auto-complete textbox
-       $scope.people = [];
+       $scope.people = Autocomplete.activeUsers();
+       $scope.orgUnits = Autocomplete.orgUnits();
        $scope.person = {};
        $scope.orgUnit = {};
-       $scope.orgUnits = [];
+
+       $scope.loadingPromise = null;
+
+
+       // Contains references to kendo ui grids.
+       $scope.gridContainer = {};
+       $scope.dateContainer = {};
+
+
+
 
        $scope.tableSortHelp = $rootScope.HelpTexts.TableSortHelp.text;
 
@@ -13,8 +23,7 @@
        var personId = $rootScope.CurrentUser.Id;
        $scope.isLeader = $rootScope.CurrentUser.IsLeader;
 
-       $scope.orgUnits = $rootScope.OrgUnits;
-       $scope.people = $rootScope.People;
+
 
        $scope.orgUnitAutoCompleteOptions = {
            filter: "contains",
@@ -90,7 +99,14 @@
        }
 
        var getDataUrl = function (from, to, fullName, longDescription) {
-           var url = "/odata/DriveReports?leaderId=" + personId + "&status=Pending" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader";
+           var url = "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader";
+
+           var leaderFilter = " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id;
+
+           if ($scope.checkboxes.showSubbed) {
+               leaderFilter = " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")";
+           }
+
            var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            if (fullName != undefined && fullName != "") {
                filters += " and PersonId eq " + $scope.person.chosenId;
@@ -98,6 +114,8 @@
            if (longDescription != undefined && longDescription != "") {
                filters += " and Employment/OrgUnitId eq " + $scope.orgUnit.chosenId;
            }
+           filters += leaderFilter;
+
            var result = url + filters;
            return result;
        }
@@ -109,34 +127,35 @@
            $scope.searchClicked();
        }
 
-       $scope.reports = {
-           dataSource:
-           {
-               type: "odata-v4",
-               transport: {
-                   read: {
-                       url: "/odata/DriveReports?leaderId=" + personId + "&status=Pending" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
-                   },
+        $scope.reports = {
+            dataSource:
+            {
+                type: "odata-v4",
+                transport: {
+                    read: {
+                        url: "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
+                        dataType: "json",
+                        cache: false
+                    },
 
-               },
-               schema: {
-                   data: function (data) {
-                       allReports = data.value;
-                       return data.value;
-                   },
-               },
-               pageSize: 20,
-               serverPaging: true,
-               serverAggregates: false,
-               serverSorting: true,
-               serverFiltering: true,
-               sort: [{ field: "FullName", dir: "desc" }, { field: "DriveDateTimestamp", dir: "desc" }],
-               aggregate: [
-                   { field: "Distance", aggregate: "sum" },
-                   { field: "AmountToReimburse", aggregate: "sum" },
-               ]
-           },
-
+                },
+                schema: {
+                    data: function(data) {
+                        allReports = data.value;
+                        return data.value;
+                    },
+                },
+                pageSize: 50,
+                serverPaging: true,
+                serverAggregates: false,
+                serverSorting: true,
+                serverFiltering: true,
+                sort: [{ field: "FullName", dir: "desc" }, { field: "DriveDateTimestamp", dir: "desc" }],
+                aggregate: [
+                    { field: "Distance", aggregate: "sum" },
+                    { field: "AmountToReimburse", aggregate: "sum" },
+                ]
+            },
            sortable: { mode: "multiple" },
            resizable: true,
            pageable: {
@@ -183,7 +202,7 @@
                    title: "Dato"
                }, {
                    field: "Purpose",
-                   title: "Formål",
+                   title: "Formål"
                }, {
                    field: "TFCode",
                    title: "Taksttype",
@@ -198,46 +217,7 @@
                    title: "Rute",
                    field: "DriveReportPoints",
                    template: function (data) {
-                       var tooltipContent = "";
-                       if (data.DriveReportPoints != null && data.DriveReportPoints != undefined && data.DriveReportPoints.length > 0) {
-                           angular.forEach(data.DriveReportPoints, function (point, key) {
-                               if (key != data.DriveReportPoints.length - 1) {
-                                   tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + "<br/>";
-                                   gridContent += point.Town + "<br/>";
-                               } else {
-                                   tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
-                                   gridContent += point.Town;
-                               }
-                           });
-                       } else {
-                           tooltipContent = data.UserComment;
-                       }
-                       var gridContent = "<i class='fa fa-road fa-2x'></i>";
-                       var toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">" + gridContent + "</div>";
-                       toolTip = toolTip.replace(/\n/g, '<br>');
-                       var globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Se rute på kort'\"><a ng-click='showRouteModal(" + data.Id + ")'><i class='fa fa-globe fa-2x'></i></a></div>";
-                       if (data.IsOldMigratedReport) {
-                           globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning er overført fra eIndberetning og der kan ikke genereres en rute på et kort'\"><i class='fa fa-circle-thin fa-2x'></i></a></div>";
-                       }
-                       var roundTrip = "";
-                       if (data.IsRoundTrip) {
-                           roundTrip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'Ruten er tur/retur'\"><i class='fa fa-exchange fa-2x'></i></div>";
-                       }
-
-                       var result = toolTip + roundTrip + globe;
-                       var comment = data.UserComment != null ? data.UserComment : "Ingen kommentar angivet";
-
-                       if (data.KilometerAllowance != "Read") {
-                           return result;
-                       } else {
-                           if (data.IsFromApp) {
-                               toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">Indberettet fra mobil app</div>";
-                               result = toolTip + globe;
-                               return result;
-                           } else {
-                               return "<div kendo-tooltip k-content=\"'" + comment + "'\">Aflæst manuelt</div>";
-                           }
-                       }
+                       return RouteColumnFormatter.format(data);
                    }
                }, {
                    field: "Distance",
@@ -257,10 +237,7 @@
                    field: "KilometerAllowance",
                    title: "MK",
                    template: function (data) {
-                       if (data.IsExtraDistance) {
-                           return "<i class='fa fa-check'></i>";
-                       }
-                       return "";
+                       return MkColumnFormatter.format(data);
                    }
                }, {
                    field: "FourKmRule",
@@ -288,13 +265,13 @@
                            return "Indberetning skal godkendes af din leder eller opsat personlig godkender.";
                        }
                        if (data.ResponsibleLeader.Id == $rootScope.CurrentUser.Id) {
-                           return "<a ng-click=approveClick(" + data.Id + ")>Godkend</a> | <a ng-click=rejectClick(" + data.Id + ")>Afvis</a> <div class='col-md-1 pull-right'><input type='checkbox' ng-model='checkboxes[" + data.Id + "]' ng-change='rowChecked(" + data.Id + ")'></input></div>";
+                           return "<a ng-click=approveClick(" + data.Id + ")>Godkend</a> | <a ng-click=rejectClick(" + data.Id + ")>Afvis</a> <div class='pull-right'><input type='checkbox' ng-model='checkboxes[" + data.Id + "]' ng-change='rowChecked(" + data.Id + ")'></input></div>";
                        } else {
                            return data.ResponsibleLeader.FullName + " er udpeget som godkender.";
                        }
 
                    },
-                   headerTemplate: "<span>Muligheder</span> <div style='margin: 0' class='col-sm-1 pull-right'><input style='margin: 0' ng-change='checkAllBoxesOnPage()' type='checkbox' ng-model='checkAllBox.isChecked'></input></div>",
+                   headerTemplate: "<div class='fill-width' kendo-toolbar k-options='approveSelectedToolbar'></div><div style=\"padding-right: 1px !important;padding-left: 0;padding-top: 6px;padding-bottom:3px;\" class='pull-right inline'><input class='pull-right' style='margin: 0' ng-change='checkAllBoxesOnPage()' type='checkbox' ng-model='checkAllBox.isChecked'></input><span class='margin-right-5 pull-right'>Marker alle</span></div> ",
                    footerTemplate: "<div class='pull-right fill-width' kendo-toolbar k-options='approveSelectedToolbar'></div>"
                }
            ],
@@ -371,13 +348,13 @@
            });
 
            modalInstance.result.then(function () {
-               Report.patch({ id: id }, {
+               $scope.loadingPromise = Report.patch({ id: id }, {
                    "Status": "Accepted",
                    "ClosedDateTimestamp": moment().unix(),
                    "ApprovedById": $rootScope.CurrentUser.Id,
                }, function () {
                    $scope.gridContainer.grid.dataSource.read();
-               });
+               }).$promise;
            });
        }
 
@@ -402,14 +379,14 @@
 
                modalInstance.result.then(function (accountNumber) {
                    angular.forEach(checkedReports, function (value, key) {
-                       Report.patch({ id: value }, {
+                       $scope.loadingPromise = Report.patch({ id: value }, {
                            "Status": "Accepted",
                            "ClosedDateTimestamp": moment().unix(),
                            "AccountNumber": accountNumber,
                            "ApprovedById": $rootScope.CurrentUser.Id,
                        }, function () {
                            $scope.gridContainer.grid.dataSource.read();
-                       });
+                       }).$promise;
                    });
                    checkedReports = [];
                });
@@ -437,13 +414,13 @@
 
                modalInstance.result.then(function () {
                    angular.forEach(checkedReports, function (value, key) {
-                       Report.patch({ id: value }, {
+                       $scope.loadingPromise = Report.patch({ id: value }, {
                            "Status": "Accepted",
                            "ClosedDateTimestamp": moment().unix(),
                            "ApprovedById": $rootScope.CurrentUser.Id,
                        }, function () {
                            $scope.gridContainer.grid.dataSource.read();
-                       });
+                       }).$promise;
                    });
                    checkedReports = [];
                });
@@ -484,7 +461,7 @@
            });
 
            modalInstance.result.then(function (res) {
-               Report.patch({ id: id }, {
+               $scope.loadingPromise = Report.patch({ id: id }, {
                    "Status": "Rejected",
                    "ClosedDateTimestamp": moment().unix(),
                    "Comment": res.Comment,
@@ -492,7 +469,7 @@
                }, function () {
                    $scope.gridContainer.grid.dataSource.read();
 
-               });
+               }).$promise;
            });
        }
 
@@ -500,9 +477,7 @@
            $scope.gridContainer.grid.dataSource.read();
        }
 
-       // Contains references to kendo ui grids.
-       $scope.gridContainer = {};
-       $scope.dateContainer = {};
+
 
        $scope.loadInitialDates();
 
@@ -518,9 +493,6 @@
        RateType.getAll().$promise.then(function (res) {
            $scope.rateTypes = res;
        });
-
-
-
 
    }
 ]);

@@ -2,7 +2,7 @@
     ["$scope", "$modalInstance", "persons", "orgUnits", "leader", "Substitute", "Person", "NotificationService", "substituteId",
         function ($scope, $modalInstance, persons, orgUnits, leader, Substitute, Person, NotificationService, substituteId) {
 
-        
+        $scope.loadingPromise = null;
 
         $scope.persons = persons;
         $scope.orgUnits = orgUnits;
@@ -29,7 +29,9 @@
 
             var sub = new Substitute();
 
-            sub.$delete({ id: $scope.substitute.Id }, function (data) {
+            $scope.showSpinner = true;
+
+            $scope.loadingPromise = sub.$delete({ id: $scope.substitute.Id }, function (data) {
                 NotificationService.AutoFadeNotification("success", "", "Personlig godkender er blevet slettet");
                 $modalInstance.close();
             }, function () {

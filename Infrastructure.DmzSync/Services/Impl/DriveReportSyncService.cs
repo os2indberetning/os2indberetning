@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.ApplicationServices;
 using Core.ApplicationServices.Interfaces;
+using Core.ApplicationServices.Logger;
 using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
@@ -29,8 +30,10 @@ namespace Infrastructure.DmzSync.Services.Impl
         private readonly IDriveReportService _driveService;
         private readonly IRoute<RouteInformation> _routeService;
         private readonly IAddressCoordinates _coordinates;
+        private readonly IGenericRepository<Core.DomainModel.Employment> _emplRepo;
+        private readonly ILogger _logger;
 
-        public DriveReportSyncService(IGenericRepository<Core.DmzModel.DriveReport> dmzDriveReportRepo, IGenericRepository<Core.DomainModel.DriveReport> masterDriveReportRepo, IGenericRepository<Core.DomainModel.Rate> rateRepo, IGenericRepository<LicensePlate> licensePlateRepo, IDriveReportService driveService, IRoute<RouteInformation> routeService, IAddressCoordinates coordinates)
+        public DriveReportSyncService(IGenericRepository<Core.DmzModel.DriveReport> dmzDriveReportRepo, IGenericRepository<Core.DomainModel.DriveReport> masterDriveReportRepo, IGenericRepository<Core.DomainModel.Rate> rateRepo, IGenericRepository<LicensePlate> licensePlateRepo, IDriveReportService driveService, IRoute<RouteInformation> routeService, IAddressCoordinates coordinates, IGenericRepository<Core.DomainModel.Employment> emplRepo, ILogger logger)
         {
             _dmzDriveReportRepo = dmzDriveReportRepo;
             _masterDriveReportRepo = masterDriveReportRepo;
@@ -39,6 +42,8 @@ namespace Infrastructure.DmzSync.Services.Impl
             _driveService = driveService;
             _routeService = routeService;
             _coordinates = coordinates;
+            _emplRepo = emplRepo;
+            _logger = logger;
         }
 
         /// <summary>
@@ -51,6 +56,7 @@ namespace Infrastructure.DmzSync.Services.Impl
 
             for (var i = 0; i < max; i++)
             {
+                var coordinatesFailed = false;
                 var dmzReport = reports[i];
                 dmzReport.Profile = Encryptor.DecryptProfile(dmzReport.Profile);
                 Console.WriteLine("Syncing report " + i + " of " + max + " from DMZ.");
@@ -59,6 +65,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                 var viaPoints = new List<DriveReportPoint>();
                 for (var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
                 {
+
                     var gpsCoord = dmzReport.Route.GPSCoordinates.ToArray()[j];
                     gpsCoord = Encryptor.DecryptGPSCoordinate(gpsCoord);
 
@@ -68,24 +75,38 @@ namespace Infrastructure.DmzSync.Services.Impl
                         Longitude = gpsCoord.Longitude,
                     });
 
-                    if (gpsCoord.IsViaPoint)
+                    if (gpsCoord.IsViaPoint || j == 0 || j == dmzReport.Route.GPSCoordinates.Count - 1)
                     {
-                        var address = _coordinates.GetAddressFromCoordinates(new Address
+                        try
                         {
-                            Latitude = gpsCoord.Latitude,
-                            Longitude = gpsCoord.Longitude
-                        });
+                            var address = _coordinates.GetAddressFromCoordinates(new Address
+                            {
+                                Latitude = gpsCoord.Latitude,
+                                Longitude = gpsCoord.Longitude
+                            });
 
-                        viaPoints.Add(new DriveReportPoint()
+                            viaPoints.Add(new DriveReportPoint()
+                            {
+                                Latitude = gpsCoord.Latitude,
+                                Longitude = gpsCoord.Longitude,
+                                StreetName = address.StreetName,
+                                StreetNumber = address.StreetNumber,
+                                ZipCode = address.ZipCode,
+                                Town = address.Town,
+                            });
+                        }
+                        catch (AddressCoordinatesException e)
                         {
-                            Latitude = gpsCoord.Latitude,
-                            Longitude = gpsCoord.Longitude,
-                            StreetName = address.StreetName,
-                            StreetNumber = address.StreetNumber,
-                            ZipCode = address.ZipCode,
-                            Town = address.Town,
-                        });
+                            coordinatesFailed = true;
+                            _logger.Log("Report belonging to " + dmzReport.Profile.FullName + " with purpose \"" + dmzReport.Purpose + "\" had invalid coordinates and was not synced.", "dmz");
+                            break;
+                        }
                     }
+                }
+
+                if (coordinatesFailed)
+                {
+                    continue;
                 }
 
                 var licensePlate = _licensePlateRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(dmzReport.ProfileId) && x.IsPrimary);

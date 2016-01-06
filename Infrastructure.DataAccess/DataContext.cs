@@ -34,8 +34,9 @@ namespace Infrastructure.DataAccess
         public IDbSet<Substitute> Substitutes { get; set; }
         public IDbSet<BankAccount> BankAccounts { get; set; } 
         public IDbSet<RateType> RateTypes { get; set; }
-        public IDbSet<CachedAddress> CachedAddresses { get; set; } 
-        
+        public IDbSet<CachedAddress> CachedAddresses { get; set; }
+        public IDbSet<AddressHistory> AddressHistory { get; set; }
+        public IDbSet<TempAddressHistory> TempAddressHistory { get; set; }
   
 
         /**
@@ -66,6 +67,7 @@ namespace Infrastructure.DataAccess
             ConfigurePropertiesForBankAccount(modelBuilder);
             ConfigurePropertiesForRateType(modelBuilder);
             ConfigurePropertiesForCachedAddress(modelBuilder);
+            ConfigurePropertiesForWorkAddress(modelBuilder);
         }
 
         private void ConfigurePropertiesForPerson(DbModelBuilder modelBuilder)
@@ -94,6 +96,11 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<Address>().Property(p => p.Town).IsRequired();
             modelBuilder.Entity<Address>().Property(p => p.Longitude).IsRequired();
             modelBuilder.Entity<Address>().Property(p => p.Latitude).IsRequired();      
+        }
+
+        private void ConfigurePropertiesForWorkAddress(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<WorkAddress>().Ignore(p => p.OrgUnitId);
         }
 
         private void ConfigurePropertiesForRateType(DbModelBuilder modelBuilder)
@@ -191,7 +198,6 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<Report>().Property(p => p.Comment).IsRequired();
             modelBuilder.Entity<Report>().HasRequired(p => p.Person);
             modelBuilder.Entity<Report>().HasRequired(p => p.Employment);
-            modelBuilder.Entity<Report>().Ignore(p => p.ResponsibleLeader);
         }
 
         private void ConfigurePropertiesForEmployment(DbModelBuilder modelBuilder)

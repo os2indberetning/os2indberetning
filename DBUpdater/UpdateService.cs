@@ -16,6 +16,7 @@ using Infrastructure.AddressServices.Interfaces;
 using MoreLinq;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
+using Core.ApplicationServices.Interfaces;
 
 namespace DBUpdater
 {
@@ -26,12 +27,30 @@ namespace DBUpdater
         private readonly IGenericRepository<Person> _personRepo;
         private readonly IGenericRepository<CachedAddress> _cachedRepo;
         private readonly IGenericRepository<PersonalAddress> _personalAddressRepo;
+        private readonly IGenericRepository<Substitute> _subRepo;
         private readonly IAddressLaunderer _actualLaunderer;
         private readonly IAddressCoordinates _coordinates;
         private readonly IDbUpdaterDataProvider _dataProvider;
         private readonly IMailSender _mailSender;
+        private readonly IAddressHistoryService _historyService;
+        private readonly IGenericRepository<DriveReport> _reportRepo;
+        private readonly IDriveReportService _driveService;
+        private readonly ISubstituteService _subService;
 
-        public UpdateService(IGenericRepository<Employment> emplRepo, IGenericRepository<OrgUnit> orgRepo, IGenericRepository<Person> personRepo, IGenericRepository<CachedAddress> cachedRepo, IGenericRepository<PersonalAddress> personalAddressRepo, IAddressLaunderer actualLaunderer, IAddressCoordinates coordinates, IDbUpdaterDataProvider dataProvider, IMailSender mailSender)
+        public UpdateService(IGenericRepository<Employment> emplRepo,
+            IGenericRepository<OrgUnit> orgRepo,
+            IGenericRepository<Person> personRepo,
+            IGenericRepository<CachedAddress> cachedRepo,
+            IGenericRepository<PersonalAddress> personalAddressRepo,
+            IAddressLaunderer actualLaunderer,
+            IAddressCoordinates coordinates,
+            IDbUpdaterDataProvider dataProvider,
+            IMailSender mailSender,
+            IAddressHistoryService historyService,
+            IGenericRepository<DriveReport> reportRepo,
+            IDriveReportService driveService,
+            ISubstituteService subService,
+            IGenericRepository<Substitute> subRepo)
         {
             _emplRepo = emplRepo;
             _orgRepo = orgRepo;
@@ -42,6 +61,12 @@ namespace DBUpdater
             _coordinates = coordinates;
             _dataProvider = dataProvider;
             _mailSender = mailSender;
+            _historyService = historyService;
+            _reportRepo = reportRepo;
+            _driveService = driveService;
+            _subService = subService;
+            _subRepo = subRepo;
+            _driveService = driveService;
         }
 
         /// <summary>
@@ -92,20 +117,20 @@ namespace DBUpdater
                 if (orgToInsert == null)
                 {
                     orgToInsert = _orgRepo.Insert(new OrgUnit());
+                    orgToInsert.HasAccessToFourKmRule = false;
                 }
 
                 orgToInsert.Level = org.Level;
                 orgToInsert.LongDescription = org.Navn;
                 orgToInsert.ShortDescription = org.KortNavn;
-                orgToInsert.HasAccessToFourKmRule = false;
                 orgToInsert.OrgId = org.LOSOrgId;
 
-                orgToInsert.Address = workAddress;
-
-                if (workAddress.Id != 0)
+                var addressChanged = false;
+               
+                if(workAddress != orgToInsert.Address)
                 {
-                    orgToInsert.Address = null;
-                    orgToInsert.AddressId = workAddress.Id;
+                    addressChanged = true;
+                    orgToInsert.Address = workAddress;
                 }
 
 
@@ -115,6 +140,12 @@ namespace DBUpdater
                     orgToInsert.ParentId = _orgRepo.AsQueryable().Single(x => x.OrgId == org.ParentLosOrgId).Id;
                 }
                 _orgRepo.Save();
+
+                if (addressChanged)
+                {
+                    workAddress.OrgUnitId = orgToInsert.Id;
+                }
+            
             }
 
             Console.WriteLine("Done migrating organisations.");
@@ -218,7 +249,7 @@ namespace DBUpdater
             var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
             if (dirtyAddressCount > 0)
             {
-                foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin))
+                foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
                 {
                     _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
                 }
@@ -322,6 +353,7 @@ namespace DBUpdater
                 Town = addressToLaunder.Town,
                 Latitude = addressToLaunder.Latitude ?? "",
                 Longitude = addressToLaunder.Longitude ?? "",
+                Description = addressToLaunder.Description
             };
 
             var homeAddr = _personalAddressRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(personId) &&
@@ -333,12 +365,21 @@ namespace DBUpdater
             }
             else
             {
-                homeAddr.StreetName = launderedAddress.StreetName;
-                homeAddr.StreetNumber = launderedAddress.StreetNumber;
-                homeAddr.ZipCode = launderedAddress.ZipCode;
-                homeAddr.Town = addressToLaunder.Town;
-                homeAddr.Latitude = addressToLaunder.Latitude ?? "";
-                homeAddr.Longitude = addressToLaunder.Longitude ?? "";
+                if (homeAddr != launderedAddress)
+                {
+                    // Address has changed
+                    // Change type of current (The one about to be changed) home address to OldHome.
+                    // Is done in loop because there was an error that created one or more home addresses for the same person.
+                    // This will make sure all home addresses are set to old if more than one exists.
+                    foreach (var addr in _personalAddressRepo.AsQueryable().Where(x => x.PersonId.Equals(personId) && x.Type == PersonalAddressType.Home).ToList())
+                    {
+                        addr.Type = PersonalAddressType.OldHome;;
+                    }
+                    
+                    // Update actual current home address.
+                    _personalAddressRepo.Insert(launderedAddress);
+                    _personalAddressRepo.Save();
+                }
             }
         }
 
@@ -382,12 +423,94 @@ namespace DBUpdater
 
             var existingOrg = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgId.Equals(org.LOSOrgId));
 
-            if (existingOrg != null)
+            // If the address hasn't changed then set the Id to be the same as the existing one.
+            // That way a new address won't be created in the database.
+            // If the address is not the same as the existing one,
+            // Then the Id will be 0, and a new address will be created in the database.
+            if (existingOrg != null
+                && existingOrg.Address != null
+                && existingOrg.Address.StreetName == launderedAddress.StreetName
+                && existingOrg.Address.StreetNumber == launderedAddress.StreetNumber
+                && existingOrg.Address.ZipCode == launderedAddress.ZipCode
+                && existingOrg.Address.Town == launderedAddress.Town
+                && existingOrg.Address.Latitude == launderedAddress.Latitude
+                && existingOrg.Address.Longitude == launderedAddress.Longitude
+                && existingOrg.Address.Description == launderedAddress.Description)
             {
                 launderedAddress.Id = existingOrg.AddressId;
+            }
+            else
+            {
+                var a = 2;
             }
 
             return launderedAddress;
         }
+
+        public void UpdateLeadersOnAllReports()
+        {
+            var i = 0;
+
+            var reports = _reportRepo.AsQueryable().Where(x => x.Employment.OrgUnit.Level > 1).ToList();
+            var max = reports.Count();
+            foreach (var report in reports)
+            {
+                if (i % 100 == 0)
+                {
+                    Console.WriteLine("Updating leaders on report " + i + " of " + max);
+                }
+                i++;
+                report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
+                if (i % 1000 == 0)
+                {
+                    Console.WriteLine("Saving to database");
+                    _reportRepo.Save();
+                }
+            }
+            Console.WriteLine("Saving to database");
+            _reportRepo.Save();
+        }
+
+        /// <summary>
+        /// Updates ResponsibleLeader on all reports that had a substitute which expired yesterday or became active today.
+        /// </summary>
+        public void UpdateLeadersOnExpiredOrActivatedSubstitutes()
+        {
+            var yesterdayTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+            var endOfDayStamp = _subService.GetEndOfDayTimestamp(yesterdayTimestamp);
+            var startOfDayStamp = _subService.GetStartOfDayTimestamp(currentTimestamp);
+
+            var affectedSubstitutes = _subRepo.AsQueryable().Where(s => (s.EndDateTimestamp == endOfDayStamp) || (s.StartDateTimestamp == startOfDayStamp)).ToList();
+            Console.WriteLine(affectedSubstitutes.Count() + " substitutes have expired or become active. Updating affected reports.");
+            foreach(var sub in affectedSubstitutes)
+            {
+                _subService.UpdateReportsAffectedBySubstitute(sub);
+            } 
+        }
+
+        public void AddLeadersToReportsThatHaveNone()
+        {
+            // Fail-safe as some reports for unknown reasons have not had a leader attached
+            Console.WriteLine("Adding leaders to reports that have none");
+            var i = 0;
+            var reports = _reportRepo.AsQueryable().Where(r => r.ResponsibleLeader == null || r.ActualLeader == null).ToList();
+            foreach (var report in reports)
+            {
+                i++;
+                Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
+                report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
+                if (i % 100 == 0)
+                {
+                    Console.WriteLine("Saving to database");
+                    _reportRepo.Save();
+                }
+            }
+            _reportRepo.Save();
+        }
+
     }
 }

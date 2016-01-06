@@ -10,7 +10,6 @@ using Core.ApplicationServices;
 using Core.DomainModel;
 using Core.DomainServices;
 using Infrastructure.AddressServices.Interfaces;
-using log4net;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 
@@ -26,8 +25,6 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<CachedAddress> _cachedAddressRepo;
         private readonly IGenericRepository<PersonalAddress> _personalAddressRepo;
         private static Address MapStartAddress { get; set; }
-
-        private static readonly ILog Logger = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         //GET: odata/Addresses
         public AddressesController(IGenericRepository<Address> repository, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IAddressLaunderer launderer, IAddressCoordinates coordinates, IGenericRepository<CachedAddress> cachedAddressRepo, IGenericRepository<PersonalAddress> personalAddressRepo)
@@ -164,11 +161,11 @@ namespace OS2Indberetning.Controllers
             // Select all standard addresses.
             var addresses = rep.Where(elem => !(elem is DriveReportPoint || elem is Point || elem is CachedAddress || elem is WorkAddress || elem is PersonalAddress)).ToList();
             // Add personal addresses to addresses.
-            addresses.AddRange(_personalAddressRepo.AsQueryable().Where(elem => (elem.PersonId.Equals(personId))));
+            addresses.AddRange(_personalAddressRepo.AsQueryable().Where(elem => (elem.PersonId.Equals(personId)) && elem.Type != PersonalAddressType.OldHome));
 
 
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId.Equals(personId) 
+            var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId.Equals(personId)
                                                                             && x.StartDateTimestamp < currentTimestamp 
                                                                             && (x.EndDateTimestamp > currentTimestamp ||x.EndDateTimestamp == 0))
                                                                   .ToList();

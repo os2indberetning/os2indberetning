@@ -1,5 +1,5 @@
 angular.module("application").controller("MyAcceptedReportsController", [
-   "$scope", "$modal", "$rootScope", "Report", "$timeout", "RateType", function ($scope, $modal, $rootScope, Report, $timeout, RateType) {
+   "$scope", "$modal", "$rootScope", "Report", "$timeout", "RateType","MkColumnFormatter", "RouteColumnFormatter", function ($scope, $modal, $rootScope, Report, $timeout, RateType,MkColumnFormatter, RouteColumnFormatter) {
 
        // Set personId. The value on $rootScope is set in resolve in application.js
        var personId = $rootScope.CurrentUser.Id;
@@ -18,7 +18,7 @@ angular.module("application").controller("MyAcceptedReportsController", [
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setDate(fromDateFilter.getDate() - 30);
+       fromDateFilter.setMonth(fromDateFilter.getMonth() - 3);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -124,47 +124,7 @@ angular.module("application").controller("MyAcceptedReportsController", [
                   title: "Rute",
                   field: "DriveReportPoints",
                   template: function (data) {
-                      var tooltipContent = "";
-                      if (data.DriveReportPoints != null && data.DriveReportPoints != undefined && data.DriveReportPoints.length > 0) {
-                          angular.forEach(data.DriveReportPoints, function (point, key) {
-                              if (key != data.DriveReportPoints.length - 1) {
-                                  tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + "<br/>";
-                                  gridContent += point.Town + "<br/>";
-                              } else {
-                                  tooltipContent += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
-                                  gridContent += point.Town;
-                              }
-                          });
-                      } else {
-                          tooltipContent = data.UserComment;
-                      }
-                      var gridContent = "<i class='fa fa-road fa-2x'></i>";
-                      var toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">" + gridContent + "</div>";
-                      toolTip = toolTip.replace(/\n/g, '<br>');
-                      var globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Se rute på kort'\"><a ng-click='showRouteModal(" + data.Id + ")'><i class='fa fa-globe fa-2x'></i></a></div>";
-                      if (data.IsOldMigratedReport) {
-                          globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning er overført fra eIndberetning og der kan ikke genereres en rute på et kort'\"><i class='fa fa-circle-thin fa-2x'></i></a></div>";
-                      }
-
-                      var roundTrip = "";
-                      if (data.IsRoundTrip) {
-                          roundTrip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'Ruten er tur/retur'\"><i class='fa fa-exchange fa-2x'></i></div>";
-                      }
-
-                      var result = toolTip + roundTrip + globe;
-                      var comment = data.UserComment != null ? data.UserComment : "Ingen kommentar angivet";
-
-                      if (data.KilometerAllowance != "Read") {
-                          return result;
-                      } else {
-                          if (data.IsFromApp) {
-                              toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + tooltipContent + "'\">Indberettet fra mobil app</div>";
-                              result = toolTip + globe;
-                              return result;
-                          } else {
-                              return "<div kendo-tooltip k-content=\"'" + comment + "'\">Aflæst manuelt</div>";
-                          }
-                      }
+                      return RouteColumnFormatter.format(data);
                   }
               }, {
                   field: "Distance",
@@ -181,7 +141,13 @@ angular.module("application").controller("MyAcceptedReportsController", [
                   },
                   footerTemplate: "Total: #= kendo.toString(sum, '0.00').replace('.',',') # kr."
               }, {
-                  field: "CreationDate",
+                  field: "KilometerAllowance",
+                  title: "MK",
+                  template: function (data) {
+                    return MkColumnFormatter.format(data);
+                  }
+              }, {
+                  field: "CreatedDateTimestamp",
                   template: function (data) {
                       var m = moment.unix(data.CreatedDateTimestamp);
                       return m._d.getDate() + "/" +
@@ -243,7 +209,7 @@ angular.module("application").controller("MyAcceptedReportsController", [
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setDate(from.getDate() - 30);
+           from.setMonth(from.getMonth() - 3);
 
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;

@@ -1,8 +1,10 @@
 ﻿angular.module('application').controller('AdminNewSubstituteModalInstanceController',
-    ["$scope", "$modalInstance", "OrgUnit", "leader", "Substitute", "Person", "NotificationService", "$timeout", "persons",
-        function ($scope, $modalInstance, OrgUnit, leader, Substitute, Person, NotificationService, $timeout, persons) {
+    ["$scope", "$modalInstance", "OrgUnit", "leader", "Substitute", "Person", "NotificationService", "$timeout", "persons", "Autocomplete", "leader",
+        function ($scope, $modalInstance, OrgUnit, leader, Substitute, Person, NotificationService, $timeout, persons, Autocomplete, leader) {
 
             $scope.persons = persons;
+
+            $scope.loadingPromise = null;
 
             var infinitePeriod = 9999999999;
 
@@ -10,28 +12,44 @@
                 filter: "contains"
             };
 
-            Person.GetLeaders().$promise.then(function (res) {
-                $scope.leaders = res;
-            });
+
+            $scope.leaders = Autocomplete.leaders();
+
 
             $scope.substituteFromDate = new Date();
             $scope.substituteToDate = new Date();
-            $scope.orgUnitsDisabled = true;
-            $scope.orgUnits = [];
+            $scope.orgUnits = Autocomplete.orgUnitsThatHaveALeader();
 
+            $scope.clearSelections = function() {
+                $scope.personFor = [];
+                $scope.personForString = "";
+                $scope.orgUnits = Autocomplete.orgUnitsThatHaveALeader();
+                $scope.orgUnit = {LongDescription: "Nope", Id: ""}
+            }
+
+            $scope.orgUnitOptions = {
+                filter: "contains",
+                select: function (item) {
+                    $timeout(function () {
+                        OrgUnit.getLeaderOfOrg({ id: $scope.orgUnit.Id }, function (res) {
+                            $scope.personForString = res.FullName;
+                            $scope.personFor = [];
+                            $scope.personFor.push(res);
+                        });
+                    }, 0);
+
+                }
+            }
 
 
             $scope.personForOptions = {
                 filter: "contains",
                 select: function (item) {
-                    $scope.orgUnitsDisabled = true;
-                    $scope.orgUnit = undefined;
                     $timeout(function () {
                         OrgUnit.getWhereUserIsLeader({ id: $scope.personFor[0].Id }, function (res) {
                             $scope.orgUnits = res;
                             if ($scope.orgUnits.length > 0) {
                                 $scope.orgUnit = $scope.orgUnits[0];
-                                $scope.orgUnitsDisabled = false;
                             }
                         });
                     }, 0);
@@ -40,6 +58,7 @@
             }
 
             $scope.saveNewSubstitute = function () {
+
                 /// <summary>
                 /// Post new substitute to backend if fields are filled correctly.
                 /// </summary>
@@ -65,14 +84,17 @@
                     LeaderId: $scope.personFor[0].Id,
                     SubId: $scope.person[0].Id,
                     OrgUnitId: $scope.orgUnit.Id,
-                    PersonId: $scope.personFor[0].Id
+                    PersonId: $scope.personFor[0].Id,
+                    CreatedById: leader.Id
                 });
 
                 if ($scope.infinitePeriod) {
                     sub.EndDateTimestamp = infinitePeriod;
                 }
 
-                sub.$post(function (data) {
+                $scope.showSpinner = true;
+
+                $scope.loadingPromise = sub.$post(function (data) {
                     NotificationService.AutoFadeNotification("success", "", "Stedfortræder blev oprettet");
                     $modalInstance.close();
                 }, function () {

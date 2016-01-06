@@ -25,6 +25,7 @@
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>bb2330ea</NuGetPackageImportStamp>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -52,10 +53,6 @@
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.0.2\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
-    </Reference>
-    <Reference Include="log4net, Version=1.2.13.0, Culture=neutral, PublicKeyToken=669e0ddf0bb1aa2a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Data.Edm, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -372,6 +369,7 @@
     <Content Include="App\ApproveReports\Modals\ConfirmRejectTemplate.html" />
     <Content Include="App\ApproveReports\SettingsView.html" />
     <Content Include="App\ApproveReports\View.html" />
+    <Content Include="App\Directives\CheckIeDirective.js" />
     <Content Include="App\Directives\EnterKeypress.js" />
     <Content Include="App\Directives\RouteLoader.js" />
     <Content Include="App\Driving\ConfirmDiscardChangesController.js" />
@@ -386,8 +384,11 @@
     <Content Include="App\Services\Error\ServiceErrorController.js" />
     <Content Include="App\Services\FileResource.js" />
     <Content Include="App\Services\HelpTextResource.js" />
+    <Content Include="App\Services\MkColumnFormatterService.js" />
     <Content Include="App\Services\RateTypeResource.js" />
     <Content Include="App\Services\Error\ServiceError.html" />
+    <Content Include="App\Services\AutocompleteResource.js" />
+    <Content Include="App\Services\RouteColumnFormatterService.js" />
     <Content Include="App\Services\StandardAddressResource.js" />
     <Content Include="App\Services\OrgUnitResource.js" />
     <Content Include="App\Services\RouteContainerResource.js" />
@@ -402,10 +403,10 @@
     <Content Include="App\Settings\RouteDeleteModal.html" />
     <Content Include="App\Settings\RouteAddModal.html" />
     <Content Include="App\Settings\Substitutes\SubstituteController.js" />
+    <Content Include="Content\angular-busy.min.css" />
     <Content Include="Content\Bootstrap\loading-image.gif" />
     <Content Include="Content\Bootstrap\loading.gif" />
     <Content Include="Content\Bootstrap\sprite.png" />
-    <Content Include="Content\favicon.ico" />
     <Content Include="Content\kendo\Black\editor.png" />
     <Content Include="Content\kendo\Black\imagebrowser.png" />
     <Content Include="Content\kendo\Black\indeterminate.gif" />
@@ -680,8 +681,6 @@
     <Content Include="Content\loading-bar.css" />
     <Content Include="Content\loading-bar.min.css" />
     <Content Include="Content\pnotify.custom.min.css" />
-    <Content Include="logo.png" />
-    <Content Include="Content\private.css" />
     <Content Include="Content\simple-sidebar.css" />
     <Content Include="Content\Themes\SbAdmin\css\bootstrap-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\bootstrap-rtl.min.css" />
@@ -693,6 +692,7 @@
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Scripts\angular-busy.min.js" />
     <Content Include="Scripts\kendo-ie-fix.js" />
     <Content Include="Scripts\kendo\angular.min.js" />
     <Content Include="Scripts\kendo\cultures\kendo.culture.af-ZA.min.js" />
@@ -1185,19 +1185,21 @@
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-HK.min.js" />
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-TW.min.js" />
     <Content Include="Scripts\kendo\pako_deflate.min.js" />
+    <None Include="Properties\PublishProfiles\Skanderborg.pubxml" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
     <Content Include="Scripts\loading-bar.js" />
     <Content Include="Scripts\loading-bar.min.js" />
     <Content Include="Scripts\pnotify.custom.min.js" />
+    <Content Include="template\loading-template.html" />
     <Content Include="template\typeahead\typeahead-match.html" />
     <Content Include="template\typeahead\typeahead-popup.html" />
     <Content Include="App\Directives\AwsDirective.js" />
     <Content Include="App\Driving\DrivingView.html" />
     <Content Include="App\Driving\DrivingController.js" />
-    <Content Include="App\Driving\noLicensePlateModal.html" />
-    <Content Include="App\Driving\noLicensePlateModalController.js" />
+    <Content Include="App\Driving\NoLicensePlateModalTemplate.html" />
+    <Content Include="App\Driving\NoLicensePlateModalController.js" />
     <Content Include="App\MyReports\ConfirmDeleteReportController.js" />
     <Content Include="App\MyReports\ConfirmDeleteTemplate.html" />
     <Content Include="App\MyReports\EditReportTemplate.html" />
@@ -1238,7 +1240,6 @@
     <Content Include="Content\Themes\SbAdmin\font-awesome\css\font-awesome.min.css" />
     <Content Include="Content\Themes\SbAdmin\font-awesome\fonts\fontawesome-webfont.svg" />
     <Content Include="Content\timeline.css" />
-    <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1376,12 +1377,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="fonts\glyphicons-halflings-regular.woff2">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="connections.config">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="CustomSettings.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\Themes\SbAdmin\fonts\glyphicons-halflings-regular.woff2">
@@ -2375,7 +2370,7 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>True</UseIIS>
+          <UseIIS>False</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>1983</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>

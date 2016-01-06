@@ -87,7 +87,8 @@ CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuel
   <add key="EmailHelpText" value=""/>
   <add key="PurposeHelpText" value=""/>
   <add key="ReadReportCommentHelp" value=""/>
-  <add key="PROTECTED_SEPTIMA_API_KEY" value=""/>
+  <add key="NoLicensePlateHelpText" value=""/>
+  <add key="SEPTIMA_API_KEY" value=""/>
 </appSettings>
 ```
 
@@ -221,9 +222,12 @@ Hjælpeteksten vises under Indberet tjenestekørsel, når man ingen nummerplader
 Udfyldes med hjælpetekst der beskriver kommentar til aflæst tjenestekørselsindberetning.
 Hjælpeteksten vises under Indberet tjenestekørsel, når man har valgt aflæst indberetning.
 
+###### NoLicensePlateHelpText
+Udfyles med hjælpetekst der fortæller brugeren han ingen nummerplader har. Hjælpeteksten vises under Indberet tjenestekørsel, når man ingen nummerplader har.
+
 ##### Ruteberegning
 
-###### PROTECTED_SEPTIMA_API_KEY
+###### SEPTIMA_API_KEY
 Udfyldes med api-nøgle til Septimas ruteberegner.
 
 #### connections.config
@@ -297,8 +301,8 @@ Bruges til at oprette forbindelse til databasen der opbevarer data fra app'en, d
 
 #### Fejl ved adressevask
 * Kontroller at de indtastede adresser findes og er i korrekt format (Vejnavn husnummer, postnr by)
-* Kontroller at PROTECTED_SEPTIMA_API_KEY er sat korrekt i CustomSettings.config
+* Kontroller at SEPTIMA_API_KEY er sat korrekt i CustomSettings.config
 
 #### Fejl ved opslag af adressekoordinater
 * Kontroller at de indtastede adresser findes og er i korrekt format (Vejnavn husnummer, postnr by)
-* Kontroller at PROTECTED_SEPTIMA_API_KEY er sat korrekt i CustomSettings.config
+* Kontroller at SEPTIMA_API_KEY er sat korrekt i CustomSettings.config

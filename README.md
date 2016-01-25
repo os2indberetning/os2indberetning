@@ -74,6 +74,7 @@ CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuel
   <add key="MapStartTown" value=""/>
 
   <add key="PROTECTED_AD_DOMAIN" value=""/>
+  <add key="PROTECTED_DailyErrorLogMail" value=""/>
 
   <add key="InformationHelpLink" value=""/>
   <add key="TableSortHelp" value=""/>
@@ -166,6 +167,9 @@ Udfyldes med by for startadresse.
 
 ###### PROTECTED_AD_DOMAIN
 Udfyldes med AD-domænenavn.
+
+###### PROTECTED_DailyErrorLogMail
+Skal kun bruges i mail-projektet. Skal indeholde en kommasepareret liste af emails, hvortil der skal sendes oversigt over daglig aktivitet i logs. Kan f.eks. være "admin1@host.dk, admin2@host.dk".
 
 ##### Hjælpetekster
 Nedenfor beskrives de felter der skal udfyldes for diverse hjælpetekster i OS2Indberetning. Hvis et felt efterlades tomt

@@ -9,6 +9,7 @@ using Core.DomainServices.RoutingClasses;
 using Infrastructure.AddressServices.Routing;
 using Infrastructure.DataAccess;
 using Ninject;
+using Core.ApplicationServices.Logger;
 
 namespace Core.ApplicationServices
 {
@@ -25,13 +26,16 @@ namespace Core.ApplicationServices
         // Third decimal is 100 meters, so 0.001 means that addresses within 100 meters of each other will be considered the same when checking if route starts or ends at home.
         private const double CoordinateThreshold = 0.001;
 
-        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo)
+        private readonly ILogger _logger;
+
+        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger)
         {
             _route = route;
             _personService = personService;
             _personRepo = personRepo;
             _emplrepo = emplrepo;
             _addressHistoryRepo = addressHistoryRepo;
+            _logger = logger;
         }
 
         /// <summary>
@@ -63,7 +67,17 @@ namespace Core.ApplicationServices
             var homeAddress = _personService.GetHomeAddress(person);
 
             // Get Work and Homeaddress of employment at time of DriveDateTimestamp for report.
-            var addressHistory = _addressHistoryRepo.AsQueryable().SingleOrDefault(x => x.EmploymentId == report.EmploymentId && x.StartTimestamp < report.DriveDateTimestamp && x.EndTimestamp > report.DriveDateTimestamp);
+            AddressHistory addressHistory = null;
+
+            try
+            {
+                _addressHistoryRepo.AsQueryable().SingleOrDefault(x => x.EmploymentId == report.EmploymentId && x.StartTimestamp < report.DriveDateTimestamp && x.EndTimestamp > report.DriveDateTimestamp);
+            }
+            catch (InvalidOperationException)
+            {
+                _logger.Log(report.FullName + " har et overlap i sin adressehistorik", "web", 3);
+                throw;
+            }
 
             if (homeAddress.Type != PersonalAddressType.AlternativeHome)
             {

@@ -156,7 +156,10 @@
            columns: [
            {
                field: "FullName",
-               title: "Medarbejder"
+               title: "Medarbejder",
+               template: function (data) {
+                   return data.FullName + " [" + data.Employment.EmploymentId + "]";
+               }
            }, {
                field: "Employment.OrgUnit.LongDescription",
                title: "Org.enhed"

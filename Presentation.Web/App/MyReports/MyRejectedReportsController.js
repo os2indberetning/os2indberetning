@@ -19,7 +19,7 @@ angular.module("application").controller("MyRejectedReportsController", [
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setMonth(fromDateFilter.getMonth() - 3);
+       fromDateFilter.setMonth(fromDateFilter.getMonth() - 12);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -175,7 +175,7 @@ angular.module("application").controller("MyRejectedReportsController", [
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setMonth(from.getMonth() - 3);
+           from.setMonth(from.getMonth() - 12);
 
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;

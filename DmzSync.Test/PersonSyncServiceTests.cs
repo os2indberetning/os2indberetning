@@ -20,6 +20,7 @@ namespace DmzSync.Test
 
         private ISyncService _uut;
         private IGenericRepository<Person> _masterRepoMock;
+        private IGenericRepository<Core.DmzModel.Employment> _masterEmploymentMock;
         private IGenericRepository<Profile> _dmzRepoMock;
         private List<Profile> _dmzProfileList = new List<Profile>();
         private List<Person> _masterPersonList = new List<Person>();
@@ -31,7 +32,7 @@ namespace DmzSync.Test
             _dmzRepoMock = NSubstitute.Substitute.For<IGenericRepository<Profile>>();
             _masterRepoMock = NSubstitute.Substitute.For<IGenericRepository<Person>>();
             _personServiceMock = NSubstitute.Substitute.For<IPersonService>();
-
+            _masterEmploymentMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.Employment>>();
 
             _dmzRepoMock.WhenForAnyArgs(x => x.Delete(new Profile())).Do(p => _dmzProfileList.Remove(p.Arg<Profile>()));
 
@@ -118,7 +119,7 @@ namespace DmzSync.Test
             _masterRepoMock.AsQueryable().ReturnsForAnyArgs(_masterPersonList.AsQueryable());
             _dmzRepoMock.AsQueryable().ReturnsForAnyArgs(_dmzProfileList.AsQueryable());
 
-            _uut = new PersonSyncService(_dmzRepoMock, _masterRepoMock, _personServiceMock);
+            _uut = new PersonSyncService(_dmzRepoMock, _masterRepoMock, _masterEmploymentMock, _personServiceMock);
         }
 
         [Test]

@@ -133,7 +133,6 @@
     <Compile Include="FileGenerator\ReportGeneratorTest.cs" />
     <Compile Include="FileGenerator\ReportRepositoryMock.cs" />
     <Compile Include="LicensePlateTest\LicensePlateServiceTest.cs" />
-    <Compile Include="MobileTokenServiceTest\MobileTokenServiceTest.cs" />
     <Compile Include="OrgUnitServiceTest\GetChildOrgsWithoutLeaderTests.cs" />
     <Compile Include="OrgUnitServiceTest\GetWhereUserIsResponsibleTests.cs" />
     <Compile Include="PersonalRouteServiceTest\PersonalRouteServiceTests.cs" />

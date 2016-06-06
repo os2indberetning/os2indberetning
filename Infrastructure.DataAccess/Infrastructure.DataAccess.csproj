@@ -385,10 +385,6 @@
     <Compile Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.Designer.cs">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201605041203263_UndoUpdate.cs" />
-    <Compile Include="Migrations\201605041203263_UndoUpdate.Designer.cs">
-      <DependentUpon>201605041203263_UndoUpdate.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -643,9 +639,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.resx">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201605041203263_UndoUpdate.resx">
-      <DependentUpon>201605041203263_UndoUpdate.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

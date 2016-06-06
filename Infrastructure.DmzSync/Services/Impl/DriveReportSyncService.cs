@@ -121,6 +121,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                 // https://msdn.microsoft.com/en-us/library/cc165448.aspx
                 DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
                     CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
+                    FourKmRule = dmzReport.FourKmRule,
                     StartsAtHome = dmzReport.StartsAtHome,
                     EndsAtHome = dmzReport.EndsAtHome,
                     Purpose = dmzReport.Purpose,

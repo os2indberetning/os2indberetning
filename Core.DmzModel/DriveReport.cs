@@ -10,6 +10,8 @@ namespace Core.DmzModel
 
         public string Purpose { get; set; }
 
+        public bool FourKmRule { get; set; }
+
         public bool StartsAtHome { get; set; }
 
         public bool EndsAtHome { get; set; }

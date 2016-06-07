@@ -283,6 +283,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Content Include="connections.config" />
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -698,6 +699,7 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
+    <Content Include="CustomSettings.config" />
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

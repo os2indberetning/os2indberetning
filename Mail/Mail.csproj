@@ -76,13 +76,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Content Include="connections.config" />
     <None Include="packages.config" />
-    <Content Include="CustomSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Content Include="CustomSettings.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.ApplicationServices\Core.ApplicationServices.csproj">

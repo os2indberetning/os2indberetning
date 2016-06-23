@@ -15,6 +15,7 @@ using Core.DomainServices;
 using Ninject;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using OS2Indberetning.Models;
 
 namespace OS2Indberetning.Controllers
 {
@@ -110,6 +111,7 @@ namespace OS2Indberetning.Controllers
 
                 result.Add(new EksportModel
                 {
+                    
                     DriveDateTimestamp = repo.DriveDateTimestamp,
                     CreatedDateTimestamp = repo.CreatedDateTimestamp,
                     OrgUnit = employee.Id.ToString(),

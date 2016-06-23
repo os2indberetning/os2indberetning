@@ -13,6 +13,8 @@ using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace OS2Indberetning.Controllers
 {
@@ -20,7 +22,7 @@ namespace OS2Indberetning.Controllers
     {
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<Employment> _employmentRepo;
-
+        private readonly IGenericRepository<Person> _personRepo;
         private readonly ILogger _logger;
 
         public DriveReportsController(IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, ILogger logger)
@@ -29,6 +31,7 @@ namespace OS2Indberetning.Controllers
             _driveService = driveService;
             _employmentRepo = employmentRepo;
             _logger = logger;
+            _personRepo = personRepo;
         }
 
         // GET: odata/DriveReports
@@ -88,6 +91,62 @@ namespace OS2Indberetning.Controllers
             }
 
             return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        [HttpGet]
+         public IHttpActionResult Eksport(int manr, string start, string end, string name, string orgUnit)
+        //public IHttpActionResult Eksport()
+        {
+            
+            var employee = getEmploymeeByMa(manr);
+
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+
+            var reports = Repo.AsQueryable().Where(x => dtDateTime.AddSeconds(x.CreatedDateTimestamp).ToLocalTime() > Convert.ToDateTime(start) && dtDateTime.AddSeconds(x.CreatedDateTimestamp).ToLocalTime() < Convert.ToDateTime(end));
+
+            List<EksportModel> result = new List<EksportModel>();
+            
+            foreach (var repo in reports) {
+
+                result.Add(new EksportModel
+                {
+                    DriveDateTimestamp = repo.DriveDateTimestamp,
+                    CreatedDateTimestamp = repo.CreatedDateTimestamp,
+                    OrgUnit = employee.Id.ToString(),
+                    Purpose = repo.Purpose,
+                    Route = repo.RouteGeometry,
+                    IsExtraDistance = repo.IsExtraDistance,
+                    FourKmRule = repo.FourKmRule,
+                    distanceFromHomeToBorder = employee.DistanceFromHomeToBorder,
+                    AmountToReimburse = repo.AmountToReimburse,
+                    ApprovedBy = repo.ApprovedBy
+                });
+
+            }
+
+            EksportModel[] resultAsArray = result.ToArray();
+
+            
+           // var iqureyable = result.AsQueryable();
+           // var jsonResult = JsonConvert.SerializeObject(iqureyable);
+
+  
+
+            if (result.Count() > 0)
+            {
+                return Json(result);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        public Person getEmploymeeByMa(int MAnr) {
+
+            var result = _personRepo.AsQueryable().First( x=> x.Id == MAnr);
+
+            return result;
+           
+
         }
 
         //GET: odata/DriveReports(5)

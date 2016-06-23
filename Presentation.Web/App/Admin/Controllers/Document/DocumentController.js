@@ -1,6 +1,6 @@
 ﻿angular.module("application").controller("DocumentController", [
-    "$scope", "$rootScope", "$window", "Rate", "NotificationService","rateType" //"$routeParams",
-    function ($scope, $rootScope, $window, $routeParams, $Rate, $NotificationService,$rateType) {
+    "$scope", "$rootScope", "$window", //"$routeParams",
+    function ($scope, $rootScope, $window) {
         
         $scope.container = {};
 
@@ -19,121 +19,137 @@
         var manr = getParameterByName('manr');
         var startDate = getParameterByName('from');
         var endDate = getParameterByName('to');
+        var orgUnit = getParameterByName('orgUnit');
 
 
-        document.getElementById('employeeHeader').innerText = employee;
+        /*document.getElementById('employeeHeader').innerText = employee;
         document.getElementById('MAnrHeader').innerText = manr;
         document.getElementById('startDateHeader').innerText = startDate;
-        document.getElementById('endDateHeader').innerText = endDate;
-        
-        var allReports = [];
-        
-        /// <summary>
-        /// Loads existing rates from backend to kendo grid datasource.
-        /// </summary>
-        $scope.rates = {
-            autoBind: false,
-            dataSource: {
-                type: "odata",
-                transport: {
-                    read: {
-                        beforeSend: function (req) {
-                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
-                        },
-                        url: "/odata/Rates?$expand=Type&$filter=Active eq true",
-                        dataType: "json",
-                        cache: false
-                    },
-                    parameterMap: function (options, type) {
-                        var d = kendo.data.transports.odata.parameterMap(options);
-                        delete d.$inlinecount; // <-- remove inlinecount parameter
-                        d.$count = true;
-                        return d;
-                    }
-                },
-                schema: {
-                    data: function (data) {
-                        return data.value;
-                    },
-                    total: function (data) {
-                        return data['@odata.count']; // <-- The total items count is the data length, there is no .Count to unpack.
-                    }
-                },
-                pageSize: 20,
-                serverPaging: false,
-                serverSorting: true,
+        document.getElementById('endDateHeader').innerText = endDate;*/
+
+
+
+        $scope.reports = {
+            toolbar: ["excel","pdf","Print"],
+            excel: {
+                fileName: "Kørsels udtræk.xlsx",
+                proxyURL: "//demos.telerik.com/kendo-ui/service/export",
+                filterable: true,
+                display: false
+            },pdf: {
+                allPages: true,
+                avoidLinks: true,
+                landscape: false,
+                repeatHeaders: true
+
+           
             },
-            sortable: true,
-            pageable: {
-                messages: {
-                    display: "{0} - {1} af {2} takster", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
-                    empty: "Ingen takster at vise",
-                    page: "Side",
-                    of: "af {0}", //{0} is total amount of pages
-                    itemsPerPage: "takster pr. side",
-                    first: "Gå til første side",
-                    previous: "Gå til forrige side",
-                    next: "Gå til næste side",
-                    last: "Gå til sidste side",
-                    refresh: "Genopfrisk"
-                },
-                pageSizes: [5, 10, 20, 30, 40, 50, 100, 150, 200]
-            },
-            scrollable: false,
-            columns: [
-                {
-                    field: "Year",
-                    title: "År"
-                }, {
-                    field: "KmRate",
-                    title: "Takst",
-                    template: "${KmRate} ører pr/km"
-                }, {
-                    field: "Type.TFCode",
-                    title: "TF kode",
-                },
-                {
-                    field: "Type",
-                    title: "Type",
-                    template: function (data) {
-                        return data.Type.Description;
-                    }
-                }
-            ],
-        };
+             dataSource: {
+                 transport: {
+                     read: {
+                         beforeSend: function (req) {
+                             req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
+                         },
+                         url: "odata/DriveReports/Service.Eksport?manr=" + manr + "&start=" + startDate + "&end=" + endDate + "&name=" + employee + "&orgUnit=" + orgUnit,
+                         //url: "odata/DriveReports/Service.Eksport?manr=5&start=start&end=end&name=rasmus&orgUnit=org",
+                         dataType: "json",
+                         cache: false
+                     }
+                 },
+                 aggregate: [{ field: "distanceFromHomeToBorder", aggregate: "sum" }],
+                 schema: {
+                     model: {
+                         fields: {
+                             distanceFromHomeToBorder: { type: "number" }
+                         }
+                     }
+                 }
+             }, 
+             resizable: true,
+         
 
-        $scope.updateRatesGrid = function () {
-            /// <summary>
-            /// Refreshes kendo grid datasource.
-            /// </summary>
-            $scope.container.rateGrid.dataSource.read();
-        }
-
-        $scope.$on("kendoWidgetCreated", function (event, widget) {
-            if (widget === $scope.container.rateDropDown) {
-                $scope.rateTypes = RateType.get(function () {
-                    angular.forEach($scope.rateTypes, function (rateType, key) {
-                        rateType.Description += " (" + rateType.TFCode + ")"
-                    });
-                    $scope.container.rateDropDown.dataSource.read();
-                    $scope.container.rateDropDown.select(0);
-                });
-            }
-        });
+             columns: [
+                         {
+                             field: "DriveDateTimestamp", template: function (data) {
+                                 var m = moment.unix(data.DriveDateTimestamp);
+                                 return m._d.getDate() + "/" +
+                                     (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
+                                     m._d.getFullYear();
+                             }, title: "Dato for kørsel", width:100
+                         },
+                         {
+                             field: "CreatedDateTimestamp", template: function (data) {
+                                 var m = moment.unix(data.CreatedDateTimestamp);
+                                 return m._d.getDate() + "/" +
+                                     (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
+                                     m._d.getFullYear();
+                             }, title: "Dato for indberetning",
+                         },
+                         {field: "OrgUnit", title: "Org. Enhed", width: '100'},
+                         { field: "Purpose", title: "Formål", },
+                         { field: "Route", title: "Rute", },
+                         { field: "IsExtraDistance", title: "Merkørselsangivelse", },
+                         { field: "FourKmRule", title: "4-km", },
+                         { field: "distanceFromHomeToBorder", title: "km til kommunegrænse", footerTemplate: "Samlet: #= sum # "},
+                         { field: "AmountToReimburse", title: "km til udbetaling", },
+                         { field: "ApprovedBy", title: "Godkendt af", }
+             ], scrollable:false
+         };
 
 
 
-        $scope.downloadReportClick = function () {
-            //$window.open('/eksport/index?Employee=' + $scope.container.employeeFilter + '&manr=' + $scope.container.MANrFilter + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString, '_blank');
-            //$window.open('app/admin/html/report/DocumentView.html');
-            var text = "";
-            for (var t in $scope.Reports.dataSource) {
-                text = text + " - " + t
+         function PrintElem(elem) {
+             Popup($(elem).html());
+         }
+
+         function Popup(data) {
+
+             var today = new Date();
+             var dd = today.getDate();
+             var mm = today.getMonth()+1; //January is 0!
+             var yyyy = today.getFullYear();
+             
+             if(dd<10) {
+                 dd='0'+dd
+             } 
+
+             if(mm<10) {
+                 mm='0'+mm
+             } 
+
+             today = mm+'/'+dd+'/'+yyyy;
 
 
-            }
-            text = text + "\n" + $scope.Reports.length;
+             var mywindow = window.open('', today, 'height=400,width=600');
+             mywindow.document.write('<html><head><title>' + today + '</title>');
+             /*optional stylesheet*/ //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
+             mywindow.document.write('</head><body >');
+             mywindow.document.write(data);
+             mywindow.document.write('</body></html>');
 
-            alert(getParameterByName('bog') + 'list: '+ text);
-        }
+             mywindow.document.close(); // necessary for IE >= 10
+             mywindow.focus(); // necessary for IE >= 10
+
+             mywindow.print();
+             mywindow.close();
+
+             return true;
+         }
+
+         function print(){
+         
+             PrintElem("#printThis");
+         
+         }
+
+
+         $scope.print = function () {
+             PrintElem("#printThis");
+         };
+         $scope.saveAsPdf = function () {
+             alert('saveAsPdf Clicked :-)')
+         };
+         $scope.downloadAsExcel = function () {
+             alert('downloadAsExcel Clicked :-)')
+         };
     }]);

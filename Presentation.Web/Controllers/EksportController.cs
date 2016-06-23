@@ -6,9 +6,11 @@ using OS2Indberetning.Controllers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Web;
-using System.Web.Http;
 using System.Web.Mvc;
+using System.Web.OData;
+using System.Web.OData.Query;
 
 namespace OS2Indberetning.Controllers
 {
@@ -27,21 +29,89 @@ namespace OS2Indberetning.Controllers
         }
 
 
-
-
-        public IHttpActionResult Get(string Employee,string Manr, string from, string to)
+        [EnableQuery]
+        public System.Web.Http.IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string Employee,string Manr, string from, string to)
         {
-                var model = new Models.EksportModel();
-            model.Employee = Employee;
-            model.Manr = Manr;
-            model.StartDate = from;
-            model.EndDate = to;
+            var queryable = GetQueryable(queryOptions);
 
-            var test = _employmentRepo.AsQueryable().Where(x=> x.Person.FirstName == Employee);
+           // ReportStatus reportStatus;
+           
+               
+                    // If accepted reports are requested, then return accepted and invoiced. 
+                    // Invoiced reports are accepted reports that have been processed for payment.
+                    // So they are still accepted reports.
+                   // queryable =
+                   //     queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
+               
 
-            return Ok(test);
+            
+            return Ok(queryable);
         }
-        
+
+        [EnableQuery]
+        [AcceptVerbs("PATCH", "MERGE")]
+        public new System.Web.Http.IHttpActionResult Patch([FromODataUri] int key, Delta<DriveReport> delta, string emailText)
+        {
+
+            var report = Repo.AsQueryable().SingleOrDefault(x => x.Id == key);
+
+            if (report == null)
+            {
+                return NotFound();
+            }
+
+            var leader = report.ResponsibleLeader;
+
+            if (leader == null)
+            {
+                return StatusCode(System.Net.HttpStatusCode.Forbidden);
+            }
+
+            if (CurrentUser.IsAdmin && emailText != null && report.Status == ReportStatus.Accepted)
+            {
+                // An admin is trying to reject an approved report.
+                report.Status = ReportStatus.Rejected;
+                report.Comment = emailText;
+                report.ClosedDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                try
+                {
+                    Repo.Save();
+                    _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
+                    return Ok();
+                }
+                catch (Exception e)
+                {
+                    _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
+                }
+            }
+
+
+            // Cannot approve own reports.
+            if (report.PersonId == CurrentUser.Id)
+            {
+                return StatusCode(HttpStatusCode.Forbidden);
+            }
+
+            // Cannot approve reports where you are not responsible leader
+            if (!CurrentUser.Id.Equals(leader.Id))
+            {
+                return StatusCode(HttpStatusCode.Forbidden);
+            }
+
+
+            // Return Unauthorized if the status is not pending when trying to patch.
+            // User should not be allowed to change a Report which has been accepted or rejected.
+            if (report.Status != ReportStatus.Pending)
+            {
+                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.", "web", 3);
+                return StatusCode(HttpStatusCode.Forbidden);
+            }
+
+
+            _driveService.SendMailIfRejectedReport(key, delta);
+            return base.Patch(key, delta);
+        }
+
 
     }
 }

@@ -44,6 +44,9 @@ namespace Infrastructure.DmzSync
             var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
                 new GenericRepository<Rate>(new DataContext()));
 
+            var orgUnitSync = new OrgUnitSyncService(new GenericDmzRepository<Core.DmzModel.OrgUnit>(new DmzContext()),
+                new GenericRepository<Core.DomainModel.OrgUnit>(new DataContext()));
+
             try
             {
                 Console.WriteLine("DriveReportsSyncFromDmz");
@@ -65,6 +68,16 @@ namespace Infrastructure.DmzSync
             catch (Exception ex)
             {
                 logger.Log("Fejl under synkronisering af medarbejdere til DMZ. Mobil-app er ikke opdateret med nyeste medarbejderdata.", "dmz", ex, 1);
+                throw;
+            }
+
+            try
+            {
+                Console.WriteLine("OrgUnitSyncToDmz");
+                orgUnitSync.SyncToDmz();
+            }
+            catch(Exception ex){
+                logger.Log("Fejl under synkronisering af OrgUnits til DMZ. Mobil-app er ikke opdateret med nyeste OrgUnits.", "dmz", ex, 1);
                 throw;
             }
 

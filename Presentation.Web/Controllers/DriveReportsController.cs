@@ -13,6 +13,10 @@ using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
+using System.Collections.Generic;
+using System.Xml.Linq;
+using System.Xml.Serialization;
+using System.IO;
 
 namespace OS2Indberetning.Controllers
 {
@@ -233,6 +237,43 @@ namespace OS2Indberetning.Controllers
                 return NotFound();
             }
             return report.PersonId.Equals(CurrentUser.Id) ? base.Delete(key) : Unauthorized();
+        }
+
+        // DELETE: odata/DriveReports(5)
+        /// <summary>
+        /// Send report data to SD
+        /// </summary>
+        [HttpGet]
+        public IHttpActionResult sendDataToSd()
+        {
+            var xmlResult = "";
+            List<Models.InddataStruktur> result = new List<Models.InddataStruktur>();
+            
+            foreach (var t in Repo.AsQueryable()) {
+                result.Add(
+                    new Models.InddataStruktur
+                    {
+                        AnsaettelseIdentifikator = t.EmploymentId,
+                        RegistreringTypeIdentifikator = t.Id
+                    });
+            }
+            XElement xmlElements = new XElement("Branches",result);
+
+            try
+            {
+                var xs = new XmlSerializer(result.GetType());
+                var xml = new StringWriter();
+                xs.Serialize(xml, result);
+
+                var test = xml;
+
+                xmlResult = xmlElements.ToString();
+
+            }
+            catch (Exception e) { }
+
+
+            return Ok();
         }
     }
 }

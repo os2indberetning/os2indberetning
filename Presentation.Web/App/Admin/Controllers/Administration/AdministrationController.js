@@ -166,5 +166,26 @@
                });
            });
        }
+
+
+       $scope.sendDataToSDClicked = function () {
+           /// <summary>
+           /// Opens confirm generate kmd file modal
+           /// </summary>
+           var modalInstance = $modal.open({
+               templateUrl: 'App/Admin/HTML/Administration/Modal/ConfirmDataSendSDModalTemplate.html',
+               controller: 'SendDataToSdController',
+               backdrop: 'static',
+               size: 'lg',
+           });
+
+           modalInstance.result.then(function (person) {
+               File.generateKMDFile(function () {
+                   NotificationService.AutoFadeNotification("success", "", "Data blev sendt til SD.");
+               }, function () {
+                   NotificationService.AutoFadeNotification("danger", "", "Data blev ikke sendt!");
+               });
+           });
+       }
    }
 ]);

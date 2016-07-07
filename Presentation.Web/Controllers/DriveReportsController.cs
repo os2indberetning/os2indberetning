@@ -185,11 +185,14 @@ namespace OS2Indberetning.Controllers
                 report.Status = ReportStatus.Rejected;
                 report.Comment = emailText;
                 report.ClosedDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                try {
+                try
+                {
                     Repo.Save();
                     _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
                     return Ok();
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
                 }
             }
@@ -299,14 +302,16 @@ namespace OS2Indberetning.Controllers
                 {
                     person = persons.First(x => x.Id == t.PersonId);
                 }
-                catch (Exception E) {
+                catch (Exception E)
+                {
                 }
 
                 double koerselDato = t.DriveDateTimestamp;
                 System.DateTime KoerseldateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
                 KoerseldateTime = KoerseldateTime.AddSeconds(koerselDato);
 
-                if (person != null) {
+                if (person != null)
+                {
                     result.Add(
                         new Models.InddataStruktur
                         {
@@ -324,7 +329,8 @@ namespace OS2Indberetning.Controllers
                 }
             }
 
-            foreach (var v in result) {
+            foreach (var v in result)
+            {
                 xmlResult +=
                     "<m:InddataStruktur xmlns:m=\"urn:oio:sd:snitflader:2012.02.01\">" +
                     "<m:InstitutionIdentifikator>" + v.InstitutionIdentifikator + "</m:InstitutionIdentifikator>" +
@@ -348,7 +354,8 @@ namespace OS2Indberetning.Controllers
             {
                 soapEnvelop.LoadXml(@"<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema""><SOAP-ENV:Body>" + xmlResult + "</SOAP-ENV:Body></SOAP-ENV:Envelope>");
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
 
             }
             return soapEnvelop;
@@ -362,14 +369,15 @@ namespace OS2Indberetning.Controllers
             }
         }
 
-    private HttpWebRequest CreateWebRequest(string url, string action)
-    {
-        HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
-        webRequest.Headers.Add("SOAPAction", action);
-        webRequest.ContentType = "text/xml;charset=\"utf-8\"";
-        webRequest.Accept = "text/xml";
-        webRequest.Method = "POST";
-        return webRequest;
-    }
+        private HttpWebRequest CreateWebRequest(string url, string action)
+        {
+            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+            webRequest.Headers.Add("SOAPAction", action);
+            webRequest.ContentType = "text/xml;charset=\"utf-8\"";
+            webRequest.Accept = "text/xml";
+            webRequest.Method = "POST";
+            return webRequest;
+        }
 
+    }
 }

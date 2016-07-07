@@ -18,15 +18,7 @@ namespace OS2Indberetning.Models
         public string KoertFraTekst { get; set; }
         public string KoertTilTekst { get; set; }
         public string AarsagTekst { get; set; }
-
-
-        [XmlAttribute(DataType = "number", AttributeName = "sd:InstitutionIdentifikator")]
-        public int InstId
-        {
-            get { return InstitutionIdentifikator; }
-            set { InstitutionIdentifikator = value; }
-        }
-
+     
 
     }
 }

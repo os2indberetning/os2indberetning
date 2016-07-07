@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.IO;
+using System.Xml;
 
 namespace OS2Indberetning.Controllers
 {
@@ -24,6 +25,7 @@ namespace OS2Indberetning.Controllers
     {
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<Employment> _employmentRepo;
+        private readonly IGenericRepository<Person> _personRepo;
 
         private readonly ILogger _logger;
 
@@ -33,6 +35,7 @@ namespace OS2Indberetning.Controllers
             _driveService = driveService;
             _employmentRepo = employmentRepo;
             _logger = logger;
+            _personRepo = personRepo;
         }
 
         // GET: odata/DriveReports
@@ -128,13 +131,13 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public new IHttpActionResult Post(DriveReport driveReport, string emailText)
         {
-            if(CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
+            if (CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
             {
                 // An admin is trying to edit an already approved report.
-                    var adminEditResult = _driveService.Create(driveReport);
-                    // CurrentUser is restored after the calculation.
-                    _driveService.SendMailToUserAndApproverOfEditedReport(adminEditResult, emailText, CurrentUser, "redigeret");
-                    return Ok(adminEditResult);
+                var adminEditResult = _driveService.Create(driveReport);
+                // CurrentUser is restored after the calculation.
+                _driveService.SendMailToUserAndApproverOfEditedReport(adminEditResult, emailText, CurrentUser, "redigeret");
+                return Ok(adminEditResult);
             }
 
             if (!CurrentUser.Id.Equals(driveReport.PersonId))
@@ -186,7 +189,7 @@ namespace OS2Indberetning.Controllers
                     Repo.Save();
                     _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
                     return Ok();
-                } catch(Exception e) {
+                } catch (Exception e) {
                     _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
                 }
             }
@@ -246,34 +249,127 @@ namespace OS2Indberetning.Controllers
         [HttpGet]
         public IHttpActionResult sendDataToSd()
         {
-            var xmlResult = "";
-            List<Models.InddataStruktur> result = new List<Models.InddataStruktur>();
-            
-            foreach (var t in Repo.AsQueryable()) {
-                result.Add(
-                    new Models.InddataStruktur
-                    {
-                        AnsaettelseIdentifikator = t.EmploymentId,
-                        RegistreringTypeIdentifikator = t.Id
-                    });
-            }
-            XElement xmlElements = new XElement("Branches",result);
+            var _url = "http://xxxxxxxxx/Service1.asmx";
+            var _action = "http://xxxxxxxx/Service1.asmx?op=HelloWorld";
 
-            try
+            XmlDocument soapEnvelopeXml = CreateSoapEnvelope();
+            HttpWebRequest webRequest = CreateWebRequest(_url, _action);
+
+            InsertSoapEnvelopeIntoWebRequest(soapEnvelopeXml, webRequest);
+
+            // begin async call to web request.
+            IAsyncResult asyncResult = webRequest.BeginGetResponse(null, null);
+
+            // suspend this thread until call is complete. You might want to
+            // do something usefull here like update your UI.
+            asyncResult.AsyncWaitHandle.WaitOne();
+
+            // get the response from the completed web request.
+            string soapResult;
+            using (WebResponse webResponse = webRequest.EndGetResponse(asyncResult))
             {
-                var xs = new XmlSerializer(result.GetType());
-                var xml = new StringWriter();
-                xs.Serialize(xml, result);
-
-                var test = xml;
-
-                xmlResult = xmlElements.ToString();
-
+                using (StreamReader rd = new StreamReader(webResponse.GetResponseStream()))
+                {
+                    soapResult = rd.ReadToEnd();
+                }
+                Console.Write(soapResult);
             }
-            catch (Exception e) { }
-
 
             return Ok();
         }
+
+
+
+
+        private XmlDocument CreateSoapEnvelope()
+        {
+            var xmlResult = "";
+
+            List<Models.InddataStruktur> result = new List<Models.InddataStruktur>();
+            var persons = _personRepo.AsQueryable().ToList();
+
+
+
+
+            foreach (var t in Repo.AsQueryable())
+            {
+
+                Person person = null;
+                try
+                {
+                    person = persons.First(x => x.Id == t.PersonId);
+                }
+                catch (Exception E) {
+                }
+
+                double koerselDato = t.DriveDateTimestamp;
+                System.DateTime KoerseldateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+                KoerseldateTime = KoerseldateTime.AddSeconds(koerselDato);
+
+                if (person != null) {
+                    result.Add(
+                        new Models.InddataStruktur
+                        {
+                            InstitutionIdentifikator = "MANGLER",
+                            PersonnummerIdentifikator = person.CprNumber,
+                            AnsaettelseIdentifikator = t.EmploymentId,
+                            RegistreringTypeIdentifikator = "MANGLER",
+                            KoerselDato = KoerseldateTime.Date,
+                            KilometerMaal = t.Distance,
+                            Regel60DageIndikator = true,
+                            KoertFraTekst = "MANGLER",
+                            KoertTilTekst = "MANGLER",
+                            AarsagTekst = t.Purpose
+                        });
+                }
+            }
+
+            foreach (var v in result) {
+                xmlResult +=
+                    "<m:InddataStruktur xmlns:m=\"urn:oio:sd:snitflader:2012.02.01\">" +
+                    "<m:InstitutionIdentifikator>" + v.InstitutionIdentifikator + "</m:InstitutionIdentifikator>" +
+                    "<m:PersonnummerIdentifikator>" + v.PersonnummerIdentifikator + "</m:PersonnummerIdentifikator>" +
+                    "<m:AnsaettelseIdentifikator>" + v.AnsaettelseIdentifikator + "</m:AnsaettelseIdentifikator>" +
+                    "<m:RegistreringTypeIdentifikator>" + v.RegistreringTypeIdentifikator + "</m:RegistreringTypeIdentifikator>" +
+                    "<m:KoerselDato>" + v.KoerselDato.Date.ToString() + "</m:KoerselDato>" +
+                    "<m:KilometerMaal>" + v.KilometerMaal + "</m:KilometerMaal>" +
+                    "<m:Regel60DageIndikator>" + v.Regel60DageIndikator + "</m:Regel60DageIndikator>" +
+                    "<m:KoertFraTekst>" + v.KoertFraTekst + "</m:KoertFraTekst>" +
+                    "<m:KoertTilTekst>" + v.KoertTilTekst + "</m:KoertTilTekst>" +
+                    "<m:AarsagTekst>" + v.AarsagTekst + "</m:AarsagTekst>" +
+                    "</m:InddataStruktur>";
+            }
+
+
+
+
+            XmlDocument soapEnvelop = new XmlDocument();
+            try
+            {
+                soapEnvelop.LoadXml(@"<SOAP-ENV:Envelope xmlns:SOAP-ENV=""http://schemas.xmlsoap.org/soap/envelope/"" xmlns:SOAP-ENC=""http://schemas.xmlsoap.org/soap/encoding/"" xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema""><SOAP-ENV:Body>" + xmlResult + "</SOAP-ENV:Body></SOAP-ENV:Envelope>");
+            }
+            catch (Exception e) {
+
+            }
+            return soapEnvelop;
+        }
+
+        private void InsertSoapEnvelopeIntoWebRequest(XmlDocument soapEnvelopeXml, HttpWebRequest webRequest)
+        {
+            using (Stream stream = webRequest.GetRequestStream())
+            {
+                soapEnvelopeXml.Save(stream);
+            }
+        }
+
+    private HttpWebRequest CreateWebRequest(string url, string action)
+    {
+        HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(url);
+        webRequest.Headers.Add("SOAPAction", action);
+        webRequest.ContentType = "text/xml;charset=\"utf-8\"";
+        webRequest.Accept = "text/xml";
+        webRequest.Method = "POST";
+        return webRequest;
     }
+
 }

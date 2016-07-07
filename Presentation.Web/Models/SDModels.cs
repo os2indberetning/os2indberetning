@@ -8,10 +8,10 @@ namespace OS2Indberetning.Models
 {
     public class InddataStruktur
     {
-        public int InstitutionIdentifikator { get; set; }
+        public string InstitutionIdentifikator { get; set; }
         public string PersonnummerIdentifikator { get; set;}
         public int AnsaettelseIdentifikator { get; set; }
-        public int RegistreringTypeIdentifikator { get; set; }
+        public string RegistreringTypeIdentifikator { get; set; }
         public DateTime KoerselDato { get; set; }
         public double KilometerMaal { get; set; }
         public bool Regel60DageIndikator { get; set; }

@@ -40,7 +40,10 @@ namespace OS2Indberetning.Controllers
 
 #if DEBUG
             //string[] httpUser = @"syddjursnet\jbp".Split('\\'); // Fissirul Lehmann - administrator
-            string[] httpUser = User.Identity.Name.Split('\\');
+            //string[] httpUser = User.Identity.Name.Split('\\');
+            var httpUser = new string[2];
+            httpUser[0] = "Miracle";
+            httpUser[1] = "mhn";
 #else
                 string[] httpUser = User.Identity.Name.Split('\\');                
 #endif

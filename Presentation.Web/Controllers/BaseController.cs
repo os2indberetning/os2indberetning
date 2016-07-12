@@ -38,11 +38,15 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-//#if DEBUG
+            //#if DEBUG
             //string[] httpUser = @"syddjursnet\at".Split('\\'); // Fissirul Lehmann - administrator
-            string[] httpUser = User.Identity.Name.Split('\\');                
-//#else
-//#endif      
+            //string[] httpUser = User.Identity.Name.Split('\\');
+            string[] httpUser = new string[2];
+            httpUser[1] = "bbj";
+            httpUser[0] = "MIRACLE";
+
+            //#else
+            //#endif      
             //Debug on testserver
             _logger.Log(httpUser[0] + " - " + httpUser[1], "web");
             if(httpUser[0] == "WIN-KT4GI14GFC1")

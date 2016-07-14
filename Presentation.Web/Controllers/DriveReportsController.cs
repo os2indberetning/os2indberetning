@@ -333,11 +333,11 @@ namespace OS2Indberetning.Controllers
             {
                 xmlResult +=
                     "<m:InddataStruktur xmlns:m=\"urn:oio:sd:snitflader:2012.02.01\">" +
-                    "<m:InstitutionIdentifikator>" + v.InstitutionIdentifikator + "</m:InstitutionIdentifikator>" +
+                    "<m:InstitutionIdentifikator>" + System.Configuration.ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] + "</m:InstitutionIdentifikator>" +
                     "<m:PersonnummerIdentifikator>" + v.PersonnummerIdentifikator + "</m:PersonnummerIdentifikator>" +
                     "<m:AnsaettelseIdentifikator>" + v.AnsaettelseIdentifikator + "</m:AnsaettelseIdentifikator>" +
                     "<m:RegistreringTypeIdentifikator>" + v.RegistreringTypeIdentifikator + "</m:RegistreringTypeIdentifikator>" +
-                    "<m:KoerselDato>" + v.KoerselDato.Date.ToString() + "</m:KoerselDato>" +
+                    "<m:KoerselDato>" + v.KoerselDato.Date.ToString().Substring(0,10) + "</m:KoerselDato>" +
                     "<m:KilometerMaal>" + v.KilometerMaal + "</m:KilometerMaal>" +
                     "<m:Regel60DageIndikator>" + v.Regel60DageIndikator + "</m:Regel60DageIndikator>" +
                     "<m:KoertFraTekst>" + v.KoertFraTekst + "</m:KoertFraTekst>" +

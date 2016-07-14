@@ -283,10 +283,6 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Content Include="App\Admin\Controllers\Administration\Modal\SendDataToSdController.js" />
-    <Content Include="App\Admin\HTML\Administration\Modal\ConfirmDataSendSDModalTemplate.html" />
-    <Content Include="connections.config" />
-    <Content Include="CustomSettings.config" />
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />

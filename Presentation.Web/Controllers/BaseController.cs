@@ -42,7 +42,7 @@ namespace OS2Indberetning.Controllers
             //string[] httpUser = @"syddjursnet\at".Split('\\'); // Fissirul Lehmann - administrator
             //string[] httpUser = User.Identity.Name.Split('\\');
             string[] httpUser = new string[2];
-            httpUser[1] = "bbj";
+            httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
             httpUser[0] = "MIRACLE";
 
             //#else

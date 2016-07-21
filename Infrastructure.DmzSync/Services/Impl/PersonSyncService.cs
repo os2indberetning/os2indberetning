@@ -126,6 +126,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     {
                         Id = masterEmployment.Id,
                         ProfileId = masterEmployment.PersonId,
+                        ManNr = masterEmployment.EmploymentId.ToString(),
                         StartDateTimestamp = masterEmployment.StartDateTimestamp,
                         EndDateTimestamp = masterEmployment.EndDateTimestamp,
                         EmploymentPosition =

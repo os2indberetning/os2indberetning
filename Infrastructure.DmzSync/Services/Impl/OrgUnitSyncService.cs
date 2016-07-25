@@ -26,7 +26,7 @@ namespace Infrastructure.DmzSync.Services.Impl
 
         public void SyncFromDmz()
         {
-            // We are not interested in migrating rates from DMZ to os2.
+            // We are not interested in migrating OrgUnits from DMZ to os2.
             throw new NotImplementedException();
         }
 

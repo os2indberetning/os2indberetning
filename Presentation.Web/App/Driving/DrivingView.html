@@ -63,7 +63,7 @@
                         <select kendo-drop-down-list="container.KilometerAllowanceDropDown" k-options="KilometerAllowanceOptions" ng-change="kilometerAllowanceChanged()" class="fill-width" id="KilometerAllowance" ng-model="DriveReport.KilometerAllowance">
                             <option value="Calculated">Beregnet</option>
                             <option value="Read">Aflæst</option>
-                            <option value="CalculatedWithoutExtraDistance">Beregnet uden merkørsel</option>
+                            <option value="CalculatedWithoutExtraDistance" ng-disabled="alternativeCalculation">Beregnet uden merkørsel</option>
                         </select>
                     </div>
                 </div>

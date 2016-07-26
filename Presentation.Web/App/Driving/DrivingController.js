@@ -7,6 +7,9 @@
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
 
+        // Set Alternative calculation
+        $scope.alternativeCalculation = DriveReport.getCalculationMethod();
+
         // Setup functions in scope.
         $scope.Number = Number;
         $scope.toString = toString;

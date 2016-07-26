@@ -206,7 +206,16 @@ namespace Core.ApplicationServices
                             }
 
                             break;
-                        } 
+                        }
+                        else if(useNorddjursAltCalculation)
+                        {
+                            report.Distance = drivenRoute.Length;
+
+                            //Save RouteGeometry
+                            report.RouteGeometry = drivenRoute.GeoPoints;
+
+                            break;
+                        }
 
                         if ((report.StartsAtHome || report.EndsAtHome) && !report.FourKmRule)
                         {

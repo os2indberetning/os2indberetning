@@ -13,6 +13,7 @@ using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
+using System.Configuration;
 
 namespace OS2Indberetning.Controllers
 {
@@ -85,6 +86,25 @@ namespace OS2Indberetning.Controllers
             if (report != null)
             {
                 return Ok(report);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Returns a bool indicating if the special Norddjurs calculation method is configured to be used.
+        /// Used for setting the available options in the kilometerallowance menu.
+        /// </summary>
+        /// <returns></returns>
+        [EnableQuery]
+        public IHttpActionResult GetCalculationMethod()
+        {
+            bool parseResult;
+            bool altCalc = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out parseResult);
+
+            if (parseResult)
+            {
+                return Ok(altCalc);
             }
 
             return StatusCode(HttpStatusCode.NoContent);

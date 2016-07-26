@@ -296,6 +296,15 @@
                 });
                 return res;
             }
+        },
+        "getCalculationMethod": {
+            method: "GET",
+            isArray: false,
+            url: "/odata/DriveReports/Service.GetCalculationMethod",
+            transformResponse: function (data) {
+                var res = angular.fromJson(data);
+                return res;
+            }
         }
     });
 }]);

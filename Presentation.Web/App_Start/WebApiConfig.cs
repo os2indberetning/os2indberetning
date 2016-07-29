@@ -91,6 +91,10 @@ namespace OS2Indberetning
             .Function("GetLatestReportForUser")
             .ReturnsFromEntitySet<DriveReport>("DriveReports");
 
+            builder.EntityType<DriveReport>().Collection
+            .Function("GetCalculationMethod")
+            .ReturnsFromEntitySet<DriveReport>("DriveReports");
+
             builder.EntitySet<DriveReportPoint>("DriveReportPoints");
 
             builder.EntitySet<Employment>("Employments");

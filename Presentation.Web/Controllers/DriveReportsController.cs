@@ -99,12 +99,12 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetCalculationMethod()
         {
-            bool parseResult;
-            bool altCalc = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out parseResult);
+            bool isAltCalc;
+            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
 
-            if (parseResult)
+            if (parseSucces)
             {
-                return Ok(altCalc);
+                return Ok(isAltCalc);
             }
 
             return StatusCode(HttpStatusCode.NoContent);

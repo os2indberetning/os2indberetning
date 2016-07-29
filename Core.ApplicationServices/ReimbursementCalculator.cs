@@ -171,7 +171,7 @@ namespace Core.ApplicationServices
                         // Norddjurs Kommune uses an alternative way of calculating the amount to reimburse. Instead of subtracting the distance from home to work from the driven distance,
                         // either the home-to-destination or work-to-destination distance is used, which ever is shortest. This only applies to routes starting from home, in any other case
                         // the standard calculation method is used.
-                        var useNorddjursAltCalculation = ConfigurationManager.AppSettings["NorddjursAltCalc"].Equals("true");
+                        var useNorddjursAltCalculation = ConfigurationManager.AppSettings["AlternativeCalculationMethod"].Equals("true");
                         
                         // Use Norddjurs alternative reimbursemnt calculation method if configured so.
                         if (useNorddjursAltCalculation && report.StartsAtHome)
@@ -189,7 +189,10 @@ namespace Core.ApplicationServices
                             addresses.Add(workAddress);
                             foreach(Address address in report.DriveReportPoints)
                             {
-                                addresses.Add(address);
+                                if (!(address.Latitude == homeAddress.Latitude && address.Longitude == homeAddress.Longitude))
+                                {
+                                    addresses.Add(address);
+                                }
                             }
 
                             var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;

@@ -38,28 +38,20 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-            //#if DEBUG
-            //string[] httpUser = @"syddjursnet\at".Split('\\'); // Fissirul Lehmann - administrator
-            //string[] httpUser = User.Identity.Name.Split('\\');
-            string[] httpUser = new string[2];
-            httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
-            httpUser[0] = "MIRACLE";
+            string[] httpUser = User.Identity.Name.Split('\\');
 
-            //#else
-            //#endif      
-            //Debug on testserver
             _logger.Log(httpUser[0] + " - " + httpUser[1], "web");
-            if(httpUser[0] == "WIN-KT4GI14GFC1")
+
+            if (httpUser[0] == "WIN-KT4GI14GFC1")
             {
+                httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
                 httpUser[0] = "MIRACLE";
             }
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
-                // DEBUG ON PRODUCTION. Set petsoe = lky
-                if (initials == "itmind" || initials == "jaoj" || initials == "mraitm" || initials == "administrator") { initials = "tst"; }
-                // END DEBUG
+
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)
                 {

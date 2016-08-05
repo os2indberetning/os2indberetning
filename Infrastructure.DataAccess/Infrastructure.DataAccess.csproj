@@ -385,6 +385,14 @@
     <Compile Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.Designer.cs">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201607101258290_add_OUID_on_orgUnit.cs" />
+    <Compile Include="Migrations\201607101258290_add_OUID_on_orgUnit.Designer.cs">
+      <DependentUpon>201607101258290_add_OUID_on_orgUnit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201607161120170_Add_IDMOrgLeaders.cs" />
+    <Compile Include="Migrations\201607161120170_Add_IDMOrgLeaders.Designer.cs">
+      <DependentUpon>201607161120170_Add_IDMOrgLeaders.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -639,6 +647,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.resx">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607101258290_add_OUID_on_orgUnit.resx">
+      <DependentUpon>201607101258290_add_OUID_on_orgUnit.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201607161120170_Add_IDMOrgLeaders.resx">
+      <DependentUpon>201607161120170_Add_IDMOrgLeaders.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

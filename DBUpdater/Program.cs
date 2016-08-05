@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data;
 using System.Data.Entity.Migrations.Model;
 using System.Data.SqlClient;
@@ -27,27 +28,45 @@ namespace DBUpdater
             var ninjectKernel = NinjectWebKernel.CreateKernel();
 
             IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
-            
-            var service = new UpdateService(ninjectKernel.Get<IGenericRepository<Employment>>(),
-                ninjectKernel.Get<IGenericRepository<OrgUnit>>(),
-                ninjectKernel.Get<IGenericRepository<Person>>(),
-                ninjectKernel.Get<IGenericRepository<CachedAddress>>(),
-                ninjectKernel.Get<IGenericRepository<PersonalAddress>>(),
-                ninjectKernel.Get<IAddressLaunderer>(),
-                ninjectKernel.Get<IAddressCoordinates>(), new DataProvider(),
-                ninjectKernel.Get<IMailSender>(),
-                historyService,
-                ninjectKernel.Get<IGenericRepository<DriveReport>>(),
-                ninjectKernel.Get<IDriveReportService>(),
-                ninjectKernel.Get<ISubstituteService>(),
-                ninjectKernel.Get<IGenericRepository<Substitute>>());
 
-            service.MigrateOrganisations();
-            service.MigrateEmployees();
-            historyService.UpdateAddressHistories();
-            historyService.CreateNonExistingHistories();
-            service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
-            service.AddLeadersToReportsThatHaveNone();
+            var service = new UpdateService(ninjectKernel.Get<IGenericRepository<Employment>>(),
+                    ninjectKernel.Get<IGenericRepository<OrgUnit>>(),
+                    ninjectKernel.Get<IGenericRepository<Person>>(),
+                    ninjectKernel.Get<IGenericRepository<CachedAddress>>(),
+                    ninjectKernel.Get<IGenericRepository<PersonalAddress>>(),
+                    ninjectKernel.Get<IAddressLaunderer>(),
+                    ninjectKernel.Get<IAddressCoordinates>(), new DataProvider(),
+                    ninjectKernel.Get<IMailSender>(),
+                    historyService,
+                    ninjectKernel.Get<IGenericRepository<DriveReport>>(),
+                    ninjectKernel.Get<IDriveReportService>(),
+                    ninjectKernel.Get<ISubstituteService>(),
+                    ninjectKernel.Get<IGenericRepository<Substitute>>(), ninjectKernel.Get<IGenericRepository<IDMOrgLeader>>());
+
+            var importSystem = ConfigurationManager.AppSettings["ImportSystem"];
+            switch (importSystem)
+            {
+                case "IDM":
+                    service.MigrateOrganisationsIDM();
+                    service.MigrateEmployeesIDM();
+                    historyService.UpdateAddressHistories();
+                    historyService.CreateNonExistingHistories();
+                    service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
+                    service.AddLeadersToReportsThatHaveNone();
+
+                    break;
+                case "Flow":
+
+                
+
+                    service.MigrateOrganisations();
+                    service.MigrateEmployees();
+                    historyService.UpdateAddressHistories();
+                    historyService.CreateNonExistingHistories();
+                    service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
+                    service.AddLeadersToReportsThatHaveNone();
+                    break;
+            }
         }
 
 

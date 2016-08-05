@@ -38,7 +38,8 @@ namespace Infrastructure.DataAccess
         public IDbSet<AddressHistory> AddressHistory { get; set; }
         public IDbSet<AppLogin> AppLogin { get; set; }
 
-
+        //Required for IDM to work since org has the leader not the person
+        public IDbSet<IDMOrgLeader> IDMOrgLeaders { get; set; }
         /**
          * Sets up 
          */

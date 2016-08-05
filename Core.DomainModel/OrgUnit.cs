@@ -6,6 +6,7 @@ namespace Core.DomainModel
     {
         public int Id { get; set; }
         public int OrgId { get; set; }
+        public string OrgOUID { get; set; }//Have to be there because of IDM systems
         public string ShortDescription { get; set; }
         public string LongDescription { get; set; }
         public bool HasAccessToFourKmRule { get; set; }

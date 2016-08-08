@@ -2342,13 +2342,13 @@
     <TypeScriptCompile Include="Scripts\typings\moment\moment.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\os2_app_webapi\Core.DomainModel\Core.DomainModel.csproj">
+      <Project>{b6dabc90-7b3f-4329-b30b-5e33285003f7}</Project>
+      <Name>Core.DomainModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.ApplicationServices\Core.ApplicationServices.csproj">
       <Project>{7fe59360-f8d1-441d-8a51-e521f22a3733}</Project>
       <Name>Core.ApplicationServices</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Core.DomainModel\Core.DomainModel.csproj">
-      <Project>{823928ad-3bb7-4fd8-831f-201d73b80ae0}</Project>
-      <Name>Core.DomainModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.DomainServices\Core.DomainServices.csproj">
       <Project>{3a54fd98-5ecf-47c1-98c1-d827cfeba317}</Project>

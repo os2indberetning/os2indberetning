@@ -2350,6 +2350,10 @@
       <Project>{7fe59360-f8d1-441d-8a51-e521f22a3733}</Project>
       <Name>Core.ApplicationServices</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Core.DmzModel\Core.DmzModel.csproj">
+      <Project>{108af3eb-0b3f-4943-aef2-de847bfae8a8}</Project>
+      <Name>Core.DmzModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.DomainServices\Core.DomainServices.csproj">
       <Project>{3a54fd98-5ecf-47c1-98c1-d827cfeba317}</Project>
       <Name>Core.DomainServices</Name>

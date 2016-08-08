@@ -318,7 +318,7 @@ namespace Core.ApplicationServices
                 else
                 {
                     orgToCheck = orgToCheck.Parent;
-                    if (orgToCheck == null || orgToCheck.Id == orgUnit.Parent.Id)
+                    if (orgToCheck == null || orgToCheck.Id == orgUnit.Parent?.Id)
                     {
                         loopHasFinished = true;
                     }

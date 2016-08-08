@@ -18,6 +18,7 @@ using System.Xml.Linq;
 using System.Xml.Serialization;
 using System.IO;
 using System.Xml;
+using Core.DomainModel;
 
 namespace OS2Indberetning.Controllers
 {

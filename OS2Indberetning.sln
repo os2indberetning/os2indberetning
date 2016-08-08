@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{754E1A
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationServices.Test", "ApplicationServices.Test\ApplicationServices.Test.csproj", "{B670D355-8423-4B20-8CBD-96404D8625B6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.ApplicationServices.Test", "ApplicationServices.Test\Core.ApplicationServices.Test.csproj", "{B670D355-8423-4B20-8CBD-96404D8625B6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EFB1501E-877D-4D4D-B810-9B75B376A065}"
 	ProjectSection(SolutionItems) = preProject
@@ -33,7 +33,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mail.Test", "ConsoleApplica
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBUpdater", "DBUpdater\DBUpdater.csproj", "{A7C2603A-669B-408D-842F-08DB1E08F166}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainServices.Test", "DomainServices.Test\DomainServices.Test.csproj", "{68D912C8-DDF9-43BD-89AD-2F9612FB2B54}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.DomainServices.Test", "DomainServices.Test\Core.DomainServices.Test.csproj", "{68D912C8-DDF9-43BD-89AD-2F9612FB2B54}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DBUpdater.Test", "DBUpdater.Test\DBUpdater.Test.csproj", "{51279FD1-B6BC-421E-B751-BC60781676A3}"
 EndProject
@@ -42,6 +42,14 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmzSync.Test", "DmzSync.Test\DmzSync.Test.csproj", "{2CA4B8F8-39E7-4286-B5A9-6429D37FDBE0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.DataAccess", "Infrastructure.DataAccess\Infrastructure.DataAccess.csproj", "{9914DB94-E465-4751-939C-8121C30AC945}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.DomainModel", "Core.DomainModel\Core.DomainModel.csproj", "{823928AD-3BB7-4FD8-831F-201D73B80AE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.DomainServices", "Core.DomainServices\Core.DomainServices.csproj", "{3A54FD98-5ECF-47C1-98C1-D827CFEBA317}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.ApplicationServices", "Core.ApplicationServices\Core.ApplicationServices.csproj", "{7FE59360-F8D1-441D-8A51-E521F22A3733}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.DmzSync", "Infrastructure.DmzSync\Infrastructure.DmzSync.csproj", "{537CFCE9-FC15-46C0-A706-92CA40CF2C0C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +97,22 @@ Global
 		{9914DB94-E465-4751-939C-8121C30AC945}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9914DB94-E465-4751-939C-8121C30AC945}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9914DB94-E465-4751-939C-8121C30AC945}.Release|Any CPU.Build.0 = Release|Any CPU
+		{823928AD-3BB7-4FD8-831F-201D73B80AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{823928AD-3BB7-4FD8-831F-201D73B80AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{823928AD-3BB7-4FD8-831F-201D73B80AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{823928AD-3BB7-4FD8-831F-201D73B80AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3A54FD98-5ECF-47C1-98C1-D827CFEBA317}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3A54FD98-5ECF-47C1-98C1-D827CFEBA317}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3A54FD98-5ECF-47C1-98C1-D827CFEBA317}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3A54FD98-5ECF-47C1-98C1-D827CFEBA317}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7FE59360-F8D1-441D-8A51-E521F22A3733}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7FE59360-F8D1-441D-8A51-E521F22A3733}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7FE59360-F8D1-441D-8A51-E521F22A3733}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7FE59360-F8D1-441D-8A51-E521F22A3733}.Release|Any CPU.Build.0 = Release|Any CPU
+		{537CFCE9-FC15-46C0-A706-92CA40CF2C0C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{537CFCE9-FC15-46C0-A706-92CA40CF2C0C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{537CFCE9-FC15-46C0-A706-92CA40CF2C0C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{537CFCE9-FC15-46C0-A706-92CA40CF2C0C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

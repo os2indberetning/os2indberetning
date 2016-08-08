@@ -64,6 +64,8 @@
             /// </summary>
             $scope.DriveReport = new DriveReport();
 
+            console.log("name: " + $rootScope.CurrentUser.id);
+
             $scope.DriveReport.KilometerAllowance = $rootScope.CurrentUser.Employments[0].OrgUnit.DefaultKilometerAllowance;
 
             $scope.DriveReport.Addresses = [];

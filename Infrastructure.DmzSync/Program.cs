@@ -44,6 +44,9 @@ namespace Infrastructure.DmzSync
             var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
                 new GenericRepository<Rate>(new DataContext()));
 
+            var userAuthSync = new UserAuthSyncService(new GenericRepository<AppLogin>(new DataContext()),
+                new GenericDmzRepository<UserAuth>(new DmzContext()));
+
             try
             {
                 Console.WriteLine("DriveReportsSyncFromDmz");
@@ -78,7 +81,18 @@ namespace Infrastructure.DmzSync
                 logger.Log("Fejl under synkronisering af takster til DMZ. Mobil-app er ikke opdateret med nyeste rater.", "dmz", ex, 1);
                 throw;
             }
-            
+
+            try
+            {
+                Console.WriteLine("UserAuthSyncToDmz");
+                userAuthSync.SyncToDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af applogins til DMZ. Mobil-app er ikke opdateret med nyeste applogins.", "dmz", ex, 1);
+                throw;
+            }
+
 
             Console.WriteLine("Done");
 

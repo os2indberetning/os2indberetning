@@ -44,7 +44,7 @@ namespace OS2Indberetning.Controllers
 
             if (httpUser[0] == "WIN-KT4GI14GFC1")
             {
-                //httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
+                httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
                 httpUser[0] = "MIRACLE";
             }
 

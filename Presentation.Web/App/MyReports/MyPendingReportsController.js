@@ -181,7 +181,7 @@
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setDate(from.getDate() - (2 * 365));
+           from.setMonth(from.getMonth() - 12);
 
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;

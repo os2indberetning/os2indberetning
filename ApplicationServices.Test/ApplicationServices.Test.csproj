@@ -145,9 +145,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <Content Include="CustomSettings.config">
+    <None Include="CustomSettings.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

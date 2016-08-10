@@ -28,8 +28,8 @@ namespace DBUpdater
             {
                 var cmd = new SqlCommand
                 {
-                    // CommandText = "SELECT * FROM information_schema.tables",
-                    CommandText = "SELECT * FROM eindberetning.medarbejder",
+                    CommandText = "SELECT * FROM [VKNT_eindberetning.Medarbejder]",
+                    // CommandText = "SELECT * FROM dbo.medarbejder",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
@@ -50,13 +50,13 @@ namespace DBUpdater
                         ADBrugerNavn = SafeGetString(reader, 5),
                         Adresse = SafeGetString(reader, 6),
                         Stednavn = SafeGetString(reader, 7),
-                        PostNr =  SafeGetString(reader, 8) == null ? 0 : int.Parse(SafeGetString(reader, 8)),
+                        PostNr =  string.IsNullOrEmpty(SafeGetString(reader, 8)) ? 0 : int.Parse(SafeGetString(reader, 8)),
                         By = SafeGetString(reader, 9),
                         Land = SafeGetString(reader, 10),
                         Email = SafeGetString(reader, 11),
                         CPR = SafeGetString(reader, 12),
                         LOSOrgId = SafeGetInt32(reader, 13),
-                        Leder = reader.GetBoolean(14),
+                        Leder = SafeGetBool(reader, 14),
                         Stillingsbetegnelse = SafeGetString(reader, 15),
                         Omkostningssted = SafeGetInt64(reader, 16),
                         AnsatForhold = SafeGetString(reader, 17),
@@ -79,7 +79,8 @@ namespace DBUpdater
             {
                 var cmd = new SqlCommand
                 {
-                    CommandText = "SELECT * FROM eindberetning.organisation",
+                    // CommandText = "SELECT * FROM dbo.organisation",
+                    CommandText = "SELECT * FROM [VKNT_eindberetning.Organisation]",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
@@ -91,7 +92,7 @@ namespace DBUpdater
                 {
                     var currentRow = new Organisation
                     {
-                        LOSOrgId = reader.GetInt32(0),
+                        LOSOrgId = SafeGetInt32(reader, 0) ?? -1,
                         ParentLosOrgId = SafeGetInt32(reader, 1),
                         KortNavn = SafeGetString(reader, 2),
                         Navn = SafeGetString(reader, 3),
@@ -100,12 +101,24 @@ namespace DBUpdater
                         Postnr = SafeGetInt16(reader, 6),
                         By = SafeGetString(reader, 7),
                         Omkostningssted = SafeGetInt64(reader, 8),
-                        Level = reader.GetInt32(9)
+                        Level = SafeGetInt32(reader, 9) ?? 0
                     };
-                    result.Add(currentRow);
+                    if (currentRow.LOSOrgId >= 0)
+                    {
+                        result.Add(currentRow); 
+                    }
                 }
             }
             return result.AsQueryable();
+        }
+
+        private bool SafeGetBool(SqlDataReader reader, int colIndex)
+        {
+            if (!reader.IsDBNull(colIndex))
+            {
+                return reader.GetBoolean(colIndex);
+            }
+            return false;
         }
 
         private DateTime? SafeGetDate(SqlDataReader reader, int colIndex)

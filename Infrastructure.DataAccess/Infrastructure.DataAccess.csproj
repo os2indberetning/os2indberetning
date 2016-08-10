@@ -357,6 +357,10 @@
     <Compile Include="Migrations\201512211341442_diditwork.Designer.cs">
       <DependentUpon>201512211341442_diditwork.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608100704017_test migration.cs" />
+    <Compile Include="Migrations\201608100704017_test migration.Designer.cs">
+      <DependentUpon>201608100704017_test migration.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -590,6 +594,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201512211341442_diditwork.resx">
       <DependentUpon>201512211341442_diditwork.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608100704017_test migration.resx">
+      <DependentUpon>201608100704017_test migration.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

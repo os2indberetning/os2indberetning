@@ -29,7 +29,7 @@
                 if (res.error == undefined) {
                     // If the request did not yield an error, then finish the request and return it.
                     res.IsLeader = (function () {
-                        var returnVal = false;
+                        var returnVal = false; 
                         angular.forEach(res.Employments, function (value, key) {
                             if (value.IsLeader === true) {
                                 returnVal = true;

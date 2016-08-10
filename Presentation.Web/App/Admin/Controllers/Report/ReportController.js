@@ -9,9 +9,9 @@
             //$window.open('/eksport/index?Employee=' + $scope.container.employeeFilter + '&manr=' + $scope.container.MANrFilter + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString, '_blank');
             //$window.open('app/admin/html/report/DocumentView.html');
 
-            var url = $state.href('document', { "Employee": 'parametre' });
+            var url = $state.href('document');
 
-$scope.$broadcast('createReportClicked');
+            $scope.$broadcast('createReportClicked');
 
             $window.open(url + '?Employee=' + $scope.container.employeeFilter + '&manr=' + $scope.container.MANrFilter + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString, '_blank');
 

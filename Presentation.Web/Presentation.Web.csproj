@@ -109,7 +109,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Spatial, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Spatial.5.6.0\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
@@ -284,6 +283,16 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <None Include="connections.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <Content Include="Content\favicon.ico" />
+    <Content Include="Content\private.css" />
+    <None Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -291,11 +300,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
-    <Compile Include="Service References\SDloen\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="Startup.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -704,11 +708,10 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
-    <Content Include="Core.ApplicationServices.csproj" />
-    <Content Include="Core.DomainServices.csproj" />
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="logo.png" />
     <Content Include="Scripts\angular-busy.min.js" />
     <Content Include="Scripts\kendo-ie-fix.js" />
     <Content Include="Scripts\kendo\angular.min.js" />
@@ -1202,6 +1205,7 @@
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-HK.min.js" />
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-TW.min.js" />
     <Content Include="Scripts\kendo\pako_deflate.min.js" />
+    <None Include="Properties\PublishProfiles\Miracle-RRO.pubxml" />
     <None Include="Properties\PublishProfiles\Skanderborg.pubxml" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
@@ -1209,12 +1213,6 @@
     <Content Include="Scripts\loading-bar.js" />
     <Content Include="Scripts\loading-bar.min.js" />
     <Content Include="Scripts\pnotify.custom.min.js" />
-    <None Include="Service References\SDloen\configuration91.svcinfo" />
-    <None Include="Service References\SDloen\configuration.svcinfo" />
-    <None Include="Service References\SDloen\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
     <Content Include="template\loading-template.html" />
     <Content Include="template\typeahead\typeahead-match.html" />
     <Content Include="template\typeahead\typeahead-popup.html" />
@@ -2314,43 +2312,7 @@
     <Content Include="Scripts\kendo\kendo.view.min.js.map" />
     <Content Include="Scripts\kendo\kendo.web.min.js.map" />
     <Content Include="Scripts\kendo\kendo.window.min.js.map" />
-    <None Include="Service References\SDloen\CPR_PersonCivilRegistrationIdentifier.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_AarsagTekst_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_EmploymentIdentifier_20111201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_InstitutionIdentifier_20111201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_KilometerMaal_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_KoerselDato_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_KoerselOpretInterface_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_KoerselOpretRequest_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_KoertFraTekst_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_KoertTilTekst_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_Regel60DageIndikator_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDloen\SD_RegistreringTypeIdentifikator_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Views\Shared\_Layout.cshtml" />
+    <Content Include="Views\Shared\_Layout2.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Jasmine\SpecRunner.cshtml" />
     <Content Include="Scripts\version.json" />
@@ -2414,9 +2376,6 @@
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\SDloen\" />
-  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -2432,11 +2391,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>1983</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:3333/</IISUrl>
+          <IISUrl>http://localhost:1984/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

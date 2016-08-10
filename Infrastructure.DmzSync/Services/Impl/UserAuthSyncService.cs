@@ -51,6 +51,8 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                 var encryptedLogin = Encryptor.EncryptAppLogin(login);
 
+                var dmzUserAuth = _dmzAuthRepo.AsQueryable().FirstOrDefault(x => x.ProfileId == login.PersonId);
+
                 var dmzLogin = new UserAuth
                 {
                     UserName = encryptedLogin.UserName,
@@ -60,8 +62,19 @@ namespace Infrastructure.DmzSync.Services.Impl
                     Salt = encryptedLogin.Salt
                 };
 
-                _dmzAuthRepo.Insert(dmzLogin);
-                
+                if(dmzUserAuth == null)
+                {
+                    _dmzAuthRepo.Insert(dmzLogin);
+                }
+                else
+                {
+                    dmzUserAuth.UserName = dmzLogin.UserName;
+                    dmzUserAuth.GuId = dmzLogin.GuId;
+                    dmzUserAuth.Password = dmzLogin.Password;
+                    dmzUserAuth.ProfileId = dmzLogin.ProfileId;
+                    dmzUserAuth.Salt = dmzLogin.Salt;
+                }
+
             }
 
             _dmzAuthRepo.Save();

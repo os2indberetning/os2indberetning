@@ -1,0 +1,22 @@
+﻿
+<script src="/Scripts/kendo/jszip.min.js"></script>
+<script src="/Scripts/kendo/kendo.all.min.js"></script>
+
+<div id="printThis">
+    <!--h3 style="text-align:center;">Navn: <label id="employeeHeader"></label> MAnr: <label id="MAnrHeader"></label> Start: <label id="startDateHeader"></label> slut: <label id="endDateHeader"></label></!--h3-->
+    <div kendo-grid="gridContainer.grid" class="margin-top-10 scrollable" options="reports"></div>
+    <!--footer>Summeret antal Km: <label id="summedKm"></label> Beløb: <label id="summedAmount"></label></!--footer-->
+
+</div>
+        <footer>
+            <!--div class="col-sm-12">
+                <button class="btn btn-primary" ng-click="print()">Print</button>
+                <!--button class="btn btn-primary" ng-click="saveAsPdf()">Gem som pdf</!--button>
+                <button class="btn btn-primary" ng-click="downloadAsExcel()">Gem som Excel</button>
+           
+                <div class="col-sm-8">
+                </div>
+            </!--div-->
+        </footer>
+
+

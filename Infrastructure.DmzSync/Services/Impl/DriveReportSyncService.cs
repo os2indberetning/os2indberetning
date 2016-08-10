@@ -13,7 +13,7 @@ using Core.DomainServices.RoutingClasses;
 using Infrastructure.AddressServices;
 using Infrastructure.DataAccess;
 using Infrastructure.DmzDataAccess;
-using Infrastructure.DmzSync.Encryption;
+using Core.DomainServices.Encryption;
 using Infrastructure.DmzSync.Services.Interface;
 using DriveReport = Core.DomainModel.DriveReport;
 using Employment = Core.DmzModel.Employment;
@@ -51,7 +51,7 @@ namespace Infrastructure.DmzSync.Services.Impl
         /// </summary>
         public void SyncFromDmz()
         {
-            var reports = _dmzDriveReportRepo.AsQueryable().ToList();
+            var reports = _dmzDriveReportRepo.AsQueryable().Where(x => x.SyncedAt == null).ToList();
             var max = reports.Count;
 
             for (var i = 0; i < max; i++)
@@ -65,7 +65,6 @@ namespace Infrastructure.DmzSync.Services.Impl
                 var viaPoints = new List<DriveReportPoint>();
                 for (var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
                 {
-
                     var gpsCoord = dmzReport.Route.GPSCoordinates.ToArray()[j];
                     gpsCoord = Encryptor.DecryptGPSCoordinate(gpsCoord);
 
@@ -98,7 +97,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                         catch (AddressCoordinatesException e)
                         {
                             coordinatesFailed = true;
-                            _logger.Log("Report belonging to " + dmzReport.Profile.FullName + " with purpose \"" + dmzReport.Purpose + "\" had invalid coordinates and was not synced.", "dmz");
+                            _logger.Log("Indberetning tilhørende " + dmzReport.Profile.FullName + " med formål \"" + dmzReport.Purpose + "\" har ugyldige koordinater og blev ikke synkroniseret.", "dmz", e, 2);
                             break;
                         }
                     }
@@ -117,10 +116,10 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                     IsFromApp = true,
                     Distance = dmzReport.Route.TotalDistance,
-                    KilometerAllowance = KilometerAllowance.Read,
-                    // Date might not be correct. Depends which culture is delivered from app. 
-                    // https://msdn.microsoft.com/en-us/library/cc165448.aspx
-                    DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
+                    KilometerAllowance = dmzReport.Route.GPSCoordinates.Count > 0 ? KilometerAllowance.Calculated : KilometerAllowance.Read,
+                // Date might not be correct. Depends which culture is delivered from app. 
+                // https://msdn.microsoft.com/en-us/library/cc165448.aspx
+                DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
                     CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
                     StartsAtHome = dmzReport.StartsAtHome,
                     EndsAtHome = dmzReport.EndsAtHome,
@@ -139,7 +138,14 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                 newReport.RouteGeometry = GeoService.Encode(points);
 
-                _driveService.Create(newReport);
+                try {
+                    _driveService.Create(newReport);
+                    reports[i].SyncedAt = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                    _dmzDriveReportRepo.Save();
+                } catch(Exception e)
+                {
+                    _logger.Log("En ukendt fejl opstod under synkronisering af indberetning tilhørende " + reports[i].Profile.FullName + ". Indberetningen blev ikke synkroniseret.", "dmz", e, 2);
+                }
             }
         }
 
@@ -153,13 +159,12 @@ namespace Infrastructure.DmzSync.Services.Impl
         }
 
         /// <summary>
-        /// Clears all DriveReports from DMZ database.
+        /// Not implemented.
         /// </summary>
         public void ClearDmz()
         {
-            var reports = _dmzDriveReportRepo.AsQueryable().ToList();
-            _dmzDriveReportRepo.DeleteRange(reports);
-            _dmzDriveReportRepo.Save();
+            // After implementing the SyncedAt property on drivereports this method is no longer used.
+            throw new NotImplementedException();
         }
 
     }

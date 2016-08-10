@@ -1,7 +1,6 @@
 ﻿angular.module("application").controller("DrivingController", [
-    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal", "$location",
-    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal, $location) {
-
+    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal", "$location", "adminEditCurrentUser",
+    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal, $location, adminEditCurrentUser) {
 
         $scope.ReadReportCommentHelp = $rootScope.HelpTexts.ReadReportCommentHelp.text;
         $scope.PurposeHelpText = $rootScope.HelpTexts.PurposeHelpText.text;
@@ -64,6 +63,9 @@
             /// Initializes fields for new report.
             /// </summary>
             $scope.DriveReport = new DriveReport();
+
+            $scope.DriveReport.KilometerAllowance = $rootScope.CurrentUser.Employments[0].OrgUnit.DefaultKilometerAllowance;
+
             $scope.DriveReport.Addresses = [];
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });
@@ -132,7 +134,7 @@
             /// </summary>
             /// <param name="report"></param>
             $scope.DriveReport.FourKmRule = {};
-            $scope.DriveReport.FourKmRule.Value = $rootScope.CurrentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
+            $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
 
 
 
@@ -170,6 +172,16 @@
                 switch (report.KilometerAllowance) {
                     case "Calculated":
                         $scope.container.KilometerAllowanceDropDown.select(0);
+
+                        if (report.IsFromApp) {
+                            //Notify user that editing a calculated report from app has special conditions.
+                            var modalInstance = $modal.open({
+                                templateUrl: '/App/Driving/EditCalculatedAppReportTemplate.html',
+                                controller: 'NoLicensePlateModalController',
+                                backdrop: "static",
+                            });
+                        }
+
                         break;
                     case "Read":
                         $scope.container.KilometerAllowanceDropDown.select(1);
@@ -181,13 +193,13 @@
 
                 $scope.DriveReport.KilometerAllowance = $scope.container.KilometerAllowanceDropDown._selectedValue;
 
-                firstMapLoad = false;
                 $scope.DriveReport.Purpose = report.Purpose;
+                $scope.DriveReport.Status = report.Status;
                 $scope.DriveReport.FourKmRule.Using = report.FourKmRule;
                 $scope.DriveReport.Date = moment.unix(report.DriveDateTimestamp)._d;
 
                 if (report.KilometerAllowance == "Read") {
-
+                    firstMapLoad = false;
 
                     $scope.DriveReport.UserComment = report.UserComment;
                     if (!report.StartsAtHome && !report.EndsAtHome) {
@@ -223,24 +235,30 @@
                     $scope.$on("kendoWidgetCreated", function (event, widget) {
                         if (widget === $scope.container.lastTextBox) {
                             mapChanging = false;
+                            firstMapLoad = false;
                             $scope.addressInputChanged();
                         }
                     });
-
+                    
                 }
 
                 $scope.DriveReport.IsRoundTrip = report.IsRoundTrip;
             }
         }
 
+
+        if(adminEditCurrentUser != 0){
+            // adminEditCurrentUser will have a value different from 0 if an admin is currently trying to edit a report.
+            $scope.currentUser = adminEditCurrentUser;
+        } else {
+            $scope.currentUser = $rootScope.CurrentUser;
+        }
+
         // Load all data
-        $scope.currentUser = $rootScope.CurrentUser;
         var currentUser = $scope.currentUser;
-
-
         // Load user's positions.
         angular.forEach(currentUser.Employments, function (value, key) {
-            value.PresentationString = value.Position + " - " + value.OrgUnit.LongDescription;
+            value.PresentationString = value.Position + " - " + value.OrgUnit.LongDescription + " (" + value.EmploymentId + ")";
         });
         $scope.Employments = currentUser.Employments;
 
@@ -307,7 +325,7 @@
                 if (value.Type == "Home") {
                     // Store home address
                     $scope.HomeAddress = value;
-                    value.PresentationString += "Hjemmeadresse : ";
+                    value.PresentationString = "Hjemmeadresse : ";
                 }
                 if (value.Type == "AlternativeHome") {
                     // Overwrite home address if user has alternative home address.
@@ -317,7 +335,15 @@
                 value.PresentationString += value.StreetName + " " + value.StreetNumber + ", " + value.ZipCode + " " + value.Town;
                 value.address = value.StreetName + " " + value.StreetNumber + ", " + value.ZipCode + " " + value.Town;
             });
-            $scope.PersonalAddresses = res;
+
+            $scope.PersonalAddresses = new kendo.data.DataSource({
+                data: res,
+                sort: {
+                    field: "PresentationString",
+                    dir: "asc"
+                }
+            });
+
         }));
 
 
@@ -492,7 +518,7 @@
             /// Resolves address coordinates and updates map.
             /// </summary>
             /// <param name="index"></param>
-            if (!validateAddressInput(false) || mapChanging) {
+            if (!validateAddressInput(false) || mapChanging || firstMapLoad) {
                 return;
             }
 
@@ -516,7 +542,10 @@
                 // Format address objects for OS2RouteMap once received.
                 angular.forEach(data, function (address, value) {
                     mapArray.push({ name: address.streetName + " " + address.streetNumber + ", " + address.zipCode + " " + address.town, lat: address.latitude, lng: address.longitude });
+                    $scope.DriveReport.Addresses[value].Latitude = address.latitude;
+                    $scope.DriveReport.Addresses[value].Longitude = address.longitude;
                 });
+
                 setMap(mapArray, $scope.transportType);
                 isFormDirty = true;
             });
@@ -594,16 +623,6 @@
                                 return;
                             }
 
-                            // Prevents flickering of addresses when loading a report to be edited.
-                            if ($scope.initialEditReportLoad === true) {
-                                $scope.initialEditReportLoad = false;
-                                return;
-                            }
-
-                            if ($scope.IsRoute) {
-                                setNotRoute(false);
-                            }
-
                             mapChanging = true;
                             $scope.DriveReport.Addresses = [];
                             // Load the adresses from the map.
@@ -620,9 +639,23 @@
 
                                 mapChanging = false;
                             });
+
+                            // Prevents flickering of addresses when loading a report to be edited.
+                            if ($scope.initialEditReportLoad === true) {
+                                $scope.initialEditReportLoad = false;
+                                return;
+                            }
+
+                            if ($scope.IsRoute) {
+                                setNotRoute(false);
+                            }
+
+                           
                         }
                     });
-                    OS2RouteMap.set($scope.mapStartAddress);
+                    if (!$scope.isEditingReport) {
+                        OS2RouteMap.set($scope.mapStartAddress);
+                    }
                 } else {
                     NotificationService.AutoFadeNotification("danger", "", "Kortet kunne ikke vises. Prøv at genopfriske siden.");
                 }
@@ -734,7 +767,7 @@
             $scope.saveBtnDisabled = true;
             if (isEditingReport) {
                 DriveReport.delete({ id: ReportId }).$promise.then(function () {
-                    DriveReport.edit($scope).$promise.then(function (res) {
+                    DriveReport.edit({ emailText: $scope.emailText },$scope).$promise.then(function (res) {
                         $scope.latestDriveReport = res;
                         NotificationService.AutoFadeNotification("success", "", "Din tjenestekørselsindberetning blev redigeret");
                         $scope.clearReport();
@@ -764,10 +797,30 @@
             if (!$scope.canSubmitDriveReport) {
                 return;
             }
+            if($scope.DriveReport.Status == "Accepted"){
+                // An admin is trying to edit an already approved report.
+                var modalInstance = $modal.open({
+                   templateUrl: '/App/Admin/HTML/Reports/Modal/ConfirmEditApprovedReportTemplate.html',
+                   controller: 'ConfirmEditApprovedReportModalController',
+                   backdrop: "static",
+                });
 
-            if ($rootScope.CurrentUser.DistanceFromHomeToBorder != $scope.DriveReport.FourKmRule.Value && $scope.DriveReport.FourKmRule.Value != "" && $scope.DriveReport.FourKmRule.Value != undefined) {
-                $rootScope.CurrentUser.DistanceFromHomeToBorder = $scope.DriveReport.FourKmRule.Value
-                Person.patch({ id: $rootScope.CurrentUser.Id }, { DistanceFromHomeToBorder: $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".") }).$promise.then(function () {
+               modalInstance.result.then(function (res) {
+                   if(res == undefined){
+                       res = "Ingen besked.";
+                   }
+                   $scope.emailText = res;
+                   $scope.prepHandleSave();
+               });
+            } else {
+                $scope.prepHandleSave();
+            }
+        }
+
+        $scope.prepHandleSave = function(){
+            if ($scope.currentUser.DistanceFromHomeToBorder != $scope.DriveReport.FourKmRule.Value && $scope.DriveReport.FourKmRule.Value != "" && $scope.DriveReport.FourKmRule.Value != undefined) {
+                $scope.currentUser.DistanceFromHomeToBorder = $scope.DriveReport.FourKmRule.Value
+                Person.patch({ id: $scope.currentUser.Id }, { DistanceFromHomeToBorder: $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".") }).$promise.then(function () {
                     handleSave();
                 });
             } else {

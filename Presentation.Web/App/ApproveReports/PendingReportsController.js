@@ -51,7 +51,7 @@
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setDate(fromDateFilter.getDate() - 365);
+       fromDateFilter.setDate(fromDateFilter.getDate() - (365*2));
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -150,13 +150,13 @@
                 serverAggregates: false,
                 serverSorting: true,
                 serverFiltering: true,
-                sort: [{ field: "FullName", dir: "desc" }, { field: "DriveDateTimestamp", dir: "desc" }],
+                sort: { field: "DriveDateTimestamp", dir: "desc" },
                 aggregate: [
                     { field: "Distance", aggregate: "sum" },
                     { field: "AmountToReimburse", aggregate: "sum" },
                 ]
             },
-           sortable: { mode: "multiple" },
+           sortable: true,
            resizable: true,
            pageable: {
                messages: {
@@ -187,7 +187,10 @@
            columns: [
                {
                    field: "FullName",
-                   title: "Medarbejder"
+                   title: "Medarbejder",
+                   template: function (data) {
+                       return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                   }
                }, {
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
@@ -250,13 +253,13 @@
                    }
                }, {
                    field: "CreatedDateTimestamp",
-                   title: "Indberettet",
                    template: function (data) {
                        var m = moment.unix(data.CreatedDateTimestamp);
                        return m._d.getDate() + "/" +
                            (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                            m._d.getFullYear();
                    },
+                   title: "Indberettet"
                }, {
                    sortable: false,
                    field: "Id",
@@ -321,7 +324,7 @@
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setDate(from.getDate() - 365);
+           from.setDate(from.getDate() - (365*2));
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;
        }
@@ -348,7 +351,7 @@
            });
 
            modalInstance.result.then(function () {
-               $scope.loadingPromise = Report.patch({ id: id }, {
+               $scope.loadingPromise = Report.patch({ id: id, emailText : "Ingen besked" }, {
                    "Status": "Accepted",
                    "ClosedDateTimestamp": moment().unix(),
                    "ApprovedById": $rootScope.CurrentUser.Id,
@@ -379,7 +382,7 @@
 
                modalInstance.result.then(function (accountNumber) {
                    angular.forEach(checkedReports, function (value, key) {
-                       $scope.loadingPromise = Report.patch({ id: value }, {
+                       $scope.loadingPromise = Report.patch({ id: value, emailText : "Ingen besked" }, {
                            "Status": "Accepted",
                            "ClosedDateTimestamp": moment().unix(),
                            "AccountNumber": accountNumber,
@@ -414,7 +417,7 @@
 
                modalInstance.result.then(function () {
                    angular.forEach(checkedReports, function (value, key) {
-                       $scope.loadingPromise = Report.patch({ id: value }, {
+                       $scope.loadingPromise = Report.patch({ id: value, emailText: "Ingen besked" }, {
                            "Status": "Accepted",
                            "ClosedDateTimestamp": moment().unix(),
                            "ApprovedById": $rootScope.CurrentUser.Id,
@@ -461,7 +464,7 @@
            });
 
            modalInstance.result.then(function (res) {
-               $scope.loadingPromise = Report.patch({ id: id }, {
+               $scope.loadingPromise = Report.patch({ id: id, emailText : "Ingen besked" }, {
                    "Status": "Rejected",
                    "ClosedDateTimestamp": moment().unix(),
                    "Comment": res.Comment,

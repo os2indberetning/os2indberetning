@@ -13,6 +13,9 @@ using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
+using System.Collections.Generic;
+using Newtonsoft.Json;
+using OS2Indberetning.Models;
 
 namespace OS2Indberetning.Controllers
 {
@@ -20,7 +23,7 @@ namespace OS2Indberetning.Controllers
     {
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<Employment> _employmentRepo;
-
+        private readonly IGenericRepository<Person> _personRepo;
         private readonly ILogger _logger;
 
         public DriveReportsController(IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, ILogger logger)
@@ -29,6 +32,7 @@ namespace OS2Indberetning.Controllers
             _driveService = driveService;
             _employmentRepo = employmentRepo;
             _logger = logger;
+            _personRepo = personRepo;
         }
 
         // GET: odata/DriveReports
@@ -90,6 +94,63 @@ namespace OS2Indberetning.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        [HttpGet]
+         public IHttpActionResult Eksport(int manr, string start, string end, string name, string orgUnit)
+        //public IHttpActionResult Eksport()
+        {
+            
+            var employee = getEmploymeeByMa(manr);
+
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+
+            var reports = Repo.AsQueryable().Where(x => dtDateTime.AddSeconds(x.CreatedDateTimestamp).ToLocalTime() > Convert.ToDateTime(start) && dtDateTime.AddSeconds(x.CreatedDateTimestamp).ToLocalTime() < Convert.ToDateTime(end));
+
+            List<EksportModel> result = new List<EksportModel>();
+            
+            foreach (var repo in reports) {
+
+                result.Add(new EksportModel
+                {
+                    
+                    DriveDateTimestamp = repo.DriveDateTimestamp,
+                    CreatedDateTimestamp = repo.CreatedDateTimestamp,
+                    OrgUnit = employee.Id.ToString(),
+                    Purpose = repo.Purpose,
+                    Route = repo.RouteGeometry,
+                    IsExtraDistance = repo.IsExtraDistance,
+                    FourKmRule = repo.FourKmRule,
+                    distanceFromHomeToBorder = employee.DistanceFromHomeToBorder,
+                    AmountToReimburse = repo.AmountToReimburse,
+                    ApprovedBy = repo.ApprovedBy
+                });
+
+            }
+
+            EksportModel[] resultAsArray = result.ToArray();
+
+            
+           // var iqureyable = result.AsQueryable();
+           // var jsonResult = JsonConvert.SerializeObject(iqureyable);
+
+  
+
+            if (result.Count() > 0)
+            {
+                return Json(result);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
+        public Person getEmploymeeByMa(int MAnr) {
+
+            var result = _personRepo.AsQueryable().First( x=> x.Id == MAnr);
+
+            return result;
+           
+
+        }
+
         //GET: odata/DriveReports(5)
         /// <summary>
         /// ODATA API endpoint for a single drivereport.
@@ -122,8 +183,17 @@ namespace OS2Indberetning.Controllers
         /// <param name="driveReport"></param>
         /// <returns>The posted report.</returns>
         [EnableQuery]
-        public new IHttpActionResult Post(DriveReport driveReport)
+        public new IHttpActionResult Post(DriveReport driveReport, string emailText)
         {
+            if(CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
+            {
+                // An admin is trying to edit an already approved report.
+                    var adminEditResult = _driveService.Create(driveReport);
+                    // CurrentUser is restored after the calculation.
+                    _driveService.SendMailToUserAndApproverOfEditedReport(adminEditResult, emailText, CurrentUser, "redigeret");
+                    return Ok(adminEditResult);
+            }
+
             if (!CurrentUser.Id.Equals(driveReport.PersonId))
             {
                 return StatusCode(HttpStatusCode.Forbidden);
@@ -142,10 +212,11 @@ namespace OS2Indberetning.Controllers
         /// </summary>
         /// <param name="key"></param>
         /// <param name="delta"></param>
+        /// <param name="emailText">The message to be sent to the owner of a report an admin has rejected or edited.</param>
         /// <returns></returns>
         [EnableQuery]
         [AcceptVerbs("PATCH", "MERGE")]
-        public new IHttpActionResult Patch([FromODataUri] int key, Delta<DriveReport> delta)
+        public new IHttpActionResult Patch([FromODataUri] int key, Delta<DriveReport> delta, string emailText)
         {
 
             var report = Repo.AsQueryable().SingleOrDefault(x => x.Id == key);
@@ -160,6 +231,21 @@ namespace OS2Indberetning.Controllers
             if (leader == null)
             {
                 return StatusCode(HttpStatusCode.Forbidden);
+            }
+
+            if (CurrentUser.IsAdmin && emailText != null && report.Status == ReportStatus.Accepted)
+            {
+                // An admin is trying to reject an approved report.
+                report.Status = ReportStatus.Rejected;
+                report.Comment = emailText;
+                report.ClosedDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                try {
+                    Repo.Save();
+                    _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
+                    return Ok();
+                } catch(Exception e) {
+                    _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
+                }
             }
 
 
@@ -180,7 +266,7 @@ namespace OS2Indberetning.Controllers
             // User should not be allowed to change a Report which has been accepted or rejected.
             if (report.Status != ReportStatus.Pending)
             {
-                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende.", "web");
+                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.", "web", 3);
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 

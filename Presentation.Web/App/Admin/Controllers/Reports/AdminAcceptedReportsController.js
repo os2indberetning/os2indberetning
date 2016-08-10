@@ -284,10 +284,77 @@ angular.module("application").controller("AdminAcceptedReportsController", [
                            return "Nej";
                        }
                    }
+               }, {
+                    field: "Id",
+                    title: "Muligheder",
+                    template: function(data){
+                        if(data.Status == "Accepted"){
+                            return "<a ng-click=rejectClick(" + data.Id + ")>Afvis</a> | <a ng-click=editClick(" + data.Id + ")>Rediger</a>";
+                        } else {
+                            // Report has already been invoiced.
+                            return "Er kørt til løn.";
+                        }
+                    }
                }
            ],
            scrollable: false
-       };
+       }
+
+       $scope.editClick = function (id) {
+           /// <summary>
+           /// Opens edit report modal
+           /// </summary>
+           /// <param name="id"></param>
+           var modalInstance = $modal.open({
+               templateUrl: '/App/MyReports/EditReportTemplate.html',
+               controller: 'DrivingController',
+               backdrop: "static",
+               windowClass: "app-modal-window-full",
+               resolve: {
+                   ReportId: function () {
+                       return id;
+                   },
+                   adminEditCurrentUser: function () {
+                       return Report.getOwner({id : id}).$promise.then(function(res){
+                            return Person.GetUserAsCurrentUser({id:res.Id}).$promise.then(function(person){
+                                return person;
+                            })
+                       });
+                   }
+               }
+           });
+
+           $rootScope.editModalInstance = modalInstance;
+
+           modalInstance.result.then(function (res) {
+               $scope.gridContainer.grid.dataSource.read();
+           });
+       }
+
+       /// <summary>
+       /// Opens confirm delete accepted report modal
+       /// </summary>
+       $scope.rejectClick = function (id) {
+           var modalInstance = $modal.open({
+               templateUrl: '/App/Admin/HTML/Reports/Modal/ConfirmRejectApprovedReportTemplate.html',
+               controller: 'ConfirmRejectApprovedReportModalController',
+               backdrop: "static",
+               resolve: {
+                   itemId: function () {
+                       return id;
+                   }
+               }
+           });
+
+           modalInstance.result.then(function (res) {
+               if(res == undefined){
+                   res = "Ingen besked.";
+               }
+               Report.patch({ id: id, emailText: res }, function () {
+                   $scope.gridContainer.grid.dataSource.read();
+               });
+           });
+       }
 
        $scope.loadInitialDates = function () {
            /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Core.ApplicationServices;
+using Core.ApplicationServices.Logger;
 using Core.ApplicationServices.Interfaces;
 using Core.DomainModel;
 using Core.DomainServices;
@@ -72,7 +73,7 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
             historyMock.AsQueryable().ReturnsForAnyArgs(new List<AddressHistory>().AsQueryable());
 
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock);
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock, NSubstitute.Substitute.For<ILogger>());
         }
 
         protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<AddressHistory> historyMockData)
@@ -80,7 +81,7 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
             historyMock.AsQueryable().ReturnsForAnyArgs(historyMockData.AsQueryable());
 
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData), historyMock);
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData), historyMock, NSubstitute.Substitute.For<ILogger>());
         }
 
         protected DriveReport GetDriveReport()

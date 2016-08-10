@@ -28,7 +28,9 @@ namespace DBUpdater
             {
                 var cmd = new SqlCommand
                 {
-                   // CommandText = "SELECT * FROM information_schema.tables",
+                    // CommandText = "SELECT * FROM information_schema.tables",
+                    // CommandText = "SELECT * FROM eindberetning.medarbejder",
+
                     CommandText = "SELECT * FROM dbo.medarbejder",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
@@ -79,6 +81,8 @@ namespace DBUpdater
             {
                 var cmd = new SqlCommand
                 {
+
+                    // real query: CommandText = "SELECT * FROM eindberetning.organisation",
                     CommandText = "SELECT * FROM dbo.organisation",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
@@ -130,7 +134,17 @@ namespace DBUpdater
         {
             if (!reader.IsDBNull(colIndex))
             {
-                return reader.GetInt16(colIndex);
+                // This if statement was added because Syddjurs changed their datatype on a row from smallint to tinyint, while Favrskov did not.
+                // A tinyint is a byte, which is handled by the first check.
+                // A smallint will be handled by the else statement.
+                if(reader.GetFieldType(colIndex) == typeof(byte)){
+                    var b = reader.GetByte(colIndex);
+                    return Convert.ToInt32(b);
+                }
+                else
+                {
+                    return reader.GetInt16(colIndex);
+                }
             }
             return null;
         }

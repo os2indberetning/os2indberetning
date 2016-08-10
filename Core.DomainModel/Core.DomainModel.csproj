@@ -51,11 +51,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressDTO.cs" />
+    <Compile Include="AppLogin.cs" />
     <Compile Include="AddressHistory.cs" />
     <Compile Include="CachedAddress.cs" />
     <Compile Include="BankAccount.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="DriveReport.cs" />
+    <Compile Include="EksportModel.cs" />
     <Compile Include="Employment.cs" />
     <Compile Include="FileGenerationSchedule.cs" />
     <Compile Include="LicensePlate.cs" />
@@ -75,7 +77,6 @@
     <Compile Include="Report.cs" />
     <Compile Include="Substitute.cs" />
     <Compile Include="Example\Product.cs" />
-    <Compile Include="TempAddressHistory.cs" />
     <Compile Include="WorkAddress.cs" />
   </ItemGroup>
   <ItemGroup>

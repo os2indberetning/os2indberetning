@@ -37,7 +37,7 @@ namespace OS2Indberetning
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
+            
 
         }
 
@@ -91,7 +91,10 @@ namespace OS2Indberetning
             .Function("GetLatestReportForUser")
             .ReturnsFromEntitySet<DriveReport>("DriveReports");
 
-            builder.EntitySet<DriveReportPoint>("DriveReportPoints");
+            builder.EntityType<DriveReport>().Collection
+             .Function("Eksport")
+             .ReturnsFromEntitySet<DriveReport>("DriveReports");
+
 
             builder.EntitySet<Employment>("Employments");
             var eType = builder.EntityType<Employment>();
@@ -113,6 +116,9 @@ namespace OS2Indberetning
 
             builder.EntitySet<OrgUnit>("OrgUnits");
 
+
+            builder.EntitySet<AppLogin>("AppLogin");
+
             builder.EntitySet<Person>("Person");
             var pType = builder.EntityType<Person>();
             pType.HasKey(p => p.Id);
@@ -122,6 +128,12 @@ namespace OS2Indberetning
             builder.EntityType<Person>().Collection
            .Function("GetCurrentUser")
            .ReturnsFromEntitySet<Person>("Person");
+
+            builder.EntityType<Person>().Collection
+            .Function("GetUserAsCurrentUser")
+            .ReturnsFromEntitySet<Person>("Person");
+
+            
 
             builder.EntitySet<PersonalAddress>("PersonalAddresses");
 

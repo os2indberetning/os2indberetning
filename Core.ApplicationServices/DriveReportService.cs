@@ -60,55 +60,60 @@ namespace Core.ApplicationServices
         {
             if (report.PersonId == 0)
             {
-                _logger.Log("Forsøg på at oprette indberetning uden person angivet.", "web");
                 throw new Exception("No person provided");
             }
 
             if (!Validate(report))
             {
-                _logger.Log("Forsøg på at oprette indberetning med ugyldige parametre.", "web");
                 throw new Exception("DriveReport has some invalid parameters");
             }
 
-            if (report.KilometerAllowance != KilometerAllowance.Read)
+            if (report.IsFromApp)
             {
-                var pointsWithCoordinates = new List<DriveReportPoint>();
-                foreach (var driveReportPoint in report.DriveReportPoints)
-                {
-                    if (string.IsNullOrEmpty(driveReportPoint.Latitude) || driveReportPoint.Latitude == "0" ||
-                        string.IsNullOrEmpty(driveReportPoint.Longitude) || driveReportPoint.Longitude == "0")
-                    {
-                        pointsWithCoordinates.Add(
-                            (DriveReportPoint) _coordinates.GetAddressCoordinates(driveReportPoint));
-                    }
-                    else
-                    {
-                        pointsWithCoordinates.Add(driveReportPoint);
-                    }
-                }
-
-                report.DriveReportPoints = pointsWithCoordinates;
-
-                var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;
-
-
-                // Set transportType to Bike if isBike is true. Otherwise set it to Car.
-                var drivenRoute = _route.GetRoute(
-                    isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, report.DriveReportPoints);
-
-
-                report.Distance = (double) drivenRoute.Length/1000;
-
-                if (report.Distance < 0)
-                {
-                    report.Distance = 0;
-                }
-
-                report = _calculator.Calculate(drivenRoute, report);
+                report = _calculator.Calculate(null, report);
             }
             else
             {
-                report = _calculator.Calculate(null, report);
+                if (report.KilometerAllowance != KilometerAllowance.Read)
+                {
+                    var pointsWithCoordinates = new List<DriveReportPoint>();
+                    foreach (var driveReportPoint in report.DriveReportPoints)
+                    {
+                        if (string.IsNullOrEmpty(driveReportPoint.Latitude) || driveReportPoint.Latitude == "0" ||
+                            string.IsNullOrEmpty(driveReportPoint.Longitude) || driveReportPoint.Longitude == "0")
+                        {
+                            pointsWithCoordinates.Add(
+                                (DriveReportPoint)_coordinates.GetAddressCoordinates(driveReportPoint));
+                        }
+                        else
+                        {
+                            pointsWithCoordinates.Add(driveReportPoint);
+                        }
+                    }
+
+                    report.DriveReportPoints = pointsWithCoordinates;
+
+                    var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;
+
+
+                    // Set transportType to Bike if isBike is true. Otherwise set it to Car.
+                    var drivenRoute = _route.GetRoute(
+                        isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, report.DriveReportPoints);
+
+
+                    report.Distance = (double)drivenRoute.Length / 1000;
+
+                    if (report.Distance < 0)
+                    {
+                        report.Distance = 0;
+                    }
+
+                    report = _calculator.Calculate(drivenRoute, report);
+                }
+                else
+                {
+                    report = _calculator.Calculate(null, report);
+                }
             }
 
 
@@ -207,7 +212,7 @@ namespace Core.ApplicationServices
                         recipient = report.Person.Mail;
                     } else
                     {
-                        _logger.Log("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse.", "mail");
+                        _logger.Log("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse. " + report.Person.FullName + " har derfor ikke modtaget en mailadvisering", "mail", 2);
                         throw new Exception("Forsøg på at sende mail til person uden emailaddresse");
                     }
                     var comment = new object();
@@ -368,6 +373,52 @@ namespace Core.ApplicationServices
             return leaderOfOrgUnit.Person;
         }
 
-       
+        /// <summary>
+        /// Sends an email to the owner of and person responsible for a report that has been edited or rejected by an admin.
+        /// </summary>
+        /// <param name="report">The edited report</param>
+        /// <param name="emailText">The message to be sent to the owner and responsible leader</param>
+        /// <param name="admin">The admin rejecting or editing</param>
+        /// <param name="action">A string included in the email. Should be "afvist" or "redigeret"</param>
+        public void SendMailToUserAndApproverOfEditedReport(DriveReport report, string emailText, Person admin, string action)
+        {
+            var mailContent = "Hej," + Environment.NewLine + Environment.NewLine +
+            "Jeg, " + admin.FullName + ", har pr. dags dato " + action + " den følgende godkendte kørselsindberetning:" + Environment.NewLine + Environment.NewLine;
+
+            mailContent += "Formål: " + report.Purpose + Environment.NewLine;
+
+            if (report.KilometerAllowance != KilometerAllowance.Read)
+            {
+                mailContent += "Startadresse: " + report.DriveReportPoints.ElementAt(0).ToString() + Environment.NewLine
+                + "Slutadresse: " + report.DriveReportPoints.Last().ToString() + Environment.NewLine;
+            }
+
+            mailContent += "Afstand: " + report.Distance.ToString().Replace(".",",") + Environment.NewLine
+            + "Kørselsdato: " + FromUnixTime(report.DriveDateTimestamp) + Environment.NewLine + Environment.NewLine
+            + "Hvis du mener at dette er en fejl, så kontakt mig da venligst på " + admin.Mail + Environment.NewLine
+            + "Med venlig hilsen " + admin.FullName + Environment.NewLine + Environment.NewLine
+            + "Besked fra administrator: " + Environment.NewLine + emailText;
+
+            _mailSender.SendMail(report.Person.Mail, "En administrator har ændret i din indberetning.", mailContent);
+
+            _mailSender.SendMail(report.ApprovedBy.Mail, "En administrator har ændret i en indberetning du har godkendt.", mailContent);
+
+
+
+        }
+
+        /// <summary>
+        /// Converts timestamp to datetime
+        /// </summary>
+        /// <param name="unixTime">Timestamp to convert</param>
+        /// <returns>DateTime</returns>
+        private string FromUnixTime(long unixTime)
+        {
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTime).ToLocalTime();
+            return dtDateTime.Day + "/" + dtDateTime.Month + "/" + dtDateTime.Year;
+        }
+
+
     }
 }

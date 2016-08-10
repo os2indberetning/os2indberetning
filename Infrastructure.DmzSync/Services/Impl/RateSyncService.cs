@@ -9,7 +9,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Infrastructure.DataAccess;
 using Infrastructure.DmzDataAccess;
-using Infrastructure.DmzSync.Encryption;
+using Core.DomainServices.Encryption;
 using Infrastructure.DmzSync.Services.Interface;
 using Employment = Core.DmzModel.Employment;
 
@@ -31,21 +31,22 @@ namespace Infrastructure.DmzSync.Services.Impl
         /// </summary>
         public void SyncFromDmz()
         {
-            // We are not interested in migrating profiles from DMZ to os2.
+            // We are not interested in migrating rates from DMZ to os2.
             throw new NotImplementedException();
         }
 
 
         /// <summary>
-        /// Syncs all People from OS2 database to DMZ database.
+        /// Syncs all rates from OS2 database to DMZ database.
         /// </summary>
         public void SyncToDmz()
         {
             var i = 0;
-            var rateList = _masterRateRepo.AsQueryable().Where(x => x.Active).ToList();
+            var currentYear = DateTime.Now.Year;
+            var rateList = _masterRateRepo.AsQueryable().Where(x => x.Active && x.Year == currentYear).ToList();
             var max = rateList.Count;
 
-            foreach (var rate in rateList)  
+            foreach (var masterRate in rateList)  
             {
                 i++;
                 if (i%10 == 0)
@@ -53,13 +54,25 @@ namespace Infrastructure.DmzSync.Services.Impl
                     Console.WriteLine("Syncing rate " + i + " of " + max);
                 }
 
-                var dmzRate = new Core.DmzModel.Rate()
-                    {
-                        Id = rate.Id,
-                        Description = rate.Type.Description,
-                        Year = rate.Year.ToString()
-                    };
-                _dmzRateRepo.Insert(dmzRate);
+                var rate = new Core.DmzModel.Rate()
+                {
+                    Id = masterRate.Id,
+                    Description = masterRate.Type.Description,
+                    Year = masterRate.Year.ToString()
+                };
+
+                var dmzRate = _dmzRateRepo.AsQueryable().FirstOrDefault(x => x.Id == rate.Id);
+
+                if (dmzRate == null)
+                {
+                    _dmzRateRepo.Insert(rate);
+                }
+                else
+                {
+                    dmzRate.Description = rate.Description;
+                    dmzRate.Year = rate.Year;
+                }
+                
             }
              _dmzRateRepo.Save();
         }
@@ -70,9 +83,7 @@ namespace Infrastructure.DmzSync.Services.Impl
         /// </summary>
         public void ClearDmz()
         {
-            var rateList = _dmzRateRepo.AsQueryable().ToList();
-            _dmzRateRepo.DeleteRange(rateList);
-            _dmzRateRepo.Save();
+            throw new NotImplementedException("This service is no longer used");
         }
     }
 }

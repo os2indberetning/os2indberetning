@@ -2371,6 +2371,10 @@
       <Project>{9914db94-e465-4751-939c-8121c30ac945}</Project>
       <Name>Infrastructure.DataAccess</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Infrastructure.DmzSync\Infrastructure.DmzSync.csproj">
+      <Project>{537cfce9-fc15-46c0-a706-92ca40cf2c0c}</Project>
+      <Name>Infrastructure.DmzSync</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

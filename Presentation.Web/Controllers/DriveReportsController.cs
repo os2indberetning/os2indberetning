@@ -105,11 +105,11 @@ namespace OS2Indberetning.Controllers
 
             var reports = Repo.AsQueryable().Where(x => dtDateTime.AddSeconds(x.CreatedDateTimestamp).ToLocalTime() > Convert.ToDateTime(start) && dtDateTime.AddSeconds(x.CreatedDateTimestamp).ToLocalTime() < Convert.ToDateTime(end));
 
-            List<EksportModel> result = new List<EksportModel>();
+            List<Core.DomainModel.EksportModel> result = new List<Core.DomainModel.EksportModel>();
             
             foreach (var repo in reports) {
 
-                result.Add(new EksportModel
+                result.Add(new Core.DomainModel.EksportModel
                 {
                     
                     DriveDateTimestamp = repo.DriveDateTimestamp,
@@ -126,7 +126,7 @@ namespace OS2Indberetning.Controllers
 
             }
 
-            EksportModel[] resultAsArray = result.ToArray();
+            Core.DomainModel.EksportModel[] resultAsArray = result.ToArray();
 
             
            // var iqureyable = result.AsQueryable();

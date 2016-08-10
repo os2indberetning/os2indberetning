@@ -196,7 +196,4 @@ _Pvt_Extensions/
 ModelManifest.xml
 /Presentation.Web/App/Admin/StandardAddressController - Copy.js.html
 /Configuration/*
-/Presentation.Web/Content/favicon.ico
-/Presentation.Web/Content/private.css
-/Presentation.Web/favicon.ico
-/Presentation.Web/logo.png
+/.vs/config/applicationhost.config

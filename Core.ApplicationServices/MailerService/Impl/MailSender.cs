@@ -19,7 +19,8 @@ namespace Core.ApplicationServices.MailerService.Impl
             _smtpClient = new SmtpClient()
             {
                 Host = ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST"],
-                Port = int.Parse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"]),
+                // Vordingborg uses a public smtp server accessed by only a URL, so they have not supplied a port number which causes an error.
+                // Port = int.Parse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"]),
                 EnableSsl = false,
                 Credentials = new NetworkCredential()
                 {

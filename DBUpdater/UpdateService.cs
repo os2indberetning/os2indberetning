@@ -264,6 +264,14 @@ namespace DBUpdater
         /// <returns></returns>
         public Employment CreateEmployment(Employee empl, int personId)
         {
+
+            //DEBUGGING
+            if (empl.Leder && empl.LOSOrgId == 828136)
+            {
+                int i = 1;
+            }
+            //DEBUGGING
+
             if (empl.AnsaettelsesDato == null)
             {
                 return null;

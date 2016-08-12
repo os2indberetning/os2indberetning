@@ -3,20 +3,59 @@
 <script src="/Scripts/kendo/kendo.all.min.js"></script>
 
 <div id="printThis">
+
     <!--h3 style="text-align:center;">Navn: <label id="employeeHeader"></label> MAnr: <label id="MAnrHeader"></label> Start: <label id="startDateHeader"></label> slut: <label id="endDateHeader"></label></!--h3-->
-    <div kendo-grid="gridContainer.grid" class="margin-top-10 scrollable" options="reports"></div>
-    <!--footer>Summeret antal Km: <label id="summedKm"></label> Beløb: <label id="summedAmount"></label></!--footer-->
+    <button class="k-button k-button-icontext k-grid-pdf" id="btnPDF"><span class="k-icon k-i-pdf"></span>Export Pdf</button>
+    <button class="k-button k-button-icontext k-grid-excel" id="btnExcel"><span class="k-icon k-i-excel"></span>Export excel</button>
+    <!--button class="k-button k-button-icontext k-grid-print" id="printGrid"><span class="k-icon k-i-print"></span>Print</!--button-->
 
+    <div kendo-grid="gridContainer.grid" id="grid" class="margin-top-10 scrollable" options="reports">
+        <div class="k-header k-grid-toolbar ng-scope">
+            Medarbejder navn: <span id="MaNavn"></span><br />  MaNr: <text id="MaNr"></text><br />
+            Kommune: <text id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"></text><br />  DatoInterval: <text id="DatoInterval"></text><br />  admin der har trukket rapporten: <text id="admin_der_har_trukket_rapporten"></text>
+            <br />Dato for rapportdannelse: <text id="dateCreated"></text>
+            <br />
+            <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>Pdf</a>
+            <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>xlsx</a>
+        </div>
+        <!--footer>Summeret antal Km: <label id="summedKm"></label> Beløb: <label id="summedAmount"></label></!--footer-->
+    </div>
+<div class="k-header k-grid-toolbar ng-scope">Samlet beløb: <text id="wholeAmount">kr.</text> - Samlet Distance: <text id="wholeDistance"></text></div>
 </div>
-        <footer>
-            <!--div class="col-sm-12">
-                <button class="btn btn-primary" ng-click="print()">Print</button>
-                <!--button class="btn btn-primary" ng-click="saveAsPdf()">Gem som pdf</!--button>
-                <button class="btn btn-primary" ng-click="downloadAsExcel()">Gem som Excel</button>
-           
-                <div class="col-sm-8">
-                </div>
-            </!--div-->
-        </footer>
 
 
+
+<footer>
+    <!--div class="col-sm-12">
+        <button class="btn btn-primary" ng-click="print()">Print</button>
+        <!--button class="btn btn-primary" ng-click="saveAsPdf()">Gem som pdf</!--button>
+        <button class="btn btn-primary" ng-click="downloadAsExcel()">Gem som Excel</button>
+
+        <div class="col-sm-8">
+        </div>
+    </!--div-->
+</footer>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+
+
+        $('.reallinks').hide();
+        $('#btnPDF').click(function () {
+            $('#reallinkPDF').click();
+        });
+       $('#btnExcel').click(function () {
+            $('#reallinkExcel').click();
+       });
+
+        /* $('#btnPrint').click(
+            function PrintElem(elem) {
+                Popup($(elem).html());
+
+            });*/
+    });
+
+
+</script>

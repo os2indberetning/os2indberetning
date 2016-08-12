@@ -16,10 +16,10 @@
 
                         <div class="col-sm-12 margin-5">
                             <div class="col-sm-4">
-                                <label class="pull-left">Medarbejder</label>
+                                <label class="pull-left">Medarbejder(Inital)</label>
                             </div>
                             <div class="col-sm-8">
-                                <input id="employeeTextBox" k-options="autoCompleteOptions" ng-model="container.employeeFilter" type="text" k-data-source="autoCompleteDataSource" k-data-value-field="'Employee'" k-data-text-field="'Employee'" kendo-auto-complete class="form-control fill-width" />
+                                <input id="employeeTextBox" k-options="autoCompleteOptions" ng-required="string"  ng-model="container.employeeFilter" type="text" k-data-source="autoCompleteDataSource" k-data-value-field="'Employee'" k-data-text-field="'Employee'" kendo-auto-complete class="form-control fill-width" /><span style="color:red;">*</span>
 
                             </div>
                         </div>
@@ -38,7 +38,7 @@
                                 <label>Start Dato</label>
                             </div>
                             <div class="col-sm-8">
-                                <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-model="container.reportFromDateString" k-ng-model="dateContainer.toDate" />
+                                <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string"  ng-model="container.reportFromDateString" k-ng-model="dateContainer.toDate" /><span style="color:red;">*</span>
                             </div>
 
                         </div>
@@ -57,7 +57,7 @@
                                 <label>Slut Dato</label>
                             </div>
                             <div class="col-sm-8">
-                                <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-model="container.reportToDateString" k-ng-model="dateContainer.fromDate" />
+                                <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportToDateString" k-ng-model="dateContainer.fromDate" /><span style="color:red;">*</span>
                             </div>
 
                         </div>

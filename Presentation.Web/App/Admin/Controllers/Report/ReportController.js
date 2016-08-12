@@ -6,16 +6,19 @@
 
 
         $scope.createReportClick = function () {
-            //$window.open('/eksport/index?Employee=' + $scope.container.employeeFilter + '&manr=' + $scope.container.MANrFilter + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString, '_blank');
-            //$window.open('app/admin/html/report/DocumentView.html');
 
             var url = $state.href('document');
 
             $scope.$broadcast('createReportClicked');
+            
+            if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
+            
+                $window.open(url + '?Employee=' + $scope.container.employeeFilter + '&manr=' + $scope.container.MANrFilter + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString + "&orgUnit=" + $scope.container.orgUnit, '_blank');
+            } else {
 
-            $window.open(url + '?Employee=' + $scope.container.employeeFilter + '&manr=' + $scope.container.MANrFilter + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString, '_blank');
-
-            //$window.open('/Document');
+                alert('Du mangler at udfylde et felt med en *');
+            }
+            
         }
 
 

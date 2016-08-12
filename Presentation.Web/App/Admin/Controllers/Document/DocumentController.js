@@ -91,10 +91,9 @@
           $scope.reports = {
               toolbar: ["excel", "pdf"],
               excel: {
-                  fileName: "Kørsels udtræk.xlsx",
+                  fileName: "Rapport-"+today+".xlsx",
                   proxyURL: "//demos.telerik.com/kendo-ui/service/export",
-                  filterable: true,
-                  display: false
+                  filterable: true
               }, pdf: {
                   allPages: true,
                   avoidLinks: true,
@@ -125,7 +124,7 @@
                                   return m._d.getDate() + "/" +
                                       (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                                       m._d.getFullYear();
-                              }, title: "Dato for kørsel", width: 1
+                              }, title: "Dato for kørsel", width: 100, /*footerTemplate: "Beløb:"+result.wholeAmount +  "<br/>Distance: " + result.wholeDistance*/
                           },
                           {
                               field: "CreatedDateTimestamp", template: function (data) {
@@ -133,16 +132,16 @@
                                   return m._d.getDate() + "/" +
                                       (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                                       m._d.getFullYear();
-                              }, title: "Dato for indberetning", width: 1
+                              }, title: "Dato for indberetning", width: 100
                           },
-                          { field: "OrgUnit", title: "Org. Enhed", width: 1 },
-                          { field: "Purpose", title: "Formål", width: 1 },
-                          { field: "Route", title: "Rute", width: 1 },
-                          { field: "IsExtraDistance", title: "Merkørselsangivelse", width: 1 },
-                          { field: "FourKmRule", title: "4-km", width: 1 },
-                          { field: "distanceFromHomeToBorder", title: "km til kommunegrænse", width: 1 },
-                           { field: "distanceFromHomeToBorder", title: "Km til udbetaling", width: 1 },
-                          { field: "AmountToReimburse", title: "Beløb", /*footerTemplate: "Samlet: #= sum # ",*/ width: 1 },
+                          { field: "OrgUnit", title: "Org. Enhed", width: 100 },
+                          { field: "Purpose", title: "Formål", width: 100 },
+                          { field: "Route", title: "Rute", width: 100 },
+                          { field: "IsExtraDistance", title: "Merkørselsangivelse", width: 100 },
+                          { field: "FourKmRule", title: "4-km", width: 100 },
+                          { field: "distanceFromHomeToBorder", title: "km til kommunegrænse", width: 100 },
+                           { field: "distanceFromHomeToBorder", title: "Km til udbetaling", width: 100 },
+                          { field: "AmountToReimburse", title: "Beløb", /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
                           
                           { field: "approvedDate", title: "Godkendt dato" },
                           { field: "processedDate", title: "Sendt dato" },

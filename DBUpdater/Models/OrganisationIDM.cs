@@ -13,6 +13,8 @@ namespace DBUpdater.Models
         public string OverliggendeOUID { get; set; }
         public string OverliggendeOrg { get; set; }
         public string Leder { get; set; }
-        public string Adresse { get; set; }
+        public string Vejnavn { get; set; }
+        public string PostNr { get; set; }
+        public string PostDistrikt { get; set; }
     }
 }

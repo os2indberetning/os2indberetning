@@ -9,7 +9,7 @@ namespace DBUpdater.Models
     public class EmployeeIDM
     {
         public string Institutionskode { get; set; }
-        public int Tjenestenummer { get; set; }
+        public string Tjenestenummer { get; set; }
         public DateTime? AnsættelseFra { get; set; }
         public DateTime? AnsættelseTil { get; set; }
         public string Fornavn { get; set; }
@@ -21,6 +21,8 @@ namespace DBUpdater.Models
         public string Email { get; set; }
         public string Stillingsbetegnelse { get; set; }
         public string CPRNummer { get; set; }
-        public string Medarbejeradresse { get; set; }
+        public string Vejnavn { get; set; }
+        public string PostNr { get; set; }
+        public string PostDistrikt { get; set; }
     }
 }

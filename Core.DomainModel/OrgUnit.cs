@@ -12,7 +12,7 @@ namespace Core.DomainModel
         public bool HasAccessToFourKmRule { get; set; }
         public KilometerAllowance DefaultKilometerAllowance { get; set; }
         public virtual WorkAddress Address { get; set; }
-        public int AddressId { get; set; }
+        public int? AddressId { get; set; }
         public int Level { get; set; }
         public int? ParentId { get; set; }
         public virtual OrgUnit Parent { get; set; }

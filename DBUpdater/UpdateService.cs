@@ -95,14 +95,14 @@ namespace DBUpdater
             return result;
         }
 
-        public List<String> SplitAddressIDM(string address)
+        public List<String> SplitAddressIDM(string street, string postNumber, string postDistrict)
         {
-            //TODO IMPLEMENT
+            var indexOfLast = street.LastIndexOf(" ");
             var result = new List<string>();
-            result.Add("Bymosevej");
-            result.Add("120");
-            result.Add("Aarhus");
-            result.Add("8210");
+            result.Add(street.Substring(0,indexOfLast));
+            result.Add(street.Substring(indexOfLast+1));
+            result.Add(postDistrict);
+            result.Add(postNumber);
 
             return result;
         }
@@ -187,10 +187,10 @@ namespace DBUpdater
                 var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
 
                 var workAddress = GetWorkAddressIDM(org);
-                if (workAddress == null)
-                {
-                    continue;
-                }
+                //if (workAddress == null)
+                //{
+                //    continue;
+                //}
 
                 if (orgToInsert == null)
                 {
@@ -569,13 +569,13 @@ namespace DBUpdater
             var startDate = empl.AnsættelseFra ?? new DateTime();
             employment.StartDateTimestamp = (Int32)(startDate.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             employment.ExtraNumber = 0;
-            employment.EmploymentType = empl.Tjenestenummer;
             employment.CostCenter = 0;
             employment.EmploymentId =  0;
-       
+            employment.InstituteCode = empl.Institutionskode;
+            employment.ServiceNumber = empl.Tjenestenummer;
 
 
-            if (empl.AnsættelseTil != null)
+            if (empl.AnsættelseTil != null && empl.AnsættelseTil !=  Convert.ToDateTime("31-12-9999"))
             {
                 employment.EndDateTimestamp = (Int32)(((DateTime)empl.AnsættelseTil).Subtract(new DateTime(1970, 1, 1)).Add(new TimeSpan(1, 0, 0, 0))).TotalSeconds;
             }
@@ -669,7 +669,7 @@ namespace DBUpdater
         /// <param name="personId"></param>
         public void UpdateHomeAddressIDM(EmployeeIDM empl, string cpr)
         {
-            if (empl.Medarbejeradresse == null)
+            if (empl.Vejnavn == null || empl.Vejnavn == "")
             {
                 return;
             }
@@ -682,7 +682,7 @@ namespace DBUpdater
 
             var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
 
-            var splitStreetAddress = SplitAddressIDM(empl.CPRNummer);
+            var splitStreetAddress = SplitAddressIDM(empl.Vejnavn,empl.PostNr,empl.PostDistrikt);
 
             var addressToLaunder = new Address
             {
@@ -789,7 +789,7 @@ namespace DBUpdater
                 && existingOrg.Address.Longitude == launderedAddress.Longitude
                 && existingOrg.Address.Description == launderedAddress.Description)
             {
-                launderedAddress.Id = existingOrg.AddressId;
+                launderedAddress.Id = (int)existingOrg.AddressId;
             }
             else
             {
@@ -803,12 +803,12 @@ namespace DBUpdater
         {
             var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
 
-            if (org.Adresse == null)
+            if (org.Vejnavn == null || org.Vejnavn == "")
             {
                 return null;
             }
 
-            var splitStreetAddress = SplitAddressIDM(org.Adresse);
+            var splitStreetAddress = SplitAddressIDM(org.Vejnavn,org.PostNr,org.PostDistrikt);
 
             var addressToLaunder = new Address
             {
@@ -848,7 +848,7 @@ namespace DBUpdater
                 && existingOrg.Address.Longitude == launderedAddress.Longitude
                 && existingOrg.Address.Description == launderedAddress.Description)
             {
-                launderedAddress.Id = existingOrg.AddressId;
+                launderedAddress.Id = (int)existingOrg.AddressId;
             }
             else
             {

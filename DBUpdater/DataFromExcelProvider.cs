@@ -27,7 +27,7 @@ namespace DBUpdater
                 var currentRow = new EmployeeIDM();
 
                 currentRow.Institutionskode = row[0];
-                currentRow.Tjenestenummer = row[1].Cast<int>();
+                currentRow.Tjenestenummer = row[1];
                 currentRow.AnsættelseFra = row[2].Cast<DateTime>();
                 currentRow.AnsættelseTil = row[3].Cast<DateTime>();
                 currentRow.Fornavn = row[4];
@@ -39,8 +39,10 @@ namespace DBUpdater
                 currentRow.Email = row[10];
                 currentRow.Stillingsbetegnelse = row[11];
                 currentRow.CPRNummer = row[13];
-                currentRow.Medarbejeradresse = row[14];
-                
+                currentRow.Vejnavn = row[14];
+                currentRow.PostNr = row[15];
+                currentRow.PostDistrikt = row[16];
+
                 result.Add(currentRow);
             }
             return result.AsQueryable();
@@ -64,7 +66,9 @@ namespace DBUpdater
                 //var city = address[1].Split(new char[0], 2)[1];
                 var currentRow = new OrganisationIDM
                 {
-                    Adresse = row[5],
+                    PostDistrikt = row[7],
+                    PostNr = row[6],
+                    Vejnavn = row[5],
                     Leder = row[4],
                     Navn = row[1],
                     OUID = row[0],

@@ -95,15 +95,15 @@
                   proxyURL: "//demos.telerik.com/kendo-ui/service/export",
                   filterable: true
               }, pdf: {
-                  allPages: true,
+                  /*allPages: true,
                   avoidLinks: true,
                   paperSize: "A4",
-                  margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
+                 // margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
                   landscape: true,
                   repeatHeaders: true,
                   template: $("#page-template").html(),
-                  scale: 100
-
+                  scale: 0.1*/
+                  fileName: "Rapport-" + today + ".Pdf"
               },
               dataSource: {
                   data: reports,

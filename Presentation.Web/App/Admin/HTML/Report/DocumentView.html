@@ -11,10 +11,12 @@
 
     <div kendo-grid="gridContainer.grid" id="grid" class="margin-top-10 scrollable" options="reports">
         <div class="k-header k-grid-toolbar ng-scope">
-            Medarbejder navn: <span id="MaNavn"></span><br />  MaNr: <text id="MaNr"></text><br />
-            Kommune: <text id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"></text><br />  DatoInterval: <text id="DatoInterval"></text><br />  admin der har trukket rapporten: <text id="admin_der_har_trukket_rapporten"></text>
-            <br />Dato for rapportdannelse: <text id="dateCreated"></text>
+          <div id="textwrapper" style="width:300px;">
+              Medarbejder navn: <span id="MaNavn" style="float:right;"></span><br />  MaNr: <text id="MaNr" style="float:right;"></text><br />
+            Kommune: <text  style="float:right;" id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"style="float:right;"></text><br />  DatoInterval:<text id="DatoInterval"style="float:right;"></text><br />  admin: <text style="float:right;" id="admin_der_har_trukket_rapporten"></text>
+            <br />Dato for rapportdannelse: <text style="float:right;" id="dateCreated"></text>
             <br />
+              </div>
             <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>Pdf</a>
             <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>xlsx</a>
         </div>

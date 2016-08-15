@@ -173,7 +173,7 @@ namespace OS2Indberetning.Controllers
                                 FourKmRule = repo.FourKmRule,
                                 distanceFromHomeToBorder = person.DistanceFromHomeToBorder,
                                 AmountToReimburse = repo.AmountToReimburse,
-                                
+                                Route = ""
                             };
                             if (repo.AccountNumber != null)
                             {
@@ -201,12 +201,27 @@ namespace OS2Indberetning.Controllers
                                 reportToBeAdded.ApprovedBy = "not Approved yet.";
 
                             }
+                            int counter = 0;
+                            foreach (var p in repo.DriveReportPoints.AsQueryable().OrderBy(x=> x.Id)) {
+
+                                if (counter < 1)
+                                {
+                                    reportToBeAdded.Route = reportToBeAdded.Route + p.StreetName + ", " + p.StreetNumber + ", " + p.ZipCode;
+                                    counter++;
+                                }
+                                else {
+                                    reportToBeAdded.Route =reportToBeAdded.Route + " - " + p.StreetName + ", " + p.StreetNumber +", " + p.ZipCode;
+
+                                }
+                                
+
+                            }
                             drivereports.Add(reportToBeAdded);
                         }
                     }
                         }
             }
-               
+
             result.driveReports = drivereports.ToArray();
             result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
            

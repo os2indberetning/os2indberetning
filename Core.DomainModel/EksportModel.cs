@@ -21,7 +21,7 @@ namespace Core.DomainModel
         public string processedDate { get; set; }
         public string ApprovedBy { get; set; }
        public string kontering { get; set; }
-       public ICollection<DriveReportPoint> Route;
+       public string Route;
 
     }
 

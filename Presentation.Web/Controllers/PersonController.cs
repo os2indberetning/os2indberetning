@@ -46,11 +46,11 @@ namespace OS2Indberetning.Controllers
             var res = GetQueryable(queryOptions);
             _person.ScrubCprFromPersons(res);
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            foreach (var person in res.ToList())
-            {
-                // Remove employments that have expired.
-                person.Employments = person.Employments.Where(x => x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentTimestamp).ToList();
-            }
+            //We used to loop through all persons and remove employments that had expired
+            //This proved to be to slow, and we did not have a use for current employments 
+            //for a list of users, each time we needed someones employment we made queries
+            //to that person anyway, so the return of this function has all employments
+            //including the expired ones.
             return Ok(res);
         }
 

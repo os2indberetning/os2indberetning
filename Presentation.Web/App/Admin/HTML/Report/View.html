@@ -1,0 +1,81 @@
+﻿<div class="panel panel-default">
+
+
+
+
+    <div class="panel-body">
+
+
+        <div class="col-xs-12 col-lg-6">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2 class="pull-left">Rapporttering</h2>
+                </div>
+            </div>
+
+                        <div class="col-sm-12 margin-5">
+                            <div class="col-sm-4">
+                                <label class="pull-left">Medarbejder(Inital)</label><span style="color:red;">*</span>
+                            </div>
+                            <div class="col-sm-8">
+                              <input id="employeeTextBox" k-options="autoCompleteOptions" ng-required="string"  ng-model="container.employeeFilter" type="text" k-data-source="autoCompleteDataSource" k-data-value-field="'Employee'" k-data-text-field="'Employee'" kendo-auto-complete class="form-control fill-width" />
+
+                            </div>
+                        </div>
+                        <div class="col-sm-12 margin-5">
+
+                            <div class="col-sm-4">
+                                <label class="pull-left">MAnr</label>
+                            </div>
+                            <div class="col-sm-4">
+                                <input id="MAnrTextBox" k-options="autoCompleteOptions" ng-model="container.MANrFilter" type="text" k-data-source="autoCompleteDataSource" k-data-value-field="'MAnr'" k-data-text-field="'MAnr'" kendo-auto-complete class="form-control fill-width" />
+                            </div>
+                        </div>
+
+                        
+                        <div class="col-sm-12 margin-5">
+                            <div class="col-sm-4">
+                                <label>Orgnisations Enhed</label>
+                            </div>
+                            <div class="col-sm-8">
+                                <input id="employeeTextBox" k-options="autoCompleteOptions" ng-model="container.orgUnit" type="text" k-data-source="autoCompleteDataSource" k-data-value-field="'Employee'" k-data-text-field="'Employee'" kendo-auto-complete class="form-control fill-width" />
+
+                            </div>
+
+                        </div>
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Start Dato</label><span style="color:red;">*</span>
+                </div>
+                <div class="col-sm-8">
+                    <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportFromDateString" k-ng-model="dateContainer.toDate" />
+                </div>
+
+            </div>
+                        <div class="col-sm-12 margin-5">
+                            <div class="col-sm-4">
+                                <label>Slut Dato</label><span style="color:red;">*</span>
+                            </div>
+                            <div class="col-sm-8">
+                                <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportToDateString" k-ng-model="dateContainer.fromDate" />
+                            </div>
+
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="col-sm-4 pull-right">
+                                <button class="btn btn-primary fill-width" ng-click="createReportClick()">Dan Rapport</button>
+                            </div>
+                        </div>
+                  
+
+            <label class="text-danger" ng-bind="newRateYearError"></label><br />
+            <label class="text-danger" ng-bind="newRateRateError"></label><br />
+            <label class="text-danger" ng-bind="newRateRateTypeError"></label>
+
+        </div>
+
+    </div>
+
+
+</div>

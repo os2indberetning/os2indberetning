@@ -151,7 +151,7 @@
       <Name>Core.DmzModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.DomainModel\Core.DomainModel.csproj">
-      <Project>{823928ad-3bb7-4fd8-831f-201d73b80ae0}</Project>
+      <Project>{823928AD-3BB7-4FD8-831F-201D73B80AE0}</Project>
       <Name>Core.DomainModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.DomainServices\Core.DomainServices.csproj">
@@ -163,7 +163,7 @@
       <Name>Infrastructure.AddressServices</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infrastructure.DataAccess\Infrastructure.DataAccess.csproj">
-      <Project>{9914db94-e465-4751-939c-8121c30ac945}</Project>
+      <Project>{9914DB94-E465-4751-939C-8121C30AC945}</Project>
       <Name>Infrastructure.DataAccess</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infrastructure.DmzDataAccess\Infrastructure.DmzDataAccess.csproj">

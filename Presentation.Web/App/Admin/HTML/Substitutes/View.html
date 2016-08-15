@@ -40,7 +40,10 @@
                         <button class="btn btn-danger" ng-click="clearClicked('substitute')">Nulstil søgning</button>
                     </div>
                     <div class="col-lg-2 pull-right">
-                        <button type="submit" class="btn btn-primary pull-right margin-right-10" ng-click="createNewSubstitute()">Opret</button>
+                        <button ng-disabled="!personsIsLoaded" type="submit" class="btn btn-primary pull-right margin-right-10" ng-click="createNewSubstitute()">
+                            <span ng-if="personsIsLoaded">Opret</span>
+                            <span ng-if="!personsIsLoaded">Henter...</span>
+                        </button>
                     </div>
                 </div>
                     <div kendo-grid="container.substituteGrid" class="margin-10 scrollable" options="substitutes"></div>
@@ -76,7 +79,10 @@
                         <button class="btn btn-danger" ng-click="clearClicked('approver')">Nulstil søgning</button>
                     </div>
                     <div class="col-lg-2 pull-right">
-                        <button type="submit" class="btn btn-primary pull-right margin-right-10" ng-click="createNewApprover()">Opret</button>
+                        <button ng-disabled="!personsIsLoaded" type="submit" class="btn btn-primary pull-right margin-right-10" ng-click="createNewApprover()">
+                            <span ng-if="personsIsLoaded">Opret</span>
+                            <span ng-if="!personsIsLoaded">Henter...</span>
+                        </button>
                     </div>
                 </div>
                     <div kendo-grid="container.approverGrid" class="margin-10 scrollable" options="personalApprovers"></div>

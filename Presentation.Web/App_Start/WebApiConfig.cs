@@ -92,6 +92,11 @@ namespace OS2Indberetning
             .ReturnsFromEntitySet<DriveReport>("DriveReports");
 
             builder.EntityType<DriveReport>().Collection
+            .Function("GetCalculationMethod")
+            .ReturnsFromEntitySet<DriveReport>("DriveReports");
+
+            builder.EntitySet<DriveReportPoint>("DriveReportPoints");
+            builder.EntityType<DriveReport>().Collection
              .Function("Eksport")
              .ReturnsFromEntitySet<DriveReport>("DriveReports");
 

@@ -13,6 +13,7 @@ using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
+using System.Configuration;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using OS2Indberetning.Models;
@@ -262,7 +263,24 @@ namespace OS2Indberetning.Controllers
             return null;
         }
 
+        /// <summary>
+        /// Returns a bool indicating if the special Norddjurs calculation method is configured to be used.
+        /// Used for setting the available options in the kilometerallowance menu.
+        /// </summary>
+        /// <returns></returns>
+        [EnableQuery]
+        public IHttpActionResult GetCalculationMethod()
+        {
+            bool isAltCalc;
+            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
 
+            if (parseSucces)
+            {
+                return Ok(isAltCalc);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
 
         //GET: odata/DriveReports(5)
         /// <summary>

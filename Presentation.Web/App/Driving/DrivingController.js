@@ -7,6 +7,8 @@
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
 
+
+
         // Setup functions in scope.
         $scope.Number = Number;
         $scope.toString = toString;
@@ -29,6 +31,30 @@
         $scope.isEditingReport = isEditingReport;
         var kendoPromise = $q.defer();
         var loadingPromises = [kendoPromise.promise];
+
+        //Set Alternative calculation
+        $scope.buildDataSource = new kendo.data.DataSource();
+        $scope.kilometerOptions = {
+            dataSource: $scope.buildDataSource,
+            dataTextField: "key",
+            dataValueField: "value"
+        };
+
+        DriveReport.getCalculationMethod().$promise.then(function (res) {
+            var alternativeCalculation = res.value;
+            if (!alternativeCalculation) {
+                $scope.buildDataSource.data([
+                        { value: "Calculated", key: "Beregnet" },
+                        { value: "Read", key: "Aflæst" },
+                        { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
+                ]);
+            } else {
+                $scope.buildDataSource.data([
+                    { value: "Calculated", key: "Beregnet" },
+                    { value: "Read", key: "Aflæst" },
+                ]);
+            }
+        });
 
         $scope.canSubmitDriveReport = true;
 

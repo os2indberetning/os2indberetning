@@ -243,8 +243,6 @@ namespace OS2Indberetning.Controllers
             catch (Exception e) {
                 _logger.Log("drivereports Error " + e.Message, "web", 3);
             }
-
-            _logger.Log("drivereports count: " + drivereports.Count(), "web", 3);
             result.driveReports = drivereports.ToArray();
             result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
            
@@ -264,7 +262,6 @@ namespace OS2Indberetning.Controllers
             {
                 return Json(result);
             }
-            _logger.Log("her", "web", 3);
             return StatusCode(HttpStatusCode.NoContent);
         }
 

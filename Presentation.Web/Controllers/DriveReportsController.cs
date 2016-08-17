@@ -110,7 +110,7 @@ namespace OS2Indberetning.Controllers
             var convertedOrgUnit = 0;
             List<DriveReport> reports = new List<DriveReport>();
             
-            var person = _personRepo.AsQueryable().Where(x => x.Initials == name).First();
+            var person = _personRepo.AsQueryable().Where(x => x.FullName == name).First();
 
             if (person == null)
             {
@@ -260,7 +260,7 @@ namespace OS2Indberetning.Controllers
                 return Json(result);
             }
 
-            return StatusCode(HttpStatusCode.NoContent);
+            return Json(result);
         }
 
         public string getRouteByreportId(int id){

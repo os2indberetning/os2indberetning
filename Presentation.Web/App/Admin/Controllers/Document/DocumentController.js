@@ -1,10 +1,9 @@
 ﻿angular.module("application").controller("DocumentController", [
-    "$scope", "$rootScope", "$window", //"$routeParams",
+    "$scope", "$rootScope", "$window",  //"$routeParams",
     function ($scope, $rootScope, $window) {
         
         $scope.container = {};
-
-
+       
         function getParameterByName(name, url) {
             if (!url) url = window.location.href;
             name = name.replace(/[\[\]]/g, "\\$&");

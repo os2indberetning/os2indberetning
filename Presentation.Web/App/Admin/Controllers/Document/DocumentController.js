@@ -83,7 +83,7 @@
             },
             error: function (response) {
 
-                alert('Kunne ikke finde det du forespurgte');
+                alert('Kunne ikke finde det du forespurgte' + response.toString());
             }, async: false
         });
 
@@ -95,26 +95,10 @@
                   proxyURL: "//demos.telerik.com/kendo-ui/service/export",
                   filterable: true
               }, pdf: {
-                  /*allPages: true,
-                  avoidLinks: true,
-                  paperSize: "A4",
-                 // margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
-                  landscape: true,
-                  repeatHeaders: true,
-                  template: $("#page-template").html(),
-                  scale: 0.1*/
                   fileName: "Rapport-" + today + ".Pdf"
               },
               dataSource: {
                   data: reports,
-                /*  aggregate: [{ field: "AmountToReimburse", aggregate: "sum" }, { field: "AmountToReimburse", aggregate: "sum" }],
-                  schema: {
-                      model: {
-                          fields: {
-                              AmountToReimburse: { type: "number" }
-                          }
-                      }
-                  }*/
               },
               resizable: true,
               columns: [
@@ -150,56 +134,7 @@
                           
               ], scrollable: false
           }
-     /*     alert(reports);
-    
-            function PrintElem(elem) {
-             Popup($(elem).html());
-         }
 
-         function Popup(data) {
-
-             var today = new Date();
-             var dd = today.getDate();
-             var mm = today.getMonth()+1; //January is 0!
-             var yyyy = today.getFullYear();
-             
-             if(dd<10) {
-                 dd='0'+dd
-             } 
-
-             if(mm<10) {
-                 mm='0'+mm
-             } 
-
-             today = mm+'/'+dd+'/'+yyyy;
-
-
-             var mywindow = window.open('', today, 'height=400,width=600');
-             mywindow.document.write('<html><head><title>' + today + '</title>');
-             /*optional stylesheet //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
-             mywindow.document.write('</head><body >');
-             mywindow.document.write(data);
-             mywindow.document.write('</body></html>');
-
-             mywindow.document.close(); // necessary for IE >= 10
-             mywindow.focus(); // necessary for IE >= 10
-
-             mywindow.print();
-             mywindow.close();
-
-             return true;
-         }
-
-         function print(){
-         
-             PrintElem("#printThis");
-         
-         }
-
-
-         $scope.print = function () {
-             PrintElem("#printThis");
-         };*/
          $scope.saveAsPdf = function () {
              alert('saveAsPdf Clicked :-)')
          };

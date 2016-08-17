@@ -103,16 +103,14 @@ namespace OS2Indberetning.Controllers
         }
 
         [HttpGet]
-         public IHttpActionResult Eksport( string start, string end, string name, string orgUnit = null, string manr = null)
+        public IHttpActionResult Eksport( string start, string end, string name, string orgUnit = null, string manr = null)
         {
 
             var convertedManr = 0;
             var convertedOrgUnit = 0;
             List<DriveReport> reports = new List<DriveReport>();
             
-
-
-            var person = _personRepo.AsQueryable().Where(x => x.Initials == name).First();
+            var person = _personRepo.AsQueryable().Where(x => x.FullName == name).First();
 
             if (person == null)
             {
@@ -129,6 +127,7 @@ namespace OS2Indberetning.Controllers
                 reports.AddRange(Repo.AsQueryable().Where(x => x.Employment.PersonId == person.Id));
             }
 
+
             Core.DomainModel.EksportModel result = new Core.DomainModel.EksportModel();
             try
             {
@@ -138,18 +137,17 @@ namespace OS2Indberetning.Controllers
                 result.orgUnits = new HashSet<string>();
                 result.name = person.FullName;
                 result.adminName = _personRepo.AsQueryable().Where(x => x.Initials == actualAdminName).First().FullName;
-
-               result.MaNumbers = new HashSet<int>();
+                result.MaNumbers = new HashSet<int>();
             }
-            catch (Exception e) {
-                _logger.Log("RESULT IN FOR LOOP: " + result.adminName + "Eviroment username: " + Environment.UserName + "Persons repo: " +  _personRepo.AsQueryable().Where(x=> x != null), "web", 3);
+            catch (Exception e)
+            {
+                _logger.Log("RESULT IN FOR LOOP: " + result.adminName + "Eviroment username: " + Environment.UserName + "Persons repo: " + _personRepo.AsQueryable().Where(x => x != null), "web", 3);
             }
-
 
 
             if (!string.IsNullOrEmpty(orgUnit) && orgUnit != "undefined")
             {
-               // convertedOrgUnit = Convert.ToInt32(orgUnit);
+                // convertedOrgUnit = Convert.ToInt32(orgUnit);
                 reports = reports.Where(e => e.Employment.OrgUnit.ShortDescription.ToLower() == orgUnit.ToLower()).ToList();
 
             }
@@ -169,15 +167,15 @@ namespace OS2Indberetning.Controllers
 
                         if (createdTime > convertedStart && createdTime < convertedEnd)
                         {
-                            
                             if (repo.Employment != null)
                             {
-                                if (repo.Employment.OrgUnit != null)
+                               if (repo.Employment.OrgUnit != null)
+
                                 result.wholeAmount = result.wholeAmount + repo.AmountToReimburse;
                                 result.wholeDistance = result.wholeDistance + repo.Distance;
                                 result.orgUnits.Add(repo.Employment.OrgUnit.ShortDescription);
                                 result.MaNumbers.Add(repo.Employment.EmploymentId);
-                                
+
                                 var reportToBeAdded = new Core.DomainModel.EksportDrivereport
                                 {
                                     DriveDateTimestamp = repo.DriveDateTimestamp,
@@ -198,7 +196,6 @@ namespace OS2Indberetning.Controllers
                                 {
                                     reportToBeAdded.processedDate = dtDateTime.AddSeconds(repo.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10);
                                 }
-                                
                                 else {
                                     reportToBeAdded.processedDate = "Ikke sendt endnu!";
                                 }
@@ -209,8 +206,7 @@ namespace OS2Indberetning.Controllers
                                 else {
                                     reportToBeAdded.approvedDate = "Ikke accepteret endnu!";
                                 }
-                                if (repo.ApprovedBy != null)
-                                {
+                                if (repo.ApprovedBy != null) {
                                     reportToBeAdded.ApprovedBy = repo.ApprovedBy.FullName;
                                 }
                                 else
@@ -219,8 +215,7 @@ namespace OS2Indberetning.Controllers
 
                                 }
                                 int counter = 0;
-                                foreach (var p in repo.DriveReportPoints.AsQueryable().OrderBy(x => x.Id))
-                                {
+                                foreach (var p in repo.DriveReportPoints.AsQueryable().OrderBy(x=> x.Id)) {
 
                                     if (counter < 1)
                                     {
@@ -228,7 +223,7 @@ namespace OS2Indberetning.Controllers
                                         counter++;
                                     }
                                     else {
-                                        reportToBeAdded.Route = reportToBeAdded.Route + " - " + p.StreetName + ", " + p.StreetNumber + ", " + p.ZipCode;
+                                        reportToBeAdded.Route =reportToBeAdded.Route + " - " + p.StreetName + ", " + p.StreetNumber +", " + p.ZipCode;
 
                                     }
 
@@ -240,16 +235,18 @@ namespace OS2Indberetning.Controllers
                     }
                 }
             }
-            catch (Exception e) {
+            catch (Exception e)
+            {
                 _logger.Log("drivereports Error " + e.Message, "web", 3);
             }
+
             result.driveReports = drivereports.ToArray();
             result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
-           
+
 
             foreach (var r in result.driveReports) {
-              
-                if (r.kontering != null) { 
+
+                if (r.kontering != null) {
                     r.kontering = _Bankrepo.AsQueryable().Where(x=> x.Number == r.kontering).FirstOrDefault().Description;
                 }
                 else
@@ -257,12 +254,13 @@ namespace OS2Indberetning.Controllers
                     r.kontering = "ingen kontering";
                 }
             }
-            
+
             if (result.driveReports.Count() > 0)
             {
                 return Json(result);
             }
-            return StatusCode(HttpStatusCode.NoContent);
+
+            return Json(result);
         }
 
         public string getRouteByreportId(int id){
@@ -281,26 +279,9 @@ namespace OS2Indberetning.Controllers
 
             return null;
         }
+        
 
-        /// <summary>
-        /// Returns a bool indicating if the special Norddjurs calculation method is configured to be used.
-        /// Used for setting the available options in the kilometerallowance menu.
-        /// </summary>
-        /// <returns></returns>
-        [EnableQuery]
-        public IHttpActionResult GetCalculationMethod()
-        {
-            bool isAltCalc;
-            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
-
-            if (parseSucces)
-            {
-                return Ok(isAltCalc);
-            }
-
-            return StatusCode(HttpStatusCode.NoContent);
-        }
-
+        
         //GET: odata/DriveReports(5)
         /// <summary>
         /// ODATA API endpoint for a single drivereport.
@@ -338,10 +319,10 @@ namespace OS2Indberetning.Controllers
             if(CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
             {
                 // An admin is trying to edit an already approved report.
-                    var adminEditResult = _driveService.Create(driveReport);
-                    // CurrentUser is restored after the calculation.
-                    _driveService.SendMailToUserAndApproverOfEditedReport(adminEditResult, emailText, CurrentUser, "redigeret");
-                    return Ok(adminEditResult);
+                var adminEditResult = _driveService.Create(driveReport);
+                // CurrentUser is restored after the calculation.
+                _driveService.SendMailToUserAndApproverOfEditedReport(adminEditResult, emailText, CurrentUser, "redigeret");
+                return Ok(adminEditResult);
             }
 
             if (!CurrentUser.Id.Equals(driveReport.PersonId))

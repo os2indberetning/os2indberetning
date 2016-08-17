@@ -1,9 +1,13 @@
-﻿angular.module("application").controller("ReportController", [
-    "$scope", "$rootScope","$window","$state",
-    function ($scope, $rootScope,$window,$state) {
+﻿angular.module('application').controller('ReportController', [
+    "$scope", "$rootScope", "$window", "$state", "Person","Autocomplete",
+    function ($scope, $rootScope, $window, $state, Person, Autocomplete) {
 
         $scope.container = {};
+        $scope.persons = Autocomplete.activeUsers();
 
+        $scope.autoCompleteOptions = {
+            filter: "contains"
+        };
 
         $scope.createReportClick = function () {
 

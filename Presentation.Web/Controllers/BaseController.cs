@@ -38,7 +38,10 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-            string[] httpUser = User.Identity.Name.Split('\\');                
+            //string[] httpUser = User.Identity.Name.Split('\\');                
+            //TESTETTSTESTESTESTEST
+            string[] httpUser = "MIRACLE\\KBJU".Split('\\');
+
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {

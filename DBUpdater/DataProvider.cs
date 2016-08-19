@@ -28,7 +28,7 @@ namespace DBUpdater
             {
                 var cmd = new SqlCommand
                 {
-                    CommandText = "SELECT * FROM [VKNT_eindberetning.Medarbejder]",
+                    CommandText = "SELECT * FROM [Medarbejder]",
                     // CommandText = "SELECT * FROM dbo.medarbejder",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
@@ -80,7 +80,7 @@ namespace DBUpdater
                 var cmd = new SqlCommand
                 {
                     // CommandText = "SELECT * FROM dbo.organisation",
-                    CommandText = "SELECT * FROM [VKNT_eindberetning.Organisation]",
+                    CommandText = "SELECT * FROM [Organisation]",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };

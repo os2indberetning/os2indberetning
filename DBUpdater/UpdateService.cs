@@ -186,6 +186,13 @@ namespace DBUpdater
 
                 var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
 
+                if (org.Vejnavn == null)
+                {
+                    org.Vejnavn = "Bymosevej 50";
+                    org.PostNr = "8210";
+                    org.PostDistrikt = "Aarhus V";
+                }
+
                 var workAddress = GetWorkAddressIDM(org);
                 //if (workAddress == null)
                 //{
@@ -669,9 +676,11 @@ namespace DBUpdater
         /// <param name="personId"></param>
         public void UpdateHomeAddressIDM(EmployeeIDM empl, string cpr)
         {
-            if (empl.Vejnavn == null || empl.Vejnavn == "")
+            if (empl.Vejnavn == null || empl.Vejnavn== "")
             {
-                return;
+                empl.Vejnavn = "Bymosevej 50";
+                empl.PostNr = "8210";
+                empl.PostDistrikt = "Aarhus V";
             }
 
             var person = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber == cpr);
@@ -789,7 +798,7 @@ namespace DBUpdater
                 && existingOrg.Address.Longitude == launderedAddress.Longitude
                 && existingOrg.Address.Description == launderedAddress.Description)
             {
-                launderedAddress.Id = (int)existingOrg.AddressId;
+                launderedAddress.Id = existingOrg.AddressId;
             }
             else
             {
@@ -803,11 +812,12 @@ namespace DBUpdater
         {
             var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
 
-            if (org.Vejnavn == null || org.Vejnavn == "")
+            if (org.Vejnavn == null|| org.Vejnavn == "")
             {
-                return null;
+                org.Vejnavn = "Bymosevej 50";
+                org.PostNr = "8210";
+                org.PostDistrikt = "Aarhus V";
             }
-
             var splitStreetAddress = SplitAddressIDM(org.Vejnavn,org.PostNr,org.PostDistrikt);
 
             var addressToLaunder = new Address

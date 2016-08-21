@@ -138,6 +138,11 @@
         "GetAutoCompleteDataForCachedAddress": {
             method: "GET",
             url: "/odata/Addresses/Service.GetCachedAddresses?$select=Description,DirtyString"
+        },
+        "PatchRealWorkAddress": {
+            method: "PATCH",
+            isArray: false,
+            url: "/odata/Addresses(:id)?:query"
         }
     });
 }]);

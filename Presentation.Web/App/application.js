@@ -101,6 +101,23 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
                 }]
             }
         })
+        .state("settingsNoAdress", {
+            url: "/settings",
+            templateUrl: "/App/Settings/SettingsView.html",
+            controller: "SettingController",
+            resolve: {
+                CurrentUser: ["$rootScope", "Person", function ($rootScope, Person) {
+                    $rootScope.ErrorMessage = "Adresse er ikke, indtast venligst din arbejds adresse og privat adresse";
+                    if ($rootScope.CurrentUser == undefined) {
+                        return Person.GetCurrentUser().$promise.then(function (res) {
+                            $rootScope.CurrentUser = res;
+                        });
+                    } else {
+                        return $rootScope.CurrentUser;
+                    }
+                }]
+            }
+        })
         .state("admin", {
             url: "/admin",
             templateUrl: "/App/Admin/AdminView.html",

@@ -1,5 +1,5 @@
 angular.module("application").controller("MainMenuController", [
-   "$scope", "Person", "PersonalAddress", "HelpText", "$rootScope", "OrgUnit", "Person", function ($scope, Person, PersonalAddress, HelpText, $rootScope, OrgUnit, Person) {
+   "$scope", "Person", "PersonalAddress", "HelpText", "$rootScope", "OrgUnit", function ($scope, Person, PersonalAddress, HelpText, $rootScope, OrgUnit) {
 
 
        HelpText.getAll().$promise.then(function (res) {

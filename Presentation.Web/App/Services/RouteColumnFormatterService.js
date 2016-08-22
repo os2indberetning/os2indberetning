@@ -36,23 +36,29 @@
 
             var result = toolTip + roundTrip + globe;
             var comment = data.UserComment != null ? data.UserComment : "Ingen kommentar angivet";
+            
+
+            var commentToolTip = "";
+            if(comment != "Ingen kommentar angivet" && comment != "Ingen kommentar indtastet"){
+                commentToolTip =  "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'" + comment + "'\"><i class=\"fa fa-2x fa-comment-o\"></i></div>";
+            }
+
+            if (data.IsFromApp) {
+                var fromAppTooltip = "<div class='inline margin-left-5'>Indberettet fra mobil app</div>" + commentToolTip;
+                if (data.DriveReportPoints.length > 1) {
+                    result = toolTip + roundTrip + globe + fromAppTooltip + edited;
+                } else {
+                    // Set road tooltip to just contain "Aflæst manuelt"
+                    toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + "Aflæst manuelt" + "'\">" + gridContent + "</div>";
+                    result = toolTip + roundTrip + fromAppTooltip + edited;
+                }
+                return result;
+            }
 
             if (data.KilometerAllowance != "Read") {
-                return result;
-            } else {
-                if (data.IsFromApp) {
-                    var fromAppTooltip = "<div class='inline margin-left-5'>Indberettet fra mobil app</div><div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'" + data.UserComment + "'\"><i class=\"fa fa-2x fa-comment-o\"></i></div>";
-                    if (data.DriveReportPoints.length > 1) {
-                        result = toolTip + roundTrip + fromAppTooltip + globe + edited;
-                    } else {
-                        // Set road tooltip to just contain "Aflæst manuelt"
-                        toolTip = "<div class='inline margin-left-5' kendo-tooltip k-content=\"'" + "Aflæst manuelt" + "'\">" + gridContent + "</div>";
-                        result = toolTip + roundTrip + fromAppTooltip + edited;
-                    }
                     return result;
-                } else {
+            } else {
                     return "<div class='inline' kendo-tooltip k-content=\"'" + comment + "'\">Aflæst manuelt</div>";
-                }
             }
 
         }

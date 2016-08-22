@@ -105,6 +105,8 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppLoginService.cs" />
+    <Compile Include="Interfaces\IAppLoginService.cs" />
     <Compile Include="Interfaces\IOrgUnitService.cs" />
     <Compile Include="Logger\ILogger.cs" />
     <Compile Include="Logger\Logger.cs" />
@@ -144,6 +146,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Core.DmzModel\Core.DmzModel.csproj">
+      <Project>{108af3eb-0b3f-4943-aef2-de847bfae8a8}</Project>
+      <Name>Core.DmzModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.DomainModel\Core.DomainModel.csproj">
       <Project>{823928AD-3BB7-4FD8-831F-201D73B80AE0}</Project>
       <Name>Core.DomainModel</Name>

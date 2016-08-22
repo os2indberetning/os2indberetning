@@ -38,33 +38,34 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-#if DEBUG
-            string[] httpUser = @"syddjursnet\jbp".Split('\\'); // Fissirul Lehmann - administrator
-#else
-                string[] httpUser = User.Identity.Name.Split('\\');                
-#endif
+            string[] httpUser = User.Identity.Name.Split('\\'); 
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
-                // DEBUG ON PRODUCTION. Set petsoe = lky
-                if (initials == "itmind" || initials == "jaoj" || initials == "mraitm") { initials = "jbp"; }
-                // END DEBUG
+
+                //DEBUG ON PRODUCTION SERVER
+                if (initials.Equals("rr.miracle"))
+                {
+                    initials = "aler";
+                }
+                //DEBUG
+                
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)
                 {
-                    _logger.Log("AD-bruger ikke fundet i databasen (" + User.Identity.Name + ")", "web");
+                    _logger.Log("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
                     throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
                 }
                 if (!CurrentUser.IsActive)
                 {
-                    _logger.Log("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + ")", "web");
+                    _logger.Log("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
                     throw new UnauthorizedAccessException("Inaktiv bruger forsøgte at logge ind.");
                 }
             }
             else
             {
-                _logger.Log("Gyldig domænebruger ikke fundet (" + User.Identity.Name + ")", "web");
+                _logger.Log("Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
                 throw new UnauthorizedAccessException("Gyldig domænebruger ikke fundet.");
             }
         }
@@ -124,7 +125,6 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Log("Exception doing post of type " + typeof(T), "web");
                 return InternalServerError(e);
             }
         }
@@ -151,7 +151,6 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Log("Exception doing patch of type " + typeof(T), "web");
                 return InternalServerError(e);
             }
 
@@ -172,7 +171,6 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Log("Exception doing delete", "web");
                 return InternalServerError(e);
             }
             return Ok();

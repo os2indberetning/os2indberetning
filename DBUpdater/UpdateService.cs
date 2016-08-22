@@ -264,6 +264,14 @@ namespace DBUpdater
         /// <returns></returns>
         public Employment CreateEmployment(Employee empl, int personId)
         {
+
+            //DEBUGGING
+            if (empl.Leder && empl.LOSOrgId == 828136)
+            {
+                int i = 1;
+            }
+            //DEBUGGING
+
             if (empl.AnsaettelsesDato == null)
             {
                 return null;
@@ -299,7 +307,7 @@ namespace DBUpdater
 
             if (empl.OphoersDato != null)
             {
-                employment.EndDateTimestamp = (Int32)(((DateTime)empl.OphoersDato).Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                employment.EndDateTimestamp = (Int32)(((DateTime)empl.OphoersDato).Subtract(new DateTime(1970, 1, 1)).Add(new TimeSpan(1,0,0,0))).TotalSeconds;
             }
             else
             {

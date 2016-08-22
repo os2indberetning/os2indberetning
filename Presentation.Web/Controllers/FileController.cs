@@ -43,12 +43,11 @@ namespace OS2Indberetning.Controllers
             try
             {
                 new ReportGenerator(_repo, new ReportFileWriter()).WriteRecordsToFileAndAlterReportStatus();
-                _logger.Log("Fil til KMD genereret.", "web");
                 return Ok();
             }
             catch (Exception e)
             {
-                _logger.Log("Fejl ved generering af fil til KMD", "web");
+                _logger.Log("Fejl ved generering af fil til KMD. Filen blev ikke genereret.", "web",e,1);
                 return InternalServerError();
             }
         }

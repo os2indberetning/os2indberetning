@@ -22,6 +22,10 @@ namespace Infrastructure.AddressServices
         /// <returns>Corrected address.</returns>
         public Address LaunderAddress(Address address)
         {
+            if (string.IsNullOrEmpty(address.ZipCode.ToString()) || string.IsNullOrEmpty(address.StreetName) || string.IsNullOrEmpty(address.StreetNumber))
+            {
+                throw new AddressLaunderingException("The laundering process did not return any elements.", 0);
+            }
             var request = CreateRequest(address.StreetName, address.StreetNumber, address.ZipCode.ToString());
             var laundered = ExecuteAndRead(request);
             

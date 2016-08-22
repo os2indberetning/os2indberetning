@@ -122,8 +122,17 @@ namespace OS2Indberetning.Controllers
         /// <param name="driveReport"></param>
         /// <returns>The posted report.</returns>
         [EnableQuery]
-        public new IHttpActionResult Post(DriveReport driveReport)
+        public new IHttpActionResult Post(DriveReport driveReport, string emailText)
         {
+            if(CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
+            {
+                // An admin is trying to edit an already approved report.
+                    var adminEditResult = _driveService.Create(driveReport);
+                    // CurrentUser is restored after the calculation.
+                    _driveService.SendMailToUserAndApproverOfEditedReport(adminEditResult, emailText, CurrentUser, "redigeret");
+                    return Ok(adminEditResult);
+            }
+
             if (!CurrentUser.Id.Equals(driveReport.PersonId))
             {
                 return StatusCode(HttpStatusCode.Forbidden);
@@ -142,10 +151,11 @@ namespace OS2Indberetning.Controllers
         /// </summary>
         /// <param name="key"></param>
         /// <param name="delta"></param>
+        /// <param name="emailText">The message to be sent to the owner of a report an admin has rejected or edited.</param>
         /// <returns></returns>
         [EnableQuery]
         [AcceptVerbs("PATCH", "MERGE")]
-        public new IHttpActionResult Patch([FromODataUri] int key, Delta<DriveReport> delta)
+        public new IHttpActionResult Patch([FromODataUri] int key, Delta<DriveReport> delta, string emailText)
         {
 
             var report = Repo.AsQueryable().SingleOrDefault(x => x.Id == key);
@@ -160,6 +170,21 @@ namespace OS2Indberetning.Controllers
             if (leader == null)
             {
                 return StatusCode(HttpStatusCode.Forbidden);
+            }
+
+            if (CurrentUser.IsAdmin && emailText != null && report.Status == ReportStatus.Accepted)
+            {
+                // An admin is trying to reject an approved report.
+                report.Status = ReportStatus.Rejected;
+                report.Comment = emailText;
+                report.ClosedDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                try {
+                    Repo.Save();
+                    _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
+                    return Ok();
+                } catch(Exception e) {
+                    _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
+                }
             }
 
 
@@ -180,7 +205,7 @@ namespace OS2Indberetning.Controllers
             // User should not be allowed to change a Report which has been accepted or rejected.
             if (report.Status != ReportStatus.Pending)
             {
-                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende.", "web");
+                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.", "web", 3);
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 

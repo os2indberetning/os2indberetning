@@ -113,6 +113,9 @@ namespace OS2Indberetning
 
             builder.EntitySet<OrgUnit>("OrgUnits");
 
+
+            builder.EntitySet<AppLogin>("AppLogin");
+
             builder.EntitySet<Person>("Person");
             var pType = builder.EntityType<Person>();
             pType.HasKey(p => p.Id);
@@ -122,6 +125,12 @@ namespace OS2Indberetning
             builder.EntityType<Person>().Collection
            .Function("GetCurrentUser")
            .ReturnsFromEntitySet<Person>("Person");
+
+            builder.EntityType<Person>().Collection
+            .Function("GetUserAsCurrentUser")
+            .ReturnsFromEntitySet<Person>("Person");
+
+            
 
             builder.EntitySet<PersonalAddress>("PersonalAddresses");
 

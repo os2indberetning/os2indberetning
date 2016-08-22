@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,7 +14,7 @@ using Core.DomainServices.RoutingClasses;
 using Infrastructure.AddressServices;
 using Infrastructure.DmzDataAccess;
 using Infrastructure.DataAccess;
-using Infrastructure.DmzSync.Encryption;
+using Core.DomainServices.Encryption;
 using Infrastructure.DmzSync.Services.Impl;
 using Ninject;
 using DriveReport = Core.DmzModel.DriveReport;
@@ -28,16 +28,15 @@ namespace Infrastructure.DmzSync
         static void Main(string[] args)
         {
 
+            var logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+       
             // hacks because of error with Entity Framework.
             // This forces the dmzconnection to use MySql.
             new DataContext();
 
             var personSync = new PersonSyncService(new GenericDmzRepository<Profile>(new DmzContext()),
-                new GenericRepository<Person>(new DataContext()),
+                new GenericRepository<Person>(new DataContext()), new GenericDmzRepository<Core.DmzModel.Employment>(new DmzContext()),
                 NinjectWebKernel.CreateKernel().Get<IPersonService>());
-
-            var tokenSync = new TokenSyncService(new GenericDmzRepository<Token>(new DmzContext()),
-                new GenericRepository<MobileToken>(new DataContext()));
 
             var driveSync = new DriveReportSyncService(new GenericDmzRepository<DriveReport>(new DmzContext()),
                new GenericRepository<Core.DomainModel.DriveReport>(new DataContext()), new GenericRepository<Rate>(new DataContext()), new GenericRepository<LicensePlate>(new DataContext()), NinjectWebKernel.CreateKernel().Get<IDriveReportService>(), NinjectWebKernel.CreateKernel().Get<IRoute<RouteInformation>>(), NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>(), NinjectWebKernel.CreateKernel().Get<IGenericRepository<Core.DomainModel.Employment>>(), NinjectWebKernel.CreateKernel().Get<ILogger>());
@@ -45,32 +44,55 @@ namespace Infrastructure.DmzSync
             var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
                 new GenericRepository<Rate>(new DataContext()));
 
-            Console.WriteLine("TokenSyncFromDmz");
-            tokenSync.SyncFromDmz();
+            var userAuthSync = new UserAuthSyncService(new GenericRepository<AppLogin>(new DataContext()),
+                new GenericDmzRepository<UserAuth>(new DmzContext()));
 
-            Console.WriteLine("DriveReportsSyncFromDmz");
-            driveSync.SyncFromDmz();
+            try
+            {
+                Console.WriteLine("DriveReportsSyncFromDmz");
+                driveSync.SyncFromDmz();
 
-            Console.WriteLine("TokenClearDmz");
-            tokenSync.ClearDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af indberetninger fra DMZ. Mobilindberetninger er ikke synkroniserede.", "dmz", ex, 1);
+                throw;
+            }
+           
+            try
+            {
+                Console.WriteLine("PersonSyncToDmz");
+                personSync.SyncToDmz();
 
-            Console.WriteLine("DriveReportClearDmz");
-            driveSync.ClearDmz();
-            
-            Console.WriteLine("PersonClearDmz");
-            personSync.ClearDmz();
-            
-            Console.WriteLine("RateClearDmz");
-            rateSync.ClearDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af medarbejdere til DMZ. Mobil-app er ikke opdateret med nyeste medarbejderdata.", "dmz", ex, 1);
+                throw;
+            }
 
-            Console.WriteLine("PersonSyncToDmz");
-            personSync.SyncToDmz();
+            try
+            {
+                Console.WriteLine("RateSyncToDmz");
+                rateSync.SyncToDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af takster til DMZ. Mobil-app er ikke opdateret med nyeste rater.", "dmz", ex, 1);
+                throw;
+            }
 
-            Console.WriteLine("TokenSyncToDmz");
-            tokenSync.SyncToDmz();
+            try
+            {
+                Console.WriteLine("UserAuthSyncToDmz");
+                userAuthSync.SyncToDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af applogins til DMZ. Mobil-app er ikke opdateret med nyeste applogins.", "dmz", ex, 1);
+                throw;
+            }
 
-            Console.WriteLine("RateSyncToDmz");
-            rateSync.SyncToDmz();
 
             Console.WriteLine("Done");
 

@@ -102,6 +102,25 @@ namespace OS2Indberetning.Controllers
             return StatusCode(HttpStatusCode.NoContent);
         }
 
+        /// <summary>
+        /// Returns a bool indicating if the special Norddjurs calculation method is configured to be used.
+        /// Used for setting the available options in the kilometerallowance menu.
+        /// </summary>
+        /// <returns></returns>
+        [EnableQuery]
+        public IHttpActionResult GetCalculationMethod()
+        {
+            bool isAltCalc;
+            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
+
+            if (parseSucces)
+            {
+                return Ok(isAltCalc);
+            }
+
+            return StatusCode(HttpStatusCode.NoContent);
+        }
+
         [HttpGet]
         public IHttpActionResult Eksport( string start, string end, string name, string orgUnit = null, string manr = null)
         {

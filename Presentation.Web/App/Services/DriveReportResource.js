@@ -297,7 +297,7 @@
                 return res;
             }
         },
-        "getCalculationMethod": {
+       /* "getCalculationMethod": {
             method: "GET",
             isArray: false,
             url: "/odata/DriveReports/Service.GetCalculationMethod",
@@ -307,6 +307,6 @@
             //    console.log("res['value']= " + res["value"]);
             //    return res;
             //}
-        }
+        }*/
     });
 }]);

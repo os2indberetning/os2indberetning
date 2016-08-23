@@ -29,7 +29,7 @@ namespace OS2Indberetning.Controllers
         protected IGenericRepository<T> Repo;
         private readonly IGenericRepository<Person> _personRepo;
         private readonly PropertyInfo _primaryKeyProp;
-
+        
         private readonly ILogger _logger;
 
         protected Person CurrentUser;

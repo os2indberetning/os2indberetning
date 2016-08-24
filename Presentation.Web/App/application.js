@@ -102,7 +102,7 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
             }
         })
         .state("settingsNoAdress", {
-            url: "/settings",
+            url: "/settingssettingsNoAdress",
             templateUrl: "/App/Settings/SettingsView.html",
             controller: "SettingController",
             resolve: {

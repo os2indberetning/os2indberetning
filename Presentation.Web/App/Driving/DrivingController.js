@@ -77,7 +77,7 @@
             },
         }
 
-        $scope.addressPlaceholderText = "Eller indtast adresse her";
+        $scope.addressPlaceholderText = "Indtast adresse her";
         $scope.SmartAddress = SmartAdresseSource;
         $scope.IsRoute = false;
 

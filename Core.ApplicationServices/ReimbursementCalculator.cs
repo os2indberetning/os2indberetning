@@ -136,8 +136,8 @@ namespace Core.ApplicationServices
             //If user indicated to use the Four Km Rule
             if (report.FourKmRule)
             {
-                //Take users provided distance from home to border of municipality
-                var borderDistance = person.DistanceFromHomeToBorder;
+                //Take users provided distance from home to border of municipality. If report is from app, use distance provided in report, else use distance saved on person.
+                var borderDistance = report.IsFromApp? report.HomeToBorderDistance : person.DistanceFromHomeToBorder;
 
                 //Adjust distance based on if user starts or ends at home
                 if (report.StartsAtHome)

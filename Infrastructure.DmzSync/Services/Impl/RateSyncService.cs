@@ -49,7 +49,8 @@ namespace Infrastructure.DmzSync.Services.Impl
             foreach (var masterRate in rateList)  
             {
                 i++;
-                if (masterRate.Active) {
+                if (masterRate.Active)
+                {
                     if (i % 10 == 0)
                     {
                         Console.WriteLine("Syncing rate " + i + " of " + max);
@@ -74,6 +75,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                         dmzRate.Year = rate.Year;
                     }
                 }
+
             }
              _dmzRateRepo.Save();
         }

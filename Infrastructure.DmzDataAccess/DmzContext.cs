@@ -17,6 +17,7 @@ namespace Infrastructure.DmzDataAccess
         public virtual DbSet<DriveReport> DriveReports { get; set; }
         public virtual DbSet<Employment> Employments { get; set; }
         public virtual DbSet<GPSCoordinate> GPSCoordinates { get; set; }
+        public virtual DbSet<OrgUnit> OrgUnits { get; set; }
         public virtual DbSet<Profile> Profiles { get; set; }
         public virtual DbSet<Rate> Rates { get; set; }
         public virtual DbSet<Route> Routes { get; set; }

@@ -28,6 +28,7 @@ namespace Core.DomainModel
         public double KmRate { get; set; }
         public long DriveDateTimestamp { get; set; }
         public bool FourKmRule { get; set; }
+        public double HomeToBorderDistance { get; set; } //Used with 4 km rule, when report is from app.
         public bool StartsAtHome { get; set; }
         public bool EndsAtHome { get; set; }
         public string LicensePlate { get; set; }

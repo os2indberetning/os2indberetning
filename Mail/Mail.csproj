@@ -104,16 +104,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="connections.config">
       <SubType>Designer</SubType>
-    </None>
+    </Content>
     <None Include="Mail_TemporaryKey.pfx" />
     <None Include="packages.config" />
-    <None Include="CustomSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="CustomSettings.config">
       <SubType>Designer</SubType>
-    </None>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.ApplicationServices\Core.ApplicationServices.csproj">

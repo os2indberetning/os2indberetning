@@ -60,7 +60,8 @@ namespace Infrastructure.DmzSync.Services.Impl
                     {
                         Id = masterRate.Id,
                         Description = masterRate.Type.Description,
-                        Year = masterRate.Year.ToString()
+                        Year = masterRate.Year.ToString(),
+                        IsActive = true
                     };
 
                     var dmzRate = _dmzRateRepo.AsQueryable().FirstOrDefault(x => x.Id == rate.Id);
@@ -75,7 +76,6 @@ namespace Infrastructure.DmzSync.Services.Impl
                         dmzRate.Year = rate.Year;
                     }
                 }
-
             }
              _dmzRateRepo.Save();
         }

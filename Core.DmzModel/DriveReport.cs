@@ -12,6 +12,8 @@ namespace Core.DmzModel
 
         public bool FourKmRule { get; set; }
 
+        public double HomeToBorderDistance { get; set; }
+
         public bool StartsAtHome { get; set; }
 
         public bool EndsAtHome { get; set; }

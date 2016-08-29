@@ -42,11 +42,11 @@ namespace OS2Indberetning.Controllers
 
             _logger.Log(httpUser[0] + " - " + httpUser[1], "web");
 
-            if (httpUser[0] == "WIN-KT4GI14GFC1")
-            {
-                httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
-                httpUser[0] = "MIRACLE";
-            }
+            //if (httpUser[0] == "WIN-KT4GI14GFC1")
+            //{
+            //    httpUser[1] = ConfigurationManager.AppSettings["HTTPTESTUSER"];
+            //    httpUser[0] = "MIRACLE";
+            //}
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {

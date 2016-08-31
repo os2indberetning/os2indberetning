@@ -60,6 +60,7 @@
     <Compile Include="EksportModel.cs" />
     <Compile Include="Employment.cs" />
     <Compile Include="FileGenerationSchedule.cs" />
+    <Compile Include="IDMOrgLeader.cs" />
     <Compile Include="LicensePlate.cs" />
     <Compile Include="MailNotificationSchedule.cs" />
     <Compile Include="MobileToken.cs" />

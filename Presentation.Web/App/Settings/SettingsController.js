@@ -31,7 +31,21 @@
         // Contains references to kendo ui grids.
         $scope.gridContainer = {};
 
+        if ($rootScope.ErrorMessage != undefined) {
+            /// <summary>
+            /// Opens no license plate modal.
+            /// </summary>
+            /// <param name="id"></param>
+            var modalInstance = $modal.open({
+                templateUrl: '/App/Settings/errorModalTemplate.html',
+                controller: 'ErrorModalController',
+                backdrop: "static",
+            });
 
+            modalInstance.result.then(function () {
+                $location.path("/settings");
+            });
+        }
 
         
 

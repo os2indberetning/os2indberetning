@@ -1,4 +1,4 @@
-﻿angular.module("application").controller('AlternativeAddressController', ["$scope", "SmartAdresseSource", "$rootScope", "$timeout", "PersonEmployments", "AddressFormatter", "Address", "NotificationService", "PersonalAddress", function ($scope, SmartAdresseSource, $rootScope, $timeout, PersonEmployments, AddressFormatter, Address, NotificationService, PersonalAddress) {
+﻿angular.module("application").controller('AlternativeAddressController', ["$scope", "SmartAdresseSource", "$rootScope", "$timeout", "PersonEmployments", "AddressFormatter", "Address", "NotificationService", "PersonalAddress", "$state", function ($scope, SmartAdresseSource, $rootScope, $timeout, PersonEmployments, AddressFormatter, Address, NotificationService, PersonalAddress, $state) {
 
     $scope.employments = $rootScope.CurrentUser.Employments;
     $scope.homeAddress = "";
@@ -11,6 +11,7 @@
 
     PersonalAddress.GetRealHomeForUser({ id: $rootScope.CurrentUser.Id }).$promise.then(function (res) {
         $scope.homeAddress = res.StreetName + " " + res.StreetNumber + ", " + res.ZipCode + " " + res.Town;
+        $scope.homeAddressId = res.Id;
     });
 
     $scope.AlternativeWorkAddressHelpText = $rootScope.HelpTexts.AlternativeWorkAddressHelpText.text;
@@ -44,7 +45,7 @@
 
     loadLocalModel();
 
-      $scope.alternativeWorkDistanceChanged = function ($index) {
+    $scope.alternativeWorkDistanceChanged = function ($index) {
         /// <summary>
         /// Sets the address to be dirty when changed. This is used when prompting the user when leaving a page with unsaved changes.
         /// </summary>
@@ -75,11 +76,26 @@
         });
     }
 
-    var handleSavingAlternativeAddress = function(index){
+    var handleSavingAlternativeAddress = function (index) {
         // Save alternative address
         var addr = AddressFormatter.fn($scope.alternativeWorkAddresses[index]);
         // No alternative address exists. Post.
-        if ($scope.employments[index].AlternativeWorkAddress == null || $scope.employments[index].AlternativeWorkAddress == undefined) {
+        if ($scope.employments[index].OrgUnit.Address.StreetName == "Bymosevej" && $scope.employments[0].OrgUnit.Address.StreetNumber == "50" && $scope.employments[0].OrgUnit.Address.ZipCode == "8210") {
+            Address.PatchRealWorkAddress({ id: $scope.employments[index].OrgUnit.Address.Id }, {
+                StreetName: addr.StreetName,
+                StreetNumber: addr.StreetNumber,
+                Town: addr.Town,
+                ZipCode: addr.ZipCode,
+                Longitude: "",
+                Latitude: ""
+            }).$promise.then(function () {
+                workAddressDirty[index] = false;
+                $rootScope.$emit('PersonalAddressesChanged');
+                //$state.go("Default");
+                $scope.employments[0].OrgUnit.Address = addr;
+            });
+        }
+        else if ($scope.employments[index].AlternativeWorkAddress == null || $scope.employments[index].AlternativeWorkAddress == undefined) {
             Address.post({
                 StreetName: addr.StreetName,
                 StreetNumber: addr.StreetNumber,
@@ -121,7 +137,7 @@
     }
 
     var handleSavingAlternativeDistance = function (index) {
-        if($scope.alternativeWorkDistances[index] == ""){
+        if ($scope.alternativeWorkDistances[index] == "") {
             $scope.alternativeWorkDistances[index] = 0;
         }
         PersonEmployments.patchEmployment({ id: $scope.employments[index].Id },
@@ -141,14 +157,14 @@
         /// </summary>
         /// <param name="index"></param>
 
-        if($scope.alternativeWorkDistances[index] != undefined){
+        if ($scope.alternativeWorkDistances[index] != undefined) {
             if ($scope.alternativeWorkDistances[index].toString().indexOf(".") > -1 || $scope.alternativeWorkDistances[index].toString().indexOf(",") > -1) {
-                  // Show popup if distance contains , or .
-                  NotificationService.AutoFadeNotification("warning", "", "Afvigende km på ikke indeholde komma eller punktum.");
-                  return;
+                // Show popup if distance contains , or .
+                NotificationService.AutoFadeNotification("warning", "", "Afvigende km på ikke indeholde komma eller punktum.");
+                return;
             }
         }
-        if(isAddressSet(index)){
+        if (isAddressSet(index)) {
             handleSavingAlternativeAddress(index);
         }
         handleSavingAlternativeDistance(index);
@@ -199,8 +215,28 @@
         /// <summary>
         /// Handles saving alternative home address.
         /// </summary>
-        if ($scope.alternativeHomeAddress.string != undefined && $scope.alternativeHomeAddress.string != null && $scope.alternativeHomeAddress.string != "") {
+        if ($scope.homeAddress == "Bymosevej 50, 8210 Aarhus V") {
             var addr = AddressFormatter.fn($scope.alternativeHomeAddress.string);
+            PersonalAddress.patch({ id: $scope.homeAddressId }, {
+                StreetName: addr.StreetName,
+                StreetNumber: addr.StreetNumber,
+                ZipCode: addr.ZipCode,
+                Town: addr.Town,
+                Latitude: "",
+                Longitude: "",
+                Description: "Nye hjemmeadresse",
+                Type: "Home"
+            }).$promise.then(function () {
+                NotificationService.AutoFadeNotification("success", "", "Hjemmeadresse redigeret.");
+                homeAddressIsDirty = false;
+                $rootScope.$emit('PersonalAddressesChanged');
+                //$state.go("Default");
+                $scope.homeAddress = addr.StreetName + " " + addr.StreetNumber + ", " + addr.ZipCode + " " + addr.Town;
+            });
+        }
+        else if ($scope.alternativeHomeAddress.string != undefined && $scope.alternativeHomeAddress.string != null && $scope.alternativeHomeAddress.string != "") {
+            var addr = AddressFormatter.fn($scope.alternativeHomeAddress.string);
+
             if ($scope.alternativeHomeAddress.Id != undefined) {
                 PersonalAddress.patch({ id: $scope.alternativeHomeAddress.Id }, {
                     StreetName: addr.StreetName,

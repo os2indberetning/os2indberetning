@@ -44,6 +44,12 @@ namespace Infrastructure.DmzSync
             var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
                 new GenericRepository<Rate>(new DataContext()));
 
+            var orgUnitSync = new OrgUnitSyncService(new GenericDmzRepository<Core.DmzModel.OrgUnit>(new DmzContext()),
+                new GenericRepository<Core.DomainModel.OrgUnit>(new DataContext()));
+
+            var userAuthSync = new UserAuthSyncService(new GenericRepository<Core.DomainModel.AppLogin>(new DataContext()), 
+                new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()));
+
             try
             {
                 Console.WriteLine("DriveReportsSyncFromDmz");
@@ -55,7 +61,18 @@ namespace Infrastructure.DmzSync
                 logger.Log("Fejl under synkronisering af indberetninger fra DMZ. Mobilindberetninger er ikke synkroniserede.", "dmz", ex, 1);
                 throw;
             }
-           
+
+            try
+            {
+                Console.WriteLine("OrgUnitSyncToDmz");
+                orgUnitSync.SyncToDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af OrgUnits til DMZ. Mobil-app er ikke opdateret med nyeste OrgUnits.", "dmz", ex, 1);
+                throw;
+            }
+
             try
             {
                 Console.WriteLine("PersonSyncToDmz");
@@ -78,7 +95,18 @@ namespace Infrastructure.DmzSync
                 logger.Log("Fejl under synkronisering af takster til DMZ. Mobil-app er ikke opdateret med nyeste rater.", "dmz", ex, 1);
                 throw;
             }
-            
+
+            try
+            {
+                Console.WriteLine("UserAuthSyncToDmz");
+                userAuthSync.SyncToDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Log("Fejl under synkronisering af Applogins til DMZ. Mobil-app er ikke opdateret med nyeste AppLogins.", "dmz", ex, 1);
+                throw;
+            }
+
 
             Console.WriteLine("Done");
 

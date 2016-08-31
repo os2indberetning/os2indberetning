@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+                  xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/"
+                  xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+                  xmlns:tns="www.sd.dk/sdws/KoerselOpret20120201"
+                  xmlns:request="urn:oio:sd:snitflader:2012.02.01"
+                  xmlns:response="urn:oio:sd:snitflader:2012.02.01"
+                  targetNamespace="www.sd.dk/sdws/KoerselOpret20120201"
+                  name="KoerselOpret20120201">
+   <wsdl:types>
+      <xsd:schema>
+         <xsd:import schemaLocation="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoerselOpretRequestInterface_20120201.xsd"
+                     namespace="urn:oio:sd:snitflader:2012.02.01"/>
+      </xsd:schema>
+      <xsd:schema>
+         <xsd:import schemaLocation="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoerselOpretInterface_20120201.xsd"
+                     namespace="urn:oio:sd:snitflader:2012.02.01"/>
+      </xsd:schema>
+   </wsdl:types>
+   <wsdl:message name="KoerselOpret20120201Response">
+      <wsdl:part element="response:KoerselOpret20120201" name="KoerselOpret20120201"/>
+   </wsdl:message>
+   <wsdl:message name="KoerselOpret20120201Request">
+      <wsdl:part element="request:InddataStruktur" name="InddataStruktur"/>
+   </wsdl:message>
+   <wsdl:portType name="KoerselOpret20120201PortType">
+      <wsdl:operation name="KoerselOpret20120201Operation">
+         <wsdl:input message="tns:KoerselOpret20120201Request"/>
+         <wsdl:output message="tns:KoerselOpret20120201Response"/>
+      </wsdl:operation>
+   </wsdl:portType>
+   <wsdl:binding name="KoerselOpret20120201Binding" type="tns:KoerselOpret20120201PortType">
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+      <wsdl:operation name="KoerselOpret20120201Operation">
+         <wsdlsoap:operation soapAction="https://service.sd.dk/sdws/services/KoerselOpret20120201"/>
+         <wsdl:input>
+            <wsdlsoap:body namespace="urn:KoerselOpret20120201" use="literal"/>
+         </wsdl:input>
+         <wsdl:output>
+            <wsdlsoap:body namespace="urn:KoerselOpret20120201" use="literal"/>
+         </wsdl:output>
+      </wsdl:operation>
+   </wsdl:binding>
+   <wsdl:service name="KoerselOpret20120201Service">
+      <wsdl:port binding="tns:KoerselOpret20120201Binding" name="KoerselOpret20120201">
+         <wsdlsoap:address location="https://service.sd.dk/sdws/services/KoerselOpret20120201"/>
+      </wsdl:port>
+   </wsdl:service>
+</wsdl:definitions>

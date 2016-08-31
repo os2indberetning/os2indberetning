@@ -49,30 +49,33 @@ namespace Infrastructure.DmzSync.Services.Impl
             foreach (var masterRate in rateList)  
             {
                 i++;
-                if (i%10 == 0)
+                if (masterRate.Active)
                 {
-                    Console.WriteLine("Syncing rate " + i + " of " + max);
-                }
+                    if (i % 10 == 0)
+                    {
+                        Console.WriteLine("Syncing rate " + i + " of " + max);
+                    }
 
-                var rate = new Core.DmzModel.Rate()
-                {
-                    Id = masterRate.Id,
-                    Description = masterRate.Type.Description,
-                    Year = masterRate.Year.ToString()
-                };
+                    var rate = new Core.DmzModel.Rate()
+                    {
+                        Id = masterRate.Id,
+                        Description = masterRate.Type.Description,
+                        Year = masterRate.Year.ToString(),
+                        IsActive = true
+                    };
 
-                var dmzRate = _dmzRateRepo.AsQueryable().FirstOrDefault(x => x.Id == rate.Id);
+                    var dmzRate = _dmzRateRepo.AsQueryable().FirstOrDefault(x => x.Id == rate.Id);
 
-                if (dmzRate == null)
-                {
-                    _dmzRateRepo.Insert(rate);
+                    if (dmzRate == null)
+                    {
+                        _dmzRateRepo.Insert(rate);
+                    }
+                    else
+                    {
+                        dmzRate.Description = rate.Description;
+                        dmzRate.Year = rate.Year;
+                    }
                 }
-                else
-                {
-                    dmzRate.Description = rate.Description;
-                    dmzRate.Year = rate.Year;
-                }
-                
             }
              _dmzRateRepo.Save();
         }

@@ -171,8 +171,10 @@ namespace Core.ApplicationServices
                         // Norddjurs Kommune uses an alternative way of calculating the amount to reimburse. Instead of subtracting the distance from home to work from the driven distance,
                         // either the home-to-destination or work-to-destination distance is used, which ever is shortest. This only applies to routes starting from home, in any other case
                         // the standard calculation method is used.
-                        var useNorddjursAltCalculation = ConfigurationManager.AppSettings["AlternativeCalculationMethod"].Equals("true");
-                        
+                        bool useNorddjursAltCalculation;
+                        bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out useNorddjursAltCalculation);
+                        useNorddjursAltCalculation = parseSucces ? useNorddjursAltCalculation : false;
+
                         // Use Norddjurs alternative reimbursemnt calculation method if configured so.
                         if (useNorddjursAltCalculation && report.StartsAtHome)
                         {

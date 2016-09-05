@@ -5,15 +5,15 @@
 <div id="printThis">
 
     <!--h3 style="text-align:center;">Navn: <label id="employeeHeader"></label> MAnr: <label id="MAnrHeader"></label> Start: <label id="startDateHeader"></label> slut: <label id="endDateHeader"></label></!--h3-->
-    <button class="k-button k-button-icontext k-grid-pdf" id="btnPDF"><span class="k-icon k-i-pdf"></span>Export Pdf</button>
-    <button class="k-button k-button-icontext k-grid-excel" id="btnExcel"><span class="k-icon k-i-excel"></span>Export excel</button>
+    <button class="k-button k-button-icontext k-grid-pdf" id="btnPDF"><span class="k-icon k-i-pdf"></span>Gem som PDF</button>
+    <button class="k-button k-button-icontext k-grid-excel" id="btnExcel"><span class="k-icon k-i-excel"></span>Gem som excel</button>
     <!--button class="k-button k-button-icontext k-grid-print" id="printGrid"><span class="k-icon k-i-print"></span>Print</!--button-->
 
     <div kendo-grid="gridContainer.grid" id="grid" class="margin-top-10 scrollable" options="reports">
         <div class="k-header k-grid-toolbar ng-scope">
           <div id="textwrapper" style="width:300px;">
               Medarbejder navn: <span id="MaNavn" style="float:right;"></span><br />  MaNr: <text id="MaNr" style="float:right;"></text><br />
-            Kommune: <text  style="float:right;" id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"style="float:right;"></text><br />  DatoInterval:<text id="DatoInterval"style="float:right;"></text><br />  admin: <text style="float:right;" id="admin_der_har_trukket_rapporten"></text>
+            Kommune: <text  style="float:right;" id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"style="float:right;"></text><br />  Datointerval:<text id="DatoInterval"style="float:right;"></text><br />  Admin: <text style="float:right;" id="admin_der_har_trukket_rapporten"></text>
             <br />Dato for rapportdannelse: <text style="float:right;" id="dateCreated"></text>
             <br />
               </div>

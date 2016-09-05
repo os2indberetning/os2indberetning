@@ -127,9 +127,6 @@ namespace Core.ApplicationServices
                 homeWorkDistance = _route.GetRoute(DriveReportTransportType.Car, new List<Address>() { homeAddress, workAddress }).Length;
             }
 
-
-
-
             //Calculate distance to subtract
             double toSubtract = 0;
 
@@ -176,50 +173,57 @@ namespace Core.ApplicationServices
                         useNorddjursAltCalculation = parseSucces ? useNorddjursAltCalculation : false;
 
                         // Use Norddjurs alternative reimbursemnt calculation method if configured so.
-                        if (useNorddjursAltCalculation && report.StartsAtHome)
+                        if (useNorddjursAltCalculation)
                         {
-                            // Distance from home.
-                            var homeDistance = report.Distance;
-                            if (!report.IsFromApp)
+                            // The alternative calculationmethod is only used for reports starting at home.
+                            if (report.StartsAtHome)
                             {
-                                // In case the report is not from app then get distance from the supplied route.
-                                homeDistance = drivenRoute.Length;
-                            }
-
-                            // Get distance from work.
-                            var addresses = new List<Address>();
-                            addresses.Add(workAddress);
-                            foreach(Address address in report.DriveReportPoints)
-                            {
-                                if (!(address.Latitude == homeAddress.Latitude && address.Longitude == homeAddress.Longitude))
+                                // Distance from home.
+                                var homeDistance = report.Distance;
+                                if (!report.IsFromApp)
                                 {
-                                    addresses.Add(address);
+                                    // In case the report is not from app then get distance from the supplied route.
+                                    homeDistance = drivenRoute.Length;
                                 }
+
+                                // Get distance from work.
+                                var addresses = new List<Address>();
+                                addresses.Add(workAddress);
+                                foreach (Address address in report.DriveReportPoints)
+                                {
+                                    if (!(address.Latitude == homeAddress.Latitude && address.Longitude == homeAddress.Longitude))
+                                    {
+                                        addresses.Add(address);
+                                    }
+                                }
+
+                                var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;
+
+                                var workDistance = _route.GetRoute(isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, addresses).Length;
+
+                                // Compare the distance from home to the distance from work and apply the shortest of them.
+                                report.Distance = homeDistance < workDistance ? homeDistance : workDistance;
+
+                                if (!report.IsFromApp)
+                                {
+                                    //Get RouteGeometry from driven route if the report is not from app. If it is from App then RouteGeometry is already set.
+                                    report.RouteGeometry = drivenRoute.GeoPoints;
+                                }
+
+                                break; 
                             }
-
-                            var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;
-
-                            var workDistance = _route.GetRoute(isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, addresses).Length;
-
-                            // Compare the distance from home to the distance from work and apply the shortest of them.
-                            report.Distance = homeDistance < workDistance ? homeDistance : workDistance;
-
-                            if (!report.IsFromApp)
+                            else
                             {
-                                //Get RouteGeometry from driven route if the report is not from app. If it is from App then RouteGeometry is already set.
-                                report.RouteGeometry = drivenRoute.GeoPoints;
+                                if (!report.IsFromApp)
+                                {
+                                    report.Distance = drivenRoute.Length;
+
+                                    //Save RouteGeometry
+                                    report.RouteGeometry = drivenRoute.GeoPoints; 
+                                }
+
+                                break;
                             }
-
-                            break;
-                        }
-                        else if(useNorddjursAltCalculation)
-                        {
-                            report.Distance = drivenRoute.Length;
-
-                            //Save RouteGeometry
-                            report.RouteGeometry = drivenRoute.GeoPoints;
-
-                            break;
                         }
 
                         if ((report.StartsAtHome || report.EndsAtHome) && !report.FourKmRule)

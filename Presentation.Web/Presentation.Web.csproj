@@ -277,6 +277,7 @@
     <Compile Include="Controllers\PersonalRoutesController.cs" />
     <Compile Include="Controllers\PersonController.cs" />
     <Compile Include="Controllers\AddressController.cs" />
+    <Compile Include="Controllers\sendDataToSdController.cs" />
     <Compile Include="Controllers\SubstitutesController.cs" />
     <Compile Include="Controllers\PointsController.cs" />
     <Compile Include="Controllers\TestReportsController.cs" />
@@ -303,9 +304,11 @@
     <Content Include="App\Admin\AdminMenuController.js" />
     <Content Include="App\Admin\Controllers\AddressLaundry\AddressLaundryController.js" />
     <Content Include="App\Admin\Controllers\Administration\AdministrationController.js" />
+    <Content Include="App\Admin\Controllers\Administration\Modal\ConfirmDataSendSDModalTemplate.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\GenerateFileModalController.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\RemoveAdminModalController.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\AddAdminModalController.js" />
+    <Content Include="App\Admin\Controllers\Administration\Modal\SendDataToSdController.js" />
     <Content Include="App\Admin\Controllers\OrgUnit\OrgUnitController.js" />
     <Content Include="App\Admin\Controllers\Account\DeleteAccountController.js" />
     <Content Include="App\Admin\Controllers\Account\AccountController.js" />
@@ -404,6 +407,7 @@
     <Content Include="App\Services\Error\ServiceError.html" />
     <Content Include="App\Services\AutocompleteResource.js" />
     <Content Include="App\Services\RouteColumnFormatterService.js" />
+    <Content Include="App\Services\sendDataToSdResource.js" />
     <Content Include="App\Services\StandardAddressResource.js" />
     <Content Include="App\Services\OrgUnitResource.js" />
     <Content Include="App\Services\RouteContainerResource.js" />
@@ -2368,6 +2372,7 @@
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Manifest\" />
+    <Folder Include="Views\sendDataToSd\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff">

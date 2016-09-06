@@ -1,6 +1,6 @@
 ﻿angular.module("application").controller("AdministrationController", [
-   "$scope", "Person", "$modal", "NotificationService", "File", "Autocomplete",
-   function ($scope, Person, $modal, NotificationService, File, Autocomplete) {
+   "$scope", "Person", "$modal", "NotificationService","sendDataToSd", "File", "Autocomplete",
+   function ($scope, Person, $modal, NotificationService,sendDataToSd, File, Autocomplete) {
 
        $scope.autoCompleteOptions = {
            filter: "contains"
@@ -180,7 +180,7 @@
            });
 
            modalInstance.result.then(function (person) {
-               File.generateKMDFile(function () {
+               sendDataToSd.sendDataToSd(function () {
                    NotificationService.AutoFadeNotification("success", "", "Data blev sendt til SD.");
                }, function () {
                    NotificationService.AutoFadeNotification("danger", "", "Data blev ikke sendt!");

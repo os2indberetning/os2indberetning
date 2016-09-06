@@ -1,22 +1,15 @@
 ﻿angular.module("application").controller("SendDataToSdController", [
-   "$scope", "$modalInstance","$http", function ($scope, $modalInstance, $http) {
+   "$scope", "$modalInstance", function ($scope, $modalInstance) {
 
-
-       $scope.confirmGenerateFile = function () {
+ 
+       $scope.confirmSendData = function () {
            /// <summary>
-           /// Send data to SD
+           /// Confirm Generate KMD file
            /// </summary>
-
-           $http.get("/odata/DriveReports/Service.sendDataToSd").success(function (data) {
-               
-           }).error(function (error) {
-               
-           });
-
-           alert('confirmed')
+           $modalInstance.close();
        }
 
-       $scope.cancelGenerateFile = function () {
+       $scope.cancelSendData = function () {
            /// <summary>
            /// Cancel generate KMD file.
            /// </summary>

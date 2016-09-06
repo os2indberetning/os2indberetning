@@ -14,6 +14,7 @@ namespace Core.DmzModel
         public int Id { get; set; }
         public String Description { get; set; }
         public String Year { get; set; }
+        public bool IsActive { get; set; }
 
         public virtual ICollection<DriveReport> DriveReports { get; set; }
     }

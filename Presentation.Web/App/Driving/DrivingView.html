@@ -132,14 +132,7 @@
                             </div>
                         </div>
                         <div class="row form-group">
-                            <div class="col-sm-9">
-
-                                <div ng-show="isAddressNameSet(DriveReport.Addresses[$index]) === false">
-                                    <!--Dropdown for selecting standard addresses-->
-                                    <select class="fill-width" kendo-combo-box="container.PersonalAddressDropDown[{{$index}}]" ng-model="DriveReport.Addresses[$index].Personal" ng-change="addressInputChanged($index)" k-data-source="PersonalAddresses" k-data-text-field="'PresentationString'" k-data-value-field="'address'" k-placeholder="'Vælg din personlige adresse'" k-filter="'contains'"> </select>
-                                </div>
-
-                            </div>
+                           
                             <div ng-show="(DriveReport.Addresses[$index].Personal === undefined) || (DriveReport.Addresses[$index].Personal == '')">
                                 <div class="col-sm-9">
                                     <!--Text field for adding addresses-->
@@ -156,6 +149,16 @@
 
 
                             </div>
+
+                            <div class="col-sm-9">
+
+                                <div ng-show="isAddressNameSet(DriveReport.Addresses[$index]) === false">
+                                    <!--Dropdown for selecting standard addresses-->
+                                    <select class="fill-width" kendo-combo-box="container.PersonalAddressDropDown[{{$index}}]" ng-model="DriveReport.Addresses[$index].Personal" ng-change="addressInputChanged($index)" k-data-source="PersonalAddresses" k-data-text-field="'PresentationString'" k-data-value-field="'address'" k-placeholder="'Eller vælg din personlige adresse'" k-filter="'contains'"> </select>
+                                </div>
+
+                            </div>
+
                             <div class="col-sm-3">
                                 <!-- checkbox indicating if a address should be saved-->
                                 <span ng-show="DriveReport.Addresses[$index].Personal == ''">

@@ -15,6 +15,54 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
     [TestFixture]
     public class ReimbursementCalculatorTest : ReimbursementCalculatorBaseTest
     {
+        [Test]
+        public void AltCalculate_ReportFromWeb_NoFourKmRule()
+        {
+            var report = GetDriveReport();
+            report.FourKmRule = false;
+            report.StartsAtHome = true;
+            report.Employment = new Employment()
+            {
+                OrgUnit = new OrgUnit()
+                {
+                    Address = new WorkAddress()
+                    {
+                        StreetName = "Katrinebjergvej",
+                        StreetNumber = "93B",
+                        ZipCode = 8200,
+                        Town = "Aarhus N"
+                    }
+                }
+            };
+            report.EndsAtHome = false;
+            report.Distance = 42;
+            report.KilometerAllowance = KilometerAllowance.Calculated;
+
+            var distance = report.Distance;
+
+            var calculator = GetCalculator(new List<Employment>()
+            {
+                new Employment()
+            {
+                OrgUnit = new OrgUnit()
+                {
+                    Address = new WorkAddress()
+                    {
+                        StreetName = "Katrinebjergvej",
+                        StreetNumber = "93B",
+                        ZipCode = 8200,
+                        Town = "Aarhus N"
+                    }
+                }
+            }
+            });
+
+            var result = calculator.Calculate(new RouteInformation() { Length = 100 }, report);
+
+            Assert.That(distance, Is.EqualTo(result.Distance));
+            Assert.That(distance * report.KmRate / 100, Is.EqualTo(result.AmountToReimburse));
+        }
+
         /// <summary>
         /// Read
         /// </summary>

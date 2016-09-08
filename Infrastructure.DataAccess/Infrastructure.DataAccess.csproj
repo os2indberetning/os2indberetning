@@ -409,6 +409,10 @@
     <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.Designer.cs">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201609081618215_changes_after_merge.cs" />
+    <Compile Include="Migrations\201609081618215_changes_after_merge.Designer.cs">
+      <DependentUpon>201609081618215_changes_after_merge.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -685,6 +689,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608162012235_addressNotNullable.resx">
       <DependentUpon>201608162012235_addressNotNullable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201609081618215_changes_after_merge.resx">
+      <DependentUpon>201609081618215_changes_after_merge.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,6 +10,9 @@ namespace DBUpdater
     public interface IDbUpdaterDataProvider
     {
         IQueryable<Employee> GetEmployeesAsQueryable();
+        IQueryable<EmployeeIDM> GetEmployeesAsQueryableIDM();
         IQueryable<Organisation> GetOrganisationsAsQueryable();
+        IQueryable<OrganisationIDM> GetOrganisationsAsQueryableIDM();
+
     }
 }

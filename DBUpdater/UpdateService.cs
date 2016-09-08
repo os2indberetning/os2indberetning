@@ -173,7 +173,7 @@ namespace DBUpdater
         /// </summary>
         public void MigrateOrganisationsIDM()
         {
-            var orgs = new DataFromExcelProvider().GetOrganisationsAsQueryable();
+            var orgs = _dataProvider.GetOrganisationsAsQueryableIDM();
 
             var i = 0;
             foreach (var org in orgs)
@@ -282,7 +282,7 @@ namespace DBUpdater
             }
             _personRepo.Save();
 
-            var empls = new DataFromExcelProvider().GetEmployeesAsQueryable();
+            var empls = _dataProvider.GetEmployeesAsQueryableIDM();
 
             var i = 0;
             var distinctEmpls = empls.DistinctBy(x => x.CPRNummer).ToList();
@@ -375,9 +375,7 @@ namespace DBUpdater
                 }
             }
         }
-
-
-
+        
         /// <summary>
         /// Migrate employees from kommune database to OS2 database.
         /// </summary>

@@ -10,6 +10,7 @@ using Infrastructure.AddressServices.Routing;
 using Infrastructure.DataAccess;
 using Ninject;
 using Core.ApplicationServices.Logger;
+using System.Configuration;
 
 namespace Core.ApplicationServices
 {
@@ -21,6 +22,7 @@ namespace Core.ApplicationServices
         private readonly IGenericRepository<Person> _personRepo;
         private readonly IGenericRepository<Employment> _emplrepo;
         private readonly IGenericRepository<AddressHistory> _addressHistoryRepo;
+        private readonly IGenericRepository<RateType> _rateTypeRepo;
         private const int FourKmAdjustment = 4;
         // Coordinate threshold is the amount two gps coordinates can differ and still be considered the same address.
         // Third decimal is 100 meters, so 0.001 means that addresses within 100 meters of each other will be considered the same when checking if route starts or ends at home.
@@ -28,7 +30,7 @@ namespace Core.ApplicationServices
 
         private readonly ILogger _logger;
 
-        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger)
+        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger, IGenericRepository<RateType> rateTypeRepo)
         {
             _route = route;
             _personService = personService;
@@ -36,6 +38,7 @@ namespace Core.ApplicationServices
             _emplrepo = emplrepo;
             _addressHistoryRepo = addressHistoryRepo;
             _logger = logger;
+            _rateTypeRepo = rateTypeRepo;
         }
 
         /// <summary>
@@ -133,8 +136,8 @@ namespace Core.ApplicationServices
             //If user indicated to use the Four Km Rule
             if (report.FourKmRule)
             {
-                //Take users provided distance from home to border of municipality
-                var borderDistance = person.DistanceFromHomeToBorder;
+                //Take users provided distance from home to border of municipality. If report is from app, use distance provided in report, else use distance saved on person.
+                var borderDistance = report.IsFromApp? report.HomeToBorderDistance : person.DistanceFromHomeToBorder;
 
                 //Adjust distance based on if user starts or ends at home
                 if (report.StartsAtHome)
@@ -165,11 +168,62 @@ namespace Core.ApplicationServices
             {
                 case KilometerAllowance.Calculated:
                     {
+                        // Norddjurs Kommune uses an alternative way of calculating the amount to reimburse. Instead of subtracting the distance from home to work from the driven distance,
+                        // either the home-to-destination or work-to-destination distance is used, which ever is shortest. This only applies to routes starting from home, in any other case
+                        // the standard calculation method is used.
+                        var useNorddjursAltCalculation = ConfigurationManager.AppSettings["AlternativeCalculationMethod"].Equals("true");
+                        
+                        // Use Norddjurs alternative reimbursemnt calculation method if configured so.
+                        if (useNorddjursAltCalculation && report.StartsAtHome)
+                        {
+                            // Distance from home.
+                            var homeDistance = report.Distance;
+                            if (!report.IsFromApp)
+                            {
+                                // In case the report is not from app then get distance from the supplied route.
+                                homeDistance = drivenRoute.Length;
+                            }
+
+                            // Get distance from work.
+                            var addresses = new List<Address>();
+                            addresses.Add(workAddress);
+                            foreach(Address address in report.DriveReportPoints)
+                            {
+                                if (!(address.Latitude == homeAddress.Latitude && address.Longitude == homeAddress.Longitude))
+                                {
+                                    addresses.Add(address);
+                                }
+                            }
+
+                            var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;
+
+                            var workDistance = _route.GetRoute(isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, addresses).Length;
+
+                            // Compare the distance from home to the distance from work and apply the shortest of them.
+                            report.Distance = homeDistance < workDistance ? homeDistance : workDistance;
+
+                            if (!report.IsFromApp)
+                            {
+                                //Get RouteGeometry from driven route if the report is not from app. If it is from App then RouteGeometry is already set.
+                                report.RouteGeometry = drivenRoute.GeoPoints;
+                            }
+
+                            break;
+                        }
+                        else if(useNorddjursAltCalculation)
+                        {
+                            report.Distance = drivenRoute.Length;
+
+                            //Save RouteGeometry
+                            report.RouteGeometry = drivenRoute.GeoPoints;
+
+                            break;
+                        }
+
                         if ((report.StartsAtHome || report.EndsAtHome) && !report.FourKmRule)
                         {
                             report.IsExtraDistance = true;
                         }
-
 
                         double drivenDistance = report.Distance;
 

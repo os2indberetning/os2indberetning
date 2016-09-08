@@ -262,6 +262,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CoordinateController.cs" />
+    <Compile Include="Controllers\EksportController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MailNotificationsController.cs" />
     <Compile Include="Controllers\FileController.cs" />
@@ -286,15 +287,22 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Content Include="App\Settings\ErrorModalController.js" />
-    <Content Include="App\Settings\errorModalTemplate.html" />
-    <Content Include="customSettings.config" />
+    <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
+    <Content Include="App\Admin\Controllers\Report\ReportController.js" />
+    <Content Include="App\Admin\HTML\Document\View.html" />
+    <Content Include="App\Admin\HTML\Report\DocumentView.html" />
+    <Content Include="App\Admin\HTML\Report\View.html" />
     <Content Include="connections.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="App\Settings\ErrorModalController.js" />
+    <Content Include="App\Settings\errorModalTemplate.html" />
+    <Content Include="customSettings.config" />
+    
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
+    <Compile Include="Models\EksportDataModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
@@ -707,6 +715,9 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1204,7 +1215,9 @@
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-TW.min.js" />
     <Content Include="Scripts\kendo\pako_deflate.min.js" />
     <None Include="Properties\PublishProfiles\Ballerup.pubxml" />
+    <None Include="Properties\PublishProfiles\Miracle-Test.pubxml" />
     <None Include="Properties\PublishProfiles\Skanderborg.pubxml" />
+    <None Include="Properties\PublishProfiles\Test-backend.pubxml" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
@@ -1409,7 +1422,6 @@
     <Content Include="Content\Themes\SbAdmin\fonts\glyphicons-halflings-regular.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <None Include="Properties\PublishProfiles\Syddjurs.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-dj.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-er.js" />
@@ -2312,6 +2324,7 @@
     <Content Include="Scripts\kendo\kendo.view.min.js.map" />
     <Content Include="Scripts\kendo\kendo.web.min.js.map" />
     <Content Include="Scripts\kendo\kendo.window.min.js.map" />
+    <Content Include="Views\Eksport\View.cshtml" />
     <None Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Jasmine\SpecRunner.cshtml" />
@@ -2368,6 +2381,10 @@
     <ProjectReference Include="..\Infrastructure.DataAccess\Infrastructure.DataAccess.csproj">
       <Project>{9914db94-e465-4751-939c-8121c30ac945}</Project>
       <Name>Infrastructure.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Infrastructure.DmzSync\Infrastructure.DmzSync.csproj">
+      <Project>{537cfce9-fc15-46c0-a706-92ca40cf2c0c}</Project>
+      <Name>Infrastructure.DmzSync</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

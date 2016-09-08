@@ -37,7 +37,7 @@ namespace OS2Indberetning
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
 
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
+            
 
         }
 
@@ -91,7 +91,15 @@ namespace OS2Indberetning
             .Function("GetLatestReportForUser")
             .ReturnsFromEntitySet<DriveReport>("DriveReports");
 
+            builder.EntityType<DriveReport>().Collection
+            .Function("GetCalculationMethod")
+            .ReturnsFromEntitySet<DriveReport>("DriveReports");
+
             builder.EntitySet<DriveReportPoint>("DriveReportPoints");
+            builder.EntityType<DriveReport>().Collection
+             .Function("Eksport")
+             .ReturnsFromEntitySet<DriveReport>("DriveReports");
+
 
             builder.EntitySet<Employment>("Employments");
             var eType = builder.EntityType<Employment>();

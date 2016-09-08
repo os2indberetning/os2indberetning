@@ -140,6 +140,29 @@ angular.module("application").config(["$stateProvider", "$urlRouterProvider", fu
                     }
                 }],
             }
+        }).state("document", {
+            url: "/document",
+            templateUrl: "/App/Admin/html/report/documentView.html",
+            controller: "DocumentController",
+           
+           /* resolve: {
+                CurrentUser: ["Person", "$location", "$rootScope", function (Person, $location, $rootScope) {
+                    if ($rootScope.CurrentUser == undefined || ($rootScope.CurrentUser.$$state != undefined && $rootScope.CurrentUser.$$state.status == 0)) {
+
+                        return Person.GetCurrentUser().$promise.then(function (data) {
+                            $rootScope.CurrentUser = data;
+                            if (!data.IsAdmin) {
+                                $location.path("Document");
+                            }
+                        });
+                    } else {
+                        if (!$rootScope.CurrentUser.IsAdmin) {
+                            $location.path("Document");
+                        }
+                        return $rootScope.CurrentUser;
+                    }
+                }],
+            }*/
         });
 }]);
 

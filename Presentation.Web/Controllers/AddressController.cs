@@ -35,6 +35,7 @@ namespace OS2Indberetning.Controllers
             _coordinates = coordinates;
             _cachedAddressRepo = cachedAddressRepo;
             _personalAddressRepo = personalAddressRepo;
+            
         }
 
         /// <summary>

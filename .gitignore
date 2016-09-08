@@ -133,7 +133,7 @@ publish/
 ## TODO: Comment the next line if you want to checkin your
 ## web deploy settings but do note that will include unencrypted
 ## passwords
-#*.pubxml
+*.pubxml
 
 # NuGet Packages Directory
 packages/*
@@ -196,3 +196,4 @@ _Pvt_Extensions/
 ModelManifest.xml
 /Presentation.Web/App/Admin/StandardAddressController - Copy.js.html
 /Configuration/*
+/.vs/config/applicationhost.config

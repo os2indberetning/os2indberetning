@@ -121,15 +121,17 @@ namespace Infrastructure.DmzSync.Services.Impl
                 foreach (var masterEmployment in person.Employments)
                 {
                     var dmzEmployment = employments.FirstOrDefault(x => x.Id == masterEmployment.Id);
-                    
+
                     var employment = new Employment
                     {
                         Id = masterEmployment.Id,
                         ProfileId = masterEmployment.PersonId,
+                        ManNr = masterEmployment.EmploymentId.ToString(),
                         StartDateTimestamp = masterEmployment.StartDateTimestamp,
                         EndDateTimestamp = masterEmployment.EndDateTimestamp,
                         EmploymentPosition =
                                 masterEmployment.Position + " - " + masterEmployment.OrgUnit.LongDescription,
+                        OrgUnitId = masterEmployment.OrgUnitId
                     };
 
                     employment = Encryptor.EncryptEmployment(employment);
@@ -144,6 +146,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                         dmzEmployment.StartDateTimestamp = masterEmployment.StartDateTimestamp;
                         dmzEmployment.EndDateTimestamp = masterEmployment.EndDateTimestamp;
                         dmzEmployment.EmploymentPosition = employment.EmploymentPosition;
+                        dmzEmployment.OrgUnitId = employment.OrgUnitId;
                     }
                     
                 }

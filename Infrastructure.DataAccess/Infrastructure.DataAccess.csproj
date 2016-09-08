@@ -405,11 +405,19 @@
     <Compile Include="Migrations\201608162012235_addressNotNullable.Designer.cs">
       <DependentUpon>201608162012235_addressNotNullable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.cs" />
+    <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.Designer.cs">
+      <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -659,6 +667,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.resx">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.resx">
+      <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201607101258290_add_OUID_on_orgUnit.resx">
       <DependentUpon>201607101258290_add_OUID_on_orgUnit.cs</DependentUpon>

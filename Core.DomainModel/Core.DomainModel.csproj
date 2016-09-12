@@ -56,6 +56,7 @@
     <Compile Include="CachedAddress.cs" />
     <Compile Include="BankAccount.cs" />
     <Compile Include="Address.cs" />
+    <Compile Include="CustomConfiguration.cs" />
     <Compile Include="DriveReport.cs" />
     <Compile Include="Employment.cs" />
     <Compile Include="FileGenerationSchedule.cs" />

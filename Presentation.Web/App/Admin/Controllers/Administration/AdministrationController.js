@@ -1,7 +1,25 @@
 ﻿angular.module("application").controller("AdministrationController", [
-   "$scope", "Person", "$modal", "NotificationService","sendDataToSd", "File", "Autocomplete",
-   function ($scope, Person, $modal, NotificationService,sendDataToSd, File, Autocomplete) {
+   "$scope","$q", "Person", "$modal", "NotificationService","sendDataToSd", "File", "Autocomplete","Configuration",
+   function ($scope,$q, Person, $modal, NotificationService,sendDataToSd, File, Autocomplete, Configuration) {
 
+      
+   
+    $scope.isSd = function(){
+        var result = Configuration.getConfiguration({key: 'PROTECTED_UseKMD'});
+        return result.value;
+    }
+
+          
+    $scope.isKmd = function(){
+        var result = Configuration.getConfiguration({key: 'PROTECTED_UseKMD'});
+        return result.value;
+    }
+
+     
+     /*  $scope.isKmd().then(function(data){
+           alert(data.value);
+       })*/
+       
        $scope.autoCompleteOptions = {
            filter: "contains"
        };
@@ -13,7 +31,6 @@
        $scope.$on('administrationClicked', function (event, mass) {
            $scope.gridContainer.grid.dataSource.read();
        });
-
        $scope.gridContainer = {};
        $scope.person = {};
 
@@ -172,6 +189,8 @@
            /// <summary>
            /// Opens confirm generate kmd file modal
            /// </summary>
+           //alert(JSON.stringify(Configuration.getConfiguration({key: 'asdasda'})));
+               
            var modalInstance = $modal.open({
                templateUrl: 'App/Admin/HTML/Administration/Modal/ConfirmDataSendSDModalTemplate.html',
                controller: 'SendDataToSdController',
@@ -187,5 +206,7 @@
                });
            });
        }
+             
+            
    }
 ]);

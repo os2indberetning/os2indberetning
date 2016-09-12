@@ -44,11 +44,6 @@ namespace OS2Indberetning.Controllers
             var request = sendDataToSd();
             return Ok();
         }
-     
-        public IHttpActionResult payTransfer()
-        {
-            return Json("Kmd: " + ConfigurationManager.AppSettings["PROTECTED_UseKMD"] +  "Sd: " + ConfigurationManager.AppSettings["PROTECTED_UseSD"]);
-        }
 
         public IHttpActionResult sendDataToSd()
         {

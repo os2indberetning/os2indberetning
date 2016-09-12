@@ -1,25 +1,12 @@
 ﻿angular.module("application").controller("AdministrationController", [
-   "$scope","$q", "Person", "$modal", "NotificationService","sendDataToSd", "File", "Autocomplete","Configuration",
-   function ($scope,$q, Person, $modal, NotificationService,sendDataToSd, File, Autocomplete, Configuration) {
+   "$scope","$q","HelpText", "Person", "$modal", "NotificationService","sendDataToSd", "File", "Autocomplete",
+   function ($scope,$q,HelpText, Person, $modal, NotificationService,sendDataToSd, File, Autocomplete) {
 
-      
-   
-    $scope.isSd = function(){
-        var result = Configuration.getConfiguration({key: 'PROTECTED_UseKMD'});
-        return result.value;
-    }
+   HelpText.getAll().$promise.then(function (res) {
+       $scope.isSD = res.UseSD;
+            $scope.isKmd =  res.UseKMD;
+       });
 
-          
-    $scope.isKmd = function(){
-        var result = Configuration.getConfiguration({key: 'PROTECTED_UseKMD'});
-        return result.value;
-    }
-
-     
-     /*  $scope.isKmd().then(function(data){
-           alert(data.value);
-       })*/
-       
        $scope.autoCompleteOptions = {
            filter: "contains"
        };

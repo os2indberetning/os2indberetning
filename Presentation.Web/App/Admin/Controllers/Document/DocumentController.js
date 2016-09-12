@@ -139,7 +139,7 @@
                           { field: "IsExtraDistance", title: "Merkørselsangivelse", width: 100 },
                           { field: "FourKmRule", title: "4-km", width: 100 },
                           { field: "distanceFromHomeToBorder", title: "km til kommunegrænse", width: 100 },
-                           { field: "distanceFromHomeToBorder", title: "Km til udbetaling", width: 100 },
+                           { field: "distance", title: "Km til udbetaling", width: 100 },
                           { field: "AmountToReimburse", title: "Beløb", /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
                           
                           { field: "approvedDate", title: "Godkendt dato" },

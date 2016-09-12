@@ -186,7 +186,9 @@ namespace OS2Indberetning.Controllers
                                     FourKmRule = repo.FourKmRule,
                                     distanceFromHomeToBorder = person.DistanceFromHomeToBorder,
                                     AmountToReimburse = repo.AmountToReimburse,
-                                    Route = ""
+                                    Route = "",
+                                    distance = repo.Distance
+                                    
                                 };
                                 if (repo.AccountNumber != null)
                                 {

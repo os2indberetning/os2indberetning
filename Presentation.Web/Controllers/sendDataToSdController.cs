@@ -92,9 +92,9 @@ namespace OS2Indberetning.Controllers
                     opret.InddataStruktur.Regel60DageIndikator = false;
                   
              //send data to SD
-                try
-             {
-                        // var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
+                    try
+                    {
+                        var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
                         t.Status = ReportStatus.Invoiced;
                         _repo.Save();
 

@@ -52,7 +52,8 @@
                 $('#MaNavn').text(result.name);
                 $('#admin_der_har_trukket_rapporten').text(result.adminName);
                 $('#Kommune').text(result.municipality);
-                $('#wholeAmount').text(result.wholeAmount);
+                $scope.wholeAmount = result.wholeAmount; 
+                $scope.wholeDistance = result.wholeDistance;
                 $('#wholeDistance').text(result.wholeDistance);
                 reports = result.driveReports;
 
@@ -139,9 +140,8 @@
                           { field: "IsExtraDistance", title: "Merkørselsangivelse", width: 100 },
                           { field: "FourKmRule", title: "4-km", width: 100 },
                           { field: "distanceFromHomeToBorder", title: "km til kommunegrænse", width: 100 },
-                           { field: "distance", title: "Km til udbetaling", width: 100 },
+                          { field: "distance", title: "Km til udbetaling", width: 100 },
                           { field: "AmountToReimburse", title: "Beløb", /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
-                          
                           { field: "approvedDate", title: "Godkendt dato" },
                           { field: "processedDate", title: "Sendt dato" },
                           { field: "ApprovedBy", title: "Godkendt af" },

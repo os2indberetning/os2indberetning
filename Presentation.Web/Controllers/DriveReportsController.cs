@@ -138,6 +138,7 @@ namespace OS2Indberetning.Controllers
                 result.name = person.FullName;
                 result.adminName = _personRepo.AsQueryable().Where(x => x.Initials == actualAdminName).First().FullName;
                 result.MaNumbers = new HashSet<int>();
+                result.municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"];
             }
             catch (Exception e)
             {
@@ -190,6 +191,10 @@ namespace OS2Indberetning.Controllers
                                     distance = repo.Distance
                                     
                                 };
+                             
+                                if (!reportToBeAdded.FourKmRule) {
+                                    reportToBeAdded.distanceFromHomeToBorder = 0;
+                                }
                                 if (repo.AccountNumber != null)
                                 {
                                     reportToBeAdded.kontering = repo.AccountNumber;
@@ -213,7 +218,7 @@ namespace OS2Indberetning.Controllers
                                 }
                                 else
                                 {
-                                    reportToBeAdded.ApprovedBy = "not Approved yet.";
+                                    reportToBeAdded.ApprovedBy = "Ikke accepteret endnu!";
 
                                 }
                                 int counter = 0;
@@ -243,7 +248,7 @@ namespace OS2Indberetning.Controllers
             }
 
             result.driveReports = drivereports.ToArray();
-            result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
+           // result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
 
 
             foreach (var r in result.driveReports) {
@@ -264,25 +269,6 @@ namespace OS2Indberetning.Controllers
 
             return Json(result);
         }
-
-        public string getRouteByreportId(int id){
-
-
-            return "";
-        }
-
-        public string convertRoute(EksportDrivereport[] reports){
-            string result = "Kan ikke finde ruten.";
-
-
-            foreach (var r in reports) {
-
-            }
-
-            return null;
-        }
-        
-
         
         //GET: odata/DriveReports(5)
         /// <summary>

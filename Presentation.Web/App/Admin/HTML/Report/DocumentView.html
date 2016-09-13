@@ -22,7 +22,7 @@
         </div>
         <!--footer>Summeret antal Km: <label id="summedKm"></label> Beløb: <label id="summedAmount"></label></!--footer-->
     </div>
-<div class="k-header k-grid-toolbar ng-scope">Samlet beløb: <text id="wholeAmount">kr.</text> - Samlet Distance: <text id="wholeDistance"></text></div>
+<div class="k-header k-grid-toolbar ng-scope">Samlet beløb: {{wholeAmount | currency:""}} kr. - Samlet Distance: {{wholeDistance | currency:""}} km.</div>
 </div>
 
 

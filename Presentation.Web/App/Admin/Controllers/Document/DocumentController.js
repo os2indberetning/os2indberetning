@@ -95,10 +95,11 @@
                   proxyURL: "//demos.telerik.com/kendo-ui/service/export",
                   filterable: true
               }, pdf: {
+                  margin: { top: "1cm", left: "1cm", right: "1cm", bottom: "1cm" },
                   /*allPages: true,
                   avoidLinks: true,
                   paperSize: "A4",
-                 // margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
+                  margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
                   landscape: true,
                   repeatHeaders: true,
                   template: $("#page-template").html(),
@@ -137,72 +138,74 @@
                           { field: "OrgUnit", title: "Org. Enhed", width: 100 },
                           { field: "Purpose", title: "Formål", width: 100 },
                           { field: "Route", title: "Rute", width: 100 },
-                          { field: "IsExtraDistance", title: "Merkørselsangivelse", width: 100 },
-                          { field: "FourKmRule", title: "4-km", width: 100 },
-                          { field: "distanceFromHomeToBorder", title: "km til kommunegrænse", width: 100 },
-                          { field: "distance", title: "Km til udbetaling", width: 100 },
-                          { field: "AmountToReimburse", title: "Beløb", /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
+                          { field: "isRoundTrip", title: "Retur", 
+                          template: function (data) {
+                            if(!data.isRoundTrip || data.isRoundTrip == null)
+                                return "Nej.";
+                            else
+                                return "Ja.";
+                          },
+                            width: 100 },
+                          { field: "IsExtraDistance", title: "Merkørselsangivelse", 
+                          template: function (data) {
+                            if(!data.IsExtraDistance || data.IsExtraDistance == null)
+                                return "Nej.";
+                            else
+                                return "Ja.";
+                          },
+                          width: 100 },
+                          { field: "FourKmRule", title: "4-km", 
+                          template: function (data) {
+                            if(!data.FourKmRule || data.FourKmRule == null)
+                                return "Nej.";
+                            else
+                                return "Ja.";
+                          },
+                          width: 100 },
+                          { field: "distanceFromHomeToBorder", title: "KM til kommunegrænse", width: 100 },
+                          { field: "distance", title: "KM til udbetaling", 
+                           template: function (data) {
+                           return data.distance.toFixed(2).toString().replace('.', ',') + " km ";
+                          },
+                          width: 100 },
+                          { field: "AmountToReimburse", title: "Beløb",
+                           template: function (data) {
+                            return data.AmountToReimburse.toFixed(2).toString().replace('.', ',') + " kr.";
+                          },
+                           /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
                           { field: "approvedDate", title: "Godkendt dato" },
                           { field: "processedDate", title: "Sendt dato" },
                           { field: "ApprovedBy", title: "Godkendt af" },
-                          { field: "Account", title: "Kontering" }
+                          { field: "kontering", title: "Kontering" }
                           
-              ], scrollable: false
+              ], 
+              
+               
+               excelExport: function(e) {
+                var sheet = e.workbook.sheets[0];
+                
+                var isRoundTripTemplate = kendo.template(this.columns[5].template);
+                var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
+                var FourKmRuleTemplate = kendo.template(this.columns[7].template);
+
+                for (var i = 1; i < sheet.rows.length; i++) {
+                var row = sheet.rows[i];
+
+                var isRoundTripdataItem = {
+                isRoundTrip: row.cells[5].value
+                };
+                var IsExtraDistancedataItem = {
+                IsExtraDistance: row.cells[6].value
+                };
+                var FourKmRuledataItem = {
+                FourKmRule: row.cells[7].value
+                };
+                row.cells[5].value = isRoundTripTemplate(isRoundTripdataItem);
+                row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
+                row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
+            }
+  }
           }
-     /*     alert(reports);
-    
-            function PrintElem(elem) {
-             Popup($(elem).html());
-         }
 
-         function Popup(data) {
-
-             var today = new Date();
-             var dd = today.getDate();
-             var mm = today.getMonth()+1; //January is 0!
-             var yyyy = today.getFullYear();
-             
-             if(dd<10) {
-                 dd='0'+dd
-             } 
-
-             if(mm<10) {
-                 mm='0'+mm
-             } 
-
-             today = mm+'/'+dd+'/'+yyyy;
-
-
-             var mywindow = window.open('', today, 'height=400,width=600');
-             mywindow.document.write('<html><head><title>' + today + '</title>');
-             /*optional stylesheet //mywindow.document.write('<link rel="stylesheet" href="main.css" type="text/css" />');
-             mywindow.document.write('</head><body >');
-             mywindow.document.write(data);
-             mywindow.document.write('</body></html>');
-
-             mywindow.document.close(); // necessary for IE >= 10
-             mywindow.focus(); // necessary for IE >= 10
-
-             mywindow.print();
-             mywindow.close();
-
-             return true;
-         }
-
-         function print(){
-         
-             PrintElem("#printThis");
-         
-         }
-
-
-         $scope.print = function () {
-             PrintElem("#printThis");
-         };*/
-         $scope.saveAsPdf = function () {
-             alert('saveAsPdf Clicked :-)')
-         };
-         $scope.downloadAsExcel = function () {
-             alert('downloadAsExcel Clicked :-)')
-         };
+          
     }]);

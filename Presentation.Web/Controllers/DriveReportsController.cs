@@ -133,7 +133,6 @@ namespace OS2Indberetning.Controllers
             {
                 var adminName = User.Identity.Name.Split('\\');
                 var actualAdminName = adminName[1];
-                result.DateInterval = start + " - " + end;
                 result.orgUnits = new HashSet<string>();
                 result.name = person.FullName;
                 result.adminName = _personRepo.AsQueryable().Where(x => x.Initials == actualAdminName).First().FullName;
@@ -188,8 +187,8 @@ namespace OS2Indberetning.Controllers
                                     distanceFromHomeToBorder = person.DistanceFromHomeToBorder,
                                     AmountToReimburse = repo.AmountToReimburse,
                                     Route = "",
-                                    distance = repo.Distance
-                                    
+                                    distance = repo.Distance,
+                                    isRoundTrip = repo.IsRoundTrip
                                 };
                              
                                 if (!reportToBeAdded.FourKmRule) {
@@ -231,10 +230,7 @@ namespace OS2Indberetning.Controllers
                                     }
                                     else {
                                         reportToBeAdded.Route =reportToBeAdded.Route + " - " + p.StreetName + ", " + p.StreetNumber +", " + p.ZipCode;
-
                                     }
-
-
                                 }
                                 drivereports.Add(reportToBeAdded);
                             }
@@ -258,7 +254,7 @@ namespace OS2Indberetning.Controllers
                 }
                 else
                 {
-                    r.kontering = "ingen kontering";
+                    r.kontering = "Ingen kontering.";
                 }
             }
 

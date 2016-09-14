@@ -62,7 +62,6 @@ namespace Core.ApplicationServices
             {
                 throw new Exception("No person provided");
             }
-
             if (!Validate(report))
             {
                 throw new Exception("DriveReport has some invalid parameters");

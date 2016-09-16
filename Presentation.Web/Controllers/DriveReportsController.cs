@@ -121,10 +121,10 @@ namespace OS2Indberetning.Controllers
             if (!string.IsNullOrEmpty(manr) && manr != "undefined")
             {
                 convertedManr = Convert.ToInt32(manr);
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id && r.Status == ReportStatus.Accepted));
             }
             else {
-                reports.AddRange(Repo.AsQueryable().Where(x => x.Employment.PersonId == person.Id));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && r.Status == ReportStatus.Accepted));
             }
 
 

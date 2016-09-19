@@ -121,10 +121,10 @@ namespace OS2Indberetning.Controllers
             if (!string.IsNullOrEmpty(manr) && manr != "undefined")
             {
                 convertedManr = Convert.ToInt32(manr);
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id && r.Status == ReportStatus.Accepted));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
             else {
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && r.Status == ReportStatus.Accepted));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
 
 
@@ -133,6 +133,7 @@ namespace OS2Indberetning.Controllers
             {
                 var adminName = User.Identity.Name.Split('\\');
                 var actualAdminName = adminName[1];
+                result.DateInterval = start + " - " + end;
                 result.orgUnits = new HashSet<string>();
                 result.name = person.FullName;
                 result.adminName = _personRepo.AsQueryable().Where(x => x.Initials == actualAdminName).First().FullName;
@@ -176,10 +177,13 @@ namespace OS2Indberetning.Controllers
                                 result.orgUnits.Add(repo.Employment.OrgUnit.ShortDescription);
                                 result.MaNumbers.Add(repo.Employment.EmploymentId);
 
+                                var driveDate = dtDateTime.AddSeconds(repo.DriveDateTimestamp).ToLocalTime();
+                                var createdDate = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
+
                                 var reportToBeAdded = new Core.DomainModel.EksportDrivereport
                                 {
-                                    DriveDateTimestamp = repo.DriveDateTimestamp,
-                                    CreatedDateTimestamp = repo.CreatedDateTimestamp,
+                                    DriveDateTimestamp = driveDate.ToString().Substring(0,10),
+                                    CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
                                     OrgUnit = repo.Employment.OrgUnit.ShortDescription,
                                     Purpose = repo.Purpose,
                                     IsExtraDistance = repo.IsExtraDistance,

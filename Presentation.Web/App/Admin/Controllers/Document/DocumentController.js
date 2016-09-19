@@ -48,12 +48,12 @@
             contentType: "application/json;charset=utf-8",
             dataType: "json",
             success: function (result) {
-                $('#DatoInterval').text(result.DateInterval);
+                $scope.datoInterval = result.DateInterval;
                 $('#MaNavn').text(result.name);
                 $('#admin_der_har_trukket_rapporten').text(result.adminName);
                 $('#Kommune').text(result.municipality);
-                $scope.wholeAmount = result.wholeAmount; 
-                $scope.wholeDistance = result.wholeDistance;
+               // $scope.wholeAmount = result.wholeAmount; 
+               // $scope.wholeDistance = result.wholeDistance;
                 $('#wholeDistance').text(result.wholeDistance);
                 reports = result.driveReports;
 
@@ -108,32 +108,28 @@
               },
               dataSource: {
                   data: reports,
-                /*  aggregate: [{ field: "AmountToReimburse", aggregate: "sum" }, { field: "AmountToReimburse", aggregate: "sum" }],
+                 aggregate: [{ field: "AmountToReimburse", aggregate: "sum" },{ field: "distance", aggregate: "sum" }],
                   schema: {
                       model: {
                           fields: {
                               AmountToReimburse: { type: "number" }
                           }
                       }
-                  }*/
+                  }/*
+                    aggregate: [
+               { field: "Distance", aggregate: "sum" },
+               { field: "AmountToReimburse", aggregate: "sum" },
+               ]*/
               },
               resizable: true,
               columns: [
                           {
-                              field: "DriveDateTimestamp", template: function (data) {
-                                  var m = moment.unix(data.DriveDateTimestamp);
-                                  return m._d.getDate() + "/" +
-                                      (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
-                                      m._d.getFullYear();
-                              }, title: "Dato for kørsel", width: 100, /*footerTemplate: "Beløb:"+result.wholeAmount +  "<br/>Distance: " + result.wholeDistance*/
+                              field: "DriveDateTimestamp",
+                               title: "Dato for kørsel", width: 100, /*footerTemplate: "Beløb:"+result.wholeAmount +  "<br/>Distance: " + result.wholeDistance*/
                           },
                           {
-                              field: "CreatedDateTimestamp", template: function (data) {
-                                  var m = moment.unix(data.CreatedDateTimestamp);
-                                  return m._d.getDate() + "/" +
-                                      (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
-                                      m._d.getFullYear();
-                              }, title: "Dato for indberetning", width: 100
+                              field: "CreatedDateTimestamp", 
+                              title: "Dato for indberetning", width: 100
                           },
                           { field: "OrgUnit", title: "Org. Enhed", width: 100 },
                           { field: "Purpose", title: "Formål", width: 100 },
@@ -145,15 +141,15 @@
                             else
                                 return "Ja.";
                           },
-                            width: 100 },
-                          { field: "IsExtraDistance", title: "Merkørselsangivelse", 
+                            width: 50 },
+                          { field: "IsExtraDistance", title: "MK", 
                           template: function (data) {
-                            if(!data.IsExtraDistance || data.IsExtraDistance == null)
+                            if(!data.IsExtraDistance)
                                 return "Nej.";
                             else
                                 return "Ja.";
                           },
-                          width: 100 },
+                          width: 50 },
                           { field: "FourKmRule", title: "4-km", 
                           template: function (data) {
                             if(!data.FourKmRule || data.FourKmRule == null)
@@ -161,18 +157,25 @@
                             else
                                 return "Ja.";
                           },
-                          width: 100 },
+                          width: 50 },
                           { field: "distanceFromHomeToBorder", title: "KM til kommunegrænse", width: 100 },
+                          
                           { field: "distance", title: "KM til udbetaling", 
                            template: function (data) {
                            return data.distance.toFixed(2).toString().replace('.', ',') + " km ";
-                          },
-                          width: 100 },
+                          },footerTemplate: "Total: #= kendo.toString(sum, '0.00').replace('.',',') # km.",
+                          width: 100 ,
+                           
+                          //footerTemplate: "Total: #= kendo.toString(sum, '0.00').replace('.',',') # km"
+                        },
+                          
                           { field: "AmountToReimburse", title: "Beløb",
                            template: function (data) {
                             return data.AmountToReimburse.toFixed(2).toString().replace('.', ',') + " kr.";
-                          },
-                           /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
+                          },footerTemplate: "Total: #= kendo.toString(sum, '0.00').replace('.',',') # Kr.",
+                           width: 100,
+                  },
+                          
                           { field: "approvedDate", title: "Godkendt dato" },
                           { field: "processedDate", title: "Sendt dato" },
                           { field: "ApprovedBy", title: "Godkendt af" },

@@ -24,6 +24,8 @@ namespace Core.DomainModel
        public string Route;
        public double distance { get; set; } 
        public bool? isRoundTrip { get; set; }
+        public string licensePlate { get; set; }
+        public string rate { get; set; }
 
     }
 

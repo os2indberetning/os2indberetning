@@ -127,7 +127,7 @@ namespace OS2Indberetning.Controllers
                 reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
 
-
+        
             Core.DomainModel.EksportModel result = new Core.DomainModel.EksportModel();
             try
             {
@@ -162,6 +162,7 @@ namespace OS2Indberetning.Controllers
             {
                 foreach (var repo in reports)
                 {
+                    
                     if (repo.PersonId == person.Id)
                     {
                         var createdTime = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
@@ -182,7 +183,7 @@ namespace OS2Indberetning.Controllers
 
                                 var reportToBeAdded = new Core.DomainModel.EksportDrivereport
                                 {
-                                    DriveDateTimestamp = driveDate.ToString().Substring(0,10),
+                                    DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
                                     CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
                                     OrgUnit = repo.Employment.OrgUnit.ShortDescription,
                                     Purpose = repo.Purpose,
@@ -192,8 +193,11 @@ namespace OS2Indberetning.Controllers
                                     AmountToReimburse = repo.AmountToReimburse,
                                     Route = "",
                                     distance = repo.Distance,
-                                    isRoundTrip = repo.IsRoundTrip
+                                    isRoundTrip = repo.IsRoundTrip,
+                                    licensePlate = repo.LicensePlate,
+                                    
                                 };
+                               
                              
                                 if (!reportToBeAdded.FourKmRule) {
                                     reportToBeAdded.distanceFromHomeToBorder = 0;

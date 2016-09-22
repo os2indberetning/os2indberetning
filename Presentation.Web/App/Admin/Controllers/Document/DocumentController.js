@@ -52,7 +52,8 @@
                 $('#MaNavn').text(result.name);
                 $('#admin_der_har_trukket_rapporten').text(result.adminName);
                 $('#Kommune').text(result.municipality);
-                $('#wholeAmount').text(result.wholeAmount);
+                $scope.wholeAmount = result.wholeAmount; 
+                $scope.wholeDistance = result.wholeDistance;
                 $('#wholeDistance').text(result.wholeDistance);
                 reports = result.driveReports;
 
@@ -82,7 +83,7 @@
             },
             error: function (response) {
 
-                alert('Kunne ikke finde det du forespurgte' + response.toString());
+                alert('Kunne ikke finde det du forespurgte');
             }, async: false
         });
 
@@ -94,10 +95,27 @@
                   proxyURL: "//demos.telerik.com/kendo-ui/service/export",
                   filterable: true
               }, pdf: {
+                  margin: { top: "1cm", left: "1cm", right: "1cm", bottom: "1cm" },
+                  /*allPages: true,
+                  avoidLinks: true,
+                  paperSize: "A4",
+                  margin: { top: "2cm", left: "1cm", right: "1cm", bottom: "1cm" },
+                  landscape: true,
+                  repeatHeaders: true,
+                  template: $("#page-template").html(),
+                  scale: 0.1*/
                   fileName: "Rapport-" + today + ".Pdf"
               },
               dataSource: {
                   data: reports,
+                /*  aggregate: [{ field: "AmountToReimburse", aggregate: "sum" }, { field: "AmountToReimburse", aggregate: "sum" }],
+                  schema: {
+                      model: {
+                          fields: {
+                              AmountToReimburse: { type: "number" }
+                          }
+                      }
+                  }*/
               },
               resizable: true,
               columns: [
@@ -120,29 +138,74 @@
                           { field: "OrgUnit", title: "Org. Enhed", width: 100 },
                           { field: "Purpose", title: "Formål", width: 100 },
                           { field: "Route", title: "Rute", width: 100 },
-                          { field: "IsExtraDistance", title: "Merkørselsangivelse", width: 100 },
-                          { field: "FourKmRule", template: function (data) {                                 
-                              if (data.FourKmRule == true) {
-                                  return "Ja";
-                              } 
-                              return "Nej";                                
-                             }, title: "4-km brugt", width: 100 },
+                          { field: "isRoundTrip", title: "Retur", 
+                          template: function (data) {
+                            if(!data.isRoundTrip || data.isRoundTrip == null)
+                                return "Nej.";
+                            else
+                                return "Ja.";
+                          },
+                            width: 100 },
+                          { field: "IsExtraDistance", title: "Merkørselsangivelse", 
+                          template: function (data) {
+                            if(!data.IsExtraDistance || data.IsExtraDistance == null)
+                                return "Nej.";
+                            else
+                                return "Ja.";
+                          },
+                          width: 100 },
+                          { field: "FourKmRule", title: "4-km", 
+                          template: function (data) {
+                            if(!data.FourKmRule || data.FourKmRule == null)
+                                return "Nej.";
+                            else
+                                return "Ja.";
+                          },
+                          width: 100 },
                           { field: "distanceFromHomeToBorder", title: "KM til kommunegrænse", width: 100 },
-                           { field: "distanceFromHomeToBorder", title: "KM til udbetaling", width: 100 },
-                          { field: "AmountToReimburse", title: "Beløb", /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
-                          
+                          { field: "distance", title: "KM til udbetaling", 
+                           template: function (data) {
+                           return data.distance.toFixed(2).toString().replace('.', ',') + " km ";
+                          },
+                          width: 100 },
+                          { field: "AmountToReimburse", title: "Beløb",
+                           template: function (data) {
+                            return data.AmountToReimburse.toFixed(2).toString().replace('.', ',') + " kr.";
+                          },
+                           /*footerTemplate: "Samlet: #= sum # ",*/ width: 100 },
                           { field: "approvedDate", title: "Godkendt dato" },
                           { field: "processedDate", title: "Sendt dato" },
                           { field: "ApprovedBy", title: "Godkendt af" },
-                          { field: "Account", title: "Kontering" }
+                          { field: "kontering", title: "Kontering" }
                           
-              ], scrollable: false
+              ], 
+              
+               
+               excelExport: function(e) {
+                var sheet = e.workbook.sheets[0];
+                
+                var isRoundTripTemplate = kendo.template(this.columns[5].template);
+                var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
+                var FourKmRuleTemplate = kendo.template(this.columns[7].template);
+
+                for (var i = 1; i < sheet.rows.length; i++) {
+                var row = sheet.rows[i];
+
+                var isRoundTripdataItem = {
+                isRoundTrip: row.cells[5].value
+                };
+                var IsExtraDistancedataItem = {
+                IsExtraDistance: row.cells[6].value
+                };
+                var FourKmRuledataItem = {
+                FourKmRule: row.cells[7].value
+                };
+                row.cells[5].value = isRoundTripTemplate(isRoundTripdataItem);
+                row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
+                row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
+            }
+  }
           }
 
-         $scope.saveAsPdf = function () {
-             alert('saveAsPdf Clicked :-)')
-         };
-         $scope.downloadAsExcel = function () {
-             alert('downloadAsExcel Clicked :-)')
-         };
+          
     }]);

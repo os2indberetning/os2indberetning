@@ -17,6 +17,7 @@ using MoreLinq;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
+using Core.ApplicationServices.Logger;
 
 namespace DBUpdater
 {
@@ -36,6 +37,7 @@ namespace DBUpdater
         private readonly IGenericRepository<DriveReport> _reportRepo;
         private readonly IDriveReportService _driveService;
         private readonly ISubstituteService _subService;
+        private readonly ILogger _logger;
 
         public UpdateService(IGenericRepository<Employment> emplRepo,
             IGenericRepository<OrgUnit> orgRepo,
@@ -67,6 +69,7 @@ namespace DBUpdater
             _subService = subService;
             _subRepo = subRepo;
             _driveService = driveService;
+            _logger = new Logger();
         }
 
         /// <summary>
@@ -95,20 +98,24 @@ namespace DBUpdater
         /// </summary>
         public void MigrateOrganisations()
         {
+            _logger.Log("Migrating Organisation Initial: ", "DBUpdater", 3);
             var orgs = _dataProvider.GetOrganisationsAsQueryable().OrderBy(x => x.Level);
 
+            _logger.Log("Migrating Organisations. Amount: " + orgs.Count(), "DBUpdater", 3);
             var i = 0;
             foreach (var org in orgs)
             {
                 i++;
                 if (i % 10 == 0)
                 {
+                    
                     Console.WriteLine("Migrating organisation " + i + " of " + orgs.Count() + ".");
                 }
-
+                
                 var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgId == org.LOSOrgId);
-
+                
                 var workAddress = GetWorkAddress(org);
+
                 if (workAddress == null)
                 {
                     continue;
@@ -132,13 +139,12 @@ namespace DBUpdater
                     addressChanged = true;
                     orgToInsert.Address = workAddress;
                 }
-
-
-
+                
                 if (orgToInsert.Level > 0)
                 {
                     orgToInsert.ParentId = _orgRepo.AsQueryable().Single(x => x.OrgId == org.ParentLosOrgId).Id;
                 }
+
                 _orgRepo.Save();
 
                 if (addressChanged)
@@ -148,6 +154,7 @@ namespace DBUpdater
             
             }
 
+            _logger.Log("Migrating Organisations done: ", "DBUpdater", 3);
             Console.WriteLine("Done migrating organisations.");
         }
 
@@ -156,16 +163,20 @@ namespace DBUpdater
         /// </summary>
         public void MigrateEmployees()
         {
+            _logger.Log("Migrating Employees Initial: ", "DBUpdater", 3);
             foreach (var person in _personRepo.AsQueryable())
             {
                 person.IsActive = false;
             }
+            _logger.Log("Migrating Employees All persons IsActive = false. Amount of persons in personrepo: " + _personRepo.AsQueryable().Count(), "DBUpdater", 3);
             _personRepo.Save();
 
             var empls = _dataProvider.GetEmployeesAsQueryable();
 
             var i = 0;
             var distinctEmpls = empls.DistinctBy(x => x.CPR).ToList();
+
+            _logger.Log("Migrating Employees: Amount of employees in distinctEmpls: " + distinctEmpls.Count(), "DBUpdater", 3);
             foreach (var employee in distinctEmpls)
             {
                 i++;
@@ -173,7 +184,6 @@ namespace DBUpdater
                 {
                     Console.WriteLine("Migrating person " + i + " of " + distinctEmpls.Count() + ".");
                 }
-
 
                 var personToInsert = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber.Equals(employee.CPR));
 
@@ -192,9 +202,10 @@ namespace DBUpdater
                 personToInsert.Mail = employee.Email ?? "";
                 personToInsert.IsActive = true;
             }
+            _logger.Log("Migrating Employees: Before save in personrepo. ", "DBUpdater", 3);
             _personRepo.Save();
 
-            /**
+            /**g
              * We need the person id before we can attach personal addresses
              * so we loop through the distinct employees once again and
              * look up the created persons

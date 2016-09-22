@@ -13,7 +13,7 @@ namespace DBUpdater
     public class DataProvider : IDbUpdaterDataProvider
     {
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["DBUpdaterConnection"].ConnectionString;
-
+        
         /// <summary>
         /// Reads employees from Kommune database and returns them asqueryable.
         /// </summary>
@@ -21,18 +21,17 @@ namespace DBUpdater
         public IQueryable<Employee> GetEmployeesAsQueryable()
         {
             var result = new List<Employee>();
-
            
-
             using (var sqlConnection1 = new SqlConnection(_connectionString))
             {
                 var cmd = new SqlCommand
                 {
                     // CommandText = "SELECT * FROM information_schema.tables",
                     // CommandText = "SELECT * FROM eindberetning.medarbejder",
-
-                    CommandText = "SELECT * FROM dbo.medarbejder",
-                    CommandType = CommandType.Text,
+               
+                 CommandText = "SELECT * FROM " + ConfigurationManager.AppSettings["DATABASE_VIEW_MEDARBEJDER"],
+                //CommandText = "SELECT * FROM dbo.medarbejder",
+                CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
 
@@ -83,7 +82,9 @@ namespace DBUpdater
                 {
 
                     // real query: CommandText = "SELECT * FROM eindberetning.organisation",
-                    CommandText = "SELECT * FROM dbo.organisation",
+                    //CommandText = "SELECT * FROM dbo.organisation",
+                    
+                    CommandText = "SELECT * FROM " + ConfigurationManager.AppSettings["DATABASE_VIEW_ORGANISATION"],
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };

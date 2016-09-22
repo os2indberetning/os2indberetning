@@ -22,6 +22,8 @@ namespace Core.DomainModel
         public string ApprovedBy { get; set; }
        public string kontering { get; set; }
        public string Route;
+       public double distance { get; set; } 
+       public bool? isRoundTrip { get; set; }
 
     }
 

@@ -297,7 +297,7 @@
                 return res;
             }
         },
-        "getCalculationMethod": {
+       "getCalculationMethod": {
             method: "GET",
             isArray: false,
             url: "/odata/DriveReports/Service.GetCalculationMethod",

@@ -13,7 +13,7 @@ namespace DBUpdater
     public class DataProvider : IDbUpdaterDataProvider
     {
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["DBUpdaterConnection"].ConnectionString;
-
+        
         /// <summary>
         /// Reads employees from Kommune database and returns them asqueryable.
         /// </summary>

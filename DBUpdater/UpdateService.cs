@@ -154,7 +154,7 @@ namespace DBUpdater
             
             }
 
-            _logger.Log("Migrating Organisation done: ", "DBUpdater", 3);
+            _logger.Log("Migrating Organisations done: ", "DBUpdater", 3);
             Console.WriteLine("Done migrating organisations.");
         }
 
@@ -205,7 +205,7 @@ namespace DBUpdater
             _logger.Log("Migrating Employees: Before save in personrepo. ", "DBUpdater", 3);
             _personRepo.Save();
 
-            /**
+            /**g
              * We need the person id before we can attach personal addresses
              * so we loop through the distinct employees once again and
              * look up the created persons

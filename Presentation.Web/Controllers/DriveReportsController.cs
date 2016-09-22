@@ -157,6 +157,7 @@ namespace OS2Indberetning.Controllers
                 result.name = person.FullName;
                 result.adminName = _personRepo.AsQueryable().Where(x => x.Initials == actualAdminName).First().FullName;
                 result.MaNumbers = new HashSet<int>();
+                result.municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"];
             }
             catch (Exception e)
             {
@@ -205,8 +206,14 @@ namespace OS2Indberetning.Controllers
                                     FourKmRule = repo.FourKmRule,
                                     distanceFromHomeToBorder = person.DistanceFromHomeToBorder,
                                     AmountToReimburse = repo.AmountToReimburse,
-                                    Route = ""
+                                    Route = "",
+                                    distance = repo.Distance,
+                                    isRoundTrip = repo.IsRoundTrip
                                 };
+                             
+                                if (!reportToBeAdded.FourKmRule) {
+                                    reportToBeAdded.distanceFromHomeToBorder = 0;
+                                }
                                 if (repo.AccountNumber != null)
                                 {
                                     reportToBeAdded.kontering = repo.AccountNumber;
@@ -243,10 +250,7 @@ namespace OS2Indberetning.Controllers
                                     }
                                     else {
                                         reportToBeAdded.Route =reportToBeAdded.Route + " - " + p.StreetName + ", " + p.StreetNumber +", " + p.ZipCode;
-
                                     }
-
-
                                 }
                                 drivereports.Add(reportToBeAdded);
                             }
@@ -260,7 +264,7 @@ namespace OS2Indberetning.Controllers
             }
 
             result.driveReports = drivereports.ToArray();
-            result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
+           // result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
 
 
             foreach (var r in result.driveReports) {
@@ -270,7 +274,7 @@ namespace OS2Indberetning.Controllers
                 }
                 else
                 {
-                    r.kontering = "ingen kontering";
+                    r.kontering = "Ingen kontering.";
                 }
             }
 

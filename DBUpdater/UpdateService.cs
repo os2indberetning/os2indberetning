@@ -18,6 +18,7 @@ using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
+using Core.ApplicationServices;
 
 namespace DBUpdater
 {
@@ -69,7 +70,7 @@ namespace DBUpdater
             _subService = subService;
             _subRepo = subRepo;
             _driveService = driveService;
-            _logger = new Logger();
+            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
         }
 
         /// <summary>
@@ -225,6 +226,7 @@ namespace DBUpdater
                     _personalAddressRepo.Save();
                 }
             }
+            _logger.Log("Migrating Employees: Home adresses updated. ", "DBUpdater", 3);
             _personalAddressRepo.Save();
 
             //Sets all employments to end now in the case there was
@@ -235,6 +237,7 @@ namespace DBUpdater
             {
                 employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             }
+            _logger.Log("Migrating Employees: All employments end date set to now. ", "DBUpdater", 3);
             _emplRepo.Save();
 
             i = 0;
@@ -253,6 +256,7 @@ namespace DBUpdater
                     _emplRepo.Save();
                 }
             }
+            _logger.Log("Migrating Employees: Employments added to persons. ", "DBUpdater", 3);
             _personalAddressRepo.Save();
             _emplRepo.Save();
 
@@ -260,6 +264,7 @@ namespace DBUpdater
             var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
             if (dirtyAddressCount > 0)
             {
+                _logger.Log("Migrating Employees: There are dirty addresses. ", "DBUpdater", 3);
                 foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
                 {
                     _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
@@ -276,13 +281,6 @@ namespace DBUpdater
         public Employment CreateEmployment(Employee empl, int personId)
         {
 
-            //DEBUGGING
-            if (empl.Leder && empl.LOSOrgId == 828136)
-            {
-                int i = 1;
-            }
-            //DEBUGGING
-
             if (empl.AnsaettelsesDato == null)
             {
                 return null;
@@ -292,6 +290,7 @@ namespace DBUpdater
 
             if (orgUnit == null)
             {
+                _logger.Log($"Create Employment: OrgUnit does not exist. MaNr={empl.MaNr}, orgUnitId={empl.LOSOrgId}", "DBUpdater", 3);
                 throw new Exception("OrgUnit does not exist.");
             }
 

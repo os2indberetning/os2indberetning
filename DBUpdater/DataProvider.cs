@@ -7,13 +7,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DBUpdater.Models;
+using Core.ApplicationServices;
+using Ninject;
+using Core.ApplicationServices.Logger;
 
 namespace DBUpdater
 {
     public class DataProvider : IDbUpdaterDataProvider
     {
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["DBUpdaterConnection"].ConnectionString;
-        
+
+        ILogger logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+
         /// <summary>
         /// Reads employees from Kommune database and returns them asqueryable.
         /// </summary>

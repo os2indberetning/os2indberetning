@@ -12,7 +12,7 @@
         <div class="k-header k-grid-toolbar ng-scope">
           <div id="textwrapper" style="width:300px;">
               Medarbejder navn: <span id="MaNavn" style="float:right;"></span><br />  MaNr: <text id="MaNr" style="float:right;"></text><br />
-                Kommune: <text  style="float:right;" id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"style="float:right;"></text><br />  DatoInterval:<text id="DatoInterval"style="float:right;"></text><br />  admin: <text style="float:right;" id="admin_der_har_trukket_rapporten"></text>
+                Kommune: <text  style="float:right;" id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"style="float:right;"></text><br />  DatoInterval:<div style="float:right;">{{datoInterval}}</div><br />  admin: <text style="float:right;" id="admin_der_har_trukket_rapporten"></text>
             <br />Dato for rapportdannelse: <text style="float:right;" id="dateCreated"></text>
             <br />
               </div>
@@ -21,7 +21,7 @@
         </div>
        
     </div>
-    <div class="k-grid-footer k-grid-toolbar ng-scope">Samlet beløb: {{wholeAmount | currency:""}} kr. &emsp; Samlet Distance: {{wholeDistance | currency:""}} km.</div>
+    <!--div class="k-grid-footer k-grid-toolbar ng-scope">Samlet beløb: {{wholeAmount | currency:""}} kr. &emsp; Samlet Distance: {{wholeDistance | currency:""}} km.</div-->
 </div>
 
 

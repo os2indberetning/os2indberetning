@@ -140,13 +140,13 @@ namespace OS2Indberetning.Controllers
             if (!string.IsNullOrEmpty(manr) && manr != "undefined")
             {
                 convertedManr = Convert.ToInt32(manr);
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
             else {
-                reports.AddRange(Repo.AsQueryable().Where(x => x.Employment.PersonId == person.Id));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
 
-
+        
             Core.DomainModel.EksportModel result = new Core.DomainModel.EksportModel();
             try
             {
@@ -181,6 +181,7 @@ namespace OS2Indberetning.Controllers
             {
                 foreach (var repo in reports)
                 {
+                    
                     if (repo.PersonId == person.Id)
                     {
                         var createdTime = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
@@ -196,10 +197,13 @@ namespace OS2Indberetning.Controllers
                                 result.orgUnits.Add(repo.Employment.OrgUnit.ShortDescription);
                                 result.MaNumbers.Add(repo.Employment.EmploymentId);
 
+                                var driveDate = dtDateTime.AddSeconds(repo.DriveDateTimestamp).ToLocalTime();
+                                var createdDate = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
+
                                 var reportToBeAdded = new Core.DomainModel.EksportDrivereport
                                 {
-                                    DriveDateTimestamp = repo.DriveDateTimestamp,
-                                    CreatedDateTimestamp = repo.CreatedDateTimestamp,
+                                    DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
+                                    CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
                                     OrgUnit = repo.Employment.OrgUnit.ShortDescription,
                                     Purpose = repo.Purpose,
                                     IsExtraDistance = repo.IsExtraDistance,
@@ -208,8 +212,11 @@ namespace OS2Indberetning.Controllers
                                     AmountToReimburse = repo.AmountToReimburse,
                                     Route = "",
                                     distance = repo.Distance,
-                                    isRoundTrip = repo.IsRoundTrip
+                                    isRoundTrip = repo.IsRoundTrip,
+                                    licensePlate = repo.LicensePlate,
+                                    
                                 };
+                               
                              
                                 if (!reportToBeAdded.FourKmRule) {
                                     reportToBeAdded.distanceFromHomeToBorder = 0;

@@ -3,7 +3,7 @@
     function ($scope, $rootScope, $window, $state, Person, Autocomplete) {
 
         $scope.container = {};
-        $scope.persons = Autocomplete.activeUsers();
+        $scope.persons = Autocomplete.allUsers();
 
         $scope.autoCompleteOptions = {
             filter: "contains"

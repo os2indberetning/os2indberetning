@@ -38,7 +38,7 @@ namespace DBUpdater
         private readonly IGenericRepository<DriveReport> _reportRepo;
         private readonly IDriveReportService _driveService;
         private readonly ISubstituteService _subService;
-        private readonly ILogger _logger;
+        private ILogger _logger;
 
         public UpdateService(IGenericRepository<Employment> emplRepo,
             IGenericRepository<OrgUnit> orgRepo,
@@ -99,10 +99,10 @@ namespace DBUpdater
         /// </summary>
         public void MigrateOrganisations()
         {
-            _logger.Log("Migrating Organisation Initial: ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateOrganisations() Initial: ", "DBUpdater", 3);
             var orgs = _dataProvider.GetOrganisationsAsQueryable().OrderBy(x => x.Level);
 
-            _logger.Log("Migrating Organisations. Amount: " + orgs.Count(), "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateOrganisations() Amount of orgs=" + orgs.Count(), "DBUpdater", 3);
             var i = 0;
             foreach (var org in orgs)
             {
@@ -155,7 +155,7 @@ namespace DBUpdater
             
             }
 
-            _logger.Log("Migrating Organisations done: ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateOrganisations() done: ", "DBUpdater", 3);
             Console.WriteLine("Done migrating organisations.");
         }
 
@@ -164,12 +164,12 @@ namespace DBUpdater
         /// </summary>
         public void MigrateEmployees()
         {
-            _logger.Log("Migrating Employees Initial: ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() initial ", "DBUpdater", 3);
             foreach (var person in _personRepo.AsQueryable())
             {
                 person.IsActive = false;
             }
-            _logger.Log("Migrating Employees All persons IsActive = false. Amount of persons in personrepo: " + _personRepo.AsQueryable().Count(), "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() All persons IsActive = false. Amount of persons in personrepo=" + _personRepo.AsQueryable().Count(), "DBUpdater", 3);
             _personRepo.Save();
 
             var empls = _dataProvider.GetEmployeesAsQueryable();
@@ -177,7 +177,7 @@ namespace DBUpdater
             var i = 0;
             var distinctEmpls = empls.DistinctBy(x => x.CPR).ToList();
 
-            _logger.Log("Migrating Employees: Amount of employees in distinctEmpls: " + distinctEmpls.Count(), "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() Amount of employees in distinctEmpls: " + distinctEmpls.Count(), "DBUpdater", 3);
             foreach (var employee in distinctEmpls)
             {
                 i++;
@@ -203,7 +203,7 @@ namespace DBUpdater
                 personToInsert.Mail = employee.Email ?? "";
                 personToInsert.IsActive = true;
             }
-            _logger.Log("Migrating Employees: Before save in personrepo. ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() Before save in personrepo. ", "DBUpdater", 3);
             _personRepo.Save();
 
             /**g
@@ -226,7 +226,7 @@ namespace DBUpdater
                     _personalAddressRepo.Save();
                 }
             }
-            _logger.Log("Migrating Employees: Home adresses updated. ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() Home adresses updated. ", "DBUpdater", 3);
             _personalAddressRepo.Save();
 
             //Sets all employments to end now in the case there was
@@ -237,7 +237,7 @@ namespace DBUpdater
             {
                 employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             }
-            _logger.Log("Migrating Employees: All employments end date set to now. ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() All employments end date set to now. ", "DBUpdater", 3);
             _emplRepo.Save();
 
             i = 0;
@@ -256,7 +256,7 @@ namespace DBUpdater
                     _emplRepo.Save();
                 }
             }
-            _logger.Log("Migrating Employees: Employments added to persons. ", "DBUpdater", 3);
+            _logger.Log($"{this.GetType().Name}, MigrateEmployees() Employments added to persons. ", "DBUpdater", 3);
             _personalAddressRepo.Save();
             _emplRepo.Save();
 
@@ -264,7 +264,7 @@ namespace DBUpdater
             var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
             if (dirtyAddressCount > 0)
             {
-                _logger.Log("Migrating Employees: There are dirty addresses. ", "DBUpdater", 3);
+                _logger.Log($"{this.GetType().Name}, MigrateEmployees() There are dirty addresses. ", "DBUpdater", 3);
                 foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
                 {
                     _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
@@ -290,7 +290,7 @@ namespace DBUpdater
 
             if (orgUnit == null)
             {
-                _logger.Log($"Create Employment: OrgUnit does not exist. MaNr={empl.MaNr}, orgUnitId={empl.LOSOrgId}", "DBUpdater", 3);
+                _logger.Log($"{this.GetType().Name}, CreateEmployment(): OrgUnit does not exist. MaNr={empl.MaNr}, orgUnitId={empl.LOSOrgId}", "DBUpdater", 3);
                 throw new Exception("OrgUnit does not exist.");
             }
 
@@ -344,6 +344,7 @@ namespace DBUpdater
             var person = _personRepo.AsQueryable().FirstOrDefault(x => x.Id == personId);
             if (person == null)
             {
+                _logger.Log($"{this.GetType().Name}, UpdateHomeAddress(): person does not exist. personId={personId}, MaNr={empl.MaNr}", "DBUpdater", 3);
                 throw new Exception("Person does not exist.");
             }
 
@@ -506,7 +507,8 @@ namespace DBUpdater
             foreach(var sub in affectedSubstitutes)
             {
                 _subService.UpdateReportsAffectedBySubstitute(sub);
-            } 
+            }
+            _logger.Log($"{this.GetType().Name}, UpdateLeadersOnExpiredOrActivatedSubstitutes(): done", "DBUpdater", 3);
         }
 
         public void AddLeadersToReportsThatHaveNone()
@@ -528,7 +530,7 @@ namespace DBUpdater
                 }
             }
             _reportRepo.Save();
+            _logger.Log($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(): done", "DBUpdater", 3);
         }
-
     }
 }

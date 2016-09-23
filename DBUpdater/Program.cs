@@ -17,6 +17,7 @@ using Infrastructure.DataAccess;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
+using Core.ApplicationServices.Logger;
 
 namespace DBUpdater
 {
@@ -25,6 +26,10 @@ namespace DBUpdater
         static void Main(string[] args)
         {
             var ninjectKernel = NinjectWebKernel.CreateKernel();
+
+            ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+
+            _logger.Log($"************* DBUpdater started ***************", "DBUpdater", 3);
 
             IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
             
@@ -48,6 +53,8 @@ namespace DBUpdater
             historyService.CreateNonExistingHistories();
             service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
             service.AddLeadersToReportsThatHaveNone();
+
+            _logger.Log($"************* DBUpdater finished ***************", "DBUpdater", 3);
         }
 
 

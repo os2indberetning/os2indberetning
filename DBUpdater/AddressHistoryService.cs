@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using System.Xml.Linq;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.ApplicationServices;
+using Core.ApplicationServices.Logger;
+using Ninject;
 
 namespace DBUpdater
 {
@@ -16,7 +19,8 @@ namespace DBUpdater
         private readonly IGenericRepository<PersonalAddress> _personalAddressRepo;
         private List<WorkAddress> _workAddresses;
         private List<PersonalAddress> _homeAddresses;
-        private HashSet<int> _changedHistories; 
+        private HashSet<int> _changedHistories;
+        private ILogger _logger;
 
         public AddressHistoryService(IGenericRepository<Employment> emplRepo, IGenericRepository<AddressHistory> addressHistoryRepo, IGenericRepository<PersonalAddress> personalAddressRepo)
         {
@@ -26,72 +30,91 @@ namespace DBUpdater
             _changedHistories = new HashSet<int>();
             _homeAddresses = new List<PersonalAddress>();
             _workAddresses = new List<WorkAddress>();
+            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
         }
 
         public void CreateNonExistingHistories()
         {
             Console.WriteLine("Creating non-existing address histories.");
-            var i = 0;
-            var empls = _emplRepo.AsQueryable().ToList();
-            var activeHistories = _addressHistoryRepo.AsQueryable().Where(x => x.EndTimestamp == 0).ToList();
-            foreach (var employment in empls)
+            _logger.Log($"{this.GetType().Name}, CreateNonExistingHistories(): Initial", "DBUpdater", 3);
+            try
             {
-                i++;
-                if (i%10 == 0)
+                var i = 0;
+                var empls = _emplRepo.AsQueryable().ToList();
+                var activeHistories = _addressHistoryRepo.AsQueryable().Where(x => x.EndTimestamp == 0).ToList();
+                foreach (var employment in empls)
                 {
-                    Console.WriteLine("Checking employment " + i + " of " + empls.Count);
-                }
-                if (!activeHistories.AsQueryable().Any(x => x.EmploymentId == employment.Id))
-                {
-                    var homeAddress =
-                        _personalAddressRepo.AsQueryable()
-                            .FirstOrDefault(x => x.PersonId == employment.PersonId && x.Type == PersonalAddressType.Home);
-
-                    if (homeAddress == null || employment.OrgUnit.Address == null)
+                    i++;
+                    if (i % 10 == 0)
                     {
-                        continue;
+                        Console.WriteLine("Checking employment " + i + " of " + empls.Count);
                     }
-
-                    _addressHistoryRepo.Insert(new AddressHistory
+                    if (!activeHistories.AsQueryable().Any(x => x.EmploymentId == employment.Id))
                     {
-                        EmploymentId = employment.Id,
-                        EndTimestamp = 0,
-                        WorkAddressId = employment.OrgUnit.AddressId,
-                        HomeAddressId = homeAddress.Id,
-                        StartTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds
-                    });
+                        var homeAddress =
+                            _personalAddressRepo.AsQueryable()
+                                .FirstOrDefault(x => x.PersonId == employment.PersonId && x.Type == PersonalAddressType.Home);
+
+                        if (homeAddress == null || employment.OrgUnit.Address == null)
+                        {
+                            continue;
+                        }
+
+                        _addressHistoryRepo.Insert(new AddressHistory
+                        {
+                            EmploymentId = employment.Id,
+                            EndTimestamp = 0,
+                            WorkAddressId = employment.OrgUnit.AddressId,
+                            HomeAddressId = homeAddress.Id,
+                            StartTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds
+                        });
+                    }
                 }
+                _addressHistoryRepo.Save();
             }
-            _addressHistoryRepo.Save();
+            catch (Exception e)
+            {
+                _logger.Log($"{this.GetType().Name}, CreateNonExistingHistories(): Error", "DBUpdater", e, 1);
+                throw e;
+            }
         }
 
         public void UpdateAddressHistories()
         {
-            var i = 0;
-            var activeHistories = _addressHistoryRepo.AsQueryable().Where(x => x.EndTimestamp == 0).ToList();
-            foreach (var addressHistory in activeHistories)
+            _logger.Log($"{this.GetType().Name}, UpdateAddressHistories(): Initial", "DBUpdater", 1);
+            try
             {
-                if (i%10 == 0)
+                var i = 0;
+                var activeHistories = _addressHistoryRepo.AsQueryable().Where(x => x.EndTimestamp == 0).ToList();
+                foreach (var addressHistory in activeHistories)
                 {
-                    Console.WriteLine("Checking active history " + i + " of " + activeHistories.Count);
+                    if (i % 10 == 0)
+                    {
+                        Console.WriteLine("Checking active history " + i + " of " + activeHistories.Count);
+                    }
+                    var homeAddress =
+                        _personalAddressRepo.AsQueryable()
+                            .FirstOrDefault(
+                                x => x.PersonId == addressHistory.Employment.PersonId && x.Type == PersonalAddressType.Home);
+                    if (homeAddress != addressHistory.HomeAddress ||
+                        addressHistory.WorkAddress != addressHistory.Employment.OrgUnit.Address)
+                    {
+                        // One or two addresses have changed. End the history;
+                        addressHistory.EndTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                    }
+                    if (i % 1000 == 0)
+                    {
+                        _addressHistoryRepo.Save();
+                    }
+                    i++;
                 }
-                var homeAddress =
-                    _personalAddressRepo.AsQueryable()
-                        .FirstOrDefault(
-                            x => x.PersonId == addressHistory.Employment.PersonId && x.Type == PersonalAddressType.Home);
-                if (homeAddress != addressHistory.HomeAddress ||
-                    addressHistory.WorkAddress != addressHistory.Employment.OrgUnit.Address)
-                {
-                    // One or two addresses have changed. End the history;
-                    addressHistory.EndTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                }
-                if (i%1000 == 0)
-                {
-                    _addressHistoryRepo.Save();
-                }
-                i++;
+                _addressHistoryRepo.Save();
             }
-            _addressHistoryRepo.Save();
+            catch (Exception e)
+            {
+                _logger.Log($"{this.GetType().Name}, UpdateAddressHistories(): Error", "DBUpdater", e, 1);
+                throw e;
+            }
         }
 
 

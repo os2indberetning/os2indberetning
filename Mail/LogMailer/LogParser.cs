@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Core.ApplicationServices;
+using Core.ApplicationServices.Logger;
+using Ninject;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -9,7 +12,8 @@ namespace Mail.LogMailer
 {
     public class LogParser : ILogParser
     {
-  
+        private ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+
         public List<string> Messages(List<string> log, DateTime fromDate)
         {
             var messages = new List<string>();
@@ -35,6 +39,7 @@ namespace Mail.LogMailer
                 }
                 catch (Exception e)
                 {
+                    _logger.Log($"{this.GetType().Name}, Messages(): Error when parsing log entry", "mail", e, 1);
                     Console.WriteLine(e.Message);
                 }
 

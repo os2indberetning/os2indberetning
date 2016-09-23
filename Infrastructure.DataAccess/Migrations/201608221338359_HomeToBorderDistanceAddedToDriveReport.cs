@@ -7,7 +7,7 @@ namespace Infrastructure.DataAccess.Migrations
     {
         public override void Up()
         {
-            AddColumn("Reports", "HomeToBorderDistance", c => c.Double());
+            AddColumn("Reports", "HomeToBorderDistance", c => c.Double(nullable: false, defaultValue: 0));
         }
         
         public override void Down()

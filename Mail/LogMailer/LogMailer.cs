@@ -68,7 +68,6 @@ namespace Mail.LogMailer
                 _mailSender.SendMail(receiver, "Log", result);
             }
             
-        
         }
 
     }

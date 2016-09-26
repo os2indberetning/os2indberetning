@@ -29,7 +29,6 @@ namespace DBUpdater
         private readonly IGenericRepository<CachedAddress> _cachedRepo;
         private readonly IGenericRepository<PersonalAddress> _personalAddressRepo;
         private readonly IGenericRepository<Substitute> _subRepo;
-        private readonly IGenericRepository<IDMOrgLeader> _IDMOrgRepo;
 
         private readonly IAddressLaunderer _actualLaunderer;
         private readonly IAddressCoordinates _coordinates;
@@ -53,8 +52,7 @@ namespace DBUpdater
                                 IGenericRepository<DriveReport> reportRepo, 
                                 IDriveReportService driveService, 
                                 ISubstituteService subService, 
-                                IGenericRepository<Substitute> subRepo, 
-                                IGenericRepository<IDMOrgLeader> IDMOrgRepo)
+                                IGenericRepository<Substitute> subRepo)
         {
             _emplRepo = emplRepo;
             _orgRepo = orgRepo;
@@ -71,7 +69,6 @@ namespace DBUpdater
             _subService = subService;
             _subRepo = subRepo;
             _driveService = driveService;
-            _IDMOrgRepo = IDMOrgRepo;
         }
 
         /// <summary>
@@ -194,10 +191,6 @@ namespace DBUpdater
                 }
 
                 var workAddress = GetWorkAddressIDM(org);
-                //if (workAddress == null)
-                //{
-                //    continue;
-                //}
 
                 if (orgToInsert == null)
                 {
@@ -218,32 +211,12 @@ namespace DBUpdater
                     orgToInsert.Address = workAddress;
                 }
 
-
-
-                //if (org.OverliggendeOUID != null && org.OverliggendeOUID != "")
-                //{
-                //    orgToInsert.ParentId = _orgRepo.AsQueryable().Single(x => x.OrgOUID == org.OverliggendeOUID).Id;
-                //}
                 _orgRepo.Save();
 
                 if (addressChanged)
                 {
                     workAddress.OrgUnitId = orgToInsert.Id;
                 }
-
-                //This is because the leader is in the organisation
-                var IDMLeaderOrg = _IDMOrgRepo.AsQueryable().FirstOrDefault(x => x.OUID == orgToInsert.OrgOUID);
-
-                if (IDMLeaderOrg == null)
-                {
-                    IDMLeaderOrg = _IDMOrgRepo.Insert(new IDMOrgLeader());
-                }
-
-                IDMLeaderOrg.Leder = extractName(org.Leder);
-                IDMLeaderOrg.OUID = org.OUID;
-
-                _IDMOrgRepo.Save();
-
             }
             foreach (var org in orgs)
             {
@@ -258,7 +231,7 @@ namespace DBUpdater
             Console.WriteLine("Done migrating organisations.");
         }
 
-        private string extractName(string name)
+        private string extractInitials(string name)
         {
             if (name == null || name == "")
             {
@@ -573,11 +546,10 @@ namespace DBUpdater
             {
                 employment = _emplRepo.Insert(new Employment());
             }
-
             
             employment.OrgUnitId = orgUnit.Id;
             employment.Position = empl.Stillingsbetegnelse ?? "";
-            employment.IsLeader = _IDMOrgRepo.AsQueryable().Count(x => x.Leder == empl.BrugerID) >0 ? true:false;
+            employment.IsLeader = _dataProvider.GetOrganisationsAsQueryableIDM().Any(x => extractInitials(x.Leder) == empl.BrugerID);
             employment.PersonId = personId;
             var startDate = empl.AnsættelseFra ?? new DateTime();
             employment.StartDateTimestamp = (Int32)(startDate.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;

@@ -230,7 +230,7 @@ namespace OS2Indberetning.Controllers
                                 }
                                 else
                                 {
-                                    reportToBeAdded.ApprovedBy = "not Approved yet.";
+                                    reportToBeAdded.ApprovedBy = "Ikke godkendt endnu!";
 
                                 }
                                 int counter = 0;

@@ -85,7 +85,7 @@ namespace DBUpdater.Test
             }.AsQueryable());
 
             _uut = new UpdateService(_emplRepoMock, _orgUnitRepoMock, _personRepoMock, _cachedAddressRepoMock,
-               _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo, null/*TODO*/);
+               _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
 
         }
 

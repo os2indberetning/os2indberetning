@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class changes_after_merge : IMigrationMetadata
+    public sealed partial class AddsIDMChanges : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(changes_after_merge));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddsIDMChanges));
         
         string IMigrationMetadata.Id
         {
-            get { return "201609081618215_changes_after_merge"; }
+            get { return "201609260951340_AddsIDMChanges"; }
         }
         
         string IMigrationMetadata.Source

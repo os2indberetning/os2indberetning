@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class AfterMerge : IMigrationMetadata
+    public sealed partial class temp : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AfterMerge));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(temp));
         
         string IMigrationMetadata.Id
         {
-            get { return "201608311649294_AfterMerge"; }
+            get { return "201601060842139_temp"; }
         }
         
         string IMigrationMetadata.Source

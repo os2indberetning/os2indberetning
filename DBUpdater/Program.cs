@@ -41,7 +41,7 @@ namespace DBUpdater
                     ninjectKernel.Get<IGenericRepository<DriveReport>>(),
                     ninjectKernel.Get<IDriveReportService>(),
                     ninjectKernel.Get<ISubstituteService>(),
-                    ninjectKernel.Get<IGenericRepository<Substitute>>(), ninjectKernel.Get<IGenericRepository<IDMOrgLeader>>());
+                    ninjectKernel.Get<IGenericRepository<Substitute>>());
 
             var importSystem = ConfigurationManager.AppSettings["ImportSystem"] ?? "SOFD";
 

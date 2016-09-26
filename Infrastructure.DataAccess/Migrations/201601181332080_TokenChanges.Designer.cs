@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class Add_IDMOrgLeaders : IMigrationMetadata
+    public sealed partial class TokenChanges : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(Add_IDMOrgLeaders));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(TokenChanges));
         
         string IMigrationMetadata.Id
         {
-            get { return "201607161120170_Add_IDMOrgLeaders"; }
+            get { return "201601181332080_TokenChanges"; }
         }
         
         string IMigrationMetadata.Source

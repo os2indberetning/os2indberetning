@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class addressNotNullable : IMigrationMetadata
+    public sealed partial class temp : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(addressNotNullable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(temp));
         
         string IMigrationMetadata.Id
         {
-            get { return "201608162012235_addressNotNullable"; }
+            get { return "201601060838309_temp"; }
         }
         
         string IMigrationMetadata.Source

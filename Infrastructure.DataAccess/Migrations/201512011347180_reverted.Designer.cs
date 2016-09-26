@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class add_OUID_on_orgUnit : IMigrationMetadata
+    public sealed partial class reverted : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(add_OUID_on_orgUnit));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(reverted));
         
         string IMigrationMetadata.Id
         {
-            get { return "201607101258290_add_OUID_on_orgUnit"; }
+            get { return "201512011347180_reverted"; }
         }
         
         string IMigrationMetadata.Source

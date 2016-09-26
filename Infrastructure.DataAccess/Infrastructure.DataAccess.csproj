@@ -385,33 +385,13 @@
     <Compile Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.Designer.cs">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201607101258290_add_OUID_on_orgUnit.cs" />
-    <Compile Include="Migrations\201607101258290_add_OUID_on_orgUnit.Designer.cs">
-      <DependentUpon>201607101258290_add_OUID_on_orgUnit.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201607161120170_Add_IDMOrgLeaders.cs" />
-    <Compile Include="Migrations\201607161120170_Add_IDMOrgLeaders.Designer.cs">
-      <DependentUpon>201607161120170_Add_IDMOrgLeaders.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608071509115_added_ServiceNumber_and_InstituteCode.cs" />
-    <Compile Include="Migrations\201608071509115_added_ServiceNumber_and_InstituteCode.Designer.cs">
-      <DependentUpon>201608071509115_added_ServiceNumber_and_InstituteCode.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608141417252_make_address_optional.cs" />
-    <Compile Include="Migrations\201608141417252_make_address_optional.designer.cs">
-      <DependentUpon>201608141417252_make_address_optional.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608162012235_addressNotNullable.cs" />
-    <Compile Include="Migrations\201608162012235_addressNotNullable.Designer.cs">
-      <DependentUpon>201608162012235_addressNotNullable.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.cs" />
-    <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.Designer.cs">
+    <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.designer.cs">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201609081618215_changes_after_merge.cs" />
-    <Compile Include="Migrations\201609081618215_changes_after_merge.Designer.cs">
-      <DependentUpon>201609081618215_changes_after_merge.cs</DependentUpon>
+    <Compile Include="Migrations\201609260951340_AddsIDMChanges.cs" />
+    <Compile Include="Migrations\201609260951340_AddsIDMChanges.Designer.cs">
+      <DependentUpon>201609260951340_AddsIDMChanges.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
@@ -675,23 +655,8 @@
     <EmbeddedResource Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.resx">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607101258290_add_OUID_on_orgUnit.resx">
-      <DependentUpon>201607101258290_add_OUID_on_orgUnit.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201607161120170_Add_IDMOrgLeaders.resx">
-      <DependentUpon>201607161120170_Add_IDMOrgLeaders.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608071509115_added_ServiceNumber_and_InstituteCode.resx">
-      <DependentUpon>201608071509115_added_ServiceNumber_and_InstituteCode.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608141417252_make_address_optional.resx">
-      <DependentUpon>201608141417252_make_address_optional.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608162012235_addressNotNullable.resx">
-      <DependentUpon>201608162012235_addressNotNullable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201609081618215_changes_after_merge.resx">
-      <DependentUpon>201609081618215_changes_after_merge.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201609260951340_AddsIDMChanges.resx">
+      <DependentUpon>201609260951340_AddsIDMChanges.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

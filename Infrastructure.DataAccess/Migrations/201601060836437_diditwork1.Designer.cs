@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class make_address_optional : IMigrationMetadata
+    public sealed partial class diditwork1 : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(make_address_optional));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(diditwork1));
         
         string IMigrationMetadata.Id
         {
-            get { return "201608141417252_make_address_optional"; }
+            get { return "201601060836437_diditwork1"; }
         }
         
         string IMigrationMetadata.Source

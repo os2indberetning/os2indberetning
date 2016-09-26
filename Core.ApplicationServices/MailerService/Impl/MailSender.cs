@@ -16,19 +16,19 @@ namespace Core.ApplicationServices.MailerService.Impl
         public MailSender(ILogger logger)
         {
             _logger = logger;
-            _smtpClient = new SmtpClient()
-            {
-                Host = ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST"],
-                // Vordingborg uses a public smtp server accessed by only a URL, so they have not supplied a port number which causes an error.
-                // Port = int.Parse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"]),
-                EnableSsl = false,
-                Credentials = new NetworkCredential()
-                {
-                    UserName = ConfigurationManager.AppSettings["PROTECTED_SMTP_USER"],
-                    Password = ConfigurationManager.AppSettings["PROTECTED_SMTP_PASSWORD"]
-                }
+            //_smtpClient = new SmtpClient()
+            //{
+            //    Host = ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST"],
+            //    // Vordingborg uses a public smtp server accessed by only a URL, so they have not supplied a port number which causes an error.
+            //    // Port = int.Parse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"]),
+            //    EnableSsl = false,
+            //    Credentials = new NetworkCredential()
+            //    {
+            //        UserName = ConfigurationManager.AppSettings["PROTECTED_SMTP_USER"],
+            //        Password = ConfigurationManager.AppSettings["PROTECTED_SMTP_PASSWORD"]
+            //    }
 
-            };
+            //};
 
         }
 

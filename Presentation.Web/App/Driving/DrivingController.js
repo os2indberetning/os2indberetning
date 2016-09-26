@@ -41,20 +41,26 @@
         };
 
         DriveReport.getCalculationMethod().$promise.then(function (res) {
-            var alternativeCalculation = res.value;
-            if (!alternativeCalculation) {
+            $scope.alternativeCalculation = res.value;
+            if (!$scope.alternativeCalculation) {
                 $scope.buildDataSource.data([
-                        { value: "Calculated", key: "Beregnet" },
-                        { value: "Read", key: "Aflæst" },
-                        { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
+                    { value: "Calculated", key: "Beregnet" },
+                    { value: "Read", key: "Aflæst" },
+                    { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
                 ]);
+                //Set calculation specific text
+                $scope.alternativeCalculationTextReimbursement = "Merkørselsfradrag";
             } else {
                 $scope.buildDataSource.data([
                     { value: "Calculated", key: "Beregnet" },
                     { value: "Read", key: "Aflæst" },
                 ]);
+                //Set calculation specific text
+                $scope.alternativeCalculationTextReimbursement = "Fradrag";
+                $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
             }
         });
+
 
         $scope.canSubmitDriveReport = true;
 
@@ -267,7 +273,7 @@
                             $scope.addressInputChanged();
                         }
                     });
-                    
+
                 }
 
                 $scope.DriveReport.IsRoundTrip = report.IsRoundTrip;
@@ -275,7 +281,7 @@
         }
 
 
-        if(adminEditCurrentUser != 0){
+        if (adminEditCurrentUser != 0) {
             // adminEditCurrentUser will have a value different from 0 if an admin is currently trying to edit a report.
             $scope.currentUser = adminEditCurrentUser;
         } else {
@@ -458,7 +464,7 @@
                 $scope.addressSelectionErrorMessage = "";
             }
             angular.forEach($scope.DriveReport.Addresses, function (address, key) {
-                if($scope.isAddressNameSet(address) && $scope.isAddressPersonalSet(address)) {
+                if ($scope.isAddressNameSet(address) && $scope.isAddressPersonalSet(address)) {
                     address.Name = "";
                 }
                 if (!$scope.isAddressNameSet(address) && !$scope.isAddressPersonalSet(address)) {
@@ -624,7 +630,7 @@
                                     resolve: {
                                         errorMsg: function () {
                                             return 'OS2Indberetning kunne ikke beregne ruten. Fejlen kan skyldes, at det ikke er muligt at køre til en/eller flere af dine adresser. Prøv igen eller med en anden adresse tæt på.';
-                                        }   
+                                        }
                                     }
                                 });
                                 return;
@@ -635,7 +641,7 @@
                                 return;
                             }
 
-                            
+
 
                             isFormDirty = true;
                             $scope.currentMapAddresses = obj.Addresses;
@@ -678,7 +684,7 @@
                                 setNotRoute(false);
                             }
 
-                           
+
                         }
                     });
                     if (!$scope.isEditingReport) {
@@ -795,7 +801,7 @@
             $scope.saveBtnDisabled = true;
             if (isEditingReport) {
                 DriveReport.delete({ id: ReportId }).$promise.then(function () {
-                    DriveReport.edit({ emailText: $scope.emailText },$scope).$promise.then(function (res) {
+                    DriveReport.edit({ emailText: $scope.emailText }, $scope).$promise.then(function (res) {
                         $scope.latestDriveReport = res;
                         NotificationService.AutoFadeNotification("success", "", "Din tjenestekørselsindberetning blev redigeret");
                         $scope.clearReport();
@@ -825,27 +831,27 @@
             if (!$scope.canSubmitDriveReport) {
                 return;
             }
-            if($scope.DriveReport.Status == "Accepted"){
+            if ($scope.DriveReport.Status == "Accepted") {
                 // An admin is trying to edit an already approved report.
                 var modalInstance = $modal.open({
-                   templateUrl: '/App/Admin/HTML/Reports/Modal/ConfirmEditApprovedReportTemplate.html',
-                   controller: 'ConfirmEditApprovedReportModalController',
-                   backdrop: "static",
+                    templateUrl: '/App/Admin/HTML/Reports/Modal/ConfirmEditApprovedReportTemplate.html',
+                    controller: 'ConfirmEditApprovedReportModalController',
+                    backdrop: "static",
                 });
 
-               modalInstance.result.then(function (res) {
-                   if(res == undefined){
-                       res = "Ingen besked.";
-                   }
-                   $scope.emailText = res;
-                   $scope.prepHandleSave();
-               });
+                modalInstance.result.then(function (res) {
+                    if (res == undefined) {
+                        res = "Ingen besked.";
+                    }
+                    $scope.emailText = res;
+                    $scope.prepHandleSave();
+                });
             } else {
                 $scope.prepHandleSave();
             }
         }
 
-        $scope.prepHandleSave = function(){
+        $scope.prepHandleSave = function () {
             if ($scope.currentUser.DistanceFromHomeToBorder != $scope.DriveReport.FourKmRule.Value && $scope.DriveReport.FourKmRule.Value != "" && $scope.DriveReport.FourKmRule.Value != undefined) {
                 $scope.currentUser.DistanceFromHomeToBorder = $scope.DriveReport.FourKmRule.Value
                 Person.patch({ id: $scope.currentUser.Id }, { DistanceFromHomeToBorder: $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".") }).$promise.then(function () {
@@ -871,6 +877,18 @@
         }
 
         $scope.fourKmRuleChanged = function () {
+            if ($scope.alternativeCalculation) {
+                if ($scope.DriveReport.FourKmRule.Using) {
+                    console.log("altcalc:" + $scope.alternativeCalculation);
+                    console.log("usingfourkm:" + $scope.DriveReport.FourKmRule.Using);
+                    $scope.AlternativeCalculationTextDistanceForReport = "";
+                }
+                else {
+                    console.log("altcalc:" + $scope.alternativeCalculation);
+                    console.log("usingfourkm:" + $scope.DriveReport.FourKmRule.Using);
+                    $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
+                }
+            }
             updateDrivenKm();
         }
 

@@ -233,7 +233,7 @@
         </div>
         <div class="row">
             <div class="col-sm-6">
-                <p class="text-primary">Merkørselsfradrag</p>
+                <p class="text-primary">{{alternativeCalculationTextReimbursement}}</p>
             </div>
             <div class="col-sm-6 text-right">
                 {{TransportAllowance | FormatKmNumberString}} km
@@ -241,7 +241,7 @@
         </div>
         <div class="row">
             <div class="col-sm-6">
-                <p class="text-primary">Kilometer til indberetning</p>
+                <p class="text-primary">Kilometer til indberetning{{AlternativeCalculationTextDistanceForReport}}</p>
             </div>
             <div class="col-sm-6 text-right">
                 <div ng-if="Number(DrivenKMDisplay > Number(TransportAllowance))">

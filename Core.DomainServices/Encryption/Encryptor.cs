@@ -7,6 +7,7 @@ using Core.DmzModel;
 using System.Security.Cryptography;
 using Core.DomainModel;
 
+
 namespace Core.DomainServices.Encryption
 {
     public static class Encryptor
@@ -15,14 +16,21 @@ namespace Core.DomainServices.Encryption
 
         public static Profile EncryptProfile(Profile profile)
         {
-
+            try
+            {
                 profile.FirstName = StringCipher.Encrypt(profile.FirstName, EncryptKey);
                 profile.LastName = StringCipher.Encrypt(profile.LastName, EncryptKey);
                 profile.HomeLatitude = StringCipher.Encrypt(profile.HomeLatitude, EncryptKey);
                 profile.HomeLongitude = StringCipher.Encrypt(profile.HomeLongitude, EncryptKey);
                 profile.FullName = StringCipher.Encrypt(profile.FullName, EncryptKey);
                 return profile;
-
+            }
+            catch (Exception ex)
+            {
+                //This should be logged when ILogger is enabled
+                Console.WriteLine($"Class Encryptor, Encryptprofile(). Exception= {ex.Message}, in profile HomeLatitude: {profile.HomeLatitude}, HomeLongitude: {profile.HomeLongitude}, ID: {profile.Id}");
+                return profile;
+            }
         }
 
         public static Profile DecryptProfile(Profile profile)
@@ -34,14 +42,18 @@ namespace Core.DomainServices.Encryption
                 profile.HomeLatitude = StringCipher.Decrypt(profile.HomeLatitude, EncryptKey);
                 profile.HomeLongitude = StringCipher.Decrypt(profile.HomeLongitude, EncryptKey);
                 profile.FullName = StringCipher.Decrypt(profile.FullName, EncryptKey);
-                return profile;               
-            }
-            catch (FormatException)
-            {
                 return profile;
             }
-            catch (CryptographicException)
+            catch (FormatException fe)
             {
+                //This should be logged when ILogger is enabled
+                Console.WriteLine($"Class Encryptor, FormatException DecryptProfile() i Encryptor= {fe.Message}, HomeLatitude: {profile.HomeLatitude}, HomeLongitude: {profile.HomeLongitude}, ID: {profile.Id}");
+                return profile;
+            }
+            catch (CryptographicException ce)
+            {
+                //This should be logged when ILogger is enabled
+                Console.WriteLine($"Class Encryptor, CryptographicException DecryptProfile() i Encryptor= {ce.Message}, HomeLatitude: {profile.HomeLatitude}, HomeLongitude: {profile.HomeLongitude}, ID: {profile.Id}");
                 return profile;
             }
         }

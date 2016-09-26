@@ -14,6 +14,7 @@ using Infrastructure.DmzSync.Services.Interface;
 using NSubstitute;
 using NUnit.Framework;
 using Rate = Core.DmzModel.Rate;
+using Core.ApplicationServices.Logger;
 
 namespace DmzSync.Test
 {
@@ -35,7 +36,8 @@ namespace DmzSync.Test
             _dmzRepoMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.Rate>>();
             _masterRepoMock = NSubstitute.Substitute.For<IGenericRepository<Core.DomainModel.Rate>>();
             _dmzRepoMock.WhenForAnyArgs(x => x.Insert(new Core.DmzModel.Rate())).Do(p => _dmzRateList.Add(p.Arg<Core.DmzModel.Rate>()));
-            _uut = new RateSyncService(_dmzRepoMock,_masterRepoMock);
+            ILogger _logger = new Logger();
+            _uut = new RateSyncService(_dmzRepoMock,_masterRepoMock, _logger);
         }
 
         [Test]

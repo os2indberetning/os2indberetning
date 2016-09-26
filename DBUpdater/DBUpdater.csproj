@@ -116,7 +116,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AddressHistoryService.cs" />
-    <Compile Include="DataFromExcelProvider.cs" />
     <Compile Include="DataProvider.cs" />
     <Compile Include="IAddressHistoryService.cs" />
     <Compile Include="IDBUpdaterDataProvider.cs" />
@@ -129,13 +128,9 @@
     <Compile Include="UpdateService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <Content Include="connections.config">
+    <None Include="App.config">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="CustomSettings.config">
-      <SubType>Designer</SubType>
-    </Content>
+    </None>
     <Content Include="Log4Net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

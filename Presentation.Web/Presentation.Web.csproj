@@ -298,7 +298,6 @@
     <Content Include="App\Settings\ErrorModalController.js" />
     <Content Include="App\Settings\errorModalTemplate.html" />
     <Content Include="customSettings.config" />
-    
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -715,9 +714,6 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
-    <Content Include="CustomSettings.config">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1214,7 +1210,6 @@
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-HK.min.js" />
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-TW.min.js" />
     <Content Include="Scripts\kendo\pako_deflate.min.js" />
-    <None Include="Properties\PublishProfiles\Ballerup.pubxml" />
     <None Include="Properties\PublishProfiles\Miracle-Test.pubxml" />
     <None Include="Properties\PublishProfiles\Skanderborg.pubxml" />
     <None Include="Properties\PublishProfiles\Test-backend.pubxml" />

@@ -43,35 +43,24 @@ namespace DBUpdater
                     ninjectKernel.Get<ISubstituteService>(),
                     ninjectKernel.Get<IGenericRepository<Substitute>>(), ninjectKernel.Get<IGenericRepository<IDMOrgLeader>>());
 
-            var importSystem = ConfigurationManager.AppSettings["ImportSystem"];
+            var importSystem = ConfigurationManager.AppSettings["ImportSystem"] ?? "SOFD";
+
             switch (importSystem)
             {
                 case "IDM":
                     service.MigrateOrganisationsIDM();
                     service.MigrateEmployeesIDM();
-                    historyService.UpdateAddressHistories();
-                    historyService.CreateNonExistingHistories();
-                    service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
-                    service.AddLeadersToReportsThatHaveNone();
-
                     break;
-                case "Flow":
-
-                
-
+                case "SOFD":
                     service.MigrateOrganisations();
                     service.MigrateEmployees();
-                    historyService.UpdateAddressHistories();
-                    historyService.CreateNonExistingHistories();
-                    service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
-                    service.AddLeadersToReportsThatHaveNone();
                     break;
             }
+
+            historyService.UpdateAddressHistories();
+            historyService.CreateNonExistingHistories();
+            service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
+            service.AddLeadersToReportsThatHaveNone();
         }
-
-
-
-
-
     }
 }

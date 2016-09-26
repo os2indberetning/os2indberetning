@@ -418,10 +418,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="CustomSettings.config">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Content Include="CustomSettings.config">
+      <SubType>
+      </SubType>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

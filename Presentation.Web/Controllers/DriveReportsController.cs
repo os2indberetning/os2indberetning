@@ -60,27 +60,29 @@ namespace OS2Indberetning.Controllers
         {
             _logger.Log($"DriveReportsController, Get(). Initial", "web", 3);
 
-            try { 
-            var queryable = GetQueryable(queryOptions);
-
-            ReportStatus reportStatus;
-            if (ReportStatus.TryParse(status, true, out reportStatus))
+            IQueryable<DriveReport> queryable = null;
+            try
             {
-                if (reportStatus == ReportStatus.Accepted)
-                {
-                    // If accepted reports are requested, then return accepted and invoiced. 
-                    // Invoiced reports are accepted reports that have been processed for payment.
-                    // So they are still accepted reports.
-                    queryable =
-                        queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
-                }
-                else
-                {
-                    queryable = queryable.Where(dr => dr.Status == reportStatus);
-                }
+                queryable = GetQueryable(queryOptions);
 
+                ReportStatus reportStatus;
+                if (ReportStatus.TryParse(status, true, out reportStatus))
+                {
+                    if (reportStatus == ReportStatus.Accepted)
+                    {
+                        // If accepted reports are requested, then return accepted and invoiced. 
+                        // Invoiced reports are accepted reports that have been processed for payment.
+                        // So they are still accepted reports.
+                        queryable =
+                            queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
+                    }
+                    else
+                    {
+                        queryable = queryable.Where(dr => dr.Status == reportStatus);
+                    }
+
+                }
             }
-                
             catch (Exception ex)
             {
                 _logger.Log($"DriveReportsController, Get(). Exception={ex.Message}", "web", 3);

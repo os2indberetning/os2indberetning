@@ -69,9 +69,11 @@ namespace OS2Indberetning.Controllers
         [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
         public Person GetCurrentUser()
         {
-            _logger.Log("CurrentUser() initial. Current userId=" + CurrentUser.Id + "CurrentUserInitials="+CurrentUser.Initials, "web", 3);
             try
             {
+                _logger.Log("CurrentUser() initial. Current user=" + CurrentUser, "web", 3);
+                _logger.Log("CurrentUser() initial. Current userId=" + CurrentUser.Id + "CurrentUserInitials="+CurrentUser.Initials, "web", 3);
+            
                 var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == CurrentUser.Id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
                 var employmentList = employments.ToList();

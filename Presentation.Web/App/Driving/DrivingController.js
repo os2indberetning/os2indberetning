@@ -163,9 +163,10 @@
             /// <param name="report"></param>
             $scope.DriveReport.FourKmRule = {};
             $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
-
-
-
+            
+            //Fix after error with two employments
+            $scope.DriveReport.Position = report.EmploymentId;
+            
 
             // Select position in dropdown.
             $scope.container.PositionDropDown.select(function (item) {

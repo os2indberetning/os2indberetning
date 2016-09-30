@@ -58,6 +58,9 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
         {
+            _logger.Log($"DriveReportsController, Get(). Initial", "web", 3);
+
+            try { 
             var queryable = GetQueryable(queryOptions);
 
             ReportStatus reportStatus;
@@ -77,6 +80,11 @@ namespace OS2Indberetning.Controllers
                 }
 
             }
+                
+            catch (Exception ex)
+            {
+                _logger.Log($"DriveReportsController, Get(). Exception={ex.Message}", "web", 3);
+            }
             return Ok(queryable);
         }
 
@@ -89,16 +97,24 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetLatestReportForUser(int personId)
         {
-            var report = Repo.AsQueryable()
-                .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
-                .OrderByDescending(x => x.CreatedDateTimestamp)
-                .FirstOrDefault();
-
-            if (report != null)
+            _logger.Log($"DriveReportsController, GetLatestReportForUser(). Initial", "web", 3);
+            try
             {
-                return Ok(report);
-            }
+                var report = Repo.AsQueryable()
+                    .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
+                    .OrderByDescending(x => x.CreatedDateTimestamp)
+                    .FirstOrDefault();
 
+                if (report != null)
+                {
+                    return Ok(report);
+                }
+
+               
+            }catch(Exception ex)
+            {
+                _logger.Log($"DriveReportsController, GetLatestReportForUser(). Exception={ex.Message}", "web", 3);
+            }
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -110,6 +126,7 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetCalculationMethod()
         {
+           
             bool isAltCalc;
             bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
 

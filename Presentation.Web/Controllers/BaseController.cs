@@ -36,13 +36,13 @@ namespace OS2Indberetning.Controllers
 
         protected override void Initialize(HttpControllerContext requestContext)
         {
-            _logger.Log("Before initialize. User.Identity.Name" + User.Identity.Name, "web", 3);
+            _logger.Log("Before initialize. User.Identity.Name=" + User.Identity.Name, "web", 3);
             base.Initialize(requestContext);
 
             string[] httpUser = User.Identity.Name.Split('\\');
             //TESTETTSTESTESTESTEST
 
-            _logger.Log("´httpuser: " + httpUser, "web", 3);
+            _logger.Log("httpuser: " + httpUser, "web", 3);
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {

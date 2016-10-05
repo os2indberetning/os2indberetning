@@ -1,5 +1,8 @@
 ﻿<div class="panel panel-default">
 
+
+
+
     <div class="panel-body">
         <div class="row">
             <div class="col-md-12">
@@ -8,7 +11,7 @@
         </div>
         <div class="row">
             <div class="col-xs-2 col-lg-1 pull-right margin-left-15">
-                <button class="btn btn-primary pull-right" ng-click="addAdminClicked()">Opret admin </button>
+                <button class="btn btn-primary pull-right" ng-click="addAdminClicked()">Opret admin</button>
             </div>
             <div class="col-xs-4 col-lg-3 pull-right margin-right-10">
                 <input ng-enter="addAdminClicked()" type="text" kendo-auto-complete k-options="autoCompleteOptions" k-ng-model="person.chosenAdmin" placeholder="'Indtast medarbejder'" k-data-source="nonAdmins" k-data-value-field="'Id'" k-data-text-field="'FullName'" class="form-control pull-right" />
@@ -17,11 +20,8 @@
         </div>
             <div kendo-grid="gridContainer.grid" class="margin-top-10 scrollable" options="admins"></div>
         <div class="row">
-            <div ng-show="{{isKmd.text}}" class="col-xs-12">
-                <button class="btn btn-danger fill-width margin-top-20" ng-click="generateKMDFileClicked()">Generer fil til KMD </button>
-            </div>
-            <div ng-show="{{isSD.text}}" class="col-xs-12">
-                <button class="btn btn-danger fill-width margin-top-20" ng-click="sendDataToSDClicked()">Send data til SD</button>
+            <div class="col-xs-12">
+                <button class="btn btn-danger fill-width margin-top-20" ng-click="generateKMDFileClicked()">Generer fil til KMD</button>
             </div>
         </div>
     </div>

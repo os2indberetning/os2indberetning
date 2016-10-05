@@ -33,6 +33,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ManifestCertificateThumbprint>ED1B0F3007721A0A124C04E2120C4C673B6E8877</ManifestCertificateThumbprint>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ManifestKeyFile>Infrastructure.DmzSync_TemporaryKey.pfx</ManifestKeyFile>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifests>true</GenerateManifests>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignManifests>false</SignManifests>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
@@ -63,6 +75,7 @@
   <ItemGroup>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Services\Impl\OrgUnitSyncService.cs" />
     <Compile Include="Services\Impl\UserAuthSyncService.cs" />
     <Compile Include="Services\Impl\DriveReportSyncService.cs" />
     <Compile Include="Services\Impl\RateSyncService.cs" />
@@ -72,18 +85,22 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
-    <None Include="connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CustomSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <Content Include="connections.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.ApplicationServices\Core.ApplicationServices.csproj">
       <Project>{7FE59360-F8D1-441D-8A51-E521F22A3733}</Project>
       <Name>Core.ApplicationServices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Core.DmzModel\Core.DmzModel.csproj">
+      <Project>{108AF3EB-0B3F-4943-AEF2-DE847BFAE8A8}</Project>
+      <Name>Core.DmzModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.DomainModel\Core.DomainModel.csproj">
       <Project>{823928AD-3BB7-4FD8-831F-201D73B80AE0}</Project>

@@ -47,6 +47,7 @@
     <Compile Include="DriveReport.cs" />
     <Compile Include="Employment.cs" />
     <Compile Include="GPSCoordinate.cs" />
+    <Compile Include="OrgUnit.cs" />
     <Compile Include="Profile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rate.cs" />

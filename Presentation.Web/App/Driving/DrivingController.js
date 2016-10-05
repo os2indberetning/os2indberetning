@@ -7,6 +7,8 @@
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
 
+
+
         // Setup functions in scope.
         $scope.Number = Number;
         $scope.toString = toString;
@@ -30,6 +32,30 @@
         var kendoPromise = $q.defer();
         var loadingPromises = [kendoPromise.promise];
 
+        //Set Alternative calculation
+        $scope.buildDataSource = new kendo.data.DataSource();
+        $scope.kilometerOptions = {
+            dataSource: $scope.buildDataSource,
+            dataTextField: "key",
+            dataValueField: "value"
+        };
+
+        DriveReport.getCalculationMethod().$promise.then(function (res) {
+            var alternativeCalculation = res.value;
+            if (!alternativeCalculation) {
+                $scope.buildDataSource.data([
+                        { value: "Calculated", key: "Beregnet" },
+                        { value: "Read", key: "Aflæst" },
+                        { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
+                ]);
+            } else {
+                $scope.buildDataSource.data([
+                    { value: "Calculated", key: "Beregnet" },
+                    { value: "Read", key: "Aflæst" },
+                ]);
+            }
+        });
+
         $scope.canSubmitDriveReport = true;
 
         var mapChanging = false;
@@ -51,7 +77,7 @@
             },
         }
 
-        $scope.addressPlaceholderText = "Eller indtast adresse her";
+        $scope.addressPlaceholderText = "Indtast adresse her";
         $scope.SmartAddress = SmartAdresseSource;
         $scope.IsRoute = false;
 
@@ -64,7 +90,9 @@
             /// </summary>
             $scope.DriveReport = new DriveReport();
 
-            //$scope.DriveReport.KilometerAllowance = $rootScope.CurrentUser.Employments[0].OrgUnit.DefaultKilometerAllowance;
+            console.log("name: " + $rootScope.CurrentUser.id);
+
+            $scope.DriveReport.KilometerAllowance = $rootScope.CurrentUser.Employments[0].OrgUnit.DefaultKilometerAllowance;
 
             $scope.DriveReport.Addresses = [];
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });

@@ -52,6 +52,7 @@ namespace Infrastructure.DmzSync.Services.Impl
         public void SyncFromDmz()
         {
             var reports = _dmzDriveReportRepo.AsQueryable().Where(x => x.SyncedAt == null).ToList();
+            
             var max = reports.Count;
 
             for (var i = 0; i < max; i++)
@@ -60,7 +61,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                 var dmzReport = reports[i];
                 dmzReport.Profile = Encryptor.DecryptProfile(dmzReport.Profile);
                 Console.WriteLine("Syncing report " + i + " of " + max + " from DMZ.");
-                var rate = _rateRepo.AsQueryable().First(x => x.Id.Equals(dmzReport.RateId));
+                var rate = _rateRepo.AsQueryable().FirstOrDefault(x => x.Id.Equals(dmzReport.RateId));
                 var points = new List<DriveReportPoint>();
                 var viaPoints = new List<DriveReportPoint>();
                 for (var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
@@ -121,13 +122,15 @@ namespace Infrastructure.DmzSync.Services.Impl
                 // https://msdn.microsoft.com/en-us/library/cc165448.aspx
                 DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
                     CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
+                    FourKmRule = dmzReport.FourKmRule,
+                    HomeToBorderDistance = dmzReport.HomeToBorderDistance,
                     StartsAtHome = dmzReport.StartsAtHome,
                     EndsAtHome = dmzReport.EndsAtHome,
                     Purpose = dmzReport.Purpose,
                     PersonId = dmzReport.ProfileId,
                     EmploymentId = dmzReport.EmploymentId,
-                    KmRate = rate.KmRate,
-                    TFCode = rate.Type.TFCode,
+                  //  KmRate = rate.KmRate,
+                   // TFCode = rate.Type.TFCode,
                     UserComment = dmzReport.ManualEntryRemark,
                     Status = ReportStatus.Pending,
                     FullName = dmzReport.Profile.FullName,
@@ -139,6 +142,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                 newReport.RouteGeometry = GeoService.Encode(points);
 
                 try {
+                    Encryptor.EncryptProfile(dmzReport.Profile);
                     _driveService.Create(newReport);
                     reports[i].SyncedAt = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                     _dmzDriveReportRepo.Save();

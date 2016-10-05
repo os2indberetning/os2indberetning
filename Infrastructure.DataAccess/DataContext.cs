@@ -37,10 +37,10 @@ namespace Infrastructure.DataAccess
         public IDbSet<CachedAddress> CachedAddresses { get; set; }
         public IDbSet<AddressHistory> AddressHistory { get; set; }
         public IDbSet<AppLogin> AppLogin { get; set; }
+
+
         /**
          * Sets up 
-
-
          */
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

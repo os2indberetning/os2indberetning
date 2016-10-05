@@ -80,8 +80,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
-    <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Http, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -129,12 +127,6 @@
     <Compile Include="MailerService\Interface\IMailService.cs" />
     <Compile Include="NinjectDependencyScope.cs" />
     <Compile Include="NinjectWebKernel.cs" />
-    <Compile Include="SDDataService.cs" />
-    <Compile Include="Service References\SDService\Reference.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </Compile>
     <Compile Include="SubstituteService.cs" />
     <Compile Include="RatePostService.cs" />
     <Compile Include="DriveReportService.cs" />
@@ -152,52 +144,6 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Service References\SDService\Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\SDService\Core.ApplicationServices.SDService.KoerselOpret20120201Type.datasource">
-      <DependentUpon>Reference.svcmap</DependentUpon>
-    </None>
-    <None Include="Service References\SDService\CPR_PersonCivilRegistrationIdentifier.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\KoerselOpret20120201.wsdl" />
-    <None Include="Service References\SDService\SD_AarsagTekst_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_EmploymentIdentifier_20111201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_InstitutionIdentifier_20111201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KilometerMaal_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KoerselDato_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KoerselOpretInterface_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KoerselOpretRequestInterface_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KoerselOpretRequest_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KoertFraTekst_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_KoertTilTekst_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_Regel60DageIndikator_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="Service References\SDService\SD_RegistreringTypeIdentifikator_20120201.xsd">
-      <SubType>Designer</SubType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.DmzModel\Core.DmzModel.csproj">
@@ -205,7 +151,7 @@
       <Name>Core.DmzModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.DomainModel\Core.DomainModel.csproj">
-      <Project>{823928AD-3BB7-4FD8-831F-201D73B80AE0}</Project>
+      <Project>{823928ad-3bb7-4fd8-831f-201d73b80ae0}</Project>
       <Name>Core.DomainModel</Name>
     </ProjectReference>
     <ProjectReference Include="..\Core.DomainServices\Core.DomainServices.csproj">
@@ -217,31 +163,13 @@
       <Name>Infrastructure.AddressServices</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infrastructure.DataAccess\Infrastructure.DataAccess.csproj">
-      <Project>{9914DB94-E465-4751-939C-8121C30AC945}</Project>
+      <Project>{9914db94-e465-4751-939c-8121c30ac945}</Project>
       <Name>Infrastructure.DataAccess</Name>
     </ProjectReference>
     <ProjectReference Include="..\Infrastructure.DmzDataAccess\Infrastructure.DmzDataAccess.csproj">
       <Project>{90a44adf-5bcf-47b6-8dd7-f4e069f3942e}</Project>
       <Name>Infrastructure.DmzDataAccess</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadata Include="Service References\" />
-  </ItemGroup>
-  <ItemGroup>
-    <WCFMetadataStorage Include="Service References\SDService\" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SDService\configuration91.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SDService\configuration.svcinfo" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Service References\SDService\Reference.svcmap">
-      <Generator>WCF Proxy Generator</Generator>
-      <LastGenOutput>Reference.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

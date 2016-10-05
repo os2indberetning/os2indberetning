@@ -62,7 +62,7 @@ namespace DmzSync.Test
                             Id = 1,
                             PersonId = 1,
                             Position = "Tester",
-                            OrgUnit = new OrgUnit()
+                            OrgUnit = new Core.DomainModel.OrgUnit()
                             {
                                 LongDescription = "IT Minds"
                             }
@@ -84,7 +84,7 @@ namespace DmzSync.Test
                             Id = 1,
                             PersonId = 2,
                             Position = "Tester2",
-                            OrgUnit = new OrgUnit()
+                            OrgUnit = new Core.DomainModel.OrgUnit()
                             {
                                 LongDescription = "IT Minds"
                             }
@@ -106,7 +106,7 @@ namespace DmzSync.Test
                             Id = 1,
                             PersonId = 3,
                             Position = "Tester3",
-                            OrgUnit = new OrgUnit()
+                            OrgUnit = new Core.DomainModel.OrgUnit()
                             {
                                 LongDescription = "IT Minds"
                             }

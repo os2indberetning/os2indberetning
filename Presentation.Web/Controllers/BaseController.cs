@@ -29,7 +29,7 @@ namespace OS2Indberetning.Controllers
         protected IGenericRepository<T> Repo;
         private readonly IGenericRepository<Person> _personRepo;
         private readonly PropertyInfo _primaryKeyProp;
-        
+
         private readonly ILogger _logger;
 
         protected Person CurrentUser;
@@ -38,19 +38,15 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-#if DEBUG
-            //string[] httpUser = @"syddjursnet\jbp".Split('\\'); // Fissirul Lehmann - administrator
-            string[] httpUser = User.Identity.Name.Split('\\');
-#else
-                string[] httpUser = User.Identity.Name.Split('\\');                
-#endif
+            string[] httpUser = User.Identity.Name.Split('\\');                
+            //TESTETTSTESTESTESTEST
+            
+
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
-                // DEBUG ON PRODUCTION. Set petsoe = lky
-                if (initials == "itmind" || initials == "jaoj" || initials == "mraitm") { initials = "ibuj"; }
-                // END DEBUG
+
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)
                 {

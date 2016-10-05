@@ -326,7 +326,7 @@
            var from = new Date();
            from.setDate(from.getDate() - (365*2));
            $scope.dateContainer.toDate = new Date();
-           $scope.dateContainer.fromDate = from;
+           //$scope.dateContainer.fromDate = from;
        }
 
        $scope.clearName = function () {

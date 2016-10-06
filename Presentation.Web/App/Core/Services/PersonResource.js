@@ -21,7 +21,7 @@
             }
         },
         "GetCurrentUser" : {
-            url: "/odata/Person/Service.GetCurrentUser?$select=Id,FirstName,IsSubstitute,RecieveMail,IsAdmin,FullName,Initials,Mail,HasAppPassword,DistanceFromHomeToBorder &$expand=PersonalRoutes($expand=Points),LicensePlates,Employments($expand=AlternativeWorkAddress,OrgUnit($select=Id,LongDescription,HasAccessToFourKmRule,DefaultKilometerAllowance,HasAccessToVacation; $expand=Address); $select=Id,Position,IsLeader,HomeWorkDistance,WorkDistanceOverride, AlternativeWorkAddressId, EmploymentId)",
+            url: "/odata/Person/Service.GetCurrentUser?$select=Id,IsSubstitute,RecieveMail,IsAdmin,FullName,Initials,Mail,HasAppPassword,DistanceFromHomeToBorder &$expand=PersonalRoutes($expand=Points),LicensePlates,Employments($expand=AlternativeWorkAddress,OrgUnit($select=Id,LongDescription,HasAccessToFourKmRule,DefaultKilometerAllowance; $expand=Address); $select=Id,Position,IsLeader,HomeWorkDistance,WorkDistanceOverride, AlternativeWorkAddressId, EmploymentId)",
             method: "GET",
             transformResponse: function (data) {
                 var res = angular.fromJson(data);
@@ -29,7 +29,7 @@
                 if (res.error == undefined) {
                     // If the request did not yield an error, then finish the request and return it.
                     res.IsLeader = (function () {
-                        var returnVal = false;
+                        var returnVal = false; 
                         angular.forEach(res.Employments, function (value, key) {
                             if (value.IsLeader === true) {
                                 returnVal = true;
@@ -42,7 +42,7 @@
 
                 // If there was an error then open modal.
                 var modalInstance = $modal.open({
-                    templateUrl: '/App/Core/Services/Error/ServiceError.html',
+                    templateUrl: '/App/Services/Error/ServiceError.html',
                     controller: "ServiceErrorController",
                     backdrop: "static",
                     resolve: {
@@ -81,7 +81,7 @@
 
                 // If there was an error then open modal.
                 var modalInstance = $modal.open({
-                    templateUrl: '/App/Core/Services/Error/ServiceError.html',
+                    templateUrl: '/App/Services/Error/ServiceError.html',
                     controller: "ServiceErrorController",
                     backdrop: "static",
                     resolve: {

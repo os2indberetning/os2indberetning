@@ -6,14 +6,14 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
-    public sealed partial class MovedDriveReportsTableFromReports : IMigrationMetadata
+    [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
+    public sealed partial class VacationModule : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(MovedDriveReportsTableFromReports));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(VacationModule));
         
         string IMigrationMetadata.Id
         {
-            get { return "201603211642274_MovedDriveReportsTableFromReports"; }
+            get { return "201610061041572_VacationModule"; }
         }
         
         string IMigrationMetadata.Source

@@ -33,11 +33,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
-      <HintPath>..\packages\EntityFramework.6.1.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+      <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.SqlServer.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -385,45 +385,13 @@
     <Compile Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.Designer.cs">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201603181127527_AddedVacationReportsTable.cs" />
-    <Compile Include="Migrations\201603181127527_AddedVacationReportsTable.Designer.cs">
-      <DependentUpon>201603181127527_AddedVacationReportsTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201603181139152_AddedApplicationTypeToSubstitute.cs" />
-    <Compile Include="Migrations\201603181139152_AddedApplicationTypeToSubstitute.Designer.cs">
-      <DependentUpon>201603181139152_AddedApplicationTypeToSubstitute.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201603181146229_AddedVacationAccessSettingToOrgUnit.cs" />
-    <Compile Include="Migrations\201603181146229_AddedVacationAccessSettingToOrgUnit.Designer.cs">
-      <DependentUpon>201603181146229_AddedVacationAccessSettingToOrgUnit.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201603211642274_MovedDriveReportsTableFromReports.cs" />
-    <Compile Include="Migrations\201603211642274_MovedDriveReportsTableFromReports.Designer.cs">
-      <DependentUpon>201603211642274_MovedDriveReportsTableFromReports.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201603212208171_FixedErrorInVacationReports.cs" />
-    <Compile Include="Migrations\201603212208171_FixedErrorInVacationReports.Designer.cs">
-      <DependentUpon>201603212208171_FixedErrorInVacationReports.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201603241609169_ChangedSubstituteTypeName.cs" />
-    <Compile Include="Migrations\201603241609169_ChangedSubstituteTypeName.Designer.cs">
-      <DependentUpon>201603241609169_ChangedSubstituteTypeName.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604061032482_AddedVacationBalanceTable.cs" />
-    <Compile Include="Migrations\201604061032482_AddedVacationBalanceTable.Designer.cs">
-      <DependentUpon>201604061032482_AddedVacationBalanceTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201604261240174_AddedTimeToVacationReport.cs" />
-    <Compile Include="Migrations\201604261240174_AddedTimeToVacationReport.Designer.cs">
-      <DependentUpon>201604261240174_AddedTimeToVacationReport.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201608080953577_AddedPurposeToVacationReport.cs" />
-    <Compile Include="Migrations\201608080953577_AddedPurposeToVacationReport.Designer.cs">
-      <DependentUpon>201608080953577_AddedPurposeToVacationReport.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.cs" />
     <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.Designer.cs">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201610061041572_VacationModule.cs" />
+    <Compile Include="Migrations\201610061041572_VacationModule.Designer.cs">
+      <DependentUpon>201610061041572_VacationModule.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
@@ -682,35 +650,11 @@
     <EmbeddedResource Include="Migrations\201603011050474_AddedDefaultKilometerAllowanceToOrg.resx">
       <DependentUpon>201603011050474_AddedDefaultKilometerAllowanceToOrg.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201603181127527_AddedVacationReportsTable.resx">
-      <DependentUpon>201603181127527_AddedVacationReportsTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201603181139152_AddedApplicationTypeToSubstitute.resx">
-      <DependentUpon>201603181139152_AddedApplicationTypeToSubstitute.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201603181146229_AddedVacationAccessSettingToOrgUnit.resx">
-      <DependentUpon>201603181146229_AddedVacationAccessSettingToOrgUnit.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201603211642274_MovedDriveReportsTableFromReports.resx">
-      <DependentUpon>201603211642274_MovedDriveReportsTableFromReports.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201603212208171_FixedErrorInVacationReports.resx">
-      <DependentUpon>201603212208171_FixedErrorInVacationReports.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201603241609169_ChangedSubstituteTypeName.resx">
-      <DependentUpon>201603241609169_ChangedSubstituteTypeName.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604061032482_AddedVacationBalanceTable.resx">
-      <DependentUpon>201604061032482_AddedVacationBalanceTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201604261240174_AddedTimeToVacationReport.resx">
-      <DependentUpon>201604261240174_AddedTimeToVacationReport.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201608080953577_AddedPurposeToVacationReport.resx">
-      <DependentUpon>201608080953577_AddedPurposeToVacationReport.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.resx">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201610061041572_VacationModule.resx">
+      <DependentUpon>201610061041572_VacationModule.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

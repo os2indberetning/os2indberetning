@@ -50,7 +50,7 @@ namespace Core.ApplicationServices.MailerService.Impl
                 _logger.Log($"{this.GetType().Name}, SendMails(): Mail subject for vacation is null or empty, check value in CustomSettings.config", "mail", 3);
             }
 
-            foreach (var mailAddress in mailAddresses)
+            foreach (var report in reports)
             {
                 switch (report.ReportType)
                 {
@@ -58,7 +58,7 @@ namespace Core.ApplicationServices.MailerService.Impl
                         _mailSender.SendMail(report.ResponsibleLeader.Mail, mailSubjectDrive, driveBody);
                         break;
                     case ReportType.Vacation:
-                        _mailSender.SendMail(report.ResponsibleLeader.Mail, , ConfigurationManager.AppSettings["PROTECTED_MAIL_BODY_VACATION"]);
+                        _mailSender.SendMail(report.ResponsibleLeader.Mail, mailSubjectVacation , ConfigurationManager.AppSettings["PROTECTED_MAIL_BODY_VACATION"]);
                         break;
                     default:
                         _logger.Log("Kunne ikke finde typen af rapport: " + report.Id, "web");

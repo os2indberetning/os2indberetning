@@ -108,7 +108,7 @@ namespace OS2Indberetning.Controllers
             }
 
 
-            _driveService.SendMailIfRejectedReport(key, delta);
+            _driveService.SendMailIfRejectedReport(key, delta, report.Person);
             return base.Patch(key, delta);
         }
 

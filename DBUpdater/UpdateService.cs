@@ -50,7 +50,8 @@ namespace DBUpdater
             IReportService<Report> reportService,
             ISubstituteService subService,
             IGenericRepository<Substitute> subRepo,
-            IGenericRepository<VacationBalance> vacationBalanceRepo)
+            IGenericRepository<VacationBalance> vacationBalanceRepo,
+            ILogger logger)
         {
             _emplRepo = emplRepo;
             _orgRepo = orgRepo;
@@ -67,7 +68,7 @@ namespace DBUpdater
             _subService = subService;
             _subRepo = subRepo;
             _vacationBalanceRepo = vacationBalanceRepo;
-            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+            _logger = logger;
         }
 
         /// <summary>

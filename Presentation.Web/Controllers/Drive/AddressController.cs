@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Net;
@@ -12,8 +13,10 @@ using Infrastructure.AddressServices.Interfaces;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 
-namespace OS2Indberetning.Controllers.Drive
+namespace OS2Indberetning.Controllers
 {
+
+
     public class AddressesController : BaseController<Address>
     {
         private readonly IGenericRepository<Employment> _employmentRepo;
@@ -32,6 +35,7 @@ namespace OS2Indberetning.Controllers.Drive
             _coordinates = coordinates;
             _cachedAddressRepo = cachedAddressRepo;
             _personalAddressRepo = personalAddressRepo;
+            
         }
 
         /// <summary>

@@ -6,8 +6,8 @@ using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.Encryption;
-using DmzSync.Services.Impl;
-using DmzSync.Services.Interface;
+using Infrastructure.DmzSync.Services.Impl;
+using Infrastructure.DmzSync.Services.Interface;
 using NSubstitute;
 using NUnit.Framework;
 using Employment = Core.DomainModel.Employment;
@@ -26,14 +26,16 @@ namespace DmzSync.Test
         private List<Profile> _dmzProfileList = new List<Profile>();
         private List<Person> _masterPersonList = new List<Person>();
         private IPersonService _personServiceMock;
+        private ILogger _logger;
 
         [SetUp]
         public void SetUp()
         {
-            _dmzRepoMock = NSubstitute.Substitute.For<IGenericDmzRepository<Profile>>();
+            _dmzRepoMock = NSubstitute.Substitute.For<IGenericRepository<Profile>>();
             _masterRepoMock = NSubstitute.Substitute.For<IGenericRepository<Person>>();
             _personServiceMock = NSubstitute.Substitute.For<IPersonService>();
             _masterEmploymentMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.Employment>>();
+            _logger = NSubstitute.Substitute.For<ILogger>();
 
             _dmzRepoMock.WhenForAnyArgs(x => x.Delete(new Profile())).Do(p => _dmzProfileList.Remove(p.Arg<Profile>()));
 
@@ -120,14 +122,19 @@ namespace DmzSync.Test
             _masterRepoMock.AsQueryable().ReturnsForAnyArgs(_masterPersonList.AsQueryable());
             _dmzRepoMock.AsQueryable().ReturnsForAnyArgs(_dmzProfileList.AsQueryable());
 
-            ILogger _logger = new Logger();
             _uut = new PersonSyncService(_dmzRepoMock, _masterRepoMock, _masterEmploymentMock, _personServiceMock, _logger);
         }
 
         [Test]
         public void ClearDmz_ShouldCallDeleteRange()
         {
-            Assert.Throws<NotImplementedException>(() => _uut.SyncFromDmz());
+            _dmzProfileList.Add(new Profile());
+            _dmzProfileList.Add(new Profile());
+            _dmzProfileList.Add(new Profile());
+            var numberOfReceivedCalls = 0;
+            _dmzRepoMock.WhenForAnyArgs(x => x.DeleteRange(_dmzProfileList)).Do(p => numberOfReceivedCalls++);
+            _uut.ClearDmz();
+            Assert.AreEqual(1, numberOfReceivedCalls);
         }
 
         [Test]

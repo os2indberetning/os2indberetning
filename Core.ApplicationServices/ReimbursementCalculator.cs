@@ -8,7 +8,6 @@ using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
 using Infrastructure.AddressServices.Routing;
 using Infrastructure.DataAccess;
-using Ninject;
 using Core.ApplicationServices.Logger;
 using System.Configuration;
 

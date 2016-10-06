@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using System.Web;
 using Core.ApplicationServices;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
@@ -7,18 +8,17 @@ using Core.ApplicationServices.MailerService.Impl;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using Core.DomainServices.RoutingClasses;
-using DBUpdater;
 using Infrastructure.AddressServices;
 using Infrastructure.AddressServices.Interfaces;
 using Infrastructure.AddressServices.Routing;
 using Infrastructure.DataAccess;
-using Infrastructure.DmzDataAccess;
 using Ninject;
 using Ninject.Web.Common;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 
-namespace DmzSync
+namespace Infrastructure.DmzSync
 {
     public static class NinjectWebKernel
     {
@@ -37,6 +37,8 @@ namespace DmzSync
 
                 RegisterServices(kernel);
 
+                // Install our Ninject-based IDependencyResolver into the Web API config
+
                 return kernel;
             }
             catch
@@ -54,7 +56,6 @@ namespace DmzSync
         {
             kernel.Bind<DataContext>().ToSelf().InRequestScope();
             kernel.Bind(typeof (IGenericRepository<>)).To(typeof (GenericRepository<>));
-            kernel.Bind(typeof(IGenericDmzRepository<>)).To(typeof(GenericDmzRepository<>));
             kernel.Bind<IPersonService>().To<PersonService>();
             kernel.Bind<IMobileTokenService>().To<MobileTokenService>();
             kernel.Bind<IMailSender>().To<MailSender>();
@@ -69,11 +70,11 @@ namespace DmzSync
             kernel.Bind<IOrgUnitService>().To<OrgUnitService>();
             kernel.Bind<ILogger>().To<Core.ApplicationServices.Logger.Logger>();
             kernel.Bind<IAppLoginService>().To<AppLoginService>();
+            kernel.Bind<IReportService<Report>>().To<ReportService<Report>>();
             kernel.Bind<IReportService<VacationReport>>().To<VacationReportService>();
             kernel.Bind<IReportService<DriveReport>>().To<DriveReportService>();
             kernel.Bind<IVacationReportService>().To<VacationReportService>();
-            kernel.Bind<IAddressHistoryService>().To<AddressHistoryService>();
-            kernel.Bind<IDbUpdaterDataProvider>().To<DataProvider>();
+            kernel.Bind<IDriveReportService>().To<DriveReportService>();
         }
     }
 }

@@ -1,12 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
+using Infrastructure.DataAccess;
+using Infrastructure.DmzDataAccess;
 using Core.DomainServices.Encryption;
-using DmzSync.Services.Interface;
+using Infrastructure.DmzSync.Services.Interface;
 
-namespace DmzSync.Services.Impl
+namespace Infrastructure.DmzSync.Services.Impl
 {
     public class TokenSyncService : ISyncService
     {

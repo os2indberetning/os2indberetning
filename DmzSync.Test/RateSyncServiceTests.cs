@@ -9,12 +9,11 @@ using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.Encryption;
-using DmzSync.Services.Impl;
-using DmzSync.Services.Interface;
+using Infrastructure.DmzSync.Services.Impl;
+using Infrastructure.DmzSync.Services.Interface;
 using NSubstitute;
 using NUnit.Framework;
 using Rate = Core.DmzModel.Rate;
-using Core.ApplicationServices.Logger;
 
 namespace DmzSync.Test
 {
@@ -23,8 +22,8 @@ namespace DmzSync.Test
     {
 
         private ISyncService _uut;
-        private IGenericRepository<Core.DomainModel.Rate> _masterRepoMock;
-        private IGenericDmzRepository<Core.DmzModel.Rate> _dmzRepoMock;
+        private IGenericRepository<Core.DomainModel.Rate> _masterRepoMock; 
+        private IGenericRepository<Core.DmzModel.Rate> _dmzRepoMock;
         private List<Core.DmzModel.Rate> _dmzRateList;
         private List<Core.DomainModel.Rate> _masterRateList;
 
@@ -33,11 +32,10 @@ namespace DmzSync.Test
         {
             _dmzRateList = new List<Rate>();
             _masterRateList = new List<Core.DomainModel.Rate>();
-            _dmzRepoMock = NSubstitute.Substitute.For<IGenericDmzRepository<Core.DmzModel.Rate>>();
+            _dmzRepoMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.Rate>>();
             _masterRepoMock = NSubstitute.Substitute.For<IGenericRepository<Core.DomainModel.Rate>>();
             _dmzRepoMock.WhenForAnyArgs(x => x.Insert(new Core.DmzModel.Rate())).Do(p => _dmzRateList.Add(p.Arg<Core.DmzModel.Rate>()));
-            ILogger _logger = new Logger();
-            _uut = new RateSyncService(_dmzRepoMock,_masterRepoMock, _logger);
+            _uut = new RateSyncService(_dmzRepoMock,_masterRepoMock);
         }
 
         [Test]
@@ -49,7 +47,10 @@ namespace DmzSync.Test
         [Test]
         public void ClearDmz_ShouldCallDeleteRange()
         {
-            Assert.Throws<NotImplementedException>(() => _uut.SyncFromDmz());
+            var numberOfReceivedCalls = 0;
+            _dmzRepoMock.WhenForAnyArgs(x => x.DeleteRange(_dmzRateList)).Do(p => numberOfReceivedCalls++);
+            _uut.ClearDmz();
+            Assert.AreEqual(1, numberOfReceivedCalls);
         }
 
         [Test]
@@ -61,21 +62,21 @@ namespace DmzSync.Test
                 {
                     Active = true,
                     Id = 1,
-                    Year = DateTime.Now.Year,
+                    Year = 2015,
                     Type = new RateType(){Description = "TEST"}
                 },
                 new Core.DomainModel.Rate()
                 {
                     Active = true,
                     Id = 2,
-                    Year = DateTime.Now.Year,
+                    Year = 2015,
                     Type = new RateType(){Description = "TEST"}
                 },
                 new Core.DomainModel.Rate()
                 {
                     Active = false,
                     Id = 3,
-                    Year = DateTime.Now.Year,
+                    Year = 2015,
                     Type = new RateType(){Description = "TEST"}
                 }
 

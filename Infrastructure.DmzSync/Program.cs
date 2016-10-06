@@ -34,21 +34,21 @@ namespace Infrastructure.DmzSync
             // This forces the dmzconnection to use MySql.
             new DataContext();
 
-            var personSync = new PersonSyncService(new GenericDmzRepository<Profile>(new DmzContext()),
-                new GenericRepository<Person>(new DataContext()), new GenericDmzRepository<Core.DmzModel.Employment>(new DmzContext()),
+            var personSync = new PersonSyncService(new GenericRepository<Profile>(new DataContext()),
+                new GenericRepository<Person>(new DataContext()), new GenericRepository<Core.DmzModel.Employment>(new DataContext()),
                 NinjectWebKernel.CreateKernel().Get<IPersonService>(), logger);
 
-            var driveSync = new DriveReportSyncService(new GenericDmzRepository<DriveReport>(new DmzContext()),
+            var driveSync = new DriveReportSyncService(new GenericRepository<DriveReport>(new DataContext()),
                new GenericRepository<Core.DomainModel.DriveReport>(new DataContext()), new GenericRepository<Rate>(new DataContext()), new GenericRepository<LicensePlate>(new DataContext()), NinjectWebKernel.CreateKernel().Get<IDriveReportService>(), NinjectWebKernel.CreateKernel().Get<IRoute<RouteInformation>>(), NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>(), NinjectWebKernel.CreateKernel().Get<IGenericRepository<Core.DomainModel.Employment>>(), logger);
 
-            var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
+            var rateSync = new RateSyncService(new GenericRepository<Core.DmzModel.Rate>(new DataContext()),
                 new GenericRepository<Rate>(new DataContext()),logger);
 
-            var orgUnitSync = new OrgUnitSyncService(new GenericDmzRepository<Core.DmzModel.OrgUnit>(new DmzContext()),
+            var orgUnitSync = new OrgUnitSyncService(new GenericRepository<Core.DmzModel.OrgUnit>(new DataContext()),
                 new GenericRepository<Core.DomainModel.OrgUnit>(new DataContext()),logger);
 
             var userAuthSync = new UserAuthSyncService(new GenericRepository<Core.DomainModel.AppLogin>(new DataContext()), 
-                new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()),logger);
+                new GenericRepository<Core.DmzModel.UserAuth>(new DataContext()),logger);
 
             try
             {

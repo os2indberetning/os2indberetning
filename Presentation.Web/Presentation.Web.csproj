@@ -17,8 +17,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
-    <IISExpressSSLPort>
-    </IISExpressSSLPort>
+    <IISExpressSSLPort>44302</IISExpressSSLPort>
     <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
     <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
@@ -279,7 +278,9 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\BaseController.cs" />
-    <Compile Include="Controllers\CoordinateController.cs" />
+    <Compile Include="Controllers\Drive\AddressController.cs" />
+    <Compile Include="Controllers\Drive\CoordinateController.cs" />
+    <Compile Include="Controllers\Drive\DriveReportsController.cs" />
     <Compile Include="Controllers\EksportController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MailNotificationsController.cs" />
@@ -289,7 +290,6 @@
     <Compile Include="Controllers\Drive\AppLoginController.cs" />
     <Compile Include="Controllers\Drive\RateTypeController.cs" />
     <Compile Include="Controllers\Drive\RatesController.cs" />
-    <Compile Include="Controllers\Drive\DriveReportsController.cs" />
     <Compile Include="Controllers\Drive\LicensePlatesController.cs" />
     <Compile Include="Controllers\Drive\MobileTokenController.cs" />
     <Compile Include="Controllers\BankAccountsController.cs" />
@@ -297,7 +297,6 @@
     <Compile Include="Controllers\Drive\PersonalAddressesController.cs" />
     <Compile Include="Controllers\Drive\PersonalRoutesController.cs" />
     <Compile Include="Controllers\PersonController.cs" />
-    <Compile Include="Controllers\Drive\AddressController.cs" />
     <Compile Include="Controllers\SubstitutesController.cs" />
     <Compile Include="Controllers\Drive\PointsController.cs" />
     <Compile Include="Controllers\HelpTextController.cs" />
@@ -306,11 +305,9 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
-    <Content Include="App\Admin\Controllers\Report\ReportController.js" />
-    <Content Include="App\Admin\HTML\Document\View.html" />
-    <Content Include="App\Admin\HTML\Report\DocumentView.html" />
-    <Content Include="App\Admin\HTML\Report\View.html" />
+    <Content Include="App\Core\Services\PersonResource.js" />
+    <Content Include="App\Drive\Driving\DrivingController.js" />
+    <Content Include="App\Drive\Services\DriveReportResource.js" />
     <Content Include="connections.config">
       <SubType>Designer</SubType>
     </Content>
@@ -327,13 +324,6 @@
     <Content Include="Content\fonts\DejaVu\DejaVuSerif-Italic.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSerif.ttf" />
     <Content Include="Content\fonts\DejaVu\LICENSE" />
-    <None Include="connections.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="CustomSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <SubType>Designer</SubType>
-    </None>
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -2516,10 +2506,6 @@
     <ProjectReference Include="..\Infrastructure.KMDVacationService\Infrastructure.KMDVacationService.csproj">
       <Project>{DB308C4D-7CEA-4399-B678-C16673A3EBA2}</Project>
       <Name>Infrastructure.KMDVacationService</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Infrastructure.DmzSync\Infrastructure.DmzSync.csproj">
-      <Project>{537cfce9-fc15-46c0-a706-92ca40cf2c0c}</Project>
-      <Name>Infrastructure.DmzSync</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

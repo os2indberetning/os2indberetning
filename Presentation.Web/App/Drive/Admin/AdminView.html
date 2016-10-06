@@ -41,6 +41,10 @@
                     <div ng-include="'App/Drive/Admin/AddressLaundry/AddressLaundryView.html'"></div>
                 </tab>
 
+                <tab heading="Rapportering" ng-controller="ReportController" ng-click="laundryClicked()">
+                    <div ng-include="'App/Drive/Admin/Report/View.html'"></div>
+                </tab>
+
             </tabset>
         </div>
     </div>

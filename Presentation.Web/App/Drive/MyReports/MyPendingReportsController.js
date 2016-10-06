@@ -173,7 +173,7 @@
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setYear(from.getYear() - 2);
+           from.setYear(from.getYear() - 1);
 
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;

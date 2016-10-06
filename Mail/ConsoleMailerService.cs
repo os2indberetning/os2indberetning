@@ -87,8 +87,6 @@ namespace Mail
             }
         }
 
-
-
         /// <summary>
         /// Attempts to send mails to leaders with pending reports to be approved.
         /// </summary>

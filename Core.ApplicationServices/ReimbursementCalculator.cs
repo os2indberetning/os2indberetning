@@ -43,22 +43,22 @@ namespace Core.ApplicationServices
 
         /// <summary>
         /// Takes a DriveReport as input and returns it with data.
-        /// 
-        /// FourKmRule: If a user has set the FourKmRule to be used, the distance between 
+        ///
+        /// FourKmRule: If a user has set the FourKmRule to be used, the distance between
         /// the users home and municipality is used in the correction of the driven distance.
-        /// If the rule is not used, the distance between the users home and work address are 
+        /// If the rule is not used, the distance between the users home and work address are
         /// calculated and used, provided that the user has not set a override for this value.
-        /// 
-        /// Calculated: The driven route is calculated, and based on whether the user starts 
-        /// and/or ends at home, the driven distance is corrected by subtracting the distance 
-        /// between the users home address and work address. 
+        ///
+        /// Calculated: The driven route is calculated, and based on whether the user starts
+        /// and/or ends at home, the driven distance is corrected by subtracting the distance
+        /// between the users home address and work address.
         /// Again, this is dependend on wheter the user has overridden this value.
-        /// 
-        /// Calculated without extra distance: If this method is used, the driven distance is 
-        /// still calculated, but the distance is not corrected with the distance between the 
-        /// users home address and work address. The distance calculated from the service is 
+        ///
+        /// Calculated without extra distance: If this method is used, the driven distance is
+        /// still calculated, but the distance is not corrected with the distance between the
+        /// users home address and work address. The distance calculated from the service is
         /// therefore used directly in the calculation of the amount to reimburse
-        /// 
+        ///
         /// </summary>
         public DriveReport Calculate(RouteInformation drivenRoute, DriveReport report)
         {
@@ -94,7 +94,7 @@ namespace Core.ApplicationServices
 
 
             var employment = _emplrepo.AsQueryable().FirstOrDefault(x => x.Id.Equals(report.EmploymentId));
-            
+
             Address workAddress = employment.OrgUnit.Address;
 
             if (addressHistory != null && addressHistory.WorkAddress != null)
@@ -103,7 +103,7 @@ namespace Core.ApplicationServices
                 workAddress = addressHistory.WorkAddress;
             }
 
-            
+
             if (employment.AlternativeWorkAddress != null)
             {
                 // Overwrite workaddress if an alternative work address exists.

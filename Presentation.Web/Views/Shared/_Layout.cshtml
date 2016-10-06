@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html ng-app="app">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" initial-scale=1 />
+    <title>OS2Indberetning</title>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.3/leaflet.css" />
+    <link rel="stylesheet" href="//os2routemap.cdn.septima.dk/1.1.0/css/leaflet-routing-machine.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/leaflet.js"></script>
+    <script src="//os2routemap.cdn.septima.dk/1.1.2/js/map.js"></script>
+
+    @Styles.Render("~/Content/css")
+    <link href="../../Content/private.css" rel="stylesheet" />
+
+    <link rel="icon"
+          type="image/png"
+          href="~/Content/favicon.ico">
+</head>
+<body class="scrollme ng-cloak" ng-cloak="ng-cloak" ng-scrollbar rebuild-on-resize ng-init="menuCollapse = false">
+    <div data-checkie data-checkie-min-ie="11">
+
+        @RenderBody()
+
+    </div>
+    <div class="errors-container">
+
+    </div>
+
+
+    <div ng-hide="menuCollapse" class="version-text hidden-xs">@System.Configuration.ConfigurationManager.AppSettings["VERSION"]</div>
+
+    <!-- REQUIERED LIBRARIES FOR AWS SNIPPET -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+
+    @*<link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.1/themes/base/jquery-ui.css"
+        type="text/css" rel="Stylesheet" />*@
+    <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/themes/redmond/jquery-ui.css"
+          type="text/css" rel="Stylesheet" />
+
+    @Scripts.Render("~/bundles/libraries")
+
+    @Scripts.Render("~/bundles/angular")
+
+
+    @RenderSection("scripts", required: false)
+    <script>
+        $(document).ready($('#mastertab a').click(function (e) {
+            e.preventDefault();
+            $(this).tab('show');
+        }));
+    </script>
+
+    <!-- ENABLED MODULES FROM WEB.CONFIG-->
+    <script>
+        angular.module("app").constant("EnabledApplications", "@System.Configuration.ConfigurationManager.AppSettings["ENABLED_APPLICATIONS"]");
+        kendo.culture("da-DK");
+    </script>
+</body>
+</html>

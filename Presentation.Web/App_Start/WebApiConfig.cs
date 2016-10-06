@@ -33,9 +33,7 @@ namespace OS2Indberetning
 
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-
             config.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-
             config.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             
 
@@ -46,8 +44,6 @@ namespace OS2Indberetning
             ODataConventionModelBuilder builder = new ODataConventionModelBuilder();
 
             builder.EntitySet<TestReport>("TestReports");
-            //var test = builder.EntityType<TestReport>();
-            //test.Ignore(report => report.DateTimeTest);
 
             builder.EntitySet<Address>("Addresses");
 
@@ -58,8 +54,6 @@ namespace OS2Indberetning
             builder.EntityType<Address>().Collection
             .Action("SetCoordinatesOnAddressList")
             .ReturnsFromEntitySet<Address>("Addresses");
-
-            
 
             builder.EntityType<Address>().Collection
             .Function("GetPersonalAndStandard")
@@ -77,10 +71,6 @@ namespace OS2Indberetning
            .Action("AttemptCleanCachedAddress")
            .ReturnsFromEntitySet<Address>("Addresses");
 
-
-
-
-
             builder.EntityType<Address>().Collection
                 .Function("GetMapStart")
                 .ReturnsFromEntitySet<Address>("Addresses");
@@ -94,6 +84,20 @@ namespace OS2Indberetning
             builder.EntityType<DriveReport>().Collection
             .Function("GetCalculationMethod")
             .ReturnsFromEntitySet<DriveReport>("DriveReports");
+
+            builder.EntitySet<VacationReport>("VacationReports");
+
+            builder.EntityType<VacationReport>().Collection
+                .Function("ApproveReport")
+                .ReturnsFromEntitySet<VacationReport>("VacationReports")
+                .Parameter<int>("Key");
+
+            builder.EntityType<VacationReport>().Collection
+                .Function("RejectReport")
+                .ReturnsFromEntitySet<VacationReport>("VacationReports")
+                .Parameter<int>("Key");
+
+            builder.EntitySet<VacationBalance>("VacationBalance");
 
             builder.EntitySet<DriveReportPoint>("DriveReportPoints");
             builder.EntityType<DriveReport>().Collection
@@ -109,10 +113,6 @@ namespace OS2Indberetning
 
             builder.EntitySet<LicensePlate>("LicensePlates");
 
-            //var lType = builder.EntityType<LicensePlate>();
-            //lType.Ignore(l => l.Person);
-
-
             builder.EntitySet<MailNotificationSchedule>("MailNotifications");
 
             builder.EntitySet<RateType>("RateTypes");
@@ -121,14 +121,11 @@ namespace OS2Indberetning
 
             builder.EntitySet<OrgUnit>("OrgUnits");
 
-
             builder.EntitySet<AppLogin>("AppLogin");
 
             builder.EntitySet<Person>("Person");
             var pType = builder.EntityType<Person>();
             pType.HasKey(p => p.Id);
-            //pType.Ignore(p => p.LicensePlates);
-
 
             builder.EntityType<Person>().Collection
            .Function("GetCurrentUser")
@@ -138,7 +135,10 @@ namespace OS2Indberetning
             .Function("GetUserAsCurrentUser")
             .ReturnsFromEntitySet<Person>("Person");
 
-            
+            builder.EntityType<Person>().Collection
+                .Function("LeadersPeople")
+                .ReturnsFromEntitySet<Person>("Person")
+                .Parameter<int>("Type");
 
             builder.EntitySet<PersonalAddress>("PersonalAddresses");
 
@@ -150,13 +150,9 @@ namespace OS2Indberetning
             .Function("GetRealHome")
             .ReturnsFromEntitySet<PersonalAddress>("PersonalAddresses");
 
-
-
-
             builder.EntityType<PersonalAddress>().Collection
             .Function("GetAlternativeHome")
             .ReturnsFromEntitySet<PersonalAddress>("PersonalAddresses");
-
 
             builder.EntityType<OrgUnit>().Collection
             .Function("GetLeaderOfOrg")
@@ -166,14 +162,11 @@ namespace OS2Indberetning
             .Function("GetWhereUserIsResponsible")
             .ReturnsFromEntitySet<OrgUnit>("OrgUnits");
 
-
             builder.EntitySet<PersonalRoute>("PersonalRoutes");
 
             builder.EntitySet<Point>("Points");
 
             builder.EntitySet<Report>("Reports");
-
-
 
             builder.EntitySet<BankAccount>("BankAccounts");
 
@@ -181,14 +174,15 @@ namespace OS2Indberetning
             builder.EntityType<Person>()
                 .Action("HasLicensePlate");
 
-
             builder.EntitySet<Substitute>("Substitutes");
             builder.EntityType<Substitute>().Collection
                 .Function("Personal")
-                .ReturnsFromEntitySet<Substitute>("Substitutes");
+                .ReturnsFromEntitySet<Substitute>("Substitutes")
+                .Parameter<int>("Type");
             builder.EntityType<Substitute>().Collection
                 .Function("Substitute")
-                .ReturnsFromEntitySet<Substitute>("Substitutes");
+                .ReturnsFromEntitySet<Substitute>("Substitutes")
+                .Parameter<int>("Type");
 
             builder.EntitySet<Rate>("Rates");
             builder.EntityType<Rate>().Collection

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Core.DomainModel
+﻿namespace Core.DomainModel
 {
     public class Substitute
     {
@@ -19,5 +16,7 @@ namespace Core.DomainModel
         public virtual OrgUnit OrgUnit { get; set; }
         public int? CreatedById { get; set; }
         public virtual Person CreatedBy { get; set; }
+
+        public ReportType Type { get; set; }
     }
 }

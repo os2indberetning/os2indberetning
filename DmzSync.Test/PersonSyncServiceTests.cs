@@ -6,8 +6,8 @@ using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.Encryption;
-using Infrastructure.DmzSync.Services.Impl;
-using Infrastructure.DmzSync.Services.Interface;
+using DmzSync.Services.Impl;
+using DmzSync.Services.Interface;
 using NSubstitute;
 using NUnit.Framework;
 using Employment = Core.DomainModel.Employment;
@@ -30,7 +30,7 @@ namespace DmzSync.Test
         [SetUp]
         public void SetUp()
         {
-            _dmzRepoMock = NSubstitute.Substitute.For<IGenericRepository<Profile>>();
+            _dmzRepoMock = NSubstitute.Substitute.For<IGenericDmzRepository<Profile>>();
             _masterRepoMock = NSubstitute.Substitute.For<IGenericRepository<Person>>();
             _personServiceMock = NSubstitute.Substitute.For<IPersonService>();
             _masterEmploymentMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.Employment>>();
@@ -127,13 +127,7 @@ namespace DmzSync.Test
         [Test]
         public void ClearDmz_ShouldCallDeleteRange()
         {
-            _dmzProfileList.Add(new Profile());
-            _dmzProfileList.Add(new Profile());
-            _dmzProfileList.Add(new Profile());
-            var numberOfReceivedCalls = 0;
-            _dmzRepoMock.WhenForAnyArgs(x => x.DeleteRange(_dmzProfileList)).Do(p => numberOfReceivedCalls++);
-            _uut.ClearDmz();
-            Assert.AreEqual(1, numberOfReceivedCalls);
+            Assert.Throws<NotImplementedException>(() => _uut.SyncFromDmz());
         }
 
         [Test]

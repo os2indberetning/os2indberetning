@@ -24,9 +24,11 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<LicensePlate> _licensePlateRepo = new GenericRepository<LicensePlate>(new DataContext());
         private readonly IGenericRepository<Substitute> _substituteRepo;
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
+        private readonly IGenericRepository<Report> _reportRepo;
+        private readonly IOrgUnitService _orgService;
         private readonly ILogger _logger;
 
-        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, ILogger log)
+        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, IOrgUnitService orgService, IGenericRepository<Report> reportRepo, ILogger log)
             : base(repo, repo)
         {
             _person = personService;
@@ -35,6 +37,8 @@ namespace OS2Indberetning.Controllers
             _substituteRepo = substituteRepo;
             _appLoginRepo = appLoginRepo;
             _logger = log;
+            _orgService = orgService;
+            _reportRepo = reportRepo;
         }
 
         // GET: odata/Person
@@ -57,7 +61,7 @@ namespace OS2Indberetning.Controllers
             return Ok(res);
         }
 
-        
+
         /// <summary>
         /// GET API endpoint for CurrentUser.
         /// Sets HomeWorkDistance on each of the users employments.
@@ -244,6 +248,62 @@ namespace OS2Indberetning.Controllers
         public IHttpActionResult HasLicensePlate([FromODataUri] int key, ODataActionParameters parameters)
         {
             return Ok(_licensePlateRepo.AsQueryable().Any(x => x.PersonId == key));
+        }
+
+        // GET: odata/Person()/Service.LeadersPeople
+        /// <summary>
+        /// Returns the people where the user is the leader
+        /// </summary>
+        /// <param name="type"></param>
+        /// <returns></returns>
+        [EnableQuery]
+        [System.Web.Http.HttpGet]
+        public IHttpActionResult LeadersPeople(int type = 1)
+        {
+            var subsituteType = (ReportType)type;
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+            var substitutes = _substituteRepo.AsQueryable().Where(x => x.PersonId == x.LeaderId && x.SubId == CurrentUser.Id && x.EndDateTimestamp >= currentTimestamp && x.Type == subsituteType).Distinct();
+            var personalApproving = _substituteRepo.AsQueryable().Where(x => x.PersonId != x.LeaderId && x.SubId == CurrentUser.Id && x.EndDateTimestamp >= currentTimestamp && x.Type == subsituteType).Select(x => x.Person);
+            var orgs = _orgService.GetWhereUserIsResponsible(CurrentUser.Id);
+
+            foreach (var sub in substitutes)
+            {
+                orgs.AddRange(_orgService.GetWhereUserIsResponsible(sub.PersonId));
+            }
+
+            var people = _reportRepo.AsQueryable().Where(x => x.ResponsibleLeaderId == CurrentUser.Id && x.Status == ReportStatus.Pending).Select(x => x.Person).Distinct().ToList();
+
+            foreach (var org in orgs)
+            {
+                foreach (var person in org.Employments.Where(x => (x.EndDateTimestamp == 0 || x.EndDateTimestamp >= currentTimestamp) && people.All(y => y.Id != x.PersonId) && x.PersonId != CurrentUser.Id).Select(x => x.Person))
+                {
+                    people.Add(person);
+                }
+
+                var leadersIds = _orgService.GetIdsOfLeadersInImmediateChildOrgs(org.Id);
+
+                foreach(var leaderId in leadersIds)
+                {
+                    var leader = Repo.AsQueryable().FirstOrDefault(x => x.Id == leaderId);
+                    if (leader != null && !people.Contains(leader))
+                    {
+                        people.Add(leader);
+                    }
+                }
+            }
+
+            foreach(var subbing in personalApproving)
+            {
+                if (!people.Contains(subbing))
+                {
+                    people.Add(subbing);
+                }
+            }
+
+            people.RemoveAll(x => x.Employments.All(y => y.EndDateTimestamp <= currentTimestamp && y.EndDateTimestamp != 0));
+
+            return Ok(people.AsQueryable());
         }
     }
 }

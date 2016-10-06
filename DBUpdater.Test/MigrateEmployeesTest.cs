@@ -30,10 +30,11 @@ namespace DBUpdater.Test
         private IDbUpdaterDataProvider _dataProvider;
         private IGenericRepository<WorkAddress> _workAddressRepoMock;
         private IMailSender _mailSenderMock;
-        private IGenericRepository<DriveReport> _reportRepo;
-        private IDriveReportService _driveService;
+        private IReportService<Report> _repotService;
+        private IGenericRepository<Report> _reportRepo;
         private ISubstituteService _subservice;
         private IGenericRepository<Core.DomainModel.Substitute> _subRepo;
+        private IGenericRepository<Core.DomainModel.VacationBalance> _vacationBalanceRepo;
 
         [SetUp]
         public void SetUp()
@@ -61,9 +62,11 @@ namespace DBUpdater.Test
             _mailSenderMock = NSubstitute.Substitute.For<IMailSender>();
 
             _subRepo = NSubstitute.Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
-            _reportRepo = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
-            _driveService = NSubstitute.Substitute.For<IDriveReportService>();
+            _reportRepo = NSubstitute.Substitute.For<IGenericRepository<Report>>();
+            _repotService = NSubstitute.Substitute.For<IReportService<Report>>();
             _subservice = NSubstitute.Substitute.For<ISubstituteService>();
+
+            _vacationBalanceRepo = NSubstitute.Substitute.For<IGenericRepository<Core.DomainModel.VacationBalance>>();
 
             _personRepoMock.AsQueryable().Returns(personList.AsQueryable());
 
@@ -95,7 +98,7 @@ namespace DBUpdater.Test
             _actualLaunderer.Launder(new Address()).ReturnsForAnyArgs(x => x.Arg<CachedAddress>());
 
             _uut = new UpdateService(_emplRepoMock, _orgUnitRepoMock, _personRepoMock, _cachedAddressRepoMock,
-            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
+            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _repotService, _subservice, _subRepo, _vacationBalanceRepo);
 
             _orgUnitRepoMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
             {
@@ -165,7 +168,7 @@ namespace DBUpdater.Test
                     LOSOrgId = 2,
                     Stednavn = "",
                     EkstraCiffer = 3,
-                    
+
                 }
             }.AsQueryable());
 
@@ -207,7 +210,7 @@ namespace DBUpdater.Test
             Assert.That(empl.ElementAt(1).EmploymentType.Equals(3));
             Assert.That(empl.ElementAt(1).IsLeader.Equals(true));
             Assert.That(empl.ElementAt(1).PersonId.Equals(res.ElementAt(1).Id));
-            Assert.That(empl.ElementAt(1).Position.Equals("Udvikler"));          
+            Assert.That(empl.ElementAt(1).Position.Equals("Udvikler"));
         }
 
         [Test]
@@ -254,7 +257,7 @@ namespace DBUpdater.Test
                     LOSOrgId = 1,
                     Stednavn = "",
                     EkstraCiffer = 3,
-                    
+
                 }
             }.AsQueryable());
 
@@ -400,7 +403,7 @@ namespace DBUpdater.Test
                     LOSOrgId = 1,
                     Stednavn = "",
                     EkstraCiffer = 3,
-                    
+
                 }
             }.AsQueryable());
 
@@ -485,7 +488,7 @@ namespace DBUpdater.Test
                     LOSOrgId = 1,
                     Stednavn = "",
                     EkstraCiffer = 3,
-                    
+
                 }
             }.AsQueryable());
 
@@ -568,7 +571,7 @@ namespace DBUpdater.Test
                     LOSOrgId = 1,
                     Stednavn = "",
                     EkstraCiffer = 3,
-                    
+
                 }
             }.AsQueryable());
 
@@ -648,7 +651,7 @@ namespace DBUpdater.Test
                     PostNr = 8200,
                     AnsatForhold = "3",
                     LOSOrgId = 1,
-                    Stednavn = "",                   
+                    Stednavn = "",
                 }
             }.AsQueryable());
 
@@ -712,12 +715,12 @@ namespace DBUpdater.Test
                     CPR = "123",
                     ADBrugerNavn = "test",
                     Email = "foo@bar.com",
-                    
+
                 }
             }.AsQueryable());
 
             _uut = new UpdateService(_emplRepoMock, _orgUnitRepoMock, _personRepoMock, _cachedAddressRepoMock,
-            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
+            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _repotService, _subservice, _subRepo, _vacationBalanceRepo);
 
             _cachedAddressRepoMock.Insert(new CachedAddress()
             {
@@ -728,7 +731,7 @@ namespace DBUpdater.Test
                 ZipCode = 9999,
                 Town = "xyz"
             });
-            
+
             _uut.MigrateEmployees();
             _mailSenderMock.ReceivedWithAnyArgs().SendMail("", "", "");
         }

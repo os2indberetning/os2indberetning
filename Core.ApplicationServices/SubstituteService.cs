@@ -1,12 +1,9 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Core.ApplicationServices.Interfaces;
 using Core.DomainModel;
 using Core.DomainServices;
-using System.Threading;
-using Ninject;
 
 namespace Core.ApplicationServices
 {
@@ -14,15 +11,16 @@ namespace Core.ApplicationServices
     {
         private readonly IGenericRepository<Substitute> _subRepo;
         private readonly IOrgUnitService _orgService;
-        private readonly IDriveReportService _driveService;
-        private readonly IGenericRepository<DriveReport> _driveRepo;
+        private readonly IReportService<Report> _reportService;
+        private readonly IGenericRepository<Report> _reportRepo;
 
-        public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService, IDriveReportService driveService, IGenericRepository<DriveReport> driveRepo)
+        public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService,
+            IGenericRepository<Report> reportRepo, IReportService<Report> reportService)
         {
             _subRepo = subRepo;
             _orgService = orgService;
-            _driveService = driveService;
-            _driveRepo = driveRepo;
+            _reportService = reportService;
+            _reportRepo = reportRepo;
         }
 
         /// <summary>
@@ -82,6 +80,7 @@ namespace Core.ApplicationServices
                     // Id has to be different. Otherwise it will return true when trying to patch a sub
                     // Because a substitute already exists in the period, however that is the same sub we are trying to change.
                     x.Id != newSub.Id &&
+                    x.Type == newSub.Type &&
                     ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
                     (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
                 {
@@ -95,6 +94,7 @@ namespace Core.ApplicationServices
                     // Id has to be different. Otherwise it will return true when trying to patch a sub
                     // Because a substitute already exists in the period, however that is the same sub we are trying to change.
                     x.Id != newSub.Id &&
+                    x.Type == newSub.Type &&
                     ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
                     (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
                 {
@@ -106,34 +106,38 @@ namespace Core.ApplicationServices
 
         public void UpdateReportsAffectedBySubstitute(Substitute sub)
         {
-                if (sub.LeaderId == sub.PersonId)
+            if (sub.LeaderId == sub.PersonId)
+            {
+                // Substitute is a substitute - Not a Personal Approver.
+                // Select reports to be updated based on OrgUnits
+                var orgIds = new List<int>();
+                orgIds.Add(sub.OrgUnitId);
+                orgIds.AddRange(_orgService.GetChildOrgsWithoutLeader(sub.OrgUnitId).Select(x => x.Id));
+                var idsOfLeadersOfImmediateChildOrgs = _orgService.GetIdsOfLeadersInImmediateChildOrgs(sub.OrgUnitId);
+
+                var reportsForLeadersOfImmediateChildOrgs = _reportRepo.AsQueryable().Where(rep => idsOfLeadersOfImmediateChildOrgs.Contains(rep.PersonId)).ToList();
+                var reports = _reportRepo.AsQueryable().Where(rep => orgIds.Contains(rep.Employment.OrgUnitId)).ToList();
+                reports.AddRange(reportsForLeadersOfImmediateChildOrgs);
+                foreach (var report in reports)
                 {
-                    // Substitute is a substitute - Not a Personal Approver.
-                    // Select reports to be updated based on OrgUnits
-                    var orgIds = new List<int>();
-                    orgIds.Add(sub.OrgUnitId);
-                    orgIds.AddRange(_orgService.GetChildOrgsWithoutLeader(sub.OrgUnitId).Select(x => x.Id));
-                    var reports = _driveRepo.AsQueryable().Where(rep => orgIds.Contains(rep.Employment.OrgUnitId)).ToList();
-                    var idsOfLeadersOfImmediateChildOrgs = _orgService.GetIdsOfLeadersInImmediateChildOrgs(sub.OrgUnitId);
-                    var reportsForLeadersOfImmediateChildOrgs = _driveRepo.AsQueryable().Where(rep => idsOfLeadersOfImmediateChildOrgs.Contains(rep.PersonId)).ToList();
-                    reports.AddRange(reportsForLeadersOfImmediateChildOrgs);
-                    foreach (var report in reports)
-                    {
-                        report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
-                    }
-                    _driveRepo.Save();
+                    report.ResponsibleLeaderId = _reportService.GetResponsibleLeaderForReport(report).Id;
                 }
-                else
+                _reportRepo.Save();
+
+            }
+            else
+            {
+                // Substitute is a personal approver
+                // Select reports to be updated based on PersonId on report
+                var reports2 =
+                    _reportRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
+                foreach (var report in reports2)
                 {
-                    // Substitute is a personal approver
-                    // Select reports to be updated based on PersonId on report
-                    var reports2 = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
-                    foreach (var report in reports2)
-                    {
-                        report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
-                    }
-                    _driveRepo.Save();
+                    report.ResponsibleLeaderId = _reportService.GetResponsibleLeaderForReport(report).Id;
                 }
+                _reportRepo.Save();
+            }
         }
+
     }
 }

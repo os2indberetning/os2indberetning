@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Core.ApplicationServices.Interfaces;
+using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
@@ -57,6 +58,8 @@ namespace ApplicationServices.Test.PersonService
             _addressRepoMock = NSubstitute.Substitute.For<IGenericRepository<PersonalAddress>>();
             _loggerMock = NSubstitute.Substitute.For<ILogger>();
             _coordinatesMock = NSubstitute.Substitute.For<IAddressCoordinates>();
+            _loggerMock = NSubstitute.Substitute.For<ILogger>();
+
             _coordinatesMock.GetAddressCoordinates(new Address()).ReturnsForAnyArgs(new Address
             {
                 Latitude = "1",

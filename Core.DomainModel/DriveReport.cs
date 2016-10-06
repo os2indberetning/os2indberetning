@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Dynamic;
 
 namespace Core.DomainModel
 {
@@ -42,7 +41,6 @@ namespace Core.DomainModel
         public bool? IsExtraDistance { get; set; }
         public bool? IsOldMigratedReport { get; set; }
         public bool? IsRoundTrip { get; set; }
-
 
         public virtual ICollection<DriveReportPoint> DriveReportPoints { get; set; }
     }

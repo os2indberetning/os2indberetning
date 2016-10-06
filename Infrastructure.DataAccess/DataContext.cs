@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.ModelConfiguration.Conventions;
-using System.Dynamic;
 using Core.DomainModel;
-
 
 namespace Infrastructure.DataAccess
 {
-
     [DbConfigurationType(typeof(MySql.Data.Entity.MySqlEFConfiguration))]
     public class DataContext : DbContext
     {
@@ -32,19 +29,21 @@ namespace Infrastructure.DataAccess
         public IDbSet<Employment> Employments { get; set; }
         public IDbSet<OrgUnit> OrgUnits { get; set; }
         public IDbSet<Substitute> Substitutes { get; set; }
-        public IDbSet<BankAccount> BankAccounts { get; set; } 
+        public IDbSet<BankAccount> BankAccounts { get; set; }
         public IDbSet<RateType> RateTypes { get; set; }
         public IDbSet<CachedAddress> CachedAddresses { get; set; }
         public IDbSet<AddressHistory> AddressHistory { get; set; }
         public IDbSet<AppLogin> AppLogin { get; set; }
+        public IDbSet<VacationReport> VacationReport { get; set; }
+        public IDbSet<VacationBalance> VacationBalance { get; set; }
 
-
-        /**
-         * Sets up 
-         */
+        /// <summary>
+        /// Set up
+        /// </summary>
+        /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);           
+            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Conventions.Add(new DateTimeOffsetConvention());
 
@@ -69,6 +68,8 @@ namespace Infrastructure.DataAccess
             ConfigurePropertiesForCachedAddress(modelBuilder);
             ConfigurePropertiesForWorkAddress(modelBuilder);
             ConfigurePropertiesForAppLogin(modelBuilder);
+            ConfigurePropertiesForVacationReport(modelBuilder);
+            ConfigurePropertiesForVacationBalance(modelBuilder);
         }
 
         private void ConfigurePropertiesForPerson(DbModelBuilder modelBuilder)
@@ -96,7 +97,7 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<Address>().Property(p => p.ZipCode).IsRequired();
             modelBuilder.Entity<Address>().Property(p => p.Town).IsRequired();
             modelBuilder.Entity<Address>().Property(p => p.Longitude).IsRequired();
-            modelBuilder.Entity<Address>().Property(p => p.Latitude).IsRequired();      
+            modelBuilder.Entity<Address>().Property(p => p.Latitude).IsRequired();
         }
 
         private void ConfigurePropertiesForWorkAddress(DbModelBuilder modelBuilder)
@@ -163,7 +164,6 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.DateTimestamp).IsRequired();
             modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.Notified).IsRequired();
             modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.Repeat).IsRequired();
-            
         }
 
         private void ConfigurePropertiesForFileGenerationSchedule(DbModelBuilder modelBuilder)
@@ -174,11 +174,18 @@ namespace Infrastructure.DataAccess
 
         private void ConfigurePropertiesForDriveReportPoint(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<DriveReportPoint>().HasRequired(p => p.DriveReport);
+            modelBuilder.Entity<DriveReportPoint>().HasRequired(x => x.DriveReport).WithMany(x => x.DriveReportPoints).HasForeignKey(a => a.DriveReportId);
         }
 
         private void ConfigurePropertiesForDriveReport(DbModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<DriveReport>().Map(m =>
+            {
+                m.MapInheritedProperties();
+                m.ToTable("DriveReports");
+            });
+
+            modelBuilder.Entity<DriveReport>().HasKey(p => p.Id);
             modelBuilder.Entity<DriveReport>().Property(p => p.Distance).IsRequired();
             modelBuilder.Entity<DriveReport>().Property(p => p.AmountToReimburse).IsRequired();
             modelBuilder.Entity<DriveReport>().Property(p => p.Purpose).IsRequired();
@@ -189,15 +196,20 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<DriveReport>().Property(p => p.EndsAtHome).IsRequired();
             modelBuilder.Entity<DriveReport>().Property(p => p.TFCode).IsRequired();
             modelBuilder.Entity<DriveReport>().Property(p => p.IsFromApp).IsRequired();
+            modelBuilder.Entity<DriveReport>().Property(p => p.Status).IsRequired();
+            modelBuilder.Entity<DriveReport>().Property(p => p.CreatedDateTimestamp).IsRequired();
+            modelBuilder.Entity<DriveReport>().Property(p => p.Comment).IsRequired();
+            modelBuilder.Entity<DriveReport>().HasRequired(p => p.Person);
+            modelBuilder.Entity<DriveReport>().HasRequired(p => p.Employment);
         }
 
         private void ConfigurePropertiesForReport(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Report>().Property(p => p.Status).IsRequired();
-            modelBuilder.Entity<Report>().Property(p => p.CreatedDateTimestamp).IsRequired();
-            modelBuilder.Entity<Report>().Property(p => p.Comment).IsRequired();
-            modelBuilder.Entity<Report>().HasRequired(p => p.Person);
-            modelBuilder.Entity<Report>().HasRequired(p => p.Employment);
+            modelBuilder.Entity<Report>()
+            .Property(c => c.Id)
+            .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+
+            modelBuilder.Entity<Report>().HasKey(p => p.Id);
         }
 
         private void ConfigurePropertiesForEmployment(DbModelBuilder modelBuilder)
@@ -232,6 +244,28 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<Substitute>().HasRequired(p => p.Leader).WithMany(p => p.Substitutes);
             modelBuilder.Entity<Substitute>().HasRequired(p => p.Sub).WithMany(p => p.SubstituteLeaders);
             modelBuilder.Entity<Substitute>().HasRequired(p => p.Person).WithMany(p => p.SubstituteFor);
+        }
+
+        public void ConfigurePropertiesForVacationReport(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<VacationReport>().Map(m =>
+            {
+                m.MapInheritedProperties();
+                m.ToTable("VacationReports");
+            });
+
+            modelBuilder.Entity<VacationReport>().HasKey(p => p.Id);
+            modelBuilder.Entity<VacationReport>().Property(p => p.Status).IsRequired();
+            modelBuilder.Entity<VacationReport>().Property(p => p.CreatedDateTimestamp).IsRequired();
+            modelBuilder.Entity<VacationReport>().Property(p => p.Comment).IsRequired();
+            modelBuilder.Entity<VacationReport>().HasRequired(p => p.Person);
+            modelBuilder.Entity<VacationReport>().HasRequired(p => p.Employment);
+        }
+
+        public void ConfigurePropertiesForVacationBalance(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<VacationBalance>().HasRequired(p => p.Person);
+            modelBuilder.Entity<VacationBalance>().HasRequired(p => p.Employment);
         }
 
         public class DateTimeOffsetConvention : Convention

@@ -306,6 +306,11 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Content Include="App\Core\Services\PersonResource.js" />
+    <Content Include="App\Drive\Admin\Document\DocumentController.js" />
+    <Content Include="App\Drive\Admin\Document\View.html" />
+    <Content Include="App\Drive\Admin\Report\DocumentView.html" />
+    <Content Include="App\Drive\Admin\Report\ReportController.js" />
+    <Content Include="App\Drive\Admin\Report\View.html" />
     <Content Include="App\Drive\Driving\DrivingController.js" />
     <Content Include="App\Drive\Services\DriveReportResource.js" />
     <Content Include="connections.config">

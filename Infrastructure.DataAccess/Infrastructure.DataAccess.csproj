@@ -398,7 +398,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="connections.config" />
+    <Content Include="connections.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="CustomSettings.config" />
     <None Include="packages.config" />
   </ItemGroup>

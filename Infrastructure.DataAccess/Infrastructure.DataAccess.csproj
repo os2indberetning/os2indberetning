@@ -396,6 +396,7 @@
   <ItemGroup>
     <Content Include="connections.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="CustomSettings.config">
       <SubType>Designer</SubType>

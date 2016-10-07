@@ -400,6 +400,7 @@
   <ItemGroup>
     <Content Include="connections.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="CustomSettings.config">
       <SubType>Designer</SubType>

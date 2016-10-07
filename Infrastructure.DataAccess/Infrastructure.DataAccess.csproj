@@ -401,7 +401,10 @@
     <Content Include="connections.config">
       <SubType>Designer</SubType>
     </Content>
-    <None Include="CustomSettings.config" />
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

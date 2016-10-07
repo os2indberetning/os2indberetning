@@ -135,6 +135,7 @@
     <None Include="packages.config" />
     <Content Include="CustomSettings.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>

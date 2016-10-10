@@ -51,7 +51,7 @@ namespace Mail.LogMailer
 
             if (logForMunicipalityMessage.Any())
             {
-                result += "Samlet log: Det vil fremgå i den enkelte log besked, om fejlen findes i web, API, DMZ, DBupdater m.m." + newLine + newLine + webMessage + newLine + newLine;
+                result += "Samlet log: Det vil fremgå i den enkelte log besked, om fejlen findes i web, API, DMZ, DBupdater m.m." + newLine + newLine + logForMunicipalityMessage + newLine + newLine;
             }
             //// Only add each header if there are log messages in that category.
             //if (webMessage.Any())

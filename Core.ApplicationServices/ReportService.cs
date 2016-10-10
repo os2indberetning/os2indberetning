@@ -76,6 +76,10 @@ namespace Core.ApplicationServices
                     "Forsøg på at sende mail om afvist indberetning til " + person.FullName +
                     ", men der findes ingen emailadresse. " + person.FullName +
                     " har derfor ikke modtaget en mailadvisering", "mail", 2);
+                _logger.Log(
+                   "MAIL: Forsøg på at sende mail om afvist indberetning til " + person.FullName +
+                   ", men der findes ingen emailadresse. " + person.FullName +
+                   " har derfor ikke modtaget en mailadvisering", "logForMunicipality", 2);
                 throw new Exception("Forsøg på at sende mail til person uden emailaddresse");
             }
 

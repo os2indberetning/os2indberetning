@@ -106,6 +106,7 @@ namespace Core.ApplicationServices
                         {
                             // Catch the exception to write the error to the log file.
                             _logger.Log(person.FullName + " kan ikke logge på, da der er fejl i vedkommendes arbejds- eller hjemmeadresse.", "web", 1);
+                            _logger.Log("WEB: " + person.FullName + " kan ikke logge på, da der er fejl i vedkommendes arbejds- eller hjemmeadresse.", "logForMunicipality", 1);
                             // Rethrow the exception to allow to front end to display the error aswell.
                             throw e;
                         }

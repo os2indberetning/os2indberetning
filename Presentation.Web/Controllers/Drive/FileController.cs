@@ -38,7 +38,8 @@ namespace OS2Indberetning.Controllers.Drive
             }
             catch (Exception e)
             {
-                _logger.Log("Fejl ved generering af fil til KMD. Filen blev ikke genereret.", "web",e,1);
+                _logger.Log("FileController. Get(). Fejl ved generering af fil til KMD. Filen blev ikke genereret.", "web",e,1);
+                _logger.Log("Web: Fejl ved generering af fil til KMD. Filen blev ikke genereret.", "logForMunicipality", e, 1);
                 return InternalServerError();
             }
         }

@@ -111,12 +111,14 @@ namespace Infrastructure.DmzSync.Services.Impl
                         catch (AddressCoordinatesException e)
                         {
                             coordinatesFailed = true;
+                            _logger.Log("DMZ: Indberetning tilhørende " + dmzReport.Profile.FullName + " med formål \"" + dmzReport.Purpose + "\" har ugyldige koordinater og blev ikke synkroniseret.", "logForMunicipality", e, 2);
                             _logger.Log($"{this.GetType().Name}, SyncFromDMZ().AddressCoordinatesException in DMZ reportID= {dmzReport.Id}, ProfileFuldNavn= {dmzReport.Profile.FullName} and purpose= {dmzReport.Purpose} + Invalid coordinates and was not synchronized", "dmz", e, 2);
                             break;
                         }
                         catch(Exception e)
                         {
                             coordinatesFailed = true;
+                            _logger.Log("DMZ: Indberetning tilhørende " + dmzReport.Profile.FullName + " med formål \"" + dmzReport.Purpose + "\" har ugyldige koordinater og blev ikke synkroniseret.", "logForMunicipality", e, 2);
                             _logger.Log($"{this.GetType().Name}, SyncFromDMZ().AddressCoordinatesException in DMZ reportID= {dmzReport.Id}, ProfileFuldNavn= {dmzReport.Profile.FullName} and purpose= {dmzReport.Purpose} + Invalid coordinates and was not synchronized", "dmz", e, 2);
                             break;
                         }
@@ -168,6 +170,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     _dmzDriveReportRepo.Save();
                 } catch(Exception e)
                 {
+                    _logger.Log("DMZ: En ukendt fejl opstod under synkronisering af indberetning tilhørende " + reports[i].Profile.FullName + ". Indberetningen blev ikke synkroniseret.", "logForMunicipality", e, 2);
                     _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception during encryption with DMZ reportID= {dmzReport.Id}. Exception= {e.Message}, ProfileFuldNavn= {dmzReport.Profile.FullName}, HomeLatitude= {dmzReport.Profile.HomeLatitude}, HomeLongitude= {dmzReport.Profile.HomeLongitude}. Report was not synchronized", "dmz", e, 1);
                     _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception during synchronization with DMZ reportID= {dmzReport.Id}. Exception= {e.Message}, Profile after encryption. IDAfterEncryption= {profileAfterEncryption.Id}, ProfileFuldNavnAfterEncryption= {profileAfterEncryption.FullName}, HomeLatitudeAfterEncryption= {profileAfterEncryption.HomeLatitude}, ProfileLongitudeAfterEncryption= {profileAfterEncryption.HomeLongitude}. Report was not synchronized", "dmz", e, 1);
             

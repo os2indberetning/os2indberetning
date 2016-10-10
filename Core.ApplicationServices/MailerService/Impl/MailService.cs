@@ -81,6 +81,7 @@ namespace Core.ApplicationServices.MailerService.Impl
             foreach (var report in reportsWithNoLeader)
             {
                 _logger.Log($"{this.GetType().Name}, GetLeadersWithPendingReportsMails(): {report.Person.FullName}s indberetning har ingen leder. Indberetningen kan derfor ikke godkendes.", "web", 2);
+                _logger.Log("WEB: " + report.Person.FullName + "s indberetning har ingen leder. Indberetningen kan derfor ikke godkendes.", "logForMunicipality", 2);
             }
 
             return reports.Where(report => report.ResponsibleLeaderId != null && !string.IsNullOrEmpty(report.ResponsibleLeader.Mail) && report.ResponsibleLeader.RecieveMail);

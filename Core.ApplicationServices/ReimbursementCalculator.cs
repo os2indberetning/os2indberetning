@@ -78,6 +78,7 @@ namespace Core.ApplicationServices
             catch (InvalidOperationException)
             {
                 _logger.Log(report.FullName + " har et overlap i sin adressehistorik", "web", 3);
+                _logger.Log("WEB: " + report.FullName + " har et overlap i sin adressehistorik", "logForMunicipality", 3);
                 throw;
             }
 

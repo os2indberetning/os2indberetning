@@ -41,25 +41,35 @@ namespace OS2Indberetning.Controllers.Vacation
         [EnableQuery]
         public IHttpActionResult Get(ODataQueryOptions<VacationReport> queryOptions, string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
         {
+            _logger.Log($"VacationReportsController, Get(). Initial", "web", 3);
             var queryable = GetQueryable(queryOptions);
 
             ReportStatus reportStatus;
-            if (ReportStatus.TryParse(status, true, out reportStatus))
-            {
-                if (reportStatus == ReportStatus.Accepted)
-                {
-                    // If accepted reports are requested, then return accepted and invoiced.
-                    // Invoiced reports are accepted reports that have been processed for payment.
-                    // So they are still accepted reports.
-                    queryable =
-                        queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
-                }
-                else
-                {
-                    queryable = queryable.Where(dr => dr.Status == reportStatus);
-                }
 
+            try
+            {
+                if (ReportStatus.TryParse(status, true, out reportStatus))
+                {
+                    if (reportStatus == ReportStatus.Accepted)
+                    {
+                        // If accepted reports are requested, then return accepted and invoiced.
+                        // Invoiced reports are accepted reports that have been processed for payment.
+                        // So they are still accepted reports.
+                        queryable =
+                            queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
+                    }
+                    else
+                    {
+                        queryable = queryable.Where(dr => dr.Status == reportStatus);
+                    }
+
+                }
             }
+            catch(Exception ex)
+            {
+                _logger.Log($"VacationReportsController, Get(). Exception={ex.Message}", "web", 3);
+            }
+            _logger.Log($"VacationReportsController, Get(). End", "web", 3);
             return Ok(queryable);
         }
 
@@ -72,6 +82,8 @@ namespace OS2Indberetning.Controllers.Vacation
         [EnableQuery]
         public IHttpActionResult GetLatestReportForUser(int personId)
         {
+            _logger.Log($"VacationReportsController,GetLatestReportForUser. Initial", "web", 3);
+            try { 
             var report = Repo.AsQueryable()
                 .Where(x => x.PersonId.Equals(personId))
                 .OrderByDescending(x => x.CreatedDateTimestamp)
@@ -79,9 +91,15 @@ namespace OS2Indberetning.Controllers.Vacation
 
             if (report != null)
             {
-                return Ok(report);
+                    _logger.Log($"VacationReportsController, GetLatestReportForUser(). report != null before End", "web", 3);
+                    return Ok(report);
             }
-
+            }
+            catch(Exception ex)
+            {
+                _logger.Log($"VacationReportsController, GetLatestReportForUser. Exception={ex.Message}", "web", 3);
+            }
+            _logger.Log($"VacationReportsController, GetLatestReportForUser(). End", "web", 3);
             return StatusCode(HttpStatusCode.NoContent);
         }
 

@@ -89,45 +89,59 @@ namespace DBUpdater
         {
             var result = new List<VacationBalance>();
 
+            string vacationView = ConfigurationManager.AppSettings["DATABASE_VIEW_VACATION_BALANCE"];
 
+            if (vacationView == null)
+            {
+                _logger.Log($"{this.GetType().Name}, GetVacationBalanceAsQueryable(): DATABASE_VIEW_VACATION_BALANCE is null", "DBUpdater", 1);
+            }
 
             using (var sqlConnection1 = new SqlConnection(_connectionString))
             {
                 var cmd = new SqlCommand
                 {
-                    CommandText = "SELECT * FROM eindberetning.v_FerieSaldo",
+                    CommandText = "SELECT * FROM " + vacationView,
+                    //CommandText = "SELECT * FROM eindberetning.v_FerieSaldo",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
 
-                sqlConnection1.Open();
-
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                try
                 {
-                    var currentRow = new VacationBalance
+                    sqlConnection1.Open();
+
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
                     {
-                        MunicipalityInfo = SafeGetString(reader, 0),
-                        SocialSecurityNumber = SafeGetString(reader, 1),
-                        EmploymentRelationshipNumber = SafeGetString(reader, 2),
-                        SalaryKind = SafeGetString(reader, 3),
-                        VacationEarnedYear = SafeGetString(reader, 4),
-                        BalanceDate = SafeGetString(reader, 5),
-                        VacationHoursWithPay = SafeGetInt32(reader, 6),
-                        PossibleVacationDaysWithPay = SafeGetInt32(reader, 7),
-                        VacationHoursWithoutPay = SafeGetInt32(reader, 8),
-                        PossibleVacationDaysWithoutPay = SafeGetInt32(reader, 9),
-                        TransferredVacationHours = SafeGetInt32(reader, 10),
-                        PossibleTransferredVacationDays = SafeGetInt32(reader, 11),
-                        FreeVacationHoursTotal = SafeGetInt32(reader, 12),
-                        VacationHoursWithPayDec = SafeGetDouble(reader, 13),
-                        VacationHoursWithoutPayDec = SafeGetDouble(reader,14),
-                        TransferredVacationHoursDec = SafeGetDouble(reader,15),
-                        FreeVacationHoursTotalDec = SafeGetDouble(reader, 16),
-                        UpdateDate = SafeGetDate(reader, 17)
-                    };
-                    result.Add(currentRow);
+                        var currentRow = new VacationBalance
+                        {
+                            MunicipalityInfo = SafeGetString(reader, 0),
+                            SocialSecurityNumber = SafeGetString(reader, 1),
+                            EmploymentRelationshipNumber = SafeGetString(reader, 2),
+                            SalaryKind = SafeGetString(reader, 3),
+                            VacationEarnedYear = SafeGetString(reader, 4),
+                            BalanceDate = SafeGetString(reader, 5),
+                            VacationHoursWithPay = SafeGetInt32(reader, 6),
+                            PossibleVacationDaysWithPay = SafeGetInt32(reader, 7),
+                            VacationHoursWithoutPay = SafeGetInt32(reader, 8),
+                            PossibleVacationDaysWithoutPay = SafeGetInt32(reader, 9),
+                            TransferredVacationHours = SafeGetInt32(reader, 10),
+                            PossibleTransferredVacationDays = SafeGetInt32(reader, 11),
+                            FreeVacationHoursTotal = SafeGetInt32(reader, 12),
+                            VacationHoursWithPayDec = SafeGetDouble(reader, 13),
+                            VacationHoursWithoutPayDec = SafeGetDouble(reader, 14),
+                            TransferredVacationHoursDec = SafeGetDouble(reader, 15),
+                            FreeVacationHoursTotalDec = SafeGetDouble(reader, 16),
+                            UpdateDate = SafeGetDate(reader, 17)
+                        };
+                        result.Add(currentRow);
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    _logger.Log($"{this.GetType().Name}, GetVacationBalanceAsQueryable(): DATABASE_VIEW_VACATION_BALANCE={vacationView}", "DBUpdater", ex, 1);
                 }
             }
             return result.AsQueryable();
@@ -143,7 +157,7 @@ namespace DBUpdater
 
             if (organisationView == null)
             {
-                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null", "DBUpdater", 1);
+                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null", "DBUpdater", 1);
             }
 
             var result = new List<Organisation>();

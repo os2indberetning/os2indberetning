@@ -87,6 +87,7 @@ namespace OS2Indberetning.Controllers
             {
                 _logger.Log($"DriveReportsController, Get(). Exception={ex.Message}", "web", 3);
             }
+            _logger.Log($"DriveReportsController, Get(). End", "web", 3);
             return Ok(queryable);
         }
 

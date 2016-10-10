@@ -5,31 +5,43 @@ using System.Web.OData;
 using System.Web.OData.Query;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.ApplicationServices.Logger;
 
 namespace OS2Indberetning.Controllers.Vacation
 {
     public class VacationBalanceController : BaseController<VacationBalance>
     {
+        private readonly ILogger _logger;
 
-
-        public VacationBalanceController(IGenericRepository<VacationBalance> repo, IGenericRepository<Person> personRepo) : base(repo, personRepo)
+        public VacationBalanceController(IGenericRepository<VacationBalance> repo, IGenericRepository<Person> personRepo, ILogger logger) : base(repo, personRepo)
         {
+            _logger = logger;
         }
 
         // GET: odata/VacationBalance
         [EnableQuery]
         public IQueryable<VacationBalance> Get(ODataQueryOptions<VacationBalance> queryOptions)
         {
-            if (Repo.AsQueryable().Count() > 0)
-            {
-                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                var currentYear = Repo.AsQueryable().Max(y => y.Year);
-                var queryable =
-                    GetQueryable(queryOptions)
-                        .Where(x => x.PersonId == CurrentUser.Id && x.Year == currentYear && (x.Employment.EndDateTimestamp == 0 || x.Employment.EndDateTimestamp >= currentTimestamp));
+            _logger.Log($"VacationBalanceController, Get(). Initial", "web", 3);
 
-                return queryable;
+            try
+            {
+                if (Repo.AsQueryable().Count() > 0)
+                {
+                    var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                    var currentYear = Repo.AsQueryable().Max(y => y.Year);
+                    var queryable =
+                        GetQueryable(queryOptions)
+                            .Where(x => x.PersonId == CurrentUser.Id && x.Year == currentYear && (x.Employment.EndDateTimestamp == 0 || x.Employment.EndDateTimestamp >= currentTimestamp));
+
+                    return queryable;
+                }
             }
+            catch (Exception ex)
+            {
+                _logger.Log($"VacationBalanceController, Get(). Exception={ex.Message}", "web", 3);
+            }
+            _logger.Log($"VacationBalanceController, Get(). End", "web", 3);
             return Repo.AsQueryable();
         }
 

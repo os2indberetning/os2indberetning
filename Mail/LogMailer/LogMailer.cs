@@ -34,31 +34,38 @@ namespace Mail.LogMailer
 
             var receivers = configvalue.Split(',');
 
-            var webLines = _logReader.Read("C:\\logs\\os2eindberetning\\web.log");
-            var dmzLines = _logReader.Read("C:\\logs\\os2eindberetning\\dmz.log");
-            var mailLines = _logReader.Read("C:\\logs\\os2eindberetning\\mail.log");
+            //var webLines = _logReader.Read("C:\\logs\\os2eindberetning\\web.log");
+            //var dmzLines = _logReader.Read("C:\\logs\\os2eindberetning\\dmz.log");
+            //var mailLines = _logReader.Read("C:\\logs\\os2eindberetning\\mail.log");
 
-            var webMessage = String.Join(Environment.NewLine, _logParser.Messages(webLines, DateTime.Now.AddDays(-1)));
-            var dmzMessage = String.Join(Environment.NewLine, _logParser.Messages(dmzLines, DateTime.Now.AddDays(-1)));
-            var mailMessage = String.Join(Environment.NewLine, _logParser.Messages(mailLines, DateTime.Now.AddDays(-1)));
+            var logForMunicipalityLines = _logReader.Read("C:\\logs\\os2eindberetning\\logForMunicipality.log");
+            var logForMunicipalityMessage = String.Join(Environment.NewLine, _logParser.Messages(logForMunicipalityLines, DateTime.Now.AddDays(-1)));
+
+            //var webMessage = String.Join(Environment.NewLine, _logParser.Messages(webLines, DateTime.Now.AddDays(-1)));
+            //var dmzMessage = String.Join(Environment.NewLine, _logParser.Messages(dmzLines, DateTime.Now.AddDays(-1)));
+            //var mailMessage = String.Join(Environment.NewLine, _logParser.Messages(mailLines, DateTime.Now.AddDays(-1)));
 
             var newLine = System.Environment.NewLine;
 
             var result = "";
 
-            // Only add each header if there are log messages in that category.
-            if (webMessage.Any())
+            if (logForMunicipalityMessage.Any())
             {
-                result += "Web:" + newLine + newLine + webMessage + newLine + newLine;
+                result += "Samlet log: Det vil fremgå i den enkelte log besked, om fejlen findes i web, API, DMZ, DBupdater m.m." + newLine + newLine + webMessage + newLine + newLine;
             }
-            if (dmzMessage.Any())
-            {
-                result += "DMZ: " + newLine + newLine + dmzMessage + newLine + newLine;
-            }
-            if (mailMessage.Any())
-            {
-                result += "Mail: " + newLine + newLine + mailMessage;
-            }
+            //// Only add each header if there are log messages in that category.
+            //if (webMessage.Any())
+            //{
+            //    result += "Web:" + newLine + newLine + webMessage + newLine + newLine;
+            //}
+            //if (dmzMessage.Any())
+            //{
+            //    result += "DMZ: " + newLine + newLine + dmzMessage + newLine + newLine;
+            //}
+            //if (mailMessage.Any())
+            //{
+            //    result += "Mail: " + newLine + newLine + mailMessage;
+            //}
 
             if (result == "")
             {

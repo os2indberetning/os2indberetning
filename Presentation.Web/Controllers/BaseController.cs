@@ -46,19 +46,23 @@ namespace OS2Indberetning.Controllers
 
                 if (CurrentUser == null)
                 {
-                    _logger.Log("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                    _logger.Log("Web: AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                    _logger.Log("Web: AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "logForMunicipality", 3);
+                    
                     throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
                 }
 
                 if (!CurrentUser.IsActive)
                 {
-                    _logger.Log("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                    _logger.Log("Web: Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                    _logger.Log("Web: Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "logForMunicipality", 3);
                     throw new UnauthorizedAccessException("Inaktiv bruger forsøgte at logge ind.");
                 }
             }
             else
             {
-                _logger.Log("Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                _logger.Log("Web: Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                _logger.Log("Web: Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "logForMunicipality", 3);
                 throw new UnauthorizedAccessException("Gyldig domænebruger ikke fundet.");
             }
         }

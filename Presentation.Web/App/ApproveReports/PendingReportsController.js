@@ -323,10 +323,10 @@
            /// Loads initial date filters.
            /// </summary>
            // Set initial values for kendo datepickers.
-           var from = new Date();
-           from.setDate(from.getDate() - (365*2));
+           /*var from = new Date();
+           from.setDate(from.getDate() - (365*2));*/
            $scope.dateContainer.toDate = new Date();
-           $scope.dateContainer.fromDate = from;
+           $scope.dateContainer.fromDate = new Date("01-01-2014");
        }
 
        $scope.clearName = function () {

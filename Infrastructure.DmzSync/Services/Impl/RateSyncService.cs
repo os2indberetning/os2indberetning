@@ -12,6 +12,7 @@ using Infrastructure.DmzDataAccess;
 using Core.DomainServices.Encryption;
 using Infrastructure.DmzSync.Services.Interface;
 using Employment = Core.DmzModel.Employment;
+using Core.ApplicationServices.Logger;
 
 namespace Infrastructure.DmzSync.Services.Impl
 {
@@ -19,11 +20,13 @@ namespace Infrastructure.DmzSync.Services.Impl
     {
         private IGenericRepository<Core.DmzModel.Rate> _dmzRateRepo;
         private IGenericRepository<Core.DomainModel.Rate> _masterRateRepo;
+        private readonly ILogger _logger;
 
-        public RateSyncService(IGenericRepository<Core.DmzModel.Rate> dmzRateRepo, IGenericRepository<Core.DomainModel.Rate> masterRateRepo)
+        public RateSyncService(IGenericRepository<Core.DmzModel.Rate> dmzRateRepo, IGenericRepository<Core.DomainModel.Rate> masterRateRepo, ILogger logger)
         {
             _dmzRateRepo = dmzRateRepo;
             _masterRateRepo = masterRateRepo;
+            _logger = logger;
         }
 
         /// <summary>
@@ -43,23 +46,27 @@ namespace Infrastructure.DmzSync.Services.Impl
         {
             var i = 0;
             var currentYear = DateTime.Now.Year;
-            var rateList = _masterRateRepo.AsQueryable().Where(x => x.Active && x.Year == currentYear).ToList();
+            var rateList = _masterRateRepo.AsQueryable().Where(x => x.Year == currentYear).ToList();
             var max = rateList.Count;
+
+            _logger.Log($"{this.GetType().Name}. SyncEmployments(). Amount of rates= {max}", "dmz", 3);
 
             foreach (var masterRate in rateList)  
             {
                 i++;
-                if (masterRate.Active) {
-                    if (i % 10 == 0)
-                    {
-                        Console.WriteLine("Syncing rate " + i + " of " + max);
-                    }
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Syncing rate " + i + " of " + max);
+                }
 
+                try
+                {
                     var rate = new Core.DmzModel.Rate()
                     {
                         Id = masterRate.Id,
                         Description = masterRate.Type.Description,
-                        Year = masterRate.Year.ToString()
+                        Year = masterRate.Year.ToString(),
+                        IsActive = masterRate.Active
                     };
 
                     var dmzRate = _dmzRateRepo.AsQueryable().FirstOrDefault(x => x.Id == rate.Id);
@@ -72,7 +79,11 @@ namespace Infrastructure.DmzSync.Services.Impl
                     {
                         dmzRate.Description = rate.Description;
                         dmzRate.Year = rate.Year;
+                        dmzRate.IsActive = rate.IsActive;
                     }
+                }catch(Exception ex)
+                {
+                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for rates from OS2 database to DMZ database. Rate= {masterRate}, ID= {masterRate.Id}. Exception: {ex.Message}", "dmz", 1);
                 }
             }
              _dmzRateRepo.Save();

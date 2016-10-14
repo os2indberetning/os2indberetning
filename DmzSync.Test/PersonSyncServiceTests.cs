@@ -11,6 +11,7 @@ using Infrastructure.DmzSync.Services.Interface;
 using NSubstitute;
 using NUnit.Framework;
 using Employment = Core.DomainModel.Employment;
+using Core.ApplicationServices.Logger;
 
 namespace DmzSync.Test
 {
@@ -62,7 +63,7 @@ namespace DmzSync.Test
                             Id = 1,
                             PersonId = 1,
                             Position = "Tester",
-                            OrgUnit = new OrgUnit()
+                            OrgUnit = new Core.DomainModel.OrgUnit()
                             {
                                 LongDescription = "IT Minds"
                             }
@@ -84,7 +85,7 @@ namespace DmzSync.Test
                             Id = 1,
                             PersonId = 2,
                             Position = "Tester2",
-                            OrgUnit = new OrgUnit()
+                            OrgUnit = new Core.DomainModel.OrgUnit()
                             {
                                 LongDescription = "IT Minds"
                             }
@@ -106,7 +107,7 @@ namespace DmzSync.Test
                             Id = 1,
                             PersonId = 3,
                             Position = "Tester3",
-                            OrgUnit = new OrgUnit()
+                            OrgUnit = new Core.DomainModel.OrgUnit()
                             {
                                 LongDescription = "IT Minds"
                             }
@@ -119,7 +120,8 @@ namespace DmzSync.Test
             _masterRepoMock.AsQueryable().ReturnsForAnyArgs(_masterPersonList.AsQueryable());
             _dmzRepoMock.AsQueryable().ReturnsForAnyArgs(_dmzProfileList.AsQueryable());
 
-            _uut = new PersonSyncService(_dmzRepoMock, _masterRepoMock, _masterEmploymentMock, _personServiceMock);
+            ILogger _logger = new Logger();
+            _uut = new PersonSyncService(_dmzRepoMock, _masterRepoMock, _masterEmploymentMock, _personServiceMock, _logger);
         }
 
         [Test]

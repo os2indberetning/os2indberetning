@@ -52,28 +52,42 @@ namespace Infrastructure.DmzSync.Services.Impl
         public void SyncFromDmz()
         {
             var reports = _dmzDriveReportRepo.AsQueryable().Where(x => x.SyncedAt == null).ToList();
+            
+
             var max = reports.Count;
+            _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Amount of DMZDriveReports: + {max}", "dmz", 3);
 
             for (var i = 0; i < max; i++)
             {
                 var coordinatesFailed = false;
                 var dmzReport = reports[i];
+
                 dmzReport.Profile = Encryptor.DecryptProfile(dmzReport.Profile);
+             
                 Console.WriteLine("Syncing report " + i + " of " + max + " from DMZ.");
-                var rate = _rateRepo.AsQueryable().First(x => x.Id.Equals(dmzReport.RateId));
+
+                var rate = _rateRepo.AsQueryable().FirstOrDefault(x => x.Id.Equals(dmzReport.RateId));
+
                 var points = new List<DriveReportPoint>();
                 var viaPoints = new List<DriveReportPoint>();
                 for (var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
                 {
                     var gpsCoord = dmzReport.Route.GPSCoordinates.ToArray()[j];
-                    gpsCoord = Encryptor.DecryptGPSCoordinate(gpsCoord);
+                    try
+                    {
+                        gpsCoord = Encryptor.DecryptGPSCoordinate(gpsCoord);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception in DecryptGPSCoordinate() for DMZReport= {dmzReport} and Coordinate: {gpsCoord}", "dmz", 1);
+                    }
 
                     points.Add(new DriveReportPoint
-                    {
-                        Latitude = gpsCoord.Latitude,
-                        Longitude = gpsCoord.Longitude,
-                    });
-
+                        {
+                            Latitude = gpsCoord.Latitude,
+                            Longitude = gpsCoord.Longitude,
+                        });
+                
                     if (gpsCoord.IsViaPoint || j == 0 || j == dmzReport.Route.GPSCoordinates.Count - 1)
                     {
                         try
@@ -97,7 +111,13 @@ namespace Infrastructure.DmzSync.Services.Impl
                         catch (AddressCoordinatesException e)
                         {
                             coordinatesFailed = true;
-                            _logger.Log("Indberetning tilhørende " + dmzReport.Profile.FullName + " med formål \"" + dmzReport.Purpose + "\" har ugyldige koordinater og blev ikke synkroniseret.", "dmz", e, 2);
+                            _logger.Log($"{this.GetType().Name}, SyncFromDMZ().AddressCoordinatesException in DMZ reportID= {dmzReport.Id}, ProfileFuldNavn= {dmzReport.Profile.FullName} and purpose= {dmzReport.Purpose} + Invalid coordinates and was not synchronized", "dmz", e, 2);
+                            break;
+                        }
+                        catch(Exception e)
+                        {
+                            coordinatesFailed = true;
+                            _logger.Log($"{this.GetType().Name}, SyncFromDMZ().AddressCoordinatesException in DMZ reportID= {dmzReport.Id}, ProfileFuldNavn= {dmzReport.Profile.FullName} and purpose= {dmzReport.Purpose} + Invalid coordinates and was not synchronized", "dmz", e, 2);
                             break;
                         }
                     }
@@ -121,6 +141,8 @@ namespace Infrastructure.DmzSync.Services.Impl
                 // https://msdn.microsoft.com/en-us/library/cc165448.aspx
                 DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
                     CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
+                    FourKmRule = dmzReport.FourKmRule,
+                    HomeToBorderDistance = dmzReport.HomeToBorderDistance,
                     StartsAtHome = dmzReport.StartsAtHome,
                     EndsAtHome = dmzReport.EndsAtHome,
                     Purpose = dmzReport.Purpose,
@@ -138,13 +160,17 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                 newReport.RouteGeometry = GeoService.Encode(points);
 
+                Profile profileAfterEncryption = null;
                 try {
+                    profileAfterEncryption = Encryptor.EncryptProfile(dmzReport.Profile);
                     _driveService.Create(newReport);
                     reports[i].SyncedAt = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                     _dmzDriveReportRepo.Save();
                 } catch(Exception e)
                 {
-                    _logger.Log("En ukendt fejl opstod under synkronisering af indberetning tilhørende " + reports[i].Profile.FullName + ". Indberetningen blev ikke synkroniseret.", "dmz", e, 2);
+                    _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception during encryption with DMZ reportID= {dmzReport.Id}. Exception= {e.Message}, ProfileFuldNavn= {dmzReport.Profile.FullName}, HomeLatitude= {dmzReport.Profile.HomeLatitude}, HomeLongitude= {dmzReport.Profile.HomeLongitude}. Report was not synchronized", "dmz", e, 1);
+                    _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception during synchronization with DMZ reportID= {dmzReport.Id}. Exception= {e.Message}, Profile after encryption. IDAfterEncryption= {profileAfterEncryption.Id}, ProfileFuldNavnAfterEncryption= {profileAfterEncryption.FullName}, HomeLatitudeAfterEncryption= {profileAfterEncryption.HomeLatitude}, ProfileLongitudeAfterEncryption= {profileAfterEncryption.HomeLongitude}. Report was not synchronized", "dmz", e, 1);
+            
                 }
             }
         }

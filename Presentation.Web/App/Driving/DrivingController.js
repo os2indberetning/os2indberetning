@@ -7,6 +7,8 @@
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
 
+
+
         // Setup functions in scope.
         $scope.Number = Number;
         $scope.toString = toString;
@@ -30,6 +32,30 @@
         var kendoPromise = $q.defer();
         var loadingPromises = [kendoPromise.promise];
 
+        //Set Alternative calculation
+        $scope.buildDataSource = new kendo.data.DataSource();
+        $scope.kilometerOptions = {
+            dataSource: $scope.buildDataSource,
+            dataTextField: "key",
+            dataValueField: "value"
+        };
+
+        DriveReport.getCalculationMethod().$promise.then(function (res) {
+            var alternativeCalculation = res.value;
+            if (!alternativeCalculation) {
+                $scope.buildDataSource.data([
+                        { value: "Calculated", key: "Beregnet" },
+                        { value: "Read", key: "Aflæst" },
+                        { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
+                ]);
+            } else {
+                $scope.buildDataSource.data([
+                    { value: "Calculated", key: "Beregnet" },
+                    { value: "Read", key: "Aflæst" },
+                ]);
+            }
+        });
+
         $scope.canSubmitDriveReport = true;
 
         var mapChanging = false;
@@ -51,7 +77,7 @@
             },
         }
 
-        $scope.addressPlaceholderText = "Eller indtast adresse her";
+        $scope.addressPlaceholderText = "Indtast adresse her";
         $scope.SmartAddress = SmartAdresseSource;
         $scope.IsRoute = false;
 
@@ -137,14 +163,13 @@
             /// <param name="report"></param>
             $scope.DriveReport.FourKmRule = {};
             $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
-
-
-
+            
 
             // Select position in dropdown.
             $scope.container.PositionDropDown.select(function (item) {
                 return item.Id == report.EmploymentId;
             });
+
 
             // Select the right license plate.
             $scope.container.LicensePlateDropDown.select(function (item) {
@@ -246,6 +271,7 @@
 
                 $scope.DriveReport.IsRoundTrip = report.IsRoundTrip;
             }
+
         }
 
 
@@ -958,10 +984,16 @@
                 }
                 if ($scope.DriveReport.FourKmRule != undefined && $scope.DriveReport.FourKmRule.Using === true && $scope.DriveReport.FourKmRule.Value != undefined) {
                     if (routeStartsAtHome() != routeEndsAtHome()) {
-                        $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
+                        if($scope.DriveReport.IsRoundTrip === true){
+                            $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
+                        }
+                        else{
+                            $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
+                        }
                     } else if (routeStartsAtHome() && routeEndsAtHome()) {
                         $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
-                    } else {
+                    } 
+                    else {
                         $scope.TransportAllowance = fourKmAdjustment;
                     }
                 }

@@ -38,7 +38,11 @@ namespace Infrastructure.AddressServices.Routing
                 throw e;
             }
 
-            if (result.status != 0)
+
+            //From septima 01/09 2016:
+            //Routingservices kan forventes senere at returnere status = 200,
+            //idet OSRM er gået fra at bruge "C style" exit-koder, til "HTTP Style" status-koder.
+            if (result.status != 0 && result.status / 100 == 2)
             {
                 var e = new RouteInformationException("No route found."); ;
                 //Logger.Error("Exception when getting route information", e);

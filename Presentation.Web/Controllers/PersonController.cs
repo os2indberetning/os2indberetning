@@ -22,14 +22,16 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<Employment> _employmentRepo = new GenericRepository<Employment>(new DataContext());
         private readonly IGenericRepository<LicensePlate> _licensePlateRepo = new GenericRepository<LicensePlate>(new DataContext());
         private readonly IGenericRepository<Substitute> _substituteRepo;
+        private readonly IGenericRepository<AppLogin> _appLoginRepo;
 
-        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo)
+        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo)
             : base(repo, repo)
         {
             _person = personService;
             _employmentRepo = employmentRepo;
             _licensePlateRepo = licensePlateRepo;
             _substituteRepo = substituteRepo;
+            _appLoginRepo = appLoginRepo;
         }
 
         // GET: odata/Person
@@ -76,8 +78,39 @@ namespace OS2Indberetning.Controllers
 
             _person.AddHomeWorkDistanceToEmployments(CurrentUser);
             CurrentUser.CprNumber = "";
+            CurrentUser.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == CurrentUser.Id);
             CurrentUser.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(CurrentUser.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
             return CurrentUser;
+        }
+
+        /// <summary>
+        /// GET API endpoint for user as CurrentUser.
+        /// Sets HomeWorkDistance on each of the users employments.
+        /// Strips CPR-number off.
+        /// </summary>
+        /// <returns>A user with with properties like CurrentUser. Is used when retrieving a user as CurrentUser when an admin tries to edit an approved report.</returns>
+        [EnableQuery(MaxExpansionDepth = 4)]
+        // Disable caching.
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
+        public Person GetUserAsCurrentUser(int id)
+        {
+            var result = Repo.AsQueryable().First(x => x.Id == id);
+
+            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
+            var employmentList = employments.ToList();
+
+            result.Employments.Clear();
+            foreach (var employment in employmentList)
+            {
+                result.Employments.Add(employment);
+            }
+
+            _person.AddHomeWorkDistanceToEmployments(result);
+            result.CprNumber = "";
+            result.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == result.Id);
+            result.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(result.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
+            return result;
         }
 
         //GET: odata/Person(5)

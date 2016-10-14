@@ -38,7 +38,7 @@
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setMonth(fromDateFilter.getMonth() - 3);
+       fromDateFilter.setMonth(fromDateFilter.getMonth() - 12);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -100,7 +100,7 @@
            autoBind: false,
            dataSource: {
 
-               sort: [{ field: "FullName", dir: "desc" }, { field: "DriveDateTimestamp", dir: "desc" }],
+               sort: { field: "DriveDateTimestamp", dir: "desc" },
                type: "odata-v4",
                transport: {
                    read: {
@@ -139,7 +139,7 @@
                    { field: "AmountToReimburse", aggregate: "sum" }
                ]
            },
-           sortable: { mode: "multiple" },
+           sortable: true,
            scrollable: false,
            pageable: {
                messages: {
@@ -164,7 +164,10 @@
            columns: [
                {
                    field: "FullName",
-                   title: "Medarbejder"
+                   title: "Medarbejder",
+                   template: function (data) {
+                       return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                   }
                }, {
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
@@ -282,7 +285,7 @@
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setMonth(from.getMonth() - 3);
+           from.setMonth(from.getMonth() - 12);
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;
        }

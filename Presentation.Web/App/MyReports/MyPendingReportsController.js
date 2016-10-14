@@ -18,7 +18,7 @@
 
        // dates for kendo filter.
        var fromDateFilter = new Date();
-       fromDateFilter.setDate(fromDateFilter.getDate() - 365);
+       fromDateFilter.setDate(fromDateFilter.getDate() - (2*365));
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -157,6 +157,7 @@
                    title: "Indberettet"
                }, {
                    title: "Godkender",
+                   field: "ResponsibleLeader.FullName",
                    template: function(data) {
                        if (data.ResponsibleLeader != 0 && data.ResponsibleLeader != null && data.ResponsibleLeader != undefined) {
                             return data.ResponsibleLeader.FullName;
@@ -180,7 +181,7 @@
            /// </summary>
            // Set initial values for kendo datepickers.
            var from = new Date();
-           from.setDate(from.getDate() - 365);
+           from.setDate(from.getDate() - (2 * 365));
 
            $scope.dateContainer.toDate = new Date();
            $scope.dateContainer.fromDate = from;
@@ -219,17 +220,21 @@
            /// Opens edit report modal
            /// </summary>
            /// <param name="id"></param>
+
            var modalInstance = $modal.open({
                templateUrl: '/App/MyReports/EditReportTemplate.html',
                controller: 'DrivingController',
                backdrop: "static",
                windowClass: "app-modal-window-full",
                resolve: {
+                   adminEditCurrentUser : function() {return 0;},
                    ReportId: function () {
                        return id;
                    }
                }
            });
+
+           $rootScope.editModalInstance = modalInstance;
 
            modalInstance.result.then(function (res) {
                $scope.gridContainer.grid.dataSource.read();

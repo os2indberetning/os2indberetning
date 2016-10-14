@@ -15,7 +15,6 @@ namespace Core.DomainServices
         private readonly IAddressLaunderer _actualLaunderer;
         private readonly IAddressCoordinates _coordinates;
 
-
         public CachedAddressLaunderer(IGenericRepository<CachedAddress> repo, IAddressLaunderer actualLaunderer, IAddressCoordinates coordinates)
         {
             _repo = repo;
@@ -58,7 +57,6 @@ namespace Core.DomainServices
             }
             catch (AddressLaunderingException e)
             {
-                //Logger.Error("Fejl ved adressevask", e);
                 isDirty = true;
             }
             if (cachedAddress.Latitude == null || cachedAddress.Latitude.Equals("0"))
@@ -69,7 +67,6 @@ namespace Core.DomainServices
                 }
                 catch (AddressCoordinatesException e)
                 {
-                    //Logger.Error("Fejl ved opslag af adressekoordinater", e);
                     isDirty = true;
                     cachedAddress.Latitude = "0";
                     cachedAddress.Longitude = "0";

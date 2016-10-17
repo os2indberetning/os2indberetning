@@ -11,5 +11,8 @@ namespace DBUpdater
     {
         IQueryable<Employee> GetEmployeesAsQueryable();
         IQueryable<Organisation> GetOrganisationsAsQueryable();
+
+        IQueryable<IDMEmployee> GetEmployeesAsQueryableIDM();
+        IQueryable<IDMOrganisation> GetOrganisationsAsQueryableIDM();
     }
 }

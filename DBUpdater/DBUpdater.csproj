@@ -100,6 +100,8 @@
     <Compile Include="IAddressHistoryService.cs" />
     <Compile Include="IDBUpdaterDataProvider.cs" />
     <Compile Include="Models\Employee.cs" />
+    <Compile Include="Models\IDMEmployee.cs" />
+    <Compile Include="Models\IDMOrganisation.cs" />
     <Compile Include="Models\Organisation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -169,14 +169,13 @@
             /// <param name="report"></param>
             $scope.DriveReport.FourKmRule = {};
             $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
-
-
-
+            
 
             // Select position in dropdown.
             $scope.container.PositionDropDown.select(function (item) {
                 return item.Id == report.EmploymentId;
             });
+
 
             // Select the right license plate.
             $scope.container.LicensePlateDropDown.select(function (item) {
@@ -278,6 +277,7 @@
 
                 $scope.DriveReport.IsRoundTrip = report.IsRoundTrip;
             }
+
         }
 
 
@@ -1002,10 +1002,16 @@
                 }
                 if ($scope.DriveReport.FourKmRule != undefined && $scope.DriveReport.FourKmRule.Using === true && $scope.DriveReport.FourKmRule.Value != undefined) {
                     if (routeStartsAtHome() != routeEndsAtHome()) {
-                        $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
+                        if($scope.DriveReport.IsRoundTrip === true){
+                            $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
+                        }
+                        else{
+                            $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
+                        }
                     } else if (routeStartsAtHome() && routeEndsAtHome()) {
                         $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
-                    } else {
+                    } 
+                    else {
                         $scope.TransportAllowance = fourKmAdjustment;
                     }
                 }

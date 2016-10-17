@@ -52,11 +52,12 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                     var orgUnit = new Core.DmzModel.OrgUnit()
                     {
+                        Id = masterOrgUnit.Id,
                         OrgId = masterOrgUnit.OrgId,
                         FourKmRuleAllowed = masterOrgUnit.HasAccessToFourKmRule
                     };
 
-                    var dmzOrgUnit = _dmzOrgUnitRepo.AsQueryable().FirstOrDefault(x => x.OrgId == orgUnit.OrgId);
+                    var dmzOrgUnit = _dmzOrgUnitRepo.AsQueryable().FirstOrDefault(x => x.OrgId == masterOrgUnit.OrgId);
 
                     if (dmzOrgUnit == null)
                     {

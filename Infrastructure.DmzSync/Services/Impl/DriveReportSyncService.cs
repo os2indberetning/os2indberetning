@@ -65,15 +65,8 @@ namespace Infrastructure.DmzSync.Services.Impl
                 dmzReport.Profile = Encryptor.DecryptProfile(dmzReport.Profile);
              
                 Console.WriteLine("Syncing report " + i + " of " + max + " from DMZ.");
-                try
-                {
-                    var rate = _rateRepo.AsQueryable().FirstOrDefault(x => x.Id.Equals(dmzReport.RateId));                   
-                }
-                catch (Exception ex)
-                {
-                    _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception in rateRepo.FirstOrDefault() for DMZReport= {dmzReport}", "dmz", 1);
 
-                }
+                var rate = _rateRepo.AsQueryable().FirstOrDefault(x => x.Id.Equals(dmzReport.RateId));
 
                 var points = new List<DriveReportPoint>();
                 var viaPoints = new List<DriveReportPoint>();
@@ -155,8 +148,8 @@ namespace Infrastructure.DmzSync.Services.Impl
                     Purpose = dmzReport.Purpose,
                     PersonId = dmzReport.ProfileId,
                     EmploymentId = dmzReport.EmploymentId,
-                  //  KmRate = rate.KmRate,
-                   // TFCode = rate.Type.TFCode,
+                    KmRate = rate.KmRate,
+                    TFCode = rate.Type.TFCode,
                     UserComment = dmzReport.ManualEntryRemark,
                     Status = ReportStatus.Pending,
                     FullName = dmzReport.Profile.FullName,

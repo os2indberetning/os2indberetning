@@ -95,7 +95,7 @@ namespace DBUpdater
 
             if (organisationView == null)
             {
-                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null", "DBUpdater", 1);
+                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null", "DBUpdater", 1);
             }
 
             var result = new List<Organisation>();
@@ -133,7 +133,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_MEDARBEJDER={organisationView}", "DBUpdater", e, 1);
+                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION={organisationView}", "DBUpdater", e, 1);
                     throw;
                 }
             }

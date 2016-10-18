@@ -1,6 +1,11 @@
 ﻿angular.module("application").controller("AdministrationController", [
-   "$scope", "Person", "$modal", "NotificationService", "File", "Autocomplete",
-   function ($scope, Person, $modal, NotificationService, File, Autocomplete) {
+   "$scope", "$q", "HelpText", "Person", "$modal", "NotificationService", "sendDataToSd", "File", "Autocomplete",
+   function ($scope, $q, HelpText, Person, $modal, NotificationService, sendDataToSd, File, Autocomplete) {
+
+       HelpText.getAll().$promise.then(function (res) {
+           $scope.isSD = res.UseSD;
+           $scope.isKmd = res.UseKMD;
+       });
 
        $scope.autoCompleteOptions = {
            filter: "contains"
@@ -13,7 +18,6 @@
        $scope.$on('administrationClicked', function (event, mass) {
            $scope.gridContainer.grid.dataSource.read();
        });
-
        $scope.gridContainer = {};
        $scope.person = {};
 
@@ -166,5 +170,30 @@
                });
            });
        }
+
+
+       $scope.sendDataToSDClicked = function () {
+           /// <summary>
+           /// Opens confirm generate kmd file modal
+           /// </summary>
+           //alert(JSON.stringify(Configuration.getConfiguration({key: 'asdasda'})));
+
+           var modalInstance = $modal.open({
+               templateUrl: 'App/Admin/HTML/Administration/Modal/ConfirmDataSendSDModalTemplate.html',
+               controller: 'SendDataToSdController',
+               backdrop: 'static',
+               size: 'lg',
+           });
+
+           modalInstance.result.then(function (person) {
+               sendDataToSd.sendDataToSd(function () {
+                   NotificationService.AutoFadeNotification("success", "", "Data blev sendt til SD.");
+               }, function () {
+                   NotificationService.AutoFadeNotification("danger", "", "Data blev ikke sendt!");
+               });
+           });
+       }
+
+
    }
 ]);

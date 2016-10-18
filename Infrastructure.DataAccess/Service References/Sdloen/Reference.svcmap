@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="67afa46a-2375-4cbb-bca7-6343514a8afd" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+  <ClientOptions>
+    <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
+    <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
+    <EnableDataBinding>true</EnableDataBinding>
+    <ExcludedTypes />
+    <ImportXmlTypes>false</ImportXmlTypes>
+    <GenerateInternalTypes>false</GenerateInternalTypes>
+    <GenerateMessageContracts>false</GenerateMessageContracts>
+    <NamespaceMappings />
+    <CollectionMappings />
+    <GenerateSerializableTypes>true</GenerateSerializableTypes>
+    <Serializer>Auto</Serializer>
+    <UseSerializerForFaults>true</UseSerializerForFaults>
+    <ReferenceAllAssemblies>true</ReferenceAllAssemblies>
+    <ReferencedAssemblies />
+    <ReferencedDataContractTypes />
+    <ServiceContractMappings />
+  </ClientOptions>
+  <MetadataSources>
+    <MetadataSource Address="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoerselOpretInterface_20120201.xsd" Protocol="http" SourceId="1" />
+  </MetadataSources>
+  <Metadata>
+    <MetadataFile FileName="SD_KoerselOpretInterface_20120201.xsd" MetadataType="Schema" ID="a9c8698f-5371-4b3f-8794-94f7852caf3d" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoerselOpretInterface_20120201.xsd" />
+    <MetadataFile FileName="SD_KoerselOpretRequest_20120201.xsd" MetadataType="Schema" ID="c348b26c-83a4-49b0-8b3b-4219b0afcfa8" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoerselOpretRequest_20120201.xsd" />
+    <MetadataFile FileName="SD_RegistreringTypeIdentifikator_20120201.xsd" MetadataType="Schema" ID="54e9c392-6a24-4848-b2d9-5a8a8577c13d" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_RegistreringTypeIdentifikator_20120201.xsd" />
+    <MetadataFile FileName="CPR_PersonCivilRegistrationIdentifier.xsd" MetadataType="Schema" ID="88c5cf50-9db2-4efe-a006-a502f67cb49d" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/CPR_PersonCivilRegistrationIdentifier.xsd" />
+    <MetadataFile FileName="SD_AarsagTekst_20120201.xsd" MetadataType="Schema" ID="136fcf32-a437-473c-9e0c-6f7bb70d48e8" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_AarsagTekst_20120201.xsd" />
+    <MetadataFile FileName="SD_InstitutionIdentifier_20111201.xsd" MetadataType="Schema" ID="299a13e8-b9ed-40a6-a5f9-a51e026c4758" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_InstitutionIdentifier_20111201.xsd" />
+    <MetadataFile FileName="SD_Regel60DageIndikator_20120201.xsd" MetadataType="Schema" ID="247b0f23-7f3a-448c-804c-b12b7eb32e50" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_Regel60DageIndikator_20120201.xsd" />
+    <MetadataFile FileName="SD_KoertTilTekst_20120201.xsd" MetadataType="Schema" ID="f4035cb7-7f38-4011-8cf9-0793ab745bc7" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoertTilTekst_20120201.xsd" />
+    <MetadataFile FileName="SD_EmploymentIdentifier_20111201.xsd" MetadataType="Schema" ID="d1702adf-5775-49c3-88ba-fb171bc960ca" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_EmploymentIdentifier_20111201.xsd" />
+    <MetadataFile FileName="SD_KoerselDato_20120201.xsd" MetadataType="Schema" ID="c7e31c61-55a0-4754-8f78-7d254871b22d" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoerselDato_20120201.xsd" />
+    <MetadataFile FileName="SD_KilometerMaal_20120201.xsd" MetadataType="Schema" ID="7cc0d52a-683e-432e-b1b7-435d42a76385" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KilometerMaal_20120201.xsd" />
+    <MetadataFile FileName="SD_KoertFraTekst_20120201.xsd" MetadataType="Schema" ID="4f8e9b54-1599-4c09-bef1-33aa2920c80f" SourceId="1" SourceUrl="https://service.sd.dk/sdws/xml/schema/sd.dk/xml.schema/20120201/KoerselOpret/SD_KoertFraTekst_20120201.xsd" />
+  </Metadata>
+  <Extensions>
+    <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />
+    <ExtensionFile FileName="configuration.svcinfo" Name="configuration.svcinfo" />
+  </Extensions>
+</ReferenceGroup>

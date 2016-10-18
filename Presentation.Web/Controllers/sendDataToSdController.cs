@@ -16,6 +16,7 @@ using System.Xml;
 using System.IO;
 using System.Collections.Generic;
 
+
 namespace OS2Indberetning.Controllers
 {
     public class sendDataToSdController : BaseController<DriveReport>
@@ -47,6 +48,7 @@ namespace OS2Indberetning.Controllers
 
         public IHttpActionResult sendDataToSd()
         {
+
             SdService.KoerselOpret20120201OperationRequest opret = new SdService.KoerselOpret20120201OperationRequest();
             SdService.KoerselOpret20120201PortTypeClient client = new SdService.KoerselOpret20120201PortTypeClient();
             SdService.KoerselOpret20120201Type type = new SdService.KoerselOpret20120201Type();
@@ -89,7 +91,7 @@ namespace OS2Indberetning.Controllers
              //send data to SD
                     try
                     {
-                        var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
+                     //   var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
                         t.Status = ReportStatus.Invoiced;
                         _repo.Save();
 

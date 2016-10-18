@@ -22,7 +22,7 @@ namespace Core.ApplicationServices.MailerService.Impl
                 _smtpClient = new SmtpClient()
                 {
                     Host = ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST"],
-                    Port = int.Parse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"]),
+                    
                     EnableSsl = false,
                     Credentials = new NetworkCredential()
                     {
@@ -30,6 +30,11 @@ namespace Core.ApplicationServices.MailerService.Impl
                         Password = ConfigurationManager.AppSettings["PROTECTED_SMTP_PASSWORD"]
                     }
                 };
+                int port;
+                if (int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port))
+                {
+                    _smtpClient.Port = port;
+                }
             }
             catch (Exception e)
             {

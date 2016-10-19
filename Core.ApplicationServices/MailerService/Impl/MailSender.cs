@@ -16,9 +16,13 @@ namespace Core.ApplicationServices.MailerService.Impl
         public MailSender(ILogger logger)
         {
             _logger = logger;
-
+          
             try
             {
+                _logger.Log($"{this.GetType().Name}, mailsender() initial", "dbupdater", 1);
+                int port;
+                bool hasPortValue = int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port);
+
                 _smtpClient = new SmtpClient()
                 {
                     Host = ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST"],
@@ -30,8 +34,8 @@ namespace Core.ApplicationServices.MailerService.Impl
                         Password = ConfigurationManager.AppSettings["PROTECTED_SMTP_PASSWORD"]
                     }
                 };
-                int port;
-                if (int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port))
+               
+                if (hasPortValue)
                 {
                     _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port =" + port, "mail", 1);
                     _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT=" + port, "dbupdater", 1);

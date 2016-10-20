@@ -135,9 +135,11 @@ namespace OS2Indberetning.Controllers
             if (parseSucces)
             {
                 return Ok(isAltCalc);
+            }else
+            {
+                return Ok(false);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            
         }
 
         [HttpGet]

@@ -19,7 +19,7 @@ using System.Collections.Generic;
 
 namespace OS2Indberetning.Controllers
 {
-    public class sendDataToSdController : BaseController<DriveReport>
+    public class SendDataToSdController : BaseController<DriveReport>
     {
         private readonly IGenericRepository<DriveReport> _repo;
         private readonly IGenericRepository<Person> _personRepo;
@@ -28,7 +28,7 @@ namespace OS2Indberetning.Controllers
 
 
 
-        public sendDataToSdController(IGenericRepository<DriveReport> repo, IGenericRepository<Person> personRepo, ILogger logger) : base(repo, personRepo)
+        public SendDataToSdController(IGenericRepository<DriveReport> repo, IGenericRepository<Person> personRepo, ILogger logger) : base(repo, personRepo)
         {
             _repo = repo;
             _personRepo = personRepo;

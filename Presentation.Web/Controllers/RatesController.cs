@@ -8,15 +8,18 @@ using System.Web.OData.Query;
 using Core.ApplicationServices;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.ApplicationServices.Logger;
 
 namespace OS2Indberetning.Controllers
 {
     public class RatesController : BaseController<Rate>
     {
         readonly RatePostService _ratePostService = new RatePostService();
-
-          //GET: odata/Rates
-        public RatesController(IGenericRepository<Rate> repository, IGenericRepository<Person> personRepo) : base(repository, personRepo){}
+        private readonly ILogger _logger;
+        //GET: odata/Rates
+        public RatesController(IGenericRepository<Rate> repository, IGenericRepository<Person> personRepo, ILogger logger) : base(repository, personRepo){
+            _logger = logger;
+        }
 
         /// <summary>
         /// GET API endpoint for Rates.
@@ -105,7 +108,16 @@ namespace OS2Indberetning.Controllers
         [HttpGet]
         public IQueryable<Rate> ThisYearsRates()
         {
-            var result = Repo.AsQueryable().Where(x => x.Year == (DateTime.Now).Year && x.Active);
+            _logger.Log("RatesController. ThisYearsRates(). initial", "web", 3);
+            IQueryable<Rate> result = null;
+            try
+            {
+                result = Repo.AsQueryable().Where(x => x.Year == (DateTime.Now).Year && x.Active);
+            }catch(Exception e)
+            {
+                _logger.Log("RatesController. ThisYearsRates(). Exception", "web", e, 1);
+            }
+            _logger.Log("RatesController. ThisYearsRates(). END.", "web", 3);
             return result;
         }
     }

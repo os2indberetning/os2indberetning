@@ -12,6 +12,7 @@ using Core.DomainServices;
 using Infrastructure.AddressServices.Interfaces;
 using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
+using Core.ApplicationServices.Logger;
 
 namespace OS2Indberetning.Controllers
 {
@@ -25,9 +26,10 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<CachedAddress> _cachedAddressRepo;
         private readonly IGenericRepository<PersonalAddress> _personalAddressRepo;
         private static Address MapStartAddress { get; set; }
+        private readonly ILogger _logger;
 
         //GET: odata/Addresses
-        public AddressesController(IGenericRepository<Address> repository, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IAddressLaunderer launderer, IAddressCoordinates coordinates, IGenericRepository<CachedAddress> cachedAddressRepo, IGenericRepository<PersonalAddress> personalAddressRepo)
+        public AddressesController(IGenericRepository<Address> repository, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IAddressLaunderer launderer, IAddressCoordinates coordinates, IGenericRepository<CachedAddress> cachedAddressRepo, IGenericRepository<PersonalAddress> personalAddressRepo, ILogger log)
             : base(repository, personRepo)
         {
             _employmentRepo = employmentRepo;
@@ -35,7 +37,7 @@ namespace OS2Indberetning.Controllers
             _coordinates = coordinates;
             _cachedAddressRepo = cachedAddressRepo;
             _personalAddressRepo = personalAddressRepo;
-            
+            _logger = log;
         }
 
         /// <summary>
@@ -56,6 +58,8 @@ namespace OS2Indberetning.Controllers
         /// <returns>Starting address of frontend map</returns>
         public Address GetMapStart()
         {
+            _logger.Log("AddressController. GetMapStart() initial. Current userId= " + CurrentUser.Id + "CurrentUserInitials= " + CurrentUser.Initials, "web", 3);
+
             if (MapStartAddress == null)
             {
                 var coordinates = NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>();
@@ -69,6 +73,7 @@ namespace OS2Indberetning.Controllers
 
                 MapStartAddress = coordinates.GetAddressCoordinates(MapStartAddress);
             }
+            _logger.Log("AddressController. GetMapStart() end. Returning mapstartAdressStreetname= " + MapStartAddress.StreetName, "web", 3);
             return MapStartAddress;
         }
 

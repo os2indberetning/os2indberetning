@@ -57,7 +57,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                         FourKmRuleAllowed = masterOrgUnit.HasAccessToFourKmRule
                     };
 
-                    var dmzOrgUnit = _dmzOrgUnitRepo.AsQueryable().FirstOrDefault(x => x.OrgId == masterOrgUnit.OrgId);
+                    var dmzOrgUnit = _dmzOrgUnitRepo.AsQueryable().FirstOrDefault(x => x.Id == masterOrgUnit.Id);
 
                     if (dmzOrgUnit == null)
                     {

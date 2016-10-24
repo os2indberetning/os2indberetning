@@ -109,6 +109,7 @@ namespace OS2Indberetning.Controllers
 
                 if (report != null)
                 {
+                    _logger.Log($"DriveReportsController, GetLatestReportForUser(). End OK", "web", 3);
                     return Ok(report);
                 }
 
@@ -117,6 +118,7 @@ namespace OS2Indberetning.Controllers
             {
                 _logger.Log($"DriveReportsController, GetLatestReportForUser(). Exception={ex.Message}", "web", 3);
             }
+            _logger.Log($"DriveReportsController, GetLatestReportForUser(). StatusCode= NoContent", "web", 3);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -135,9 +137,11 @@ namespace OS2Indberetning.Controllers
             if (parseSucces)
             {
                 return Ok(isAltCalc);
+            }else
+            {
+                return Ok(false);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            
         }
 
         [HttpGet]

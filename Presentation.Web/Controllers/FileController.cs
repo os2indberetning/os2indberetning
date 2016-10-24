@@ -36,18 +36,22 @@ namespace OS2Indberetning.Controllers
         /// <returns></returns>
         public IHttpActionResult Get()
         {
+            _logger.Log("FileController. GET() initial", "web", 3);
             if (!CurrentUser.IsAdmin)
             {
+                _logger.Log("FileController. GET() Forbidden", "web", 3);
                 return StatusCode(HttpStatusCode.Forbidden);
             }
             try
             {
                 new ReportGenerator(_repo, new ReportFileWriter()).WriteRecordsToFileAndAlterReportStatus();
+                _logger.Log("FileController. GET() END OK", "web", 3);
                 return Ok();
             }
             catch (Exception e)
             {
                 _logger.Log("Fejl ved generering af fil til KMD. Filen blev ikke genereret.", "web",e,1);
+                _logger.Log("FileController. GET() Exception", "web",e, 3);
                 return InternalServerError();
             }
         }

@@ -38,7 +38,6 @@ namespace Core.ApplicationServices.MailerService.Impl
                 if (hasPortValue)
                 {
                     _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port =" + port, "mail", 1);
-                    _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT=" + port, "mail", 1);
                     _smtpClient.Port = port;
                 }
             }

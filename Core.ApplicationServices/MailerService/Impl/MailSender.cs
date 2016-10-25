@@ -19,7 +19,7 @@ namespace Core.ApplicationServices.MailerService.Impl
           
             try
             {
-                _logger.Log($"{this.GetType().Name}, mailsender() initial", "dbupdater", 1);
+                _logger.Log($"{this.GetType().Name}, mailsender() initial", "mail", 1);
                 int port;
                 bool hasPortValue = int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port);
 
@@ -38,14 +38,12 @@ namespace Core.ApplicationServices.MailerService.Impl
                 if (hasPortValue)
                 {
                     _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port =" + port, "mail", 1);
-                    _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT=" + port, "dbupdater", 1);
                     _smtpClient.Port = port;
                 }
             }
             catch (Exception e)
             {
                 _logger.Log($"{this.GetType().Name}, smtp client initialization falied, check values in CustomSettings.config. Exception:" + e, "mail", 1);
-                _logger.Log($"{this.GetType().Name}, smtp client initialization falied, check values in CustomSettings.configException:" + e, "dbupdater", 1);
                 throw e;
             }
         }

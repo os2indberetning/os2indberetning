@@ -13,6 +13,7 @@ using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
 using Infrastructure.DataAccess;
 using Newtonsoft.Json.Schema;
+using Core.ApplicationServices.Logger;
 
 namespace OS2Indberetning.Controllers
 {
@@ -23,8 +24,9 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<LicensePlate> _licensePlateRepo = new GenericRepository<LicensePlate>(new DataContext());
         private readonly IGenericRepository<Substitute> _substituteRepo;
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
+        private readonly ILogger _logger;
 
-        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo)
+        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, ILogger log)
             : base(repo, repo)
         {
             _person = personService;
@@ -32,6 +34,7 @@ namespace OS2Indberetning.Controllers
             _licensePlateRepo = licensePlateRepo;
             _substituteRepo = substituteRepo;
             _appLoginRepo = appLoginRepo;
+            _logger = log;
         }
 
         // GET: odata/Person
@@ -43,6 +46,7 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetPerson(ODataQueryOptions<Person> queryOptions)
         {
+            _logger.Log("GetPerson initial", "web", 3);
             var res = GetQueryable(queryOptions);
             _person.ScrubCprFromPersons(res);
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
@@ -51,6 +55,7 @@ namespace OS2Indberetning.Controllers
             //for a list of users, each time we needed someones employment we made queries
             //to that person anyway, so the return of this function has all employments
             //including the expired ones.
+            _logger.Log("GetPerson() end OK.", "web", 3);
             return Ok(res);
         }
 
@@ -66,21 +71,32 @@ namespace OS2Indberetning.Controllers
         [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
         public Person GetCurrentUser()
         {
-            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == CurrentUser.Id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
-            var employmentList = employments.ToList();
-
-            CurrentUser.Employments.Clear();
-            foreach (var employment in employmentList)
+            try
             {
-                CurrentUser.Employments.Add(employment);
-            }
+                _logger.Log("GetCurrentUser() initial. Current userId=" + CurrentUser.Id + "CurrentUserInitials="+CurrentUser.Initials, "web", 3);
+            
+                var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == CurrentUser.Id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
+                var employmentList = employments.ToList();
 
-            _person.AddHomeWorkDistanceToEmployments(CurrentUser);
-            CurrentUser.CprNumber = "";
-            CurrentUser.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == CurrentUser.Id);
-            CurrentUser.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(CurrentUser.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
+                CurrentUser.Employments.Clear();
+                foreach (var employment in employmentList)
+                {
+                    CurrentUser.Employments.Add(employment);
+                }
+
+                _person.AddHomeWorkDistanceToEmployments(CurrentUser);
+                CurrentUser.CprNumber = "";
+                CurrentUser.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == CurrentUser.Id);
+                CurrentUser.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(CurrentUser.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
+           
+            }catch(Exception ex)
+            {
+                _logger.Log("Exception GetCurrentUser(). Exception: " + ex.Message, "web", ex, 1);
+            }
+            _logger.Log("GetCurrentUser() end" + CurrentUser.FullName, "web", 3);
             return CurrentUser;
+
         }
 
         /// <summary>

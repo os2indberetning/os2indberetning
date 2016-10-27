@@ -8,8 +8,8 @@ namespace Core.DomainModel
 {
    public class EksportDrivereport
     {
-        public long DriveDateTimestamp { get; set; }
-        public long CreatedDateTimestamp { get; set; }
+        public string DriveDateTimestamp { get; set; }
+        public string CreatedDateTimestamp { get; set; }
         public string OrgUnit { get; set; }
         public string Purpose { get; set; }
        // public string Route { get; set; }
@@ -24,6 +24,8 @@ namespace Core.DomainModel
        public string Route;
        public double distance { get; set; } 
        public bool? isRoundTrip { get; set; }
+        public string licensePlate { get; set; }
+        public string rate { get; set; }
 
     }
 

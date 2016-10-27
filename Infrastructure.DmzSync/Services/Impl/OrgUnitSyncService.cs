@@ -1,4 +1,5 @@
-﻿using Core.DomainServices;
+﻿using Core.ApplicationServices.Logger;
+using Core.DomainServices;
 using Infrastructure.DmzSync.Services.Interface;
 using System;
 using System.Collections.Generic;
@@ -12,11 +13,13 @@ namespace Infrastructure.DmzSync.Services.Impl
     {
         private IGenericRepository<Core.DmzModel.OrgUnit> _dmzOrgUnitRepo;
         private IGenericRepository<Core.DomainModel.OrgUnit> _masterOrgUnitRepo;
+        private readonly ILogger _logger;
 
-        public OrgUnitSyncService(IGenericRepository<Core.DmzModel.OrgUnit> orgUnitRepo, IGenericRepository<Core.DomainModel.OrgUnit> masterOrgUnitRepo)
+        public OrgUnitSyncService(IGenericRepository<Core.DmzModel.OrgUnit> orgUnitRepo, IGenericRepository<Core.DomainModel.OrgUnit> masterOrgUnitRepo, ILogger logger)
         {
             _dmzOrgUnitRepo = orgUnitRepo;
             _masterOrgUnitRepo = masterOrgUnitRepo;
+            _logger = logger;
         }
 
         public void ClearDmz()
@@ -36,29 +39,37 @@ namespace Infrastructure.DmzSync.Services.Impl
             var orgUnitList = _masterOrgUnitRepo.AsQueryable().ToList();
             var max = orgUnitList.Count;
 
+            _logger.Log($"{this.GetType().Name}. SyncToDmz(). Amount of orgUnits= {max}", "dmz", 3);
             foreach (var masterOrgUnit in orgUnitList)
             {
-                i++;
-                if (i % 10 == 0)
+                try
                 {
-                    Console.WriteLine("Syncing OrgUnit " + i + " of " + max);
-                }
+                    i++;
+                    if (i % 10 == 0)
+                    {
+                        Console.WriteLine("Syncing OrgUnit " + i + " of " + max);
+                    }
 
-                var orgUnit = new Core.DmzModel.OrgUnit()
-                {
-                    OrgId = masterOrgUnit.OrgId,
-                    FourKmRuleAllowed = masterOrgUnit.HasAccessToFourKmRule
-                };
+                    var orgUnit = new Core.DmzModel.OrgUnit()
+                    {
+                        Id = masterOrgUnit.Id,
+                        OrgId = masterOrgUnit.OrgId,
+                        FourKmRuleAllowed = masterOrgUnit.HasAccessToFourKmRule
+                    };
 
-                var dmzOrgUnit = _dmzOrgUnitRepo.AsQueryable().FirstOrDefault(x => x.OrgId == orgUnit.OrgId);
+                    var dmzOrgUnit = _dmzOrgUnitRepo.AsQueryable().FirstOrDefault(x => x.Id == masterOrgUnit.Id);
 
-                if(dmzOrgUnit == null)
+                    if (dmzOrgUnit == null)
+                    {
+                        _dmzOrgUnitRepo.Insert(orgUnit);
+                    }
+                    else
+                    {
+                        dmzOrgUnit.FourKmRuleAllowed = orgUnit.FourKmRuleAllowed;
+                    }
+                }catch(Exception ex)
                 {
-                    _dmzOrgUnitRepo.Insert(orgUnit);
-                }
-                else
-                {
-                    dmzOrgUnit.FourKmRuleAllowed = orgUnit.FourKmRuleAllowed;
+                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for orgUnit= {masterOrgUnit}, ID= {masterOrgUnit.Id}. Exception: {ex.Message}", "dmz", 1);
                 }
             }
             _dmzOrgUnitRepo.Save();

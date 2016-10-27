@@ -37,13 +37,23 @@ namespace Core.ApplicationServices.MailerService.Impl
             var mailAddresses = GetLeadersWithPendingReportsMails();
 
             var mailBody = ConfigurationManager.AppSettings["PROTECTED_MAIL_BODY"];
+            if (string.IsNullOrEmpty(mailBody))
+            {
+                _logger.Log($"{this.GetType().Name}, SendMails(): Mail body is null or empty, check value in CustomSettings.config", "mail", 3);
+            }
             mailBody = mailBody.Replace("####", payRoleDateTime.ToString("dd-MM-yyyy"));
+
+            var mailSubject = ConfigurationManager.AppSettings["PROTECTED_MAIL_SUBJECT"];
+            if (string.IsNullOrEmpty(mailSubject))
+            {
+                _logger.Log($"{this.GetType().Name}, SendMails(): Mail subject is null or empty, check value in CustomSettings.config", "mail", 3);
+            }
 
             foreach (var mailAddress in mailAddresses)
             {
                 _mailSender.SendMail(mailAddress, ConfigurationManager.AppSettings["PROTECTED_MAIL_SUBJECT"], mailBody);
             }
-
+            _logger.Log($"{this.GetType().Name}, SendMails(): Mail subject is null or empty, check value in CustomSettings.config", "mail", 3);
         }
 
         /// <summary>
@@ -60,7 +70,7 @@ namespace Core.ApplicationServices.MailerService.Impl
 
             foreach (var report in reportsWithNoLeader)
             {
-                _logger.Log(report.Person.FullName + "s indberetning har ingen leder. Indberetningen kan derfor ikke godkendes.", "web", 2);
+                _logger.Log($"{this.GetType().Name}, GetLeadersWithPendingReportsMails(): {report.Person.FullName}s indberetning har ingen leder. Indberetningen kan derfor ikke godkendes.", "web", 2);
             }
 
             foreach (var driveReport in reports.Where(driveReport => driveReport.ResponsibleLeaderId != null && !string.IsNullOrEmpty(driveReport.ResponsibleLeader.Mail) && driveReport.ResponsibleLeader.RecieveMail))

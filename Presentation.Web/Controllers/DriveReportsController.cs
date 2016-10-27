@@ -58,24 +58,34 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
         {
-            var queryable = GetQueryable(queryOptions);
+            _logger.Log($"DriveReportsController, Get(). Initial", "web", 3);
 
-            ReportStatus reportStatus;
-            if (ReportStatus.TryParse(status, true, out reportStatus))
+            IQueryable<DriveReport> queryable = null;
+            try
             {
-                if (reportStatus == ReportStatus.Accepted)
-                {
-                    // If accepted reports are requested, then return accepted and invoiced. 
-                    // Invoiced reports are accepted reports that have been processed for payment.
-                    // So they are still accepted reports.
-                    queryable =
-                        queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
-                }
-                else
-                {
-                    queryable = queryable.Where(dr => dr.Status == reportStatus);
-                }
+                queryable = GetQueryable(queryOptions);
 
+                ReportStatus reportStatus;
+                if (ReportStatus.TryParse(status, true, out reportStatus))
+                {
+                    if (reportStatus == ReportStatus.Accepted)
+                    {
+                        // If accepted reports are requested, then return accepted and invoiced. 
+                        // Invoiced reports are accepted reports that have been processed for payment.
+                        // So they are still accepted reports.
+                        queryable =
+                            queryable.Where(dr => dr.Status == ReportStatus.Accepted || dr.Status == ReportStatus.Invoiced);
+                    }
+                    else
+                    {
+                        queryable = queryable.Where(dr => dr.Status == reportStatus);
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Log($"DriveReportsController, Get(). Exception={ex.Message}", "web", 3);
             }
             return Ok(queryable);
         }
@@ -89,16 +99,26 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetLatestReportForUser(int personId)
         {
-            var report = Repo.AsQueryable()
-                .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
-                .OrderByDescending(x => x.CreatedDateTimestamp)
-                .FirstOrDefault();
-
-            if (report != null)
+            _logger.Log($"DriveReportsController, GetLatestReportForUser(). Initial", "web", 3);
+            try
             {
-                return Ok(report);
-            }
+                var report = Repo.AsQueryable()
+                    .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
+                    .OrderByDescending(x => x.CreatedDateTimestamp)
+                    .FirstOrDefault();
 
+                if (report != null)
+                {
+                    _logger.Log($"DriveReportsController, GetLatestReportForUser(). End OK", "web", 3);
+                    return Ok(report);
+                }
+
+               
+            }catch(Exception ex)
+            {
+                _logger.Log($"DriveReportsController, GetLatestReportForUser(). Exception={ex.Message}", "web", 3);
+            }
+            _logger.Log($"DriveReportsController, GetLatestReportForUser(). StatusCode= NoContent", "web", 3);
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -110,15 +130,18 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetCalculationMethod()
         {
+           
             bool isAltCalc;
             bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
 
             if (parseSucces)
             {
                 return Ok(isAltCalc);
+            }else
+            {
+                return Ok(false);
             }
-
-            return StatusCode(HttpStatusCode.NoContent);
+            
         }
 
         [HttpGet]
@@ -140,13 +163,13 @@ namespace OS2Indberetning.Controllers
             if (!string.IsNullOrEmpty(manr) && manr != "undefined")
             {
                 convertedManr = Convert.ToInt32(manr);
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
             else {
-                reports.AddRange(Repo.AsQueryable().Where(x => x.Employment.PersonId == person.Id));
+                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
             }
 
-
+        
             Core.DomainModel.EksportModel result = new Core.DomainModel.EksportModel();
             try
             {
@@ -181,6 +204,7 @@ namespace OS2Indberetning.Controllers
             {
                 foreach (var repo in reports)
                 {
+                    
                     if (repo.PersonId == person.Id)
                     {
                         var createdTime = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
@@ -196,10 +220,13 @@ namespace OS2Indberetning.Controllers
                                 result.orgUnits.Add(repo.Employment.OrgUnit.ShortDescription);
                                 result.MaNumbers.Add(repo.Employment.EmploymentId);
 
+                                var driveDate = dtDateTime.AddSeconds(repo.DriveDateTimestamp).ToLocalTime();
+                                var createdDate = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
+
                                 var reportToBeAdded = new Core.DomainModel.EksportDrivereport
                                 {
-                                    DriveDateTimestamp = repo.DriveDateTimestamp,
-                                    CreatedDateTimestamp = repo.CreatedDateTimestamp,
+                                    DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
+                                    CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
                                     OrgUnit = repo.Employment.OrgUnit.ShortDescription,
                                     Purpose = repo.Purpose,
                                     IsExtraDistance = repo.IsExtraDistance,
@@ -208,8 +235,11 @@ namespace OS2Indberetning.Controllers
                                     AmountToReimburse = repo.AmountToReimburse,
                                     Route = "",
                                     distance = repo.Distance,
-                                    isRoundTrip = repo.IsRoundTrip
+                                    isRoundTrip = repo.IsRoundTrip,
+                                    licensePlate = repo.LicensePlate,
+                                    
                                 };
+                               
                              
                                 if (!reportToBeAdded.FourKmRule) {
                                     reportToBeAdded.distanceFromHomeToBorder = 0;

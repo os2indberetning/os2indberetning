@@ -106,6 +106,7 @@
     <None Include="App.config" />
     <Content Include="connections.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Mail_TemporaryKey.pfx" />
     <None Include="packages.config" />

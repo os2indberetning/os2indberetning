@@ -1,13 +1,7 @@
 ﻿using System;
-using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
@@ -532,5 +526,386 @@ namespace DBUpdater
             _reportRepo.Save();
             _logger.Log($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(): done", "DBUpdater", 3);
         }
+
+        public List<String> SplitAddressIDM(string street, string postNumber, string postDistrict)
+        {
+            var indexOfLast = street.LastIndexOf(" ");
+            var result = new List<string>();
+            result.Add(street.Substring(0, indexOfLast));
+            result.Add(street.Substring(indexOfLast + 1));
+            result.Add(postDistrict);
+            result.Add(postNumber);
+
+            return result;
+        }
+
+        /// <summary>
+        /// Migrate organisations from IDM in .csv files to OS2 database.
+        /// </summary>
+        public void MigrateOrganisationsIDM()
+        {
+            var orgs = _dataProvider.GetOrganisationsAsQueryableIDM();
+
+            var i = 0;
+            foreach (var org in orgs)
+            {
+                i++;
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Migrating organisation " + i + " of " + orgs.Count() + ".");
+                }
+
+                var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
+
+                if (org.Vejnavn == null)
+                {
+                    continue;
+                }
+
+                var workAddress = GetWorkAddressIDM(org);
+
+                if (orgToInsert == null)
+                {
+                    orgToInsert = _orgRepo.Insert(new OrgUnit());
+                    orgToInsert.HasAccessToFourKmRule = false;
+                }
+
+                orgToInsert.Level = 0;//This is because in IDM level doesn't exist
+                orgToInsert.LongDescription = org.Navn;
+                orgToInsert.ShortDescription = org.Navn; //Specificed by customer that name or nothing should just be used
+                orgToInsert.OrgOUID = org.OUID;
+
+                var addressChanged = false;
+
+                if (workAddress != orgToInsert.Address)
+                {
+                    addressChanged = true;
+                    orgToInsert.Address = workAddress;
+                }
+
+                _orgRepo.Save();
+
+                if (addressChanged)
+                {
+                    workAddress.OrgUnitId = orgToInsert.Id;
+                }
+            }
+            foreach (var org in orgs)
+            {
+                var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
+                if (org.OverliggendeOUID != null && org.OverliggendeOUID != "")
+                {
+                    orgToInsert.ParentId = _orgRepo.AsQueryable().Single(x => x.OrgOUID == org.OverliggendeOUID).Id;
+                }
+                _orgRepo.Save();
+            }
+
+            Console.WriteLine("Done migrating organisations.");
+        }
+
+        /// <summary>
+        /// Migrate employees from csv to OS2 database.
+        /// </summary>
+        public void MigrateEmployeesIDM()
+        {
+            foreach (var person in _personRepo.AsQueryable())
+            {
+                person.IsActive = false;
+            }
+            _personRepo.Save();
+
+            var empls = _dataProvider.GetEmployeesAsQueryableIDM();
+
+            var i = 0;
+            var distinctEmpls = empls.DistinctBy(x => x.CPRNummer).ToList();
+            foreach (var employee in distinctEmpls)
+            {
+                i++;
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Migrating person " + i + " of " + distinctEmpls.Count() + ".");
+                }
+
+
+                var personToInsert = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber.Equals(employee.CPRNummer));
+
+                if (personToInsert == null)
+                {
+                    personToInsert = _personRepo.Insert(new Person());
+                    personToInsert.IsAdmin = false;
+                    personToInsert.RecieveMail = true;
+                }
+
+                personToInsert.CprNumber = employee.CPRNummer ?? "ikke opgivet";
+                personToInsert.FirstName = employee.Fornavn ?? "ikke opgivet";
+                personToInsert.LastName = employee.Efternavn ?? "ikke opgivet";
+                personToInsert.Initials = employee.BrugerID ?? " ";
+                personToInsert.FullName = personToInsert.FirstName + " " + personToInsert.LastName + " [" + personToInsert.Initials + "]";
+                personToInsert.Mail = employee.Email ?? "";
+                personToInsert.IsActive = true;
+            }
+            _personRepo.Save();
+
+            /**
+             * We need the person id before we can attach personal addresses
+             * so we loop through the distinct employees once again and
+             * look up the created persons
+             */
+            i = 0;
+            foreach (var employee in distinctEmpls)
+            {
+                if (i % 50 == 0)
+                {
+                    Console.WriteLine("Adding home address to person " + i + " out of " + distinctEmpls.Count());
+                }
+                i++;
+                var personToInsert = _personRepo.AsQueryable().First(x => x.CprNumber == employee.CPRNummer);
+                UpdateHomeAddressIDM(employee, personToInsert.CprNumber);
+                if (i % 500 == 0)
+                {
+                    _personalAddressRepo.Save();
+                }
+            }
+            _personalAddressRepo.Save();
+
+            //Sets all employments to end now in the case there was
+            //one day where the updater did not run and the employee
+            //has been removed from the latest MDM view we are working on
+            //The end date will be adjusted in the next loop
+            foreach (var employment in _emplRepo.AsQueryable())
+            {
+                employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            }
+            _emplRepo.Save();
+
+            i = 0;
+            foreach (var employee in empls)
+            {
+                i++;
+                if (i % 10 == 0)
+                {
+                    Console.WriteLine("Adding employment to person " + i + " of " + empls.Count());
+                }
+                var personToInsert = _personRepo.AsQueryable().First(x => x.CprNumber == employee.CPRNummer);
+
+                CreateEmploymentIDM(employee, personToInsert.Id);
+                if (i % 500 == 0)
+                {
+                    _emplRepo.Save();
+                }
+            }
+            _personalAddressRepo.Save();
+            _emplRepo.Save();
+
+            Console.WriteLine("Done migrating employees");
+            var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
+            if (dirtyAddressCount > 0)
+            {
+                foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
+                {
+                    _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Updates home address for person identified by personId.
+        /// </summary>
+        /// <param name="empl"></param>
+        /// <param name="personId"></param>
+        public void UpdateHomeAddressIDM(IDMEmployee empl, string cpr)
+        {
+            if (empl.Vejnavn == null || empl.Vejnavn == "")
+            {
+                return;
+            }
+
+            var person = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber == cpr);
+            if (person == null)
+            {
+                throw new Exception("Person does not exist.");
+            }
+
+            var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
+
+            var splitStreetAddress = SplitAddressIDM(empl.Vejnavn, empl.PostNr, empl.PostDistrikt);
+
+            var addressToLaunder = new Address
+            {
+                Description = person.FirstName + " " + person.LastName + " [" + person.Initials + "]",
+                StreetName = splitStreetAddress.ElementAt(0),
+                StreetNumber = splitStreetAddress.ElementAt(1),
+                ZipCode = Convert.ToInt32(splitStreetAddress.ElementAt(3)),
+                Town = splitStreetAddress.ElementAt(2)
+            };
+            addressToLaunder = launderer.Launder(addressToLaunder);
+
+            var launderedAddress = new PersonalAddress()
+            {
+                PersonId = person.Id,
+                Type = PersonalAddressType.Home,
+                StreetName = addressToLaunder.StreetName,
+                StreetNumber = addressToLaunder.StreetNumber,
+                ZipCode = addressToLaunder.ZipCode,
+                Town = addressToLaunder.Town,
+                Latitude = addressToLaunder.Latitude ?? "",
+                Longitude = addressToLaunder.Longitude ?? "",
+                Description = addressToLaunder.Description
+            };
+
+            var homeAddr = _personalAddressRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(person.Id) &&
+                x.Type == PersonalAddressType.Home);
+
+            if (homeAddr == null)
+            {
+                _personalAddressRepo.Insert(launderedAddress);
+            }
+            else
+            {
+                if (homeAddr != launderedAddress)
+                {
+                    // Address has changed
+                    // Change type of current (The one about to be changed) home address to OldHome.
+                    // Is done in loop because there was an error that created one or more home addresses for the same person.
+                    // This will make sure all home addresses are set to old if more than one exists.
+                    foreach (var addr in _personalAddressRepo.AsQueryable().Where(x => x.PersonId.Equals(person.Id) && x.Type == PersonalAddressType.Home).ToList())
+                    {
+                        addr.Type = PersonalAddressType.OldHome; ;
+                    }
+
+                    // Update actual current home address.
+                    _personalAddressRepo.Insert(launderedAddress);
+                    _personalAddressRepo.Save();
+                }
+            }
+        }
+
+        public WorkAddress GetWorkAddressIDM(IDMOrganisation org)
+        {
+            var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
+
+            if (org.Vejnavn == null || org.Vejnavn == "")
+            {
+                return null;
+            }
+
+            var splitStreetAddress = SplitAddressIDM(org.Vejnavn, org.PostNr, org.PostDistrikt);
+
+            var addressToLaunder = new Address
+            {
+                StreetName = splitStreetAddress.ElementAt(0),
+                StreetNumber = splitStreetAddress.ElementAt(1),
+                ZipCode = Convert.ToInt32(splitStreetAddress.ElementAt(3)),
+                Town = splitStreetAddress.ElementAt(2),
+                Description = org.Navn
+            };
+
+            addressToLaunder = launderer.Launder(addressToLaunder);
+
+            var launderedAddress = new WorkAddress()
+            {
+                StreetName = addressToLaunder.StreetName,
+                StreetNumber = addressToLaunder.StreetNumber,
+                ZipCode = addressToLaunder.ZipCode,
+                Town = addressToLaunder.Town,
+                Latitude = addressToLaunder.Latitude ?? "",
+                Longitude = addressToLaunder.Longitude ?? "",
+                Description = org.Navn
+            };
+
+            var existingOrg = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID.Equals(org.OUID));
+
+            // If the address hasn't changed then set the Id to be the same as the existing one.
+            // That way a new address won't be created in the database.
+            // If the address is not the same as the existing one,
+            // Then the Id will be 0, and a new address will be created in the database.
+            if (existingOrg != null
+                && existingOrg.Address != null
+                && existingOrg.Address.StreetName == launderedAddress.StreetName
+                && existingOrg.Address.StreetNumber == launderedAddress.StreetNumber
+                && existingOrg.Address.ZipCode == launderedAddress.ZipCode
+                && existingOrg.Address.Town == launderedAddress.Town
+                && existingOrg.Address.Latitude == launderedAddress.Latitude
+                && existingOrg.Address.Longitude == launderedAddress.Longitude
+                && existingOrg.Address.Description == launderedAddress.Description)
+            {
+                launderedAddress.Id = (int)existingOrg.AddressId;
+            }
+            else
+            {
+                var a = 2;
+            }
+
+            return launderedAddress;
+        }
+
+        /// <summary>
+        /// Create employment in OS2 database for person identified by personId
+        /// </summary>
+        /// <param name="empl"></param>
+        /// <param name="personId"></param>
+        /// <returns></returns>
+        public Employment CreateEmploymentIDM(IDMEmployee empl, int personId)
+        {
+            if (empl.AnsættelseFra == null)
+            {
+                return null;
+            }
+
+            var orgUnit = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == empl.OrgEnhedOUID);
+
+            if (orgUnit == null)
+            {
+                throw new Exception("OrgUnit does not exist.");
+            }
+
+            var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnit.OrgOUID == orgUnit.OrgOUID && x.Person.CprNumber == empl.CPRNummer);
+
+            //It is ok that we do not save after inserting untill
+            //we are done as we loop over employments from the view, and 
+            //two view employments will not share an employment in the db. 
+            if (employment == null)
+            {
+                employment = _emplRepo.Insert(new Employment());
+            }
+
+            employment.OrgUnitId = orgUnit.Id;
+            employment.Position = empl.Stillingsbetegnelse ?? "";
+            employment.IsLeader = _dataProvider.GetOrganisationsAsQueryableIDM().Any(x => ExtractInitialsIDM(x.Leder) == empl.BrugerID);
+            employment.PersonId = personId;
+            var startDate = empl.AnsættelseFra ?? new DateTime();
+            employment.StartDateTimestamp = (Int32)(startDate.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            employment.ExtraNumber = 0;
+            employment.CostCenter = 0;
+            employment.EmploymentId = 0;
+            employment.InstituteCode = empl.Institutionskode;
+            employment.ServiceNumber = empl.Tjenestenummer;
+
+
+            if (empl.AnsættelseTil != null && empl.AnsættelseTil != Convert.ToDateTime("31-12-9999"))
+            {
+                employment.EndDateTimestamp = (Int32)(((DateTime)empl.AnsættelseTil).Subtract(new DateTime(1970, 1, 1)).Add(new TimeSpan(1, 0, 0, 0))).TotalSeconds;
+            }
+            else
+            {
+                employment.EndDateTimestamp = 0;
+            }
+
+            return employment;
+        }
+
+        private string ExtractInitialsIDM(string name)
+        {
+            if (name == null || name == "")
+            {
+                return "";
+            }
+
+            var indexFirst = name.IndexOf("(");
+            var indexLast = name.IndexOf(")");
+
+            return name.Substring((indexFirst + 1), indexLast - indexFirst - 1);
+        }
+
     }
 }

@@ -18,6 +18,7 @@ using Ninject;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
+using System.Configuration;
 
 namespace DBUpdater
 {
@@ -47,19 +48,28 @@ namespace DBUpdater
                 ninjectKernel.Get<ISubstituteService>(),
                 ninjectKernel.Get<IGenericRepository<Substitute>>());
 
-            service.MigrateOrganisations();
-            service.MigrateEmployees();
+            var dbSync = ConfigurationManager.AppSettings["DATABASE_INTEGRATION"] ?? "SOFD";
+
+            switch (dbSync)
+            {
+                case "IDM":
+                    service.MigrateOrganisationsIDM();
+                    service.MigrateEmployeesIDM();
+                    break;
+                case "SOFD":
+                    service.MigrateOrganisations();
+                    service.MigrateEmployees();
+                    break;
+            }
+
             historyService.UpdateAddressHistories();
             historyService.CreateNonExistingHistories();
             service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
             service.AddLeadersToReportsThatHaveNone();
 
             _logger.Log($"************* DBUpdater finished ***************", "DBUpdater", 3);
+
         }
-
-
-
-
 
     }
 }

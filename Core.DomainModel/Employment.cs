@@ -23,6 +23,8 @@ namespace Core.DomainModel
         public int OrgUnitId { get; set; }
         public virtual OrgUnit OrgUnit { get; set; }
         public long? CostCenter { get; set; }
+        public string ServiceNumber { get; set; }
+        public string InstituteCode { get; set; }
     }
 
 }

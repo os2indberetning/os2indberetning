@@ -5,46 +5,52 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using log4net;
 
 namespace Core.ApplicationServices.Logger
 {
     public class Logger : ILogger
     {
+        private ILog log;
+
+        public Logger()
+        {
+            log = LogManager.GetLogger("Logger");
+        }
+
         public void Log(string msg, string fileName)
         {
-            using (var file = new StreamWriter("c://logs//os2eindberetning//" + fileName + ".log", true))
-            {
-                var time = DateTime.Now.ToString();
-                file.WriteLine(time + " : " + msg);
-                file.Close();
-            }
+            log.Info(msg);
         }
 
         public void Log(string msg, string fileName, Exception ex)
         {
-            using (var file = new StreamWriter("c://logs//os2eindberetning//" + fileName + ".log", true))
-            {
-                var time = DateTime.Now.ToString();
-                file.WriteLine(time + " : " + msg);
-                if (ex != null) file.WriteLine(ex);
-                file.Close();
-            }
+            log.Error(msg, ex);
         }
 
         public void Log(string msg, string fileName, Exception ex, int level)
         {
-            using (var file = new StreamWriter("c://logs//os2eindberetning//" + fileName + ".log", true))
+            var message = "[Niveau " + level + "] - " + msg;
+            switch (level)
             {
-                var time = DateTime.Now.ToString();
-                file.WriteLine(time + " : " + "[Niveau " + level + "] - " + msg);
-                if (ex != null) file.WriteLine(ex);
-                file.Close();
+                case 1: log.Error(message, ex); break;
+                case 2: log.Warn(message, ex); break;
+                default:
+                    log.Info(message, ex); break;
             }
         }
 
         public void Log(string msg, string fileName, int level)
         {
-            Log(msg, fileName, null, level);
+            var message = "[Niveau " + level + "] - " + msg;
+            switch (level)
+            {
+                case 1: log.Error(message); break;
+                case 2: log.Warn(message); break;
+                default:
+                    log.Info(message); break;
+            }
         }
     }
+
 }

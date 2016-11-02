@@ -267,9 +267,8 @@ namespace DBUpdater
                 _logger.Log($"{this.GetType().Name}, MigrateEmployees() There are dirty addresses. ", "DBUpdater", 3);
                 foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
                 {
-                    //MHN: Mail is disabled until a it is found out which things need to be sent. Until then we just log it. 
                     _logger.Log($"{this.GetType().Name}, MigrateEmployees() Amount of dirty adresses: " + dirtyAddressCount, "DBUpdater", 3);
-                    //_mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
+                    _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
                 }
             }
             Console.WriteLine("Done migrating employees");

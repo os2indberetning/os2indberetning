@@ -26,6 +26,7 @@ namespace DBUpdater
     {
         static void Main(string[] args)
         {
+           
             var ninjectKernel = NinjectWebKernel.CreateKernel();
 
             ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();

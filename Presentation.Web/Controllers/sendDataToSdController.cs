@@ -48,7 +48,6 @@ namespace OS2Indberetning.Controllers
 
         public IHttpActionResult sendDataToSd()
         {
-
             SdService.KoerselOpret20120201OperationRequest opret = new SdService.KoerselOpret20120201OperationRequest();
             SdService.KoerselOpret20120201PortTypeClient client = new SdService.KoerselOpret20120201PortTypeClient();
             SdService.KoerselOpret20120201Type type = new SdService.KoerselOpret20120201Type();

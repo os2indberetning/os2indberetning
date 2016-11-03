@@ -185,33 +185,48 @@ namespace DBUpdater
 
         public IQueryable<IDMOrganisation> GetOrganisationsAsQueryableIDM()
         {
+            string organisationView = ConfigurationManager.AppSettings["DATABASE_VIEW_ORGANISATION"];
+
+            if (organisationView == null)
+            {
+                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null", "DBUpdater", 1);
+            }
+
             var result = new List<IDMOrganisation>();
             using (var sqlConnection1 = new MySqlConnection(_connectionString))
             {
                 var cmd = new MySqlCommand()
                 {
-                    CommandText = "SELECT * FROM OS2_organisation",
+                    CommandText = $"SELECT * FROM {organisationView}",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
 
-                sqlConnection1.Open();
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                try
                 {
-                    var currentRow = new IDMOrganisation()
+                    sqlConnection1.Open();
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
                     {
-                        OUID = SafeGetString(reader, 0),
-                        Navn = SafeGetString(reader, 1),
-                        OverliggendeOUID = SafeGetString(reader, 2),
-                        OverliggendeOrg = SafeGetString(reader, 3),
-                        Leder = SafeGetString(reader, 4),
-                        Vejnavn = SafeGetString(reader, 5),
-                        PostNr = SafeGetString(reader, 6),
-                        PostDistrikt = SafeGetString(reader, 7)
-                    };
-                    result.Add(currentRow);
+                        var currentRow = new IDMOrganisation()
+                        {
+                            OUID = SafeGetString(reader, 0),
+                            Navn = SafeGetString(reader, 1),
+                            OverliggendeOUID = SafeGetString(reader, 2),
+                            OverliggendeOrg = SafeGetString(reader, 3),
+                            Leder = SafeGetString(reader, 4),
+                            Vejnavn = SafeGetString(reader, 5),
+                            PostNr = SafeGetString(reader, 6),
+                            PostDistrikt = SafeGetString(reader, 7)
+                        };
+                        result.Add(currentRow);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //TODO: RRO 2016-11-02 Log fejlen, når log4net frameworket er blevet implementeret
+                    throw;
                 }
             }
             return result.AsQueryable();
@@ -219,46 +234,61 @@ namespace DBUpdater
 
         public IQueryable<IDMEmployee> GetEmployeesAsQueryableIDM()
         {
+            string medarbejderView = ConfigurationManager.AppSettings["DATABASE_VIEW_MEDARBEJDER"];
+
+            if (medarbejderView == null)
+            {
+                _logger.Log($"{this.GetType().Name}, GetEmployeesAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null", "DBUpdater", 1);
+            }
+
             var result = new List<IDMEmployee>();
 
-            using (var sqlConnection1 = new SqlConnection(_connectionString))
+            using (var sqlConnection1 = new MySqlConnection(_connectionString))
             {
-                var cmd = new SqlCommand()
+                var cmd = new MySqlCommand()
                 {
-                    CommandText = "SELECT * FROM OS2_medarbejdere",
+                    CommandText = $"SELECT * FROM {medarbejderView}",
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
 
-                sqlConnection1.Open();
-
-                var reader = cmd.ExecuteReader();
-
-                while (reader.Read())
+                try
                 {
-                    var temp1 = SafeGetString(reader, 3);
-                    var temp2 = SafeGetString(reader, 4);
+                    sqlConnection1.Open();
 
-                    var currentRow = new IDMEmployee
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
                     {
-                        Institutionskode = SafeGetString(reader, 0),
-                        Tjenestenummer = SafeGetString(reader, 1),
-                        CPRNummer = SafeGetString(reader, 2),
-                        AnsættelseFra = SafeGetString(reader, 3) == "" ? DateTime.Now : Convert.ToDateTime(SafeGetString(reader, 3)),
-                        AnsættelseTil = SafeGetString(reader, 4) == "" ? DateTime.Parse("31-12-9999") : Convert.ToDateTime(SafeGetString(reader, 4)),
-                        Fornavn = SafeGetString(reader, 5),
-                        Efternavn = SafeGetString(reader, 6),
-                        APOSUID = SafeGetString(reader, 7),
-                        BrugerID = SafeGetString(reader, 8),
-                        OrgEnhed = SafeGetString(reader, 9),
-                        OrgEnhedOUID = SafeGetString(reader, 10),
-                        Email = SafeGetString(reader, 11),
-                        Stillingsbetegnelse = SafeGetString(reader, 12),
-                        Vejnavn = SafeGetString(reader, 13),
-                        PostNr = SafeGetString(reader, 15),
-                        PostDistrikt = SafeGetString(reader, 16)
-                    };
-                    result.Add(currentRow);
+                        var temp1 = SafeGetString(reader, 3);
+                        var temp2 = SafeGetString(reader, 4);
+
+                        var currentRow = new IDMEmployee
+                        {
+                            Institutionskode = SafeGetString(reader, 0),
+                            Tjenestenummer = SafeGetString(reader, 1),
+                            CPRNummer = SafeGetString(reader, 2),
+                            AnsættelseFra = SafeGetString(reader, 3) == "" ? DateTime.Now : Convert.ToDateTime(SafeGetString(reader, 3)),
+                            AnsættelseTil = SafeGetString(reader, 4) == "" ? DateTime.Parse("31-12-9999") : Convert.ToDateTime(SafeGetString(reader, 4)),
+                            Fornavn = SafeGetString(reader, 5),
+                            Efternavn = SafeGetString(reader, 6),
+                            APOSUID = SafeGetString(reader, 7),
+                            BrugerID = SafeGetString(reader, 8),
+                            OrgEnhed = SafeGetString(reader, 9),
+                            OrgEnhedOUID = SafeGetString(reader, 10),
+                            Email = SafeGetString(reader, 11),
+                            Stillingsbetegnelse = SafeGetString(reader, 12),
+                            Vejnavn = SafeGetString(reader, 13),
+                            PostNr = SafeGetString(reader, 15),
+                            PostDistrikt = SafeGetString(reader, 16)
+                        };
+                        result.Add(currentRow);
+                    }
+                }
+                catch (Exception e)
+                {
+                    //TODO: RRO 2016-11-02 Log fejlen når log4net frameworket er blevet implementeret
+                    throw;
                 }
             }
             return result.AsQueryable();

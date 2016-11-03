@@ -307,6 +307,9 @@
     <Content Include="Content\fonts\DejaVu\DejaVuSerif-Italic.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSerif.ttf" />
     <Content Include="Content\fonts\DejaVu\LICENSE" />
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />

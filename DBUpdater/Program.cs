@@ -60,6 +60,9 @@ namespace DBUpdater
                     service.MigrateOrganisations();
                     service.MigrateEmployees();
                     break;
+                default:
+                    _logger.Log("Could not read database integration type, check CustomSettings.config. DBUpdater will NOT run.", "dbupdater");
+                    return;
             }
 
             historyService.UpdateAddressHistories();

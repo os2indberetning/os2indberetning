@@ -39,11 +39,7 @@ namespace OS2Indberetning.Controllers
             _logger.Log("Before initialize. User.Identity.Name=" + User.Identity.Name, "web", 3);
             base.Initialize(requestContext);
 
-            //string[] httpUser = User.Identity.Name.Split('\\');
-            string[] httpUser = new string[2];
-            httpUser[0] = ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"];
-            httpUser[1] = "mhn";
-            //TESTETTSTESTESTESTEST
+            string[] httpUser = User.Identity.Name.Split('\\');
 
             _logger.Log("httpuser: " + httpUser, "web", 3);
 

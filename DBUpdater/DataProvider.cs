@@ -225,7 +225,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    //TODO: RRO 2016-11-02 Log fejlen, når log4net frameworket er blevet implementeret
+                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading organisations from IDM view", "dbupdater", e);
                     throw;
                 }
             }
@@ -287,7 +287,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    //TODO: RRO 2016-11-02 Log fejlen når log4net frameworket er blevet implementeret
+                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading employees from IDM view", "dbupdater", e);
                     throw;
                 }
             }

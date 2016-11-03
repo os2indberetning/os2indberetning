@@ -531,10 +531,27 @@ namespace DBUpdater
 
         public List<String> SplitAddressIDM(string street, string postNumber, string postDistrict)
         {
-            var indexOfLast = street.LastIndexOf(" ");
+            //var indexOfLast = street.LastIndexOf(" ");
+            //var result = new List<string>();
+            //result.Add(street.Substring(0, indexOfLast));
+            //result.Add(street.Substring(indexOfLast + 1));
+
+            /* RRO:
+             * This method has been changed to look like the "regular" SplitAddress method, 
+             * since the above code doesnt cope very well with addresses of apartments that include floor (and door).
+             */
+
             var result = new List<string>();
-            result.Add(street.Substring(0, indexOfLast));
-            result.Add(street.Substring(indexOfLast + 1));
+            var index = street.IndexOfAny("0123456789".ToCharArray());
+            if (index == -1)
+            {
+                result.Add(street);
+            }
+            else
+            {
+                result.Add(street.Substring(0, index - 1));
+                result.Add(street.Substring(index, street.Length - index));
+            }
             result.Add(postDistrict);
             result.Add(postNumber);
 

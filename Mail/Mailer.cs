@@ -15,6 +15,7 @@ namespace Mail
         
         public static void Main(string[] args)
         {
+            
             ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
             _logger.Log($"************* Mail started ***************", "mail", 3);
             var service = NinjectWebKernel.CreateKernel().Get<ConsoleMailerService>();

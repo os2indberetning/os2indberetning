@@ -27,7 +27,7 @@ namespace Infrastructure.DmzSync
     {
         static void Main(string[] args)
         {
-
+           
             var logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
        
             // hacks because of error with Entity Framework.

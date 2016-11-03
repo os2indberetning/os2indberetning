@@ -38,17 +38,18 @@ namespace Mail
         public void RunMailService()
         {
 
-            var logMailer = new LogMailer.LogMailer(new LogParser(), new LogReader(), new MailSender(_logger));
-            try
-            {
-                logMailer.Send();
-                _logger.Log($"{this.GetType().Name}, RunMailerService(): logmails send succesfully", "mail", 3);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Kunne ikke sende daglig aktivitet i fejlloggen!");
-                _logger.Log("Fejl under afsendelse af daglig log aktivitet. Daglig aktivitet ikke udsendt.", "mail", e, 2);
-            }
+            //TODO: MHN: 11032016: Uncommented due to new log implementation (Log4Net). Refactor when time...
+            //var logMailer = new LogMailer.LogMailer(new LogParser(), new LogReader(), new MailSender(_logger));
+            //try
+            //{
+            //    logMailer.Send();
+            //    _logger.Log($"{this.GetType().Name}, RunMailerService(): logmails send succesfully", "mail", 3);
+            //}
+            //catch (Exception e)
+            //{
+            //    Console.WriteLine("Kunne ikke sende daglig aktivitet i fejlloggen!");
+            //    _logger.Log("Fejl under afsendelse af daglig log aktivitet. Daglig aktivitet ikke udsendt.", "mail", e, 2);
+            //}
             
             var startOfDay = ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00));
             var endOfDay = ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));

@@ -404,7 +404,6 @@
     </Content>
     <Content Include="CustomSettings.config">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="packages.config" />
   </ItemGroup>

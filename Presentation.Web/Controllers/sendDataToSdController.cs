@@ -48,16 +48,26 @@ namespace OS2Indberetning.Controllers
 
         public IHttpActionResult sendDataToSd()
         {
-            SdService.KoerselOpret20120201OperationRequest opret = new SdService.KoerselOpret20120201OperationRequest();
-            SdService.KoerselOpret20120201PortTypeClient client = new SdService.KoerselOpret20120201PortTypeClient();
-            SdService.KoerselOpret20120201Type type = new SdService.KoerselOpret20120201Type();
-            SdService.KoerselOpret20120201OperationResponse respone = new SdService.KoerselOpret20120201OperationResponse();
+            SdService.KoerselOpret20120201OperationRequest opret;
+            SdService.KoerselOpret20120201PortTypeClient client;
 
-            opret.InddataStruktur = new SdService.KoerselOpretRequestType();
+            try
+            {
+                opret = new SdService.KoerselOpret20120201OperationRequest();
+                client = new SdService.KoerselOpret20120201PortTypeClient();
+                client.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"] ?? "";
+                client.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"] ?? "";
+                // SdService.KoerselOpret20120201Type type = new SdService.KoerselOpret20120201Type();
+                // SdService.KoerselOpret20120201OperationResponse respone = new SdService.KoerselOpret20120201OperationResponse();
 
-            client.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"];
-            client.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"];
+                opret.InddataStruktur = new SdService.KoerselOpretRequestType();
 
+            }
+            catch (Exception e)
+            {
+
+                throw;
+            }
             //var reports = _repo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList();
 
             try
@@ -87,18 +97,19 @@ namespace OS2Indberetning.Controllers
                     }
                     opret.InddataStruktur.Regel60DageIndikator = false;
                   
-             //send data to SD
+                    //send data to SD
                     try
                     {
-                     //   var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
+                        // var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
                         t.Status = ReportStatus.Invoiced;
                         _repo.Save();
 
                     }
-            catch (Exception e) {
+                    catch (Exception e) {
+                        _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when sending data", "web", e, 1);
                         return StatusCode(HttpStatusCode.InternalServerError);
                     }
-            }
+                }
             }
             catch (Exception e)
             {

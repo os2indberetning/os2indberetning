@@ -65,7 +65,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-
+                _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when initating SD client", "web", e, 1);
                 throw;
             }
             //var reports = _repo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList();
@@ -101,7 +101,13 @@ namespace OS2Indberetning.Controllers
                     try
                     {
                         // var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
+
                         t.Status = ReportStatus.Invoiced;
+
+                        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                        var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
+                        t.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
+
                         _repo.Save();
 
                     }
@@ -113,6 +119,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
+                _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when iterating over reports to send", "web", e, 1);
                 return StatusCode(HttpStatusCode.InternalServerError);
             }
 

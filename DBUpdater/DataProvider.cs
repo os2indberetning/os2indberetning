@@ -104,9 +104,9 @@ namespace DBUpdater
             }
 
             var result = new List<Organisation>();
-            using (var sqlConnection = new MySqlConnection(_connectionString))
+            using (var sqlConnection = new SqlConnection(_connectionString))
             {
-                var cmd = new MySqlCommand
+                var cmd = new SqlCommand
                 {
                     CommandText = "SELECT * FROM " + organisationView,
                     CommandType = CommandType.Text,

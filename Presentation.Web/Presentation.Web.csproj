@@ -287,12 +287,12 @@
     </Compile>
     <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportController.js" />
+    <Content Include="App\Admin\HTML\Administration\Modal\ConfirmDataSendSDModalTemplate.html" />
     <Content Include="App\Admin\HTML\Document\View.html" />
     <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
     <Content Include="connections.config">
       <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
@@ -307,9 +307,6 @@
     <Content Include="Content\fonts\DejaVu\DejaVuSerif-Italic.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSerif.ttf" />
     <Content Include="Content\fonts\DejaVu\LICENSE" />
-    <Content Include="CustomSettings.config">
-      <SubType>Designer</SubType>
-    </Content>
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -329,7 +326,6 @@
     <Content Include="App\Admin\AdminMenuController.js" />
     <Content Include="App\Admin\Controllers\AddressLaundry\AddressLaundryController.js" />
     <Content Include="App\Admin\Controllers\Administration\AdministrationController.js" />
-    <Content Include="App\Admin\Controllers\Administration\Modal\ConfirmDataSendSDModalTemplate.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\GenerateFileModalController.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\RemoveAdminModalController.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\AddAdminModalController.js" />
@@ -735,6 +731,9 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

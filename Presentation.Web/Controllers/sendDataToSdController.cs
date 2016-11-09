@@ -100,7 +100,7 @@ namespace OS2Indberetning.Controllers
                     //send data to SD
                     try
                     {
-                        // var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
+                        var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
 
                         t.Status = ReportStatus.Invoiced;
 

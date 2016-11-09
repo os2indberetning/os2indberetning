@@ -293,6 +293,7 @@
     <Content Include="App\Admin\HTML\Report\View.html" />
     <Content Include="connections.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
@@ -418,7 +419,6 @@
     <Content Include="App\MyReports\MyPendingReportsController.js" />
     <Content Include="App\MyReports\View.html" />
     <Content Include="App\Services\BankAccountService.js" />
-    <Content Include="App\Services\ConfigurationResource.js" />
     <Content Include="App\Services\EmailNotificationResouce.js" />
     <Content Include="App\Services\Error\ServiceErrorController.js" />
     <Content Include="App\Services\FileResource.js" />

@@ -81,7 +81,7 @@ namespace DBUpdater
 
         public void UpdateAddressHistories()
         {
-            _logger.Log($"{this.GetType().Name}, UpdateAddressHistories(): Initial", "DBUpdater", 1);
+            _logger.Log($"{this.GetType().Name}, UpdateAddressHistories(): Initial", "DBUpdater", 3);
             try
             {
                 var i = 0;

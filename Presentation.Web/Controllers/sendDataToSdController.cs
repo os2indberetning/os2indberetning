@@ -80,9 +80,9 @@ namespace OS2Indberetning.Controllers
 
                     opret.InddataStruktur.AarsagTekst = t.Purpose;
                     opret.InddataStruktur.AnsaettelseIdentifikator = t.EmploymentId.ToString();
-                    opret.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"];
+                    opret.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? "";
                     opret.InddataStruktur.PersonnummerIdentifikator = t.Person.CprNumber;
-                    opret.InddataStruktur.RegistreringTypeIdentifikator = "MANGLER - MANGLER - MANGLER";
+                    opret.InddataStruktur.RegistreringTypeIdentifikator = t.TFCode;
                     opret.InddataStruktur.KoerselDato = KoerseldateTime.Date;
                     opret.InddataStruktur.KilometerMaal = Convert.ToDecimal(t.Distance);
 
@@ -112,7 +112,7 @@ namespace OS2Indberetning.Controllers
 
                     }
                     catch (Exception e) {
-                        _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when sending data", "web", e, 1);
+                        _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", "web", e, 1);
                         return StatusCode(HttpStatusCode.InternalServerError);
                     }
                 }
@@ -125,6 +125,5 @@ namespace OS2Indberetning.Controllers
 
             return Ok();
         }
-
     }
 }

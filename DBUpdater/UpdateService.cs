@@ -564,6 +564,7 @@ namespace DBUpdater
         public void MigrateOrganisationsIDM()
         {
             var orgs = _dataProvider.GetOrganisationsAsQueryableIDM();
+            _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM() Amount of orgs=" + orgs.Count(), "DBUpdater", 3);
 
             var i = 0;
             foreach (var org in orgs)
@@ -576,8 +577,9 @@ namespace DBUpdater
 
                 var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
 
-                if (org.Vejnavn == null)
+                if (string.IsNullOrEmpty(org.Vejnavn))
                 {
+                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(), Orgunit skipped since it had no address, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count(), "DBUpdater", 2);
                     continue;
                 }
 
@@ -602,7 +604,15 @@ namespace DBUpdater
                     orgToInsert.Address = workAddress;
                 }
 
-                _orgRepo.Save();
+                try
+                {
+                    _orgRepo.Save();
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", "DBUpdater", e, 1);
+                    throw;
+                }
 
                 if (addressChanged)
                 {
@@ -612,13 +622,30 @@ namespace DBUpdater
             foreach (var org in orgs)
             {
                 var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
-                if (org.OverliggendeOUID != null && org.OverliggendeOUID != "")
+
+                // Check if orgunit was imported form view to Indberetning database, since it could have been skipped in previous loop, if it had no address.
+                if(orgToInsert == null)
+                {
+                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(), ParentOrgunit not added to orgunit, since orgunit was not found, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count(), "DBUpdater", 2);
+                    continue;
+                }
+
+                if (!string.IsNullOrEmpty(org.OverliggendeOUID))
                 {
                     orgToInsert.ParentId = _orgRepo.AsQueryable().Single(x => x.OrgOUID == org.OverliggendeOUID).Id;
                 }
-                _orgRepo.Save();
-            }
 
+                try
+                {
+                    _orgRepo.Save();
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", "DBUpdater", e, 1);
+                    throw;
+                }
+            }
+            _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM() DONE, Amount of orgs=" + orgs.Count(), "DBUpdater", 3);
             Console.WriteLine("Done migrating organisations.");
         }
 
@@ -627,6 +654,7 @@ namespace DBUpdater
         /// </summary>
         public void MigrateEmployeesIDM()
         {
+            _logger.Log($"{this.GetType().Name}, MigrateEmployeesIDM() Start", "DBUpdater", 3);
             foreach (var person in _personRepo.AsQueryable())
             {
                 person.IsActive = false;
@@ -663,7 +691,15 @@ namespace DBUpdater
                 personToInsert.Mail = employee.Email ?? "";
                 personToInsert.IsActive = true;
             }
-            _personRepo.Save();
+            try
+            {
+                _personRepo.Save();
+            }
+            catch (Exception e)
+            {
+                _logger.Log($"{this.GetType().Name}, MigrateEmployeesIDM() error on save", "DBUpdater", 1);
+                throw;
+            }
 
             /**
              * We need the person id before we can attach personal addresses
@@ -725,6 +761,7 @@ namespace DBUpdater
                     _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
                 }
             }
+            _logger.Log($"{this.GetType().Name}, MigrateEmployeesIDM() Done", "DBUpdater", 3);
         }
 
         /// <summary>

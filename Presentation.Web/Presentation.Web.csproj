@@ -733,6 +733,7 @@
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
     <Content Include="CustomSettings.config">
       <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

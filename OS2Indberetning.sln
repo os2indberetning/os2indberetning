@@ -32,6 +32,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApplicationServices.Test", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{EFB1501E-877D-4D4D-B810-9B75B376A065}"
 	ProjectSection(SolutionItems) = preProject
+		connections.config = connections.config
+		CustomSettings.config = CustomSettings.config
 		GenerateTestCoverage.bat = GenerateTestCoverage.bat
 		Performance1.psess = Performance1.psess
 		RunAllTests.bat = RunAllTests.bat
@@ -60,12 +62,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.AddressServices.Test", "Infrastructure.AddressServices.Test\Infrastructure.AddressServices.Test.csproj", "{5B3D69E4-AACF-42A6-95B1-23484E689346}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmzSync.Test", "DmzSync.Test\DmzSync.Test.csproj", "{2CA4B8F8-39E7-4286-B5A9-6429D37FDBE0}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ConfigFiles", "ConfigFiles", "{71F1599F-BEB5-46B8-A90C-209E8CA101E8}"
-	ProjectSection(SolutionItems) = preProject
-		connections.config = connections.config
-		CustomSettings.config = CustomSettings.config
-	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -405,7 +405,7 @@
     <None Include="..\CustomSettings.config">
       <Link>CustomSettings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

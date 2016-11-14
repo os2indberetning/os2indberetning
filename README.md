@@ -50,7 +50,7 @@ Hvis mobil applikationen bruges, så kører den op mod en webserver og en databa
 ## Opsætning
 
 Tilpasning og opsætning af løsning gøres igennem konfigurationsfiler som ligger i projekternes rodmapper. Herunder gennemgåes de forskellige projekter og de relevante konfigurationsfiler, hvor der skal foretages ændringer.
-Der er to konfigurationsfiler CustomSettings.config og connections.config som skal sættes op før projektet kan køre.
+Der er to konfigurationsfiler CustomSettings.config og connections.config som skal sættes op før projektet kan køre. CustomSettings.config og connections.config skal tilføjes til Solution Items mappen, hvorefter de automatisk vil være linket rundt til de relevante projekter. 
 
 #### CustomSettings.config
 
@@ -76,6 +76,13 @@ CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuel
   <add key="PROTECTED_AdministrativeCostCenterPrefix" value=""/>
   <add key="PROTECTED_AdministrativeAccount" value=""/>
 
+  <add key="UseSD" value=""/>
+  <add key="PROTECTED_SDUserName" value=""/>
+  <add key="PROTECTED_SDUserPassword" value=""/>
+  <add key="PROTECTED_institutionNumber" value=""/>
+  
+  <add key="PROTECTED_muniplicity" value=""/>
+
   <add key="MapStartStreetName" value=""/>
   <add key="MapStartStreetNumber" value=""/>
   <add key="MapStartZipCode" value=""/>
@@ -97,7 +104,15 @@ CustomSettings.config ligger ikke i repositoriet og skal derfor tilføjes manuel
   <add key="PurposeHelpText" value=""/>
   <add key="ReadReportCommentHelp" value=""/>
   <add key="NoLicensePlateHelpText" value=""/>
+  <add key="AccountHelpText" value=""/>
+
   <add key="SEPTIMA_API_KEY" value=""/>
+  
+  <add key="AlternativeCalculationMethod" value=""/>
+
+  <add key="DATABASE_VIEW_MEDARBEJDER" value=""/>
+  <add key="DATABASE_VIEW_ORGANISATION" value=""/>
+  <add key="DATABASE_INTEGRATION" value=""/>
 </appSettings>
 ```
 
@@ -155,6 +170,21 @@ Administrative medarbejdere genkendes på at de har et omkostningssted som start
 
 ###### PROTECTED_AdministrativeAccount
 Udfyldes med den konto hvor kørsel fra administrative medarbejdere skal konteres 
+
+###### UseSD
+true/false - angiver om der bruges SD (true) eller KMD (false) snitflade.
+
+###### PROTECTED_SDUserName
+Udfyldes med brugernavn til SD snitflade. 
+
+###### PROTECTED_SDUserPassword
+Udfyldes med password til SD snitflade.
+
+###### PROTECTED_institutionNumber
+Udfyldes med institutionsnummer til SD snitflade.
+
+###### PROTECTED_muniplicity
+Udfyldes med navn på kommune til brug i rapportmodul.
 
 ##### Startadresse til kort
 Nedenfor beskrives de oplysninger der skal indtastes for at vælge den adresse kortet skal starte med at vise i kørselsindberetning.
@@ -237,10 +267,24 @@ Hjælpeteksten vises under Indberet tjenestekørsel, når man har valgt aflæst 
 ###### NoLicensePlateHelpText
 Udfyles med hjælpetekst der fortæller brugeren han ingen nummerplader har. Hjælpeteksten vises under Indberet tjenestekørsel, når man ingen nummerplader har.
 
+###### AccountHelpTextHelpText
+
 ##### Ruteberegning
 
 ###### SEPTIMA_API_KEY
 Udfyldes med api-nøgle til Septimas ruteberegner.
+
+###### AlternativeCalculationMethod
+true/false - indikerer om der skal bruges Norddjurs Kommunes alternative beregningsmetode.
+
+###### DATABASE_VIEW_MEDARBEJDER
+Udfyldes med navn på tabellen med medarbejderdata i kommunens view.
+
+###### DATABASE_VIEW_ORGANISATION
+Udfyldes med navn på tabellen med organisations
+
+###### DATABASE_INTEGRATION
+SOFD/IDM - angiver om der bruges SOFD eller IDM.
 
 #### connections.config
 connections.config ligger ikke i repositoriet og skal derfor tilføjes manuelt. Formatet er som følger og en beskrivelse af de enkelte felter findes nedenunder.

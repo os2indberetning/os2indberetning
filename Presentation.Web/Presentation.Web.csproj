@@ -289,10 +289,6 @@
     <Content Include="App\Admin\HTML\Document\View.html" />
     <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
-    <Content Include="connections.config">
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Oblique.ttf" />
@@ -306,6 +302,14 @@
     <Content Include="Content\fonts\DejaVu\DejaVuSerif-Italic.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSerif.ttf" />
     <Content Include="Content\fonts\DejaVu\LICENSE" />
+    <Content Include="..\connections.config">
+      <Link>connections.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="..\CustomSettings.config">
+      <Link>CustomSettings.config</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -723,9 +727,6 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
-    <Content Include="CustomSettings.config">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -2440,4 +2441,11 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
+  <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
+    <Copy SourceFiles="%(Content.Identity)" 
+		  DestinationFiles="%(Content.Link)" 
+		  SkipUnchangedFiles='true' 
+		  OverwriteReadOnlyFiles='true' 
+		  Condition="'%(Content.Link)' != ''" />
+  </Target>
 </Project>

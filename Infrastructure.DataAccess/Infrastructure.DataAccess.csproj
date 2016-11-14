@@ -389,6 +389,10 @@
     <Compile Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.Designer.cs">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201610171116384_AddedIDMFields.cs" />
+    <Compile Include="Migrations\201610171116384_AddedIDMFields.Designer.cs">
+      <DependentUpon>201610171116384_AddedIDMFields.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -401,7 +405,7 @@
     <None Include="..\CustomSettings.config">
       <Link>CustomSettings.config</Link>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -654,6 +658,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201608221338359_HomeToBorderDistanceAddedToDriveReport.resx">
       <DependentUpon>201608221338359_HomeToBorderDistanceAddedToDriveReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201610171116384_AddedIDMFields.resx">
+      <DependentUpon>201610171116384_AddedIDMFields.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -10,6 +10,7 @@ using DBUpdater.Models;
 using Core.ApplicationServices;
 using Ninject;
 using Core.ApplicationServices.Logger;
+using MySql.Data.MySqlClient;
 
 namespace DBUpdater
 {
@@ -103,18 +104,18 @@ namespace DBUpdater
             }
 
             var result = new List<Organisation>();
-            using (var sqlConnection1 = new SqlConnection(_connectionString))
+            using (var sqlConnection = new SqlConnection(_connectionString))
             {
                 var cmd = new SqlCommand
                 {
                     CommandText = "SELECT * FROM " + organisationView,
                     CommandType = CommandType.Text,
-                    Connection = sqlConnection1
+                    Connection = sqlConnection
                 };
 
                 try
                 {
-                    sqlConnection1.Open();
+                    sqlConnection.Open();
                     var reader = cmd.ExecuteReader();
                     _logger.Log($"{this.GetType().Name}, Before looking at actual row. Organisation", "DBUpdater", 1);
                     while (reader.Read())
@@ -144,7 +145,7 @@ namespace DBUpdater
             return result.AsQueryable();
         }
 
-        private DateTime? SafeGetDate(SqlDataReader reader, int colIndex)
+        private DateTime? SafeGetDate(IDataReader reader, int colIndex)
         {
             if (!reader.IsDBNull(colIndex))
             {
@@ -153,7 +154,7 @@ namespace DBUpdater
             return null;
         }
 
-        private string SafeGetString(SqlDataReader reader, int colIndex)
+        private string SafeGetString(IDataReader reader, int colIndex)
         {
             if (!reader.IsDBNull(colIndex))
             {
@@ -162,7 +163,7 @@ namespace DBUpdater
             return null;
         }
 
-        private int? SafeGetInt16(SqlDataReader reader, int colIndex)
+        private int? SafeGetInt16(IDataReader reader, int colIndex)
         {
             if (!reader.IsDBNull(colIndex))
             {
@@ -182,7 +183,118 @@ namespace DBUpdater
             return null;
         }
 
-        private int? SafeGetInt32(SqlDataReader reader, int colIndex)
+        public IQueryable<IDMOrganisation> GetOrganisationsAsQueryableIDM()
+        {
+            string organisationView = ConfigurationManager.AppSettings["DATABASE_VIEW_ORGANISATION"];
+
+            if (organisationView == null)
+            {
+                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null", "DBUpdater", 1);
+            }
+
+            var result = new List<IDMOrganisation>();
+            using (var sqlConnection1 = new MySqlConnection(_connectionString))
+            {
+                var cmd = new MySqlCommand()
+                {
+                    CommandText = $"SELECT * FROM {organisationView}",
+                    CommandType = CommandType.Text,
+                    Connection = sqlConnection1
+                };
+
+                try
+                {
+                    sqlConnection1.Open();
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var currentRow = new IDMOrganisation()
+                        {
+                            OUID = SafeGetString(reader, 0),
+                            Navn = SafeGetString(reader, 1),
+                            OverliggendeOUID = SafeGetString(reader, 2),
+                            OverliggendeOrg = SafeGetString(reader, 3),
+                            Leder = SafeGetString(reader, 4),
+                            Vejnavn = SafeGetString(reader, 5),
+                            PostNr = SafeGetString(reader, 6),
+                            PostDistrikt = SafeGetString(reader, 7)
+                        };
+                        result.Add(currentRow);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading organisations from IDM view", "dbupdater", e);
+                    throw;
+                }
+            }
+            return result.AsQueryable();
+        }
+
+        public IQueryable<IDMEmployee> GetEmployeesAsQueryableIDM()
+        {
+            string medarbejderView = ConfigurationManager.AppSettings["DATABASE_VIEW_MEDARBEJDER"];
+
+            if (medarbejderView == null)
+            {
+                _logger.Log($"{this.GetType().Name}, GetEmployeesAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null", "DBUpdater", 1);
+            }
+
+            var result = new List<IDMEmployee>();
+
+            using (var sqlConnection1 = new MySqlConnection(_connectionString))
+            {
+                var cmd = new MySqlCommand()
+                {
+                    CommandText = $"SELECT * FROM {medarbejderView}",
+                    CommandType = CommandType.Text,
+                    Connection = sqlConnection1
+                };
+
+                try
+                {
+                    sqlConnection1.Open();
+
+                    var reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        var temp1 = SafeGetString(reader, 3);
+                        var temp2 = SafeGetString(reader, 4);
+
+                        var currentRow = new IDMEmployee
+                        {
+                            Institutionskode = SafeGetString(reader, 0),
+                            Tjenestenummer = SafeGetString(reader, 1),
+                            CPRNummer = SafeGetString(reader, 2),
+                            AnsættelseFra = SafeGetString(reader, 3) == "" ? DateTime.Now : Convert.ToDateTime(SafeGetString(reader, 3)),
+                            AnsættelseTil = SafeGetString(reader, 4) == "" ? DateTime.Parse("31-12-9999") : Convert.ToDateTime(SafeGetString(reader, 4)),
+                            Fornavn = SafeGetString(reader, 5),
+                            Efternavn = SafeGetString(reader, 6),
+                            APOSUID = SafeGetString(reader, 7),
+                            BrugerID = SafeGetString(reader, 8),
+                            OrgEnhed = SafeGetString(reader, 9),
+                            OrgEnhedOUID = SafeGetString(reader, 10),
+                            Email = SafeGetString(reader, 11),
+                            Stillingsbetegnelse = SafeGetString(reader, 12),
+                            Vejnavn = SafeGetString(reader, 13),
+                            PostNr = SafeGetString(reader, 15),
+                            PostDistrikt = SafeGetString(reader, 16)
+                        };
+                        result.Add(currentRow);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading employees from IDM view", "dbupdater", e);
+                    throw;
+                }
+            }
+            return result.AsQueryable();
+        }
+
+        private int? SafeGetInt32(IDataReader reader, int colIndex)
         {
             if (!reader.IsDBNull(colIndex))
             {
@@ -191,7 +303,7 @@ namespace DBUpdater
             return null;
         }
 
-        private long? SafeGetInt64(SqlDataReader reader, int colIndex)
+        private long? SafeGetInt64(IDataReader reader, int colIndex)
         {
             if (!reader.IsDBNull(colIndex))
             {
@@ -199,5 +311,6 @@ namespace DBUpdater
             }
             return null;
         }
+
     }
 }

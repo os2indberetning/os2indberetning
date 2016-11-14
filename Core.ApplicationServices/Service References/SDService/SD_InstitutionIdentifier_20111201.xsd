@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<schema xmlns:sd="urn:oio:sd:snitflader:2011.12.01" attributeFormDefault="unqualified" elementFormDefault="qualified" targetNamespace="urn:oio:sd:snitflader:2011.12.01" version="1.0" xmlns="http://www.w3.org/2001/XMLSchema">
+  <element name="InstitutionIdentifier" type="sd:InstitutionIdentifierType" />
+  <simpleType name="InstitutionIdentifierType">
+    <restriction base="string" />
+  </simpleType>
+</schema>

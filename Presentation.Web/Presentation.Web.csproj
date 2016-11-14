@@ -109,6 +109,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Spatial, Version=5.6.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Spatial.5.6.0\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
@@ -259,7 +260,6 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CoordinateController.cs" />
-    <Compile Include="Controllers\EksportController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MailNotificationsController.cs" />
     <Compile Include="Controllers\FileController.cs" />
@@ -277,6 +277,7 @@
     <Compile Include="Controllers\PersonalRoutesController.cs" />
     <Compile Include="Controllers\PersonController.cs" />
     <Compile Include="Controllers\AddressController.cs" />
+    <Compile Include="Controllers\sendDataToSdController.cs" />
     <Compile Include="Controllers\SubstitutesController.cs" />
     <Compile Include="Controllers\PointsController.cs" />
     <Compile Include="Controllers\TestReportsController.cs" />
@@ -286,9 +287,14 @@
     </Compile>
     <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportController.js" />
+    <Content Include="App\Admin\HTML\Administration\Modal\ConfirmDataSendSDModalTemplate.html" />
     <Content Include="App\Admin\HTML\Document\View.html" />
     <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
+    <Content Include="connections.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Oblique.ttf" />
@@ -302,24 +308,20 @@
     <Content Include="Content\fonts\DejaVu\DejaVuSerif-Italic.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSerif.ttf" />
     <Content Include="Content\fonts\DejaVu\LICENSE" />
-    <Content Include="..\connections.config">
-      <Link>connections.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="..\CustomSettings.config">
-      <Link>CustomSettings.config</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
-    <Compile Include="Models\EksportDataModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
+    <Compile Include="Models\SDModels.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
+    <Compile Include="Service References\SdService\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Startup.cs" />
-    <Content Include="Views\Shared\_Layout2.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App\Admin\AdminMenuController.js" />
@@ -328,6 +330,7 @@
     <Content Include="App\Admin\Controllers\Administration\Modal\GenerateFileModalController.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\RemoveAdminModalController.js" />
     <Content Include="App\Admin\Controllers\Administration\Modal\AddAdminModalController.js" />
+    <Content Include="App\Admin\Controllers\Administration\Modal\SendDataToSdController.js" />
     <Content Include="App\Admin\Controllers\OrgUnit\OrgUnitController.js" />
     <Content Include="App\Admin\Controllers\Account\DeleteAccountController.js" />
     <Content Include="App\Admin\Controllers\Account\AccountController.js" />
@@ -426,6 +429,7 @@
     <Content Include="App\Services\Error\ServiceError.html" />
     <Content Include="App\Services\AutocompleteResource.js" />
     <Content Include="App\Services\RouteColumnFormatterService.js" />
+    <Content Include="App\Services\sendDataToSdResource.js" />
     <Content Include="App\Services\StandardAddressResource.js" />
     <Content Include="App\Services\OrgUnitResource.js" />
     <Content Include="App\Services\RouteContainerResource.js" />
@@ -727,6 +731,10 @@
     <Content Include="Content\Themes\SbAdmin\css\plugins\morris.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin-rtl.css" />
     <Content Include="Content\Themes\SbAdmin\css\sb-admin.css" />
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -1223,15 +1231,25 @@
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-HK.min.js" />
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-TW.min.js" />
     <Content Include="Scripts\kendo\pako_deflate.min.js" />
-    <None Include="Properties\PublishProfiles\Miracle-Test.pubxml" />
     <None Include="Properties\PublishProfiles\Skanderborg.pubxml" />
-    <None Include="Properties\PublishProfiles\Test-backend.pubxml" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
     <Content Include="Scripts\loading-bar.js" />
     <Content Include="Scripts\loading-bar.min.js" />
     <Content Include="Scripts\pnotify.custom.min.js" />
+    <None Include="Service References\SdService\configuration91.svcinfo" />
+    <None Include="Service References\SdService\configuration.svcinfo" />
+    <Content Include="Service References\SdService\OS2Indberetning.SdService.KoerselOpret20120201OperationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <Content Include="Service References\SdService\OS2Indberetning.SdService.KoerselOpret20120201Type.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Content>
+    <None Include="Service References\SdService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
     <Content Include="template\loading-template.html" />
     <Content Include="template\typeahead\typeahead-match.html" />
     <Content Include="template\typeahead\typeahead-popup.html" />
@@ -1428,6 +1446,7 @@
     <Content Include="Content\Themes\SbAdmin\fonts\glyphicons-halflings-regular.ttf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <None Include="Properties\PublishProfiles\Syddjurs.pubxml" />
     <None Include="Scripts\jquery-1.10.2.intellisense.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-dj.js" />
     <Content Include="Scripts\i18n\angular-locale_aa-er.js" />
@@ -2330,7 +2349,46 @@
     <Content Include="Scripts\kendo\kendo.view.min.js.map" />
     <Content Include="Scripts\kendo\kendo.web.min.js.map" />
     <Content Include="Scripts\kendo\kendo.window.min.js.map" />
-    <Content Include="Views\Eksport\View.cshtml" />
+    <None Include="Service References\SdService\CPR_PersonCivilRegistrationIdentifier.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\KoerselOpret20120201.wsdl" />
+    <None Include="Service References\SdService\SD_AarsagTekst_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_EmploymentIdentifier_20111201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_InstitutionIdentifier_20111201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KilometerMaal_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KoerselDato_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KoerselOpretInterface_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KoerselOpretRequestInterface_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KoerselOpretRequest_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KoertFraTekst_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_KoertTilTekst_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_Regel60DageIndikator_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService\SD_RegistreringTypeIdentifikator_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Jasmine\SpecRunner.cshtml" />
@@ -2339,7 +2397,10 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Views\Configurations\" />
+    <Folder Include="Views\Configuration\" />
     <Folder Include="Views\Manifest\" />
+    <Folder Include="Views\sendDataToSd\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff">
@@ -2376,6 +2437,10 @@
       <Project>{7fe59360-f8d1-441d-8a51-e521f22a3733}</Project>
       <Name>Core.ApplicationServices</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Core.DmzModel\Core.DmzModel.csproj">
+      <Project>{108af3eb-0b3f-4943-aef2-de847bfae8a8}</Project>
+      <Name>Core.DmzModel</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Core.DomainModel\Core.DomainModel.csproj">
       <Project>{823928ad-3bb7-4fd8-831f-201d73b80ae0}</Project>
       <Name>Core.DomainModel</Name>
@@ -2388,16 +2453,15 @@
       <Project>{9914db94-e465-4751-939c-8121c30ac945}</Project>
       <Name>Infrastructure.DataAccess</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Infrastructure.DmzSync\Infrastructure.DmzSync.csproj">
-      <Project>{537cfce9-fc15-46c0-a706-92ca40cf2c0c}</Project>
-      <Name>Infrastructure.DmzSync</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\SdService\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -2441,11 +2505,4 @@
   </Target>
   <Target Name="AfterBuild">
   </Target> -->
-  <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
-    <Copy SourceFiles="%(Content.Identity)" 
-		  DestinationFiles="%(Content.Link)" 
-		  SkipUnchangedFiles='true' 
-		  OverwriteReadOnlyFiles='true' 
-		  Condition="'%(Content.Link)' != ''" />
-  </Target>
 </Project>

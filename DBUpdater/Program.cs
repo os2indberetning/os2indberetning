@@ -50,6 +50,7 @@ namespace DBUpdater
                 ninjectKernel.Get<IGenericRepository<Substitute>>());
 
             var dbSync = ConfigurationManager.AppSettings["DATABASE_INTEGRATION"] ?? "SOFD";
+            _logger.Log($"Database integration = {dbSync}", "dbupdater");
 
             switch (dbSync)
             {

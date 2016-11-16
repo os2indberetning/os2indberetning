@@ -771,68 +771,76 @@ namespace DBUpdater
         /// <param name="personId"></param>
         public void UpdateHomeAddressIDM(IDMEmployee empl, string cpr)
         {
-            if (empl.Vejnavn == null || empl.Vejnavn == "")
+            try
             {
-                return;
-            }
-
-            var person = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber == cpr);
-            if (person == null)
-            {
-                throw new Exception("Person does not exist.");
-            }
-
-            var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
-
-            var splitStreetAddress = SplitAddressIDM(empl.Vejnavn, empl.PostNr, empl.PostDistrikt);
-
-            var addressToLaunder = new Address
-            {
-                Description = person.FirstName + " " + person.LastName + " [" + person.Initials + "]",
-                StreetName = splitStreetAddress.ElementAt(0),
-                StreetNumber = splitStreetAddress.ElementAt(1),
-                ZipCode = Convert.ToInt32(splitStreetAddress.ElementAt(3)),
-                Town = splitStreetAddress.ElementAt(2)
-            };
-            addressToLaunder = launderer.Launder(addressToLaunder);
-
-            var launderedAddress = new PersonalAddress()
-            {
-                PersonId = person.Id,
-                Type = PersonalAddressType.Home,
-                StreetName = addressToLaunder.StreetName,
-                StreetNumber = addressToLaunder.StreetNumber,
-                ZipCode = addressToLaunder.ZipCode,
-                Town = addressToLaunder.Town,
-                Latitude = addressToLaunder.Latitude ?? "",
-                Longitude = addressToLaunder.Longitude ?? "",
-                Description = addressToLaunder.Description
-            };
-
-            var homeAddr = _personalAddressRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(person.Id) &&
-                x.Type == PersonalAddressType.Home);
-
-            if (homeAddr == null)
-            {
-                _personalAddressRepo.Insert(launderedAddress);
-            }
-            else
-            {
-                if (homeAddr != launderedAddress)
+                if (empl.Vejnavn == null || empl.Vejnavn == "")
                 {
-                    // Address has changed
-                    // Change type of current (The one about to be changed) home address to OldHome.
-                    // Is done in loop because there was an error that created one or more home addresses for the same person.
-                    // This will make sure all home addresses are set to old if more than one exists.
-                    foreach (var addr in _personalAddressRepo.AsQueryable().Where(x => x.PersonId.Equals(person.Id) && x.Type == PersonalAddressType.Home).ToList())
-                    {
-                        addr.Type = PersonalAddressType.OldHome; ;
-                    }
-
-                    // Update actual current home address.
-                    _personalAddressRepo.Insert(launderedAddress);
-                    _personalAddressRepo.Save();
+                    return;
                 }
+
+                var person = _personRepo.AsQueryable().FirstOrDefault(x => x.CprNumber == cpr);
+                if (person == null)
+                {
+                    throw new Exception("Person does not exist.");
+                }
+
+                var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
+
+                var splitStreetAddress = SplitAddressIDM(empl.Vejnavn, empl.PostNr, empl.PostDistrikt);
+
+                var addressToLaunder = new Address
+                {
+                    Description = person.FirstName + " " + person.LastName + " [" + person.Initials + "]",
+                    StreetName = splitStreetAddress.ElementAtOrDefault(0),
+                    StreetNumber = splitStreetAddress.ElementAtOrDefault(1) ?? "",
+                    ZipCode = Convert.ToInt32(splitStreetAddress.ElementAtOrDefault(3) ?? "9999"),
+                    Town = splitStreetAddress.ElementAtOrDefault(2) ?? ""
+                };
+                addressToLaunder = launderer.Launder(addressToLaunder);
+
+                var launderedAddress = new PersonalAddress()
+                {
+                    PersonId = person.Id,
+                    Type = PersonalAddressType.Home,
+                    StreetName = addressToLaunder.StreetName,
+                    StreetNumber = addressToLaunder.StreetNumber,
+                    ZipCode = addressToLaunder.ZipCode,
+                    Town = addressToLaunder.Town,
+                    Latitude = addressToLaunder.Latitude ?? "",
+                    Longitude = addressToLaunder.Longitude ?? "",
+                    Description = addressToLaunder.Description
+                };
+
+                var homeAddr = _personalAddressRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(person.Id) &&
+                    x.Type == PersonalAddressType.Home);
+
+                if (homeAddr == null)
+                {
+                    _personalAddressRepo.Insert(launderedAddress);
+                }
+                else
+                {
+                    if (homeAddr != launderedAddress)
+                    {
+                        // Address has changed
+                        // Change type of current (The one about to be changed) home address to OldHome.
+                        // Is done in loop because there was an error that created one or more home addresses for the same person.
+                        // This will make sure all home addresses are set to old if more than one exists.
+                        foreach (var addr in _personalAddressRepo.AsQueryable().Where(x => x.PersonId.Equals(person.Id) && x.Type == PersonalAddressType.Home).ToList())
+                        {
+                            addr.Type = PersonalAddressType.OldHome; ;
+                        }
+
+                        // Update actual current home address.
+                        _personalAddressRepo.Insert(launderedAddress);
+                        _personalAddressRepo.Save();
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Log($"{this.GetType().Name}, UpdateHomeAddressIDM(), Error when updating address for CPR={cpr}", "DBUpdater", e, 3);
+                throw;
             }
         }
 
@@ -905,6 +913,7 @@ namespace DBUpdater
         {
             if (empl.AnsættelseFra == null)
             {
+                _logger.Log($"{this.GetType().Name}, CreateEmploymentIDM(), Employment not created for personId={personId} with OrgUnitOUID={empl.OrgEnhedOUID} due to missing employment start date", "DBUpdater", 2);
                 return null;
             }
 
@@ -912,7 +921,8 @@ namespace DBUpdater
 
             if (orgUnit == null)
             {
-                throw new Exception("OrgUnit does not exist.");
+                _logger.Log($"{this.GetType().Name}, CreateEmploymentIDM(), Employment not created for personId={personId} with OrgUnitOUID={empl.OrgEnhedOUID} due to orgunit not found", "DBUpdater", 2);
+                return null;
             }
 
             var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnit.OrgOUID == orgUnit.OrgOUID && x.Person.CprNumber == empl.CPRNummer);

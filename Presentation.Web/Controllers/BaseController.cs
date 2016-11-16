@@ -41,11 +41,21 @@ namespace OS2Indberetning.Controllers
 
             string[] httpUser = User.Identity.Name.Split('\\');
 
-            _logger.Log("httpuser: " + httpUser, "web", 3);
+            //TODO: RRO 2016-11-16 remove hack.
+            //DEBUG ON SERVER
+            if (httpUser[1] == "LEV_MIRACLE_RRO")
+            {
+                httpUser[1] = "JBD";
+            }
+            //END DEBUG
+
+            _logger.Log("httpuser: " + httpUser.ElementAtOrDefault(0) + " " + httpUser.ElementAtOrDefault(1), "web", 3);
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
+
+                _logger.Log("initials = " + initials, "web", 3);
 
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)

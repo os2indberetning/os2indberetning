@@ -43,7 +43,7 @@ namespace OS2Indberetning.Controllers
 
             //TODO: RRO 2016-11-16 remove hack.
             //DEBUG ON SERVER
-            if (httpUser[1] == "LEV_MIRACLE_RRO")
+            if (httpUser[1] == "rro")
             {
                 httpUser[1] = "JBD";
             }

@@ -40,6 +40,8 @@ namespace OS2Indberetning.Controllers
             base.Initialize(requestContext);
 
             string[] httpUser = User.Identity.Name.Split('\\');
+            httpUser[0] = "MIRACLE";
+            httpUser[1] = "at";
             //TESTETTSTESTESTESTEST
 
             _logger.Log("httpuserinitials: " + httpUser[1] + "httOrganisation: " + httpUser[0], "web", 3);
@@ -47,7 +49,7 @@ namespace OS2Indberetning.Controllers
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
-
+                initials = "at";
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)
                 {

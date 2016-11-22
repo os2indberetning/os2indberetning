@@ -39,9 +39,7 @@ namespace OS2Indberetning.Controllers
             _logger.Log("Before initialize Basecontroller. User.Identity.Name=" + User.Identity.Name, "web", 3);
             base.Initialize(requestContext);
 
-            string[] httpUser = User.Identity.Name.Split('\\');
-            httpUser[0] = "MIRACLE";
-            httpUser[1] = "at";
+            string[] httpUser = User.Identity.Name.Split('\\')
             //TESTETTSTESTESTESTEST
 
             _logger.Log("httpuserinitials: " + httpUser[1] + "httOrganisation: " + httpUser[0], "web", 3);

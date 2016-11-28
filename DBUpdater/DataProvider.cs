@@ -11,6 +11,7 @@ using Core.ApplicationServices;
 using Ninject;
 using Core.ApplicationServices.Logger;
 using MySql.Data.MySqlClient;
+using System.IO;
 
 namespace DBUpdater
 {
@@ -201,7 +202,6 @@ namespace DBUpdater
                     CommandType = CommandType.Text,
                     Connection = sqlConnection1
                 };
-
                 try
                 {
                     sqlConnection1.Open();
@@ -222,6 +222,11 @@ namespace DBUpdater
                         };
                         result.Add(currentRow);
                     }
+                }
+                catch (EndOfStreamException eose)
+                {
+                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Connection timed out", "dbupdater", eose);
+                    throw;
                 }
                 catch (Exception e)
                 {

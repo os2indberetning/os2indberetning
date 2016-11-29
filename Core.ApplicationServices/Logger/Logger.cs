@@ -12,20 +12,36 @@ namespace Core.ApplicationServices.Logger
     public class Logger : ILogger
     {
         private ILog log;
+        private ILog sdLog;
 
         public Logger()
         {
-            log = LogManager.GetLogger("Logger");
+            log = LogManager.GetLogger("RollingFileAppender");
+            sdLog = LogManager.GetLogger("SDLogger");
         }
 
         public void Log(string msg, string fileName)
         {
-            log.Info(msg);
+            if (fileName.Equals("SD"))
+            {
+                sdLog.Error(msg);
+            }
+            else
+            {
+                log.Error(msg);
+            }
         }
 
         public void Log(string msg, string fileName, Exception ex)
         {
-            log.Error(msg, ex);
+            if (fileName.Equals("SD"))
+            {
+                sdLog.Error(msg, ex);
+            }
+            else
+            {
+                log.Error(msg, ex); 
+            }
         }
 
         public void Log(string msg, string fileName, Exception ex, int level)

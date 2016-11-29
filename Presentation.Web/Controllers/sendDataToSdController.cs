@@ -48,6 +48,11 @@ namespace OS2Indberetning.Controllers
 
         public IHttpActionResult sendDataToSd()
         {
+            int countFailed = 0;
+            int countSucces = 0;
+
+            _logger.Log("----- Begynd afsendelse -----", "SD");
+
             SdService.KoerselOpret20120201OperationRequest opret;
             SdService.KoerselOpret20120201PortTypeClient client;
 
@@ -61,25 +66,26 @@ namespace OS2Indberetning.Controllers
                 // SdService.KoerselOpret20120201OperationResponse respone = new SdService.KoerselOpret20120201OperationResponse();
 
                 opret.InddataStruktur = new SdService.KoerselOpretRequestType();
-
             }
             catch (Exception e)
             {
                 _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when initating SD client", "web", e, 1);
-                throw;
+                _logger.Log("Fejl ved initialisering af kontakt til server, ingen indberetninger er afsendt.", "SD");
+                return StatusCode(HttpStatusCode.InternalServerError);
             }
-            //var reports = _repo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList();
 
-            try
+            _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), ----- Loop start -----", "SD");
+
+            foreach (var t in _repo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList())
             {
-                foreach (var t in _repo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList())
-                {
-                    double koerselDato = t.DriveDateTimestamp;
-                    System.DateTime KoerseldateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
-                    KoerseldateTime = KoerseldateTime.AddSeconds(koerselDato);
+                double koerselDato = t.DriveDateTimestamp;
+                System.DateTime KoerseldateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
+                KoerseldateTime = KoerseldateTime.AddSeconds(koerselDato);
 
+                try
+                {
                     opret.InddataStruktur.AarsagTekst = t.Purpose;
-                    opret.InddataStruktur.AnsaettelseIdentifikator = t.EmploymentId.ToString();
+                    opret.InddataStruktur.AnsaettelseIdentifikator = t.Employment.ServiceNumber;
                     opret.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? "";
                     opret.InddataStruktur.PersonnummerIdentifikator = t.Person.CprNumber;
                     opret.InddataStruktur.RegistreringTypeIdentifikator = t.TFCode;
@@ -87,41 +93,41 @@ namespace OS2Indberetning.Controllers
                     opret.InddataStruktur.KilometerMaal = Convert.ToDecimal(t.Distance);
 
                     var startPoint = t.DriveReportPoints.Where(d => d.DriveReportId == t.Id && d.PreviousPointId == null && d.NextPointId != null).FirstOrDefault();
-                    if (startPoint != null) {
+                    if (startPoint != null)
+                    {
                         opret.InddataStruktur.KoertFraTekst = startPoint.StreetName + ", " + startPoint.StreetNumber + ", " + startPoint.ZipCode + ", " + startPoint.Town;
                     }
                     var endpoint = t.DriveReportPoints.Where(d => d.DriveReportId == t.Id && d.PreviousPointId == null && d.NextPointId != null).FirstOrDefault();
 
-                    if (endpoint != null) {
+                    if (endpoint != null)
+                    {
                         opret.InddataStruktur.KoertTilTekst = endpoint.StreetName + ", " + endpoint.StreetNumber + ", " + endpoint.ZipCode + ", " + endpoint.Town;
                     }
                     opret.InddataStruktur.Regel60DageIndikator = false;
-                  
+
                     //send data to SD
-                    try
-                    {
-                        var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
 
-                        t.Status = ReportStatus.Invoiced;
+                    var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
 
-                        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-                        var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
-                        t.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
+                    t.Status = ReportStatus.Invoiced;
 
-                        _repo.Save();
+                    var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                    var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
+                    t.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
 
-                    }
-                    catch (Exception e) {
-                        _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", "web", e, 1);
-                        return StatusCode(HttpStatusCode.InternalServerError);
-                    }
+                    _repo.Save();
+
+                    countSucces++;
+
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {t.Employment.ServiceNumber}, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", "web", e, 1);
+                    _logger.Log($"Fejl for medarbejder: Servicenummer = {t.Employment.ServiceNumber}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}", "SD");
+                    countFailed++;
                 }
             }
-            catch (Exception e)
-            {
-                _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when iterating over reports to send", "web", e, 1);
-                return StatusCode(HttpStatusCode.InternalServerError);
-            }
+            _logger.Log($"----- Afsendelse afsluttet. {countFailed} ud af {countFailed + countSucces} afsendelser fejlede -----", "SD");
 
             return Ok();
         }

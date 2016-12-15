@@ -19,7 +19,7 @@ namespace Core.ApplicationServices.MailerService.Impl
           
             try
             {
-                _logger.Log($"{this.GetType().Name}, mailsender() initial", "mail", 1);
+                _logger.Log($"{this.GetType().Name}, mailsender() initial", "mail", 3);
                 int port;
                 bool hasPortValue = int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port);
 
@@ -37,7 +37,7 @@ namespace Core.ApplicationServices.MailerService.Impl
                
                 if (hasPortValue)
                 {
-                    _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port =" + port, "mail", 1);
+                    _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port =" + port, "mail", 3);
                     _smtpClient.Port = port;
                 }
             }

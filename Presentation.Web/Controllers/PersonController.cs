@@ -26,6 +26,7 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
         private readonly ILogger _logger;
 
+       
         public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, ILogger log)
             : base(repo, repo)
         {

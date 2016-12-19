@@ -79,7 +79,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     }
                     catch (Exception ex)
                     {
-                        _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception in DecryptGPSCoordinate() for DMZReport= {dmzReport} and Coordinate: {gpsCoord}", "dmz", 1);
+                        _logger.Log($"{this.GetType().Name}, SyncFromDMZ(). Exception in DecryptGPSCoordinate() for DMZReportId= {dmzReport.Id} DMZReportProfile= {dmzReport.Profile} and Coordinate: {gpsCoord}", "dmz", 1);
                     }
 
                     points.Add(new DriveReportPoint
@@ -130,33 +130,51 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                 var licensePlate = _licensePlateRepo.AsQueryable().FirstOrDefault(x => x.PersonId.Equals(dmzReport.ProfileId) && x.IsPrimary);
                 var plate = licensePlate != null ? licensePlate.Plate : "UKENDT";
+                _logger.Log("here", "dmz");
+                DriveReport newReport = new Core.DomainModel.DriveReport();
+                _logger.Log("here" + newReport, "dmz");
+                newReport.FourKmRule = dmzReport.FourKmRule;
+                newReport.IsFromApp = true;
+                newReport.HomeToBorderDistance = dmzReport.HomeToBorderDistance;
+                newReport.StartsAtHome = dmzReport.StartsAtHome;
+                newReport.EndsAtHome = dmzReport.EndsAtHome;
+                newReport.Purpose = dmzReport.Purpose;
+                newReport.PersonId = dmzReport.ProfileId;
+                newReport.EmploymentId = dmzReport.EmploymentId;
+                newReport.KmRate = rate.KmRate;
+                newReport.UserComment = dmzReport.ManualEntryRemark;
+                newReport.Status = ReportStatus.Pending;
+                newReport.LicensePlate = plate;
+                newReport.Comment = "";
+                newReport.DriveReportPoints = viaPoints;
+              //var newReport = new Core.DomainModel.DriveReport
+              //{
 
-                var newReport = new Core.DomainModel.DriveReport
-                {
-
-                    IsFromApp = true,
-                    Distance = dmzReport.Route.TotalDistance,
-                    KilometerAllowance = dmzReport.Route.GPSCoordinates.Count > 0 ? KilometerAllowance.Calculated : KilometerAllowance.Read,
+                //    IsFromApp = true,
+                //    FourKmRule = dmzReport.FourKmRule,
+                //    HomeToBorderDistance = dmzReport.HomeToBorderDistance,
+                //    StartsAtHome = dmzReport.StartsAtHome,
+                //    EndsAtHome = dmzReport.EndsAtHome,
+                //    Purpose = dmzReport.Purpose,
+                //    PersonId = dmzReport.ProfileId,
+                //    EmploymentId = dmzReport.EmploymentId,
+                //    KmRate = rate.KmRate,                  
+                //    UserComment = dmzReport.ManualEntryRemark,
+                //    Status = ReportStatus.Pending,
+                //    LicensePlate = plate,
+                //    Comment = "",
+                //    DriveReportPoints = viaPoints
+                //};
+                newReport.Distance = dmzReport.Route.TotalDistance;
+                newReport.KilometerAllowance = dmzReport.Route.GPSCoordinates.Count > 0 ? KilometerAllowance.Calculated : KilometerAllowance.Read;
                 // Date might not be correct. Depends which culture is delivered from app. 
-                // https://msdn.microsoft.com/en-us/library/cc165448.aspx
-                DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
-                    CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds),
-                    FourKmRule = dmzReport.FourKmRule,
-                    HomeToBorderDistance = dmzReport.HomeToBorderDistance,
-                    StartsAtHome = dmzReport.StartsAtHome,
-                    EndsAtHome = dmzReport.EndsAtHome,
-                    Purpose = dmzReport.Purpose,
-                    PersonId = dmzReport.ProfileId,
-                    EmploymentId = dmzReport.EmploymentId,
-                    KmRate = rate.KmRate,
-                    TFCode = rate.Type.TFCode,
-                    UserComment = dmzReport.ManualEntryRemark,
-                    Status = ReportStatus.Pending,
-                    FullName = dmzReport.Profile.FullName,
-                    LicensePlate = plate,
-                    Comment = "",
-                    DriveReportPoints = viaPoints
-                };
+                // https://msdn.microsoft.com/en-us/library/cc165448.aspx                 
+                newReport.DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+                newReport.CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
+                newReport.TFCode = rate.Type.TFCode;
+                newReport.FullName = dmzReport.Profile.FullName;
+
+
 
                 newReport.RouteGeometry = GeoService.Encode(points);
 

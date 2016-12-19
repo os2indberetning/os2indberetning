@@ -170,7 +170,11 @@
             $scope.DriveReport.FourKmRule = {};
             $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
             
-
+            if(report.EmploymentId != null){
+             // Set default DriveReport Position to position from previous report
+            $scope.DriveReport.Position = report.EmploymentId;
+            }
+          
             // Select position in dropdown.
             $scope.container.PositionDropDown.select(function (item) {
                 return item.Id == report.EmploymentId;

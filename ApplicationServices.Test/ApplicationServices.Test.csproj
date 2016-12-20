@@ -147,10 +147,13 @@
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="CustomSettings.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <Content Include="connections.config">
       <SubType>Designer</SubType>
-    </None>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="CustomSettings.config">
+      <SubType>Designer</SubType>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

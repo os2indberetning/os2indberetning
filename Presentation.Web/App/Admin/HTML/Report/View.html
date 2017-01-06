@@ -14,58 +14,48 @@
                 </div>
             </div>
 
-                        <div class="col-sm-12 margin-5">
-                            <div class="col-sm-4">
-                                <label class="pull-left">Medarbejder navn</label><span style="color:red;">*</span>
-                            </div>
-                            <div class="col-sm-8">
-                              <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text"  k-options="autoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
-              
-                            </div>
-                        </div>
-                        <div class="col-sm-12 margin-5">
-                            <div class="col-sm-4">
-                                <label class="pull-left">MAnr</label>
-                            </div>
-                            <div class="col-sm-4">
-                                <input id="MAnrTextBox" k-options="autoCompleteOptions" ng-model="container.MANrFilter" type="text" k-data-source="autoCompleteDataSource" k-data-value-field="'MAnr'" k-data-text-field="'MAnr'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast MaNr'"/>
-                            </div>
-                        </div>
-
-                        
-                        <div class="col-sm-12 margin-5">
-                            <div class="col-sm-4">
-                                <label>Organisationsenhed</label>
-                            </div>
-                            <div class="col-sm-8">
-                                <input id="employeeTextBox" type="text" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast Organisationsenhed'"/>
-
-                            </div>
-
-                        </div>
             <div class="col-sm-12 margin-5">
                 <div class="col-sm-4">
-                    <label>Start dato</label><span style="color:red;">*</span>
+                    <label class="pull-left">Medarbejder navn</label><span style="color:red;">*</span>
+                </div>
+                <div class="col-sm-8">
+                    <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text"  k-options="autoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
+    
+                </div>
+            </div>
+            
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Organisationsenhed</label>
+                </div>
+                <div class="col-sm-8">
+                    <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="autoCompleteOptions"  k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
+                </div>
+
+            </div>
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Udbetalingsperiode start dato</label><span style="color:red;">*</span>
                 </div>
                 <div class="col-sm-8">
                     <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportFromDateString" k-ng-model="dateContainer.toDate"/>
                 </div>
 
             </div>
-                        <div class="col-sm-12 margin-5">
-                            <div class="col-sm-4">
-                                <label>Slut dato</label><span style="color:red;">*</span>
-                            </div>
-                            <div class="col-sm-8">
-                                <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportToDateString" k-ng-model="dateContainer.fromDate"/>
-                            </div>
+            <div class="col-sm-12 margin-5">
+                <div class="col-sm-4">
+                    <label>Udbetalingsperiode slut dato</label><span style="color:red;">*</span>
+                </div>
+                <div class="col-sm-8">
+                    <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportToDateString" k-ng-model="dateContainer.fromDate"/>
+                </div>
 
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="col-sm-4 pull-right">
-                                <button class="btn btn-primary fill-width" ng-click="createReportClick()">Dan Rapport</button>
-                            </div>
-                        </div>
+            </div>
+            <div class="col-sm-12">
+                <div class="col-sm-4 pull-right">
+                    <button class="btn btn-primary fill-width" ng-click="createReportClick()">Dan Rapport</button>
+                </div>
+            </div>
                   
 
             <label class="text-danger" ng-bind="newRateYearError"></label><br />

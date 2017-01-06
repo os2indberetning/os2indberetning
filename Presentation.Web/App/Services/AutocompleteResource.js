@@ -21,6 +21,7 @@
                 },
                 schema: {
                     data: function (data) {
+                        console.log(data.value);
                         return data.value;
                     }
                 },
@@ -188,6 +189,8 @@
                 },
                 schema: {
                     data: function (data) {
+                        console.log(data);
+                        console.log(data.value);
                         return data.value;
                     }
                 },

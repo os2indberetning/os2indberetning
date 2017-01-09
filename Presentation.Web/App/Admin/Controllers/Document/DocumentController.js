@@ -189,7 +189,7 @@
                 },
                 { 
                     field: "ProcessedDate", 
-                    title: "Sendt dato" 
+                    title: "Sendt til løn" 
                 },
                 { 
                     field: "ApprovedBy", 

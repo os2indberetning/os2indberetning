@@ -9,11 +9,9 @@ using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using System.Web.OData;
 using System.Web.OData.Query;
-using System.Web.Http.OData.Routing;
 using Core.DomainModel;
 using Core.DomainServices;
 using Infrastructure.DataAccess;
-using Microsoft.Data.OData;
 
 namespace OS2Indberetning.Controllers
 {

@@ -152,6 +152,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                         else
                         {
                             dmzEmployment.ProfileId = employment.ProfileId;
+                            dmzEmployment.ManNr = employment.ManNr;
                             dmzEmployment.StartDateTimestamp = masterEmployment.StartDateTimestamp;
                             dmzEmployment.EndDateTimestamp = masterEmployment.EndDateTimestamp;
                             dmzEmployment.EmploymentPosition = employment.EmploymentPosition;

@@ -112,7 +112,7 @@ namespace OS2Indberetning.Controllers
             IQueryable<Rate> result = null;
             try
             {
-                result = Repo.AsQueryable().Where(x => x.Year == (DateTime.Now).Year && x.Active);
+                result = Repo.AsQueryable().Where(x => x.Active);
             }catch(Exception e)
             {
                 _logger.Log("RatesController. ThisYearsRates(). Exception", "web", e, 1);

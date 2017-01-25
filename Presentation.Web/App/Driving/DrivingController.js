@@ -129,7 +129,7 @@
 
         var getKmRate = function () {
             for (var i = 0; i < $scope.KmRate.length; i++) {
-                if ($scope.KmRate[i].Id == $scope.DriveReport.KmRate) {
+                if ($scope.KmRate[i].Type.Id == $scope.DriveReport.KmRate) {
                     return $scope.KmRate[i];
                 }
             }
@@ -300,9 +300,21 @@
         });
         $scope.Employments = currentUser.Employments;
 
-        // Load this year's rates.
+        // Load rates.
         loadingPromises.push(Rate.ThisYearsRates().$promise.then(function (res) {
             $scope.KmRate = res;
+
+            // create array with a single set of rates for the dropdown, since we only need the TF codes' description for this.
+            var tempRates = [];
+            var driveYear = new Date().getFullYear();
+            var j = 0;
+            for (var i = 0; i < $scope.KmRate.length; i++) {
+                if ($scope.KmRate[i].Year == driveYear) {
+                    tempRates[j] = $scope.KmRate[i];
+                    j++;
+                }
+            }
+            $scope.KmRateView = tempRates
         }));
 
         // Load user's license plates.

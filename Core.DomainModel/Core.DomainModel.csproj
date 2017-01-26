@@ -57,7 +57,8 @@
     <Compile Include="BankAccount.cs" />
     <Compile Include="Address.cs" />
     <Compile Include="DriveReport.cs" />
-    <Compile Include="EksportModel.cs" />
+    <Compile Include="ExportDriveReport.cs" />
+    <Compile Include="ExportModel.cs" />
     <Compile Include="Employment.cs" />
     <Compile Include="FileGenerationSchedule.cs" />
     <Compile Include="LicensePlate.cs" />

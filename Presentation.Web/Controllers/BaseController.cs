@@ -40,7 +40,8 @@ namespace OS2Indberetning.Controllers
             base.Initialize(requestContext);
 
             string[] httpUser = User.Identity.Name.Split('\\');
-            //TESTETTSTESTESTESTEST
+
+            httpUser[1] = "rro";
 
             _logger.Log("httpuserinitials: " + httpUser[1] + "httOrganisation: " + httpUser[0], "web", 3);
 

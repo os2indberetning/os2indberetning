@@ -139,6 +139,15 @@ angular.module("application").controller("MyRejectedReportsController", [
                     return MkColumnFormatter.format(data);
                   }
               },{
+                   field: "FourKmRule",
+                   title: "4 km",
+                   template: function (data) {
+                       if (data.FourKmRule) {
+                           return "<i class='fa fa-check'></i>";
+                       }
+                       return "";
+                   }
+               },{
                   field: "CreatedDateTimestamp",
                   template: function (data) {
                       var m = moment.unix(data.CreatedDateTimestamp);

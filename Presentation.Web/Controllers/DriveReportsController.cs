@@ -191,11 +191,11 @@ namespace OS2Indberetning.Controllers
             List<DriveReport> reportsForRequestedTimespan = new List<DriveReport>();
             if (orgUnit == null || orgUnit.Equals("undefined"))
             {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && (r.Status == ReportStatus.Invoiced)));
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp > parsedStartDateUnix && r.ProcessedDateTimestamp < parsedEndDateUnix));
             }
             else
             {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.LongDescription.Equals(orgUnit) && (r.Status == ReportStatus.Invoiced) && r.ProcessedDateTimestamp > parsedStartDateUnix && r.ProcessedDateTimestamp < parsedEndDateUnix));
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.LongDescription.Equals(orgUnit) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp > parsedStartDateUnix && r.ProcessedDateTimestamp < parsedEndDateUnix));
             }
 
             // Initialize EksportModel

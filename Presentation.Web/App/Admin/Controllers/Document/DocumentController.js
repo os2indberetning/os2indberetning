@@ -98,33 +98,37 @@
             columns: [
                 {
                     field: "DriveDateTimestamp",
-                    title: "Dato for kørsel", width: 100, /*footerTemplate: "Beløb:"+result.wholeAmount +  "<br/>Distance: " + result.wholeDistance*/
+                    title: "Dato for kørsel", 
+                    width: 100, /*footerTemplate: "Beløb:"+result.wholeAmount +  "<br/>Distance: " + result.wholeDistance*/
                 },
                 {
                     field: "CreatedDateTimestamp",
-                    title: "Dato for indberetning", width: 100
+                    title: "Dato for indberetning", 
+                    width: 100
                 },
                 { 
                     field: "OrgUnit", 
-                    title: "Org. Enhed", width: 100 
+                    title: "Org. Enhed", 
+                    width: 100 
                 },
                 { 
                     field: "Purpose", 
-                    title: "Formål", width: 100 
+                    title: "Formål",
+                    width: 150
                 },
                 { 
                     field: "Route", 
-                    title: "Rute", 
-                    width: 100
+                    title: "Rute",
+                    width: 150
                 },
                 {
                     field: "IsRoundTrip", 
                     title: "Retur",
                     template: function (data) {
                         if (!data.isRoundTrip || data.isRoundTrip == null)
-                            return "Nej.";
+                            return "Nej";
                         else
-                            return "Ja.";
+                            return "Ja";
                     },
                     width: 50
                 },
@@ -133,9 +137,9 @@
                     title: "MK",
                     template: function (data) {
                         if (!data.IsExtraDistance)
-                            return "Nej.";
+                            return "Nej";
                         else
-                            return "Ja.";
+                            return "Ja";
                     },
                     width: 40
                 },
@@ -144,9 +148,9 @@
                     title: "4-km",
                     template: function (data) {
                         if (!data.FourKmRule || data.FourKmRule == null)
-                            return "Nej.";
+                            return "Nej";
                         else
-                            return "Ja.";
+                            return "Ja";
                     },
                     width: 50
                 },
@@ -181,23 +185,28 @@
                     template: 
                         function (data) {
                             return data.Rate.toFixed(2).toString().replace('.', ',') + " øre/km ";
-                        }
+                        },
+                    width: 100
                 },
                 { 
                     field: "ApprovedDate", 
-                    title: "Godkendt dato" 
+                    title: "Godkendt dato",
+                    width: 100 
                 },
                 { 
                     field: "ProcessedDate", 
-                    title: "Sendt til løn" 
+                    title: "Sendt til løn",
+                    width: 100 
                 },
                 { 
                     field: "ApprovedBy", 
-                    title: "Godkendt af" 
+                    title: "Godkendt af" ,
+                    width: 150
                 },
                 { 
                     field: "Accounting", 
-                    title: "Kontering" 
+                    title: "Kontering",
+                    width: 100 
                 }
 
             ],

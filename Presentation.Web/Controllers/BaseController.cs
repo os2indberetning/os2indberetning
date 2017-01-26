@@ -41,8 +41,6 @@ namespace OS2Indberetning.Controllers
 
             string[] httpUser = User.Identity.Name.Split('\\');
 
-            httpUser[1] = "rro";
-
             _logger.Log("httpuserinitials: " + httpUser[1] + "httOrganisation: " + httpUser[0], "web", 3);
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))

@@ -191,18 +191,18 @@ namespace OS2Indberetning.Controllers
             List<DriveReport> reportsForRequestedTimespan = new List<DriveReport>();
             if (orgUnit == null || orgUnit.Equals("undefined"))
             {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp > parsedStartDateUnix && r.ProcessedDateTimestamp < parsedEndDateUnix));
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
             }
             else
             {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.LongDescription.Equals(orgUnit) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp > parsedStartDateUnix && r.ProcessedDateTimestamp < parsedEndDateUnix));
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.LongDescription.Equals(orgUnit) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
             }
 
             // Initialize EksportModel
             ExportModel result = new ExportModel();
             try
             {
-                var adminInitials = User.Identity.Name.Split('\\')[1];
+                var adminInitials = "hshu"; //User.Identity.Name.Split('\\')[1];
                 result.DateInterval = $"{start} - {end}";
                 result.OrgUnit = (string.IsNullOrEmpty(orgUnit) || orgUnit.Equals("undefined")) ? "Ikke angivet" : orgUnit;
                 result.Name = person.FullName;
@@ -210,7 +210,8 @@ namespace OS2Indberetning.Controllers
                 result.Municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"] ?? "Ikke angivet";
                 result.LicensePlates = string.Join(", ", _LicensePlateRepo.AsQueryable().Where(x => x.PersonId == person.Id).Select(y => y.Plate).ToArray()); // Combine all the users license plates into comma seperated string.
 
-                var HomeAddress = person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).FirstOrDefault();
+                // Get alternative home adress if user has one, otherwise get home address
+                var HomeAddress = person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.AlternativeHome).FirstOrDefault() ?? person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).FirstOrDefault();
                 result.HomeAddressStreetAndNumber = $"{HomeAddress.StreetName} {HomeAddress.StreetNumber}";
                 result.HomeAddressZipCodeAndTown = $"{HomeAddress.ZipCode} {HomeAddress.Town}";
             }
@@ -240,7 +241,7 @@ namespace OS2Indberetning.Controllers
                         Purpose = currentReport.Purpose,
                         IsExtraDistance = currentReport.IsExtraDistance,
                         FourKmRule = currentReport.FourKmRule,
-                        DistanceFromHomeToBorder = currentReport.FourKmRule ? person.DistanceFromHomeToBorder : 0,
+                        DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
                         AmountToReimburse = currentReport.AmountToReimburse,
                         ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced
                         ProcessedDate = unixDateTime.AddSeconds(currentReport.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10),

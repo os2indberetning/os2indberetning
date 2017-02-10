@@ -103,6 +103,9 @@
                 },
                 {
                     field: "CreatedDateTimestamp",
+                    headerAttributes: {
+                        "class": "verticalText"
+                    },
                     title: "Dato for indberetning", 
                     width: 100
                 },
@@ -125,7 +128,7 @@
                     field: "IsRoundTrip", 
                     title: "Retur",
                     template: function (data) {
-                        if (!data.isRoundTrip || data.isRoundTrip == null)
+                        if (!data.IsRoundTrip || data.IsRoundTrip == null)
                             return "Nej";
                         else
                             return "Ja";
@@ -136,7 +139,7 @@
                     field: "IsExtraDistance", 
                     title: "MK",
                     template: function (data) {
-                        if (!data.IsExtraDistance)
+                        if (!data.IsExtraDistance || data.IsExtraDistance == null)
                             return "Nej";
                         else
                             return "Ja";

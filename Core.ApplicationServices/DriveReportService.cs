@@ -274,12 +274,28 @@ namespace Core.ApplicationServices
 
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-            while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+            // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
+            bool parseValue;
+            var parseresult = bool.TryParse(ConfigurationManager.AppSettings["UseSd"], out parseValue);
+            if (parseresult && parseValue)
             {
-                leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
-                                                                                            e.StartDateTimestamp < currentTimestamp &&
-                                                                                            (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp)); 
-                orgUnit = orgUnit.Parent;
+                while ((leaderOfOrgUnit == null && orgUnit.Parent != null) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                {
+                    leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
+                                                                                                e.StartDateTimestamp < currentTimestamp &&
+                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                    orgUnit = orgUnit.Parent;
+                } 
+            }
+            else
+            {
+                while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                {
+                    leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
+                                                                                                e.StartDateTimestamp < currentTimestamp &&
+                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                    orgUnit = orgUnit.Parent;
+                }
             }
 
 
@@ -348,12 +364,28 @@ namespace Core.ApplicationServices
 
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-            while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+            // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
+            bool parseValue;
+            var parseresult = bool.TryParse(ConfigurationManager.AppSettings["usesd"], out parseValue);
+            if (parseresult && parseValue)
             {
-                leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
-                                                                                            e.StartDateTimestamp < currentTimestamp &&
-                                                                                            (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
-                orgUnit = orgUnit.Parent;
+                while ((leaderOfOrgUnit == null && orgUnit.Parent != null) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                {
+                    leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
+                                                                                                e.StartDateTimestamp < currentTimestamp &&
+                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                    orgUnit = orgUnit.Parent;
+                } 
+            }
+            else
+            {
+                while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                {
+                    leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
+                                                                                                e.StartDateTimestamp < currentTimestamp &&
+                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                    orgUnit = orgUnit.Parent;
+                }
             }
 
 

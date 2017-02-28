@@ -43,10 +43,10 @@ namespace OS2Indberetning.Controllers
 
             //TODO: RRO 2016-11-16 remove hack.
             //DEBUG ON SERVER
-            //if (httpUser[1] == "LEV_MIRACLE_RRO")
-            //{
-                httpUser[1] = "VAN";
-            //}
+            if (httpUser[1] == "LEV_MIRACLE_RRO")
+            {
+                httpUser[1] = "JBD";
+            }
             //END DEBUG
 
             _logger.Log("httpuser: " + httpUser.ElementAtOrDefault(0) + " " + httpUser.ElementAtOrDefault(1), "web", 3);

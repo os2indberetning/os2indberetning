@@ -104,8 +104,13 @@ namespace OS2Indberetning.Controllers
             _logger.Log($"DriveReportsController, GetLatestReportForUser(). Initial", "web", 3);
             try
             {
+                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var report = Repo.AsQueryable()
-                    .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
+                    .Where(
+                        x => x.PersonId.Equals(personId)
+                        && x.Employment.StartDateTimestamp < currentTimestamp
+                        && (x.Employment.EndDateTimestamp > currentTimestamp || x.Employment.EndDateTimestamp == 0)
+                        && !x.IsFromApp)
                     .OrderByDescending(x => x.CreatedDateTimestamp)
                     .FirstOrDefault();
 

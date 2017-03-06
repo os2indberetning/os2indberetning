@@ -133,11 +133,8 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetCalculationMethod()
         {
-
-            bool isAltCalc;
-            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
-
-            if (parseSucces)
+            string isAltCalc = ConfigurationManager.AppSettings["AlternativeCalculationMethod"];
+            if (string.IsNullOrEmpty(isAltCalc) == false)
             {
                 return Ok(isAltCalc);
             }
@@ -145,7 +142,6 @@ namespace OS2Indberetning.Controllers
             {
                 return Ok(false);
             }
-
         }
 
         /// <summary>

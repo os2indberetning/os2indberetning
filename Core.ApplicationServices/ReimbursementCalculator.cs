@@ -290,6 +290,7 @@ namespace Core.ApplicationServices
                                 toSubtractAltRule = altToSubtract1 + altToSubtract2;
 
                                 break;
+                            case "false":
                             case "":
                                 // No alternative calculation method.
                                 break;

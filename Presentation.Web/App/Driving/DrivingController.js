@@ -40,26 +40,13 @@
             dataValueField: "value"
         };
 
-        DriveReport.getCalculationMethod().$promise.then(function (res) {
-            $scope.alternativeCalculation = res.value;
-            if (!$scope.alternativeCalculation) {
-                $scope.buildDataSource.data([
-                    { value: "Calculated", key: "Beregnet" },
-                    { value: "Read", key: "Aflæst" },
-                    { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
-                ]);
-                //Set calculation specific text
-                $scope.alternativeCalculationTextReimbursement = "Merkørselsfradrag";
-            } else {
-                $scope.buildDataSource.data([
-                    { value: "Calculated", key: "Beregnet" },
-                    { value: "Read", key: "Aflæst" },
-                ]);
-                //Set calculation specific text
-                $scope.alternativeCalculationTextReimbursement = "Fradrag";
-                $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
-            }
-        });
+        $scope.buildDataSource.data([
+            { value: "Calculated", key: "Beregnet" },
+            { value: "Read", key: "Aflæst" },
+            { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
+        ]);
+        //Set calculation specific text
+        $scope.alternativeCalculationTextReimbursement = "Merkørselsfradrag";
 
 
         $scope.canSubmitDriveReport = true;

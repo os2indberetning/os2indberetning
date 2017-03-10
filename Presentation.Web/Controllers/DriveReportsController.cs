@@ -202,7 +202,7 @@ namespace OS2Indberetning.Controllers
             ExportModel result = new ExportModel();
             try
             {
-                var adminInitials = "hshu"; //User.Identity.Name.Split('\\')[1];
+                var adminInitials = User.Identity.Name.Split('\\')[1];
                 result.DateInterval = $"{start} - {end}";
                 result.OrgUnit = (string.IsNullOrEmpty(orgUnit) || orgUnit.Equals("undefined")) ? "Ikke angivet" : orgUnit;
                 result.Name = person.FullName;

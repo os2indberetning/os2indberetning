@@ -103,9 +103,6 @@
                 },
                 {
                     field: "CreatedDateTimestamp",
-                    headerAttributes: {
-                        "class": "verticalText"
-                    },
                     title: "Dato for indberetning", 
                     width: 100
                 },
@@ -216,15 +213,15 @@
             excelExport: function (e) {
                 var sheet = e.workbook.sheets[0];
 
-                var isRoundTripTemplate = kendo.template(this.columns[5].template);
+                var IsRoundTripTemplate = kendo.template(this.columns[5].template);
                 var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
                 var FourKmRuleTemplate = kendo.template(this.columns[7].template);
 
                 for (var i = 1; i < sheet.rows.length; i++) {
                     var row = sheet.rows[i];
 
-                    var isRoundTripdataItem = {
-                        isRoundTrip: row.cells[5].value
+                    var IsRoundTripdataItem = {
+                        IsRoundTrip: row.cells[5].value
                     };
                     var IsExtraDistancedataItem = {
                         IsExtraDistance: row.cells[6].value
@@ -232,7 +229,7 @@
                     var FourKmRuledataItem = {
                         FourKmRule: row.cells[7].value
                     };
-                    row.cells[5].value = isRoundTripTemplate(isRoundTripdataItem);
+                    row.cells[5].value = IsRoundTripTemplate(IsRoundTripdataItem);
                     row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
                     row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
                 }

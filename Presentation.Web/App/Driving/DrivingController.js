@@ -40,14 +40,30 @@
             dataValueField: "value"
         };
 
-        $scope.buildDataSource.data([
-            { value: "Calculated", key: "Beregnet" },
-            { value: "Read", key: "Aflæst" },
-            { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
-        ]);
-        //Set calculation specific text
-        $scope.alternativeCalculationTextReimbursement = "Merkørselsfradrag";
-
+        DriveReport.getCalculationMethod().$promise.then(function (res) {
+            if (res.value === "ndk" || res.value === "norddjurs" || res.value === "true") {
+                $scope.alternativeCalculation = true;
+            } else {
+                $scope.alternativeCalculation = false;
+            }
+            if (!$scope.alternativeCalculation) {
+                $scope.buildDataSource.data([
+                    { value: "Calculated", key: "Beregnet" },
+                    { value: "Read", key: "Aflæst" },
+                    { value: "CalculatedWithoutExtraDistance", key: "Beregnet uden merkørsel" }
+                ]);
+                //Set calculation specific text
+                $scope.alternativeCalculationTextReimbursement = "Merkørselsfradrag";
+            } else {
+                $scope.buildDataSource.data([
+                    { value: "Calculated", key: "Beregnet" },
+                    { value: "Read", key: "Aflæst" },
+                ]);
+                //Set calculation specific text
+                $scope.alternativeCalculationTextReimbursement = "Fradrag";
+                $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
+            }
+        });
 
         $scope.canSubmitDriveReport = true;
 
@@ -969,12 +985,47 @@
             /// </summary>
             $timeout(function () {
                 if ($scope.DriveReport.KilometerAllowance != "CalculatedWithoutExtraDistance") {
-                    if (routeStartsAtHome() && routeEndsAtHome()) {
-                        $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
-                    } else if (routeStartsAtHome() || routeEndsAtHome()) {
-                        $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
-                    } else {
-                        $scope.TransportAllowance = 0;
+                    if (!$scope.alternativeCalculation) {
+                        if (routeStartsAtHome() && routeEndsAtHome()) {
+                            $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
+                        } else if (routeStartsAtHome() || routeEndsAtHome()) {
+                            $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
+                        } else {
+                            $scope.TransportAllowance = 0;
+                        }
+                    } else{
+                        if (routeStartsAtHome() && routeEndsAtHome()) {
+                            //$scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
+
+                            console.log("ADRESSES: " + $scope.DriveReport.Addresses);
+
+                        } else if (routeStartsAtHome() || routeEndsAtHome()) {
+
+                            var employmentId = $scope.DriveReport.Position;
+                            var transportType = $scope.DriveReport.KmRate;
+                            var adresses = [];
+                            
+                            if(employmentId != undefined && transportType != undefined){
+                                console.log("EmploymentId: " + employmentId);
+                                console.log("TransportType: " + transportType);
+
+                                angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
+                                    // Format all addresses and add them to postRequest
+                                    if (!$scope.isAddressNameSet(addr) && addr.Personal != "") {
+                                        var format = AddressFormatter.fn(addr.Personal);
+                                        adresses.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
+                                    } else if ($scope.isAddressNameSet(addr)) {
+                                        var format = AddressFormatter.fn(addr.Name);
+                                        adresses.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
+                                    }
+                                });
+
+                                DriveReport.getNDKWorkRouteCalculation({employmentId: employmentId, transportType: transportType}, adresses);
+                            }
+
+                        } else {
+                            $scope.TransportAllowance = 0;
+                        }
                     }
                 } else {
                     $scope.TransportAllowance = 0;

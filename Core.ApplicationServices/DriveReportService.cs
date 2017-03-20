@@ -406,6 +406,11 @@ namespace Core.ApplicationServices
 
         }
 
+        public double GetNDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, Address[] addresses)
+        {
+            return _route.GetRoute(transportType, addresses).Length;
+        }
+
         /// <summary>
         /// Converts timestamp to datetime
         /// </summary>

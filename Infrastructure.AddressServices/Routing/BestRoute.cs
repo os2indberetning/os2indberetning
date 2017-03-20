@@ -13,8 +13,6 @@ namespace Infrastructure.AddressServices.Routing
     public class BestRoute : IRoute<RouteInformation>
     {
 
-       
-
         /// <summary>
         /// Returns the shortest route within the time limit. (Duration <= 300s , Length difference > 3000m)
         /// </summary>
@@ -108,6 +106,17 @@ namespace Infrastructure.AddressServices.Routing
                 //Logger.Error("Exception when getting route information", e);
             }
             return null;
+        }
+
+        public double GetNDKWorkRouteDistance(DriveReportTransportType transportType, IEnumerable<Coordinates> routeCoordinates)
+        {
+            SeptimaRouter septimaService = new SeptimaRouter();
+
+            IEnumerable<RouteInformation> routes = septimaService.GetRoute(transportType, routeCoordinates);
+
+            var shortestRoute = routes.OrderBy(x => x.Duration).ToList();
+
+            return shortestRoute[0].Length;
         }
     }
 }

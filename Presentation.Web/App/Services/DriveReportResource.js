@@ -311,6 +311,17 @@
             //    console.log("res['value']= " + res["value"]);
             //    return res;
             //}
+        },
+        "getNDKWorkRouteCalculation": {
+            method: "POST",
+            url: "/odata/DriveReports/Service.PostNDKWorkRouteCalculation?employmentId=:employmentId&transportType=:transportType",
+            contenttype: "application/JSON",
+            transformRequest: function(adresses){
+                return JSON.stringify(adresses);
+            },
+            transformResponse: function(data){
+                console.log(data);
+            }
         }
     });
 }]);

@@ -18,5 +18,7 @@ namespace Core.ApplicationServices.Interfaces
         bool Validate(DriveReport report);
 
         void SendMailToUserAndApproverOfEditedReport(DriveReport report, string emailText, Person admin, string action);
+
+        double GetNDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, Address[] adresses);
     }
 }

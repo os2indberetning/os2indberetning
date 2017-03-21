@@ -19,6 +19,6 @@ namespace Core.ApplicationServices.Interfaces
 
         void SendMailToUserAndApproverOfEditedReport(DriveReport report, string emailText, Person admin, string action);
 
-        double GetNDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, Address[] adresses);
+        double GetNDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, bool startsHome, bool endsHome, Address[] adresses);
     }
 }

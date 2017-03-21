@@ -898,13 +898,9 @@
         $scope.fourKmRuleChanged = function () {
             if ($scope.alternativeCalculation) {
                 if ($scope.DriveReport.FourKmRule.Using) {
-                    console.log("altcalc:" + $scope.alternativeCalculation);
-                    console.log("usingfourkm:" + $scope.DriveReport.FourKmRule.Using);
                     $scope.AlternativeCalculationTextDistanceForReport = "";
                 }
                 else {
-                    console.log("altcalc:" + $scope.alternativeCalculation);
-                    console.log("usingfourkm:" + $scope.DriveReport.FourKmRule.Using);
                     $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
                 }
             }
@@ -993,22 +989,16 @@
                         } else {
                             $scope.TransportAllowance = 0;
                         }
-                    } else{
-                        if (routeStartsAtHome() && routeEndsAtHome()) {
-                            //$scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
-
-                            console.log("ADRESSES: " + $scope.DriveReport.Addresses);
-
-                        } else if (routeStartsAtHome() || routeEndsAtHome()) {
-
+                    } else {
+                        // Get route based on work address if it starts or ends at home.
+                        if (routeStartsAtHome() || routeEndsAtHome()) {
                             var employmentId = $scope.DriveReport.Position;
-                            var transportType = $scope.DriveReport.KmRate;
+                            var transportType = 0;
+                            if(getKmRate($scope.DriveReport.KmRate).Type.IsBike){
+                                transportType = 1;
+                            }
                             var adresses = [];
-                            
-                            if(employmentId != undefined && transportType != undefined){
-                                console.log("EmploymentId: " + employmentId);
-                                console.log("TransportType: " + transportType);
-
+                            if (employmentId != undefined && transportType != undefined) {
                                 angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
                                     // Format all addresses and add them to postRequest
                                     if (!$scope.isAddressNameSet(addr) && addr.Personal != "") {
@@ -1020,7 +1010,19 @@
                                     }
                                 });
 
-                                DriveReport.getNDKWorkRouteCalculation({employmentId: employmentId, transportType: transportType}, adresses);
+                                DriveReport.getNDKWorkRouteCalculation({ employmentId: employmentId, transportType: transportType, startsHome: routeStartsAtHome(), endsHome: routeEndsAtHome() }, adresses).$promise.then(function (res) {
+                                    $scope.NDKWorkRouteDistance = res.resultData;
+                                    if ($scope.latestMapDistance != undefined) {
+                                        if ($scope.latestMapDistance > $scope.NDKWorkRouteDistance) {
+                                            $scope.TransportAllowance = $scope.latestMapDistance - $scope.NDKWorkRouteDistance;
+                                            if($scope.DriveReport.IsRoundTrip){
+                                                $scope.TransportAllowance = Number($scope.TransportAllowance) * 2;
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                $scope.TransportAllowance = 0;
                             }
 
                         } else {

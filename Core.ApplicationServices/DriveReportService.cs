@@ -406,8 +406,32 @@ namespace Core.ApplicationServices
 
         }
 
-        public double GetNDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, Address[] addresses)
+        public double GetNDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, bool startsHome, bool endsHome, Address[] addresses)
         {
+            //Manipulate the list of adresses, so that we get the route for work instead of home.
+            Employment employment = _employmentRepository.AsQueryable().Where(x => x.Id == employmentId).FirstOrDefault();
+            if(employment == null)
+            {
+                return -1;
+            }
+            Address workAddress;
+            if(employment.AlternativeWorkAddress != null)
+            {
+                workAddress = employment.AlternativeWorkAddress;
+            } else
+            {
+                workAddress = employment.OrgUnit.Address;
+            }
+
+            if (startsHome)
+            {
+                addresses[0] = workAddress;
+            }
+            if (endsHome)
+            {
+                addresses[addresses.Length - 1] = workAddress;
+            }
+
             return _route.GetRoute(transportType, addresses).Length;
         }
 

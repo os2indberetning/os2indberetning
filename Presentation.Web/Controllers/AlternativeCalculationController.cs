@@ -18,11 +18,24 @@ namespace OS2Indberetning.Controllers
             _driveReportService = driveReportService;
         }
 
-        public IHttpActionResult NDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, [FromBody] Address[] addresses)
+        public IHttpActionResult NDKWorkRouteCalculation(int employmentId, DriveReportTransportType transportType, bool startsHome, bool endsHome, [FromBody] Address[] addresses)
         {
-            var result = _driveReportService.GetNDKWorkRouteCalculation(employmentId, transportType, addresses);
-            int i = 1;
-            return Ok();
+            double result = 0.0;
+            try
+            {
+                result = _driveReportService.GetNDKWorkRouteCalculation(employmentId, transportType, startsHome, endsHome, addresses);
+            }
+            catch (Exception e)
+            {
+                return InternalServerError(e);
+            }
+            
+            if(result < 0)
+            {
+                return BadRequest();
+            }
+
+            return Ok(result);
         }
     }
 }

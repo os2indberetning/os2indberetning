@@ -314,13 +314,12 @@
         },
         "getNDKWorkRouteCalculation": {
             method: "POST",
-            url: "/odata/DriveReports/Service.PostNDKWorkRouteCalculation?employmentId=:employmentId&transportType=:transportType",
-            contenttype: "application/JSON",
+            url: "/api/AlternativeCalculation/NDKWorkRouteCalculation?employmentId=:employmentId&transportType=:transportType&startsHome=:startsHome&endsHome=:endsHome",
             transformRequest: function(adresses){
                 return JSON.stringify(adresses);
             },
-            transformResponse: function(data){
-                console.log(data);
+            transformResponse: function (data){
+                return {resultData: data}; // wrapped in object because of angular "bug" where the string data would be returned an array of chars.
             }
         }
     });

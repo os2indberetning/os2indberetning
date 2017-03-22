@@ -144,7 +144,10 @@ angular.module("application").controller("MyAcceptedReportsController", [
                   field: "KilometerAllowance",
                   title: "MK",
                   template: function (data) {
-                    return MkColumnFormatter.format(data);
+                      if (!data.FourKmRule) {
+                          return MkColumnFormatter.format(data);
+                      }
+                      return "";
                   }
               }, {
                    field: "FourKmRule",

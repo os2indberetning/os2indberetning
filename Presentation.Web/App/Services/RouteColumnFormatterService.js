@@ -58,7 +58,7 @@
             if (data.KilometerAllowance != "Read") {
                     return result;
             } else {
-                    return "<div class='inline'>Aflæst manuelt</div>" + edited + commentToolTip;
+                    return "<div class='inline'>Aflæst manuelt</div>" + roundTrip + edited + commentToolTip;
             }
 
         }

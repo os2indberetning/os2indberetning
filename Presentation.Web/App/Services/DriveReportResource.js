@@ -209,7 +209,7 @@
                     } else {
                         driveReport.StartsAtHome = false;
                         driveReport.EndsAtHome = false;
-                    }
+                    };
                 } else {
 
                     driveReport.StartsAtHome = false;

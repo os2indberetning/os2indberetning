@@ -274,6 +274,8 @@ namespace Core.ApplicationServices
                         var manuallyProvidedDrivenDistance = report.Distance;
 
                         report.Distance = manuallyProvidedDrivenDistance - toSubtract;
+                        report.TransportAllowance = report.IsRoundTrip == true ? toSubtract * 2 : toSubtract;
+                        report.TransportAllowance += report.FourKmRule ? 4 : 0;
 
                         break;
                     }

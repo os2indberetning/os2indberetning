@@ -241,12 +241,16 @@
                     $scope.DriveReport.UserComment = report.UserComment;
                     if (!report.StartsAtHome && !report.EndsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(0);
+                        $scope.DriveReport.StartOrEndedAtHome = "Neither";
                     } else if (report.StartsAtHome && report.EndsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(3);
+                        $scope.DriveReport.StartOrEndedAtHome = "Both";
                     } else if (report.StartsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(1);
+                        $scope.DriveReport.StartOrEndedAtHome = "Started";
                     } else if (report.EndsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(2);
+                        $scope.DriveReport.StartOrEndedAtHome = "Ended";
                     }
                     $scope.DriveReport.StartsAtHome = report.StartsAtHome;
                     $scope.DriveReport.EndsAtHome = report.EndsAtHome;
@@ -254,6 +258,15 @@
                     // The distance value saved on a drivereport is the distance after subtracting transport allowance.
                     // Therefore it is needed to add the transport allowance back on to the distance when editing it.
                     report.Distance = (report.Distance + $scope.TransportAllowance).toFixed(2);
+                    if(report.IsRoundTrip){
+                        if(report.FourKmRule){
+                            // Add distance form home to border again because of roun trip. 4 KM rule adjustment (= 4km) is only added once if roundtrip.
+                            report.Distance = (Number(report.Distance.toString().replace(",", ".")) + $scope.DriveReport.FourKmRule.Value) / 2;
+                        } else{
+                            //Add transport allowance again because of roundtrip.
+                            report.Distance = (Number(report.Distance.toString().replace(",", ".")) + $scope.TransportAllowance) / 2;
+                        }
+                    }
                     $scope.DriveReport.ReadDistance = report.Distance.toString().replace(".", ",");
                 } else {
                     $scope.initialEditReportLoad = true;
@@ -980,7 +993,7 @@
             /// <summary>
             /// Updates drivenkm fields under map widget.
             /// </summary>
-            $timeout(function () {
+            //$timeout(function () {
                 if ($scope.DriveReport.KilometerAllowance != "CalculatedWithoutExtraDistance") {
                     if (routeStartsAtHome() && routeEndsAtHome()) {
                         $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
@@ -1031,7 +1044,7 @@
                         $scope.TransportAllowance = fourKmAdjustment;
                     }
                 }
-            });
+            //});
         }
 
         $scope.readDistanceChanged = function () {

@@ -241,34 +241,20 @@
                     $scope.DriveReport.UserComment = report.UserComment;
                     if (!report.StartsAtHome && !report.EndsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(0);
-                        $scope.DriveReport.StartOrEndedAtHome = "Neither";
                     } else if (report.StartsAtHome && report.EndsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(3);
-                        $scope.DriveReport.StartOrEndedAtHome = "Both";
                     } else if (report.StartsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(1);
-                        $scope.DriveReport.StartOrEndedAtHome = "Started";
                     } else if (report.EndsAtHome) {
                         $scope.container.StartEndHomeDropDown.select(2);
-                        $scope.DriveReport.StartOrEndedAtHome = "Ended";
                     }
                     $scope.DriveReport.StartsAtHome = report.StartsAtHome;
                     $scope.DriveReport.EndsAtHome = report.EndsAtHome;
-                    
+                    updateDrivenKm();
                     // The distance value saved on a drivereport is the distance after subtracting transport allowance.
                     // Therefore it is needed to add the transport allowance back on to the distance when editing it.
-                    // And, if the report is round trip, the distance should be divided by 2, to make up for the initial doubling.
-                    report.Distance = (report.Distance + report.TransportAllowance).toFixed(2);
-                    if(report.IsRoundTrip){
-                        report.Distance = report.Distance / 2;
-                        if(report.FourKmRule){
-                            report.TransportAllowance = (report.TransportAllowance - 4) / 2;
-                        }else{
-                            report.TransportAllowance = report.TransportAllowance / 2;
-                        }
-                    }
+                    report.Distance = (report.Distance + $scope.TransportAllowance).toFixed(2);
                     $scope.DriveReport.ReadDistance = report.Distance.toString().replace(".", ",");
-                    updateDrivenKm();
                 } else {
                     $scope.initialEditReportLoad = true;
                     $scope.DriveReport.Addresses = [];
@@ -1012,11 +998,6 @@
                         $scope.DriveReport.ReadDistance = 0;
                     }
                     $scope.DrivenKMDisplay = Number($scope.DriveReport.ReadDistance.toString().replace(",", "."));
-
-                    if(isEditingReport){
-                        
-                    }
-
                 } else {
                     if ($scope.latestMapDistance == undefined) {
                         $scope.DrivenKMDisplay = 0;

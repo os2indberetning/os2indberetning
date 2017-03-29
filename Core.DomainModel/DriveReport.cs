@@ -43,12 +43,6 @@ namespace Core.DomainModel
         public bool? IsOldMigratedReport { get; set; }
         public bool? IsRoundTrip { get; set; }
 
-        /// <summary>
-        /// Contains the transport allowance from a report. It is used for calculating the originally driven distance when editing a report with kilometer allowance as "read".
-        /// If the four km rule has been used, TransportAllowance will contain the distance from home to border with the 4km added.
-        /// </summary>
-        public double? TransportAllowance { get; set; }
-
 
         public virtual ICollection<DriveReportPoint> DriveReportPoints { get; set; }
     }

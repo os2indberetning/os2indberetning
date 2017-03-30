@@ -11,46 +11,68 @@ namespace Core.ApplicationServices.Logger
 {
     public class Logger : ILogger
     {
-        private ILog log;
+        private ILog _devLog;
+        private ILog _adminLog;
 
         public Logger()
         {
-            log = LogManager.GetLogger("Logger");
+            // Filename for each log is configured in the Log4Net.config file in each project.
+            _devLog = LogManager.GetLogger("Logger");
+            _adminLog = LogManager.GetLogger("adminLog");
         }
 
-        public void Log(string msg, string fileName)
+        //public void Log(string msg, string fileName)
+        //{
+        //    _devLog.Info(msg);
+        //}
+
+        //public void Log(string msg, string fileName, Exception ex)
+        //{
+        //    _devLog.Error(msg, ex);
+        //}
+
+        //public void Log(string msg, string fileName, Exception ex, int level)
+        //{
+        //    var message = "[Niveau " + level + "] - " + msg;
+        //    switch (level)
+        //    {
+        //        case 1: _devLog.Error(message, ex); break;
+        //        case 2: _devLog.Warn(message, ex); break;
+        //        default:
+        //            _devLog.Info(message, ex); break;
+        //    }
+        //}
+
+        //public void Log(string msg, string fileName, int level)
+        //{
+        //    var message = "[Niveau " + level + "] - " + msg;
+        //    switch (level)
+        //    {
+        //        case 1: _devLog.Error(message); break;
+        //        case 2: _devLog.Warn(message); break;
+        //        default:
+        //            _devLog.Info(message); break;
+        //    }
+        //}
+
+        public void Debug(string message)
         {
-            log.Info(msg);
+            _devLog.Debug(message);
         }
 
-        public void Log(string msg, string fileName, Exception ex)
+        public void Error(string message, Exception exception = null)
         {
-            log.Error(msg, ex);
+            _devLog.Error(message, exception);
         }
 
-        public void Log(string msg, string fileName, Exception ex, int level)
+        public void InfoAdmin(string msg)
         {
-            var message = "[Niveau " + level + "] - " + msg;
-            switch (level)
-            {
-                case 1: log.Error(message, ex); break;
-                case 2: log.Warn(message, ex); break;
-                default:
-                    log.Info(message, ex); break;
-            }
+            _adminLog.Info(msg);
         }
 
-        public void Log(string msg, string fileName, int level)
+        public void ErrorAdmin(string msg)
         {
-            var message = "[Niveau " + level + "] - " + msg;
-            switch (level)
-            {
-                case 1: log.Error(message); break;
-                case 2: log.Warn(message); break;
-                default:
-                    log.Info(message); break;
-            }
+            _adminLog.Error(msg);
         }
     }
-
 }

@@ -64,6 +64,8 @@ namespace OS2Indberetning.Controllers
                 _logger.Log("Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
                 throw new UnauthorizedAccessException("Gyldig domænebruger ikke fundet.");
             }
+            _logger.InfoAdmin("********************* TEEEEEEEEEEEEST **************************");
+            _logger.Debug("********* REGULAR LOG INFO TEEEEST **************");
         }
 
         public BaseController(IGenericRepository<T> repository, IGenericRepository<Person> personRepo)

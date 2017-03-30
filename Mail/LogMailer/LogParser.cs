@@ -32,7 +32,7 @@ namespace Mail.LogMailer
                         var message = line.Substring(index + indexString.Count(), (line.Count() - (index + indexString.Count())));
                         
                         Console.WriteLine(stringDate);
-                        var date = DateTime.ParseExact(stringDate, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                        var date = DateTime.ParseExact(stringDate, "dd-MM-yyyy HH:mm:ss,fff", CultureInfo.InvariantCulture);
 
                         if (date < fromDate) break;
 

@@ -19,7 +19,6 @@ namespace Core.ApplicationServices.MailerService.Impl
           
             try
             {
-                _logger.Log($"{this.GetType().Name}, mailsender() initial", "mail", 3);
                 int port;
                 bool hasPortValue = int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port);
 
@@ -37,13 +36,13 @@ namespace Core.ApplicationServices.MailerService.Impl
                
                 if (hasPortValue)
                 {
-                    _logger.Log($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port =" + port, "mail", 3);
+                    _logger.Debug($"{this.GetType().Name}, tryParse on PROTECTED_SMTP_HOST_PORT. port = {port}");
                     _smtpClient.Port = port;
                 }
             }
             catch (Exception e)
             {
-                _logger.Log($"{this.GetType().Name}, smtp client initialization falied, check values in CustomSettings.config. Exception:" + e, "mail", 1);
+                _logger.Error($"{this.GetType().Name}, Smtp client initialization falied, check values in CustomSettings.config", e);
                 throw e;
             }
         }
@@ -71,7 +70,8 @@ namespace Core.ApplicationServices.MailerService.Impl
             }
             catch (Exception e )
             {
-                _logger.Log("Fejl under afsendelse af mail. Mail er ikke afsendt.", "mail", e, 1);
+                _logger.ErrorAdmin($"Fejl under afsendelse af mail til {to}, med emnet: \"{subject}\". Mail er ikke afsendt.");
+                _logger.Error($"{GetType().Name}, SendMail(), Error when sending mail to {to}, with subject: \"{subject}\". Mail has not been sent", e);
             }
         }
     }

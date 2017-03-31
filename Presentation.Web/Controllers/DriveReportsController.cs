@@ -413,8 +413,35 @@ namespace OS2Indberetning.Controllers
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 
+            var status = new object();
+            if (delta.TryGetPropertyValue("Status", out status))
+            {
+                if (status.ToString().Equals("Rejected"))
+                {
+                    bool sendEmailResult = true;
+                    try
+                    {
+                        base.Patch(key, delta);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"{GetType().Name}, Patch(), Error when trying to update report status for user {report.Person.FullName}", ex);
+                        return InternalServerError();
+                    }
 
-            _driveService.SendMailIfRejectedReport(key, delta);
+                    try
+                    {
+                        _driveService.SendMailForRejectedReport(key, delta);
+                    }
+                    catch
+                    {
+                        _logger.LogForAdmin($"{report.Person.FullName} har fået en indberetning afvist af sin leder, men er ikke blevet notificeret via email");
+                        sendEmailResult = false;
+                    }
+                    return Ok(sendEmailResult);
+                }
+            }
+
             return base.Patch(key, delta);
         }
 

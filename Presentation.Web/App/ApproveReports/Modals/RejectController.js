@@ -18,7 +18,6 @@
                $scope.result.Comment = $scope.comment;
                $scope.result.Id = itemId;
                $modalInstance.close($scope.result);
-               NotificationService.AutoFadeNotification("success", "", "Indberetningen blev afvist.");
            }
            
        }

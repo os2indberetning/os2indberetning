@@ -11,7 +11,7 @@ namespace Core.ApplicationServices.Interfaces
     public interface IDriveReportService
     {
         DriveReport Create(DriveReport report);
-        void SendMailIfRejectedReport(int key, Delta<DriveReport> delta);
+        void SendMailForRejectedReport(int key, Delta<DriveReport> delta);
 
         Person GetResponsibleLeaderForReport(DriveReport driveReport);
         Person GetActualLeaderForReport(DriveReport driveReport);

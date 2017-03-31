@@ -36,7 +36,7 @@ namespace Mail.LogMailer
                             var message = match.Groups[3].Value;
 
                             if (date < fromDate) break;
-                            messages.Add(severity + ": " + message);
+                            messages.Add(date + ": " + message);
                         }
                     }
                 }

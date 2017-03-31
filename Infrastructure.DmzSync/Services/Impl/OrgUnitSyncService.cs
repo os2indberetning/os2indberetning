@@ -39,7 +39,7 @@ namespace Infrastructure.DmzSync.Services.Impl
             var orgUnitList = _masterOrgUnitRepo.AsQueryable().ToList();
             var max = orgUnitList.Count;
 
-            _logger.Log($"{this.GetType().Name}. SyncToDmz(). Amount of orgUnits= {max}", "dmz", 3);
+            _logger.Debug($"{this.GetType().Name}, SyncToDmz(), Amount of orgUnits= {max}");
             foreach (var masterOrgUnit in orgUnitList)
             {
                 try
@@ -69,7 +69,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     }
                 }catch(Exception ex)
                 {
-                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for orgUnit= {masterOrgUnit}, ID= {masterOrgUnit.Id}. Exception: {ex.Message}", "dmz", 1);
+                    _logger.Error($"{this.GetType().Name}, SyncToDmz(), Exception during sync to DMZ for orgUnit= {masterOrgUnit}, ID= {masterOrgUnit.Id}.", ex);
                 }
             }
             _dmzOrgUnitRepo.Save();

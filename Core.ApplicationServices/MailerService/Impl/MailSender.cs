@@ -70,7 +70,7 @@ namespace Core.ApplicationServices.MailerService.Impl
             }
             catch (Exception e )
             {
-                _logger.ErrorAdmin($"Fejl under afsendelse af mail til {to}, med emnet: \"{subject}\". Mail er ikke afsendt.");
+                _logger.LogForAdmin($"Fejl under afsendelse af mail til {to}, med emnet: \"{subject}\". Mail er ikke afsendt.");
                 _logger.Error($"{GetType().Name}, SendMail(), Error when sending mail to {to}, with subject: \"{subject}\". Mail has not been sent", e);
             }
         }

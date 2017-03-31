@@ -62,7 +62,7 @@ namespace Infrastructure.DmzSync
             catch (Exception ex)
             {
                 logger.Error($"Error during drivereport synchronization from DMZ", ex);
-                logger.ErrorAdmin("Fejl under synkronisering af indberetninger fra DMZ. Mobilindberetninger er ikke synkroniserede.");
+                logger.LogForAdmin("Fejl under synkronisering af indberetninger fra DMZ. Mobilindberetninger er ikke synkroniserede.");
                 throw;
             }
 
@@ -75,7 +75,7 @@ namespace Infrastructure.DmzSync
             catch (Exception ex)
             {
                 logger.Error($"Error during orgunit synchronization to DMZ", ex);
-                logger.ErrorAdmin("Fejl ved synkronisering af organisationsenheder til DMZ.");
+                logger.LogForAdmin("Fejl ved synkronisering af organisationsenheder til DMZ.");
                 throw;
             }
 
@@ -89,7 +89,7 @@ namespace Infrastructure.DmzSync
             catch (Exception ex)
             {
                 logger.Error($"Error during people synchronization to DMZ", ex);
-                logger.ErrorAdmin("Fejl ved synkronisering af medarbejdere til DMZ.");
+                logger.LogForAdmin("Fejl ved synkronisering af medarbejdere til DMZ.");
                 throw;
             }
 
@@ -102,20 +102,20 @@ namespace Infrastructure.DmzSync
             catch (Exception ex)
             {
                 logger.Error($"Error during rate synchronization from DMZ", ex);
-                logger.ErrorAdmin("Fejl ved synkronisering af takster til DMZ.");
+                logger.LogForAdmin("Fejl ved synkronisering af takster til DMZ.");
                 throw;
             }
 
             try
             {
-                logger.Error("UserAuthSyncToDmz started");
+                logger.Debug("UserAuthSyncToDmz started");
                 Console.WriteLine("UserAuthSyncToDmz");
                 userAuthSync.SyncToDmz();
             }
             catch (Exception ex)
             {
                 logger.Error($"Error during userauth synchronization from DMZ", ex);
-                logger.ErrorAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
+                logger.LogForAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
                 throw;
             }
 

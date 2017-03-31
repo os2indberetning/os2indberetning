@@ -211,7 +211,7 @@ namespace Core.ApplicationServices
                         recipient = report.Person.Mail;
                     } else
                     {
-                        _logger.Log("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse. " + report.Person.FullName + " har derfor ikke modtaget en mailadvisering", "mail", 2);
+                        _logger.LogForAdmin("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse. " + report.Person.FullName + " har derfor ikke modtaget en mailadvisering");
                         throw new Exception("Forsøg på at sende mail til person uden emailaddresse");
                     }
                     var comment = new object();

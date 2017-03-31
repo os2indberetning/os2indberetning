@@ -16,44 +16,10 @@ namespace Core.ApplicationServices.Logger
 
         public Logger()
         {
-            // Filename for each log is configured in the Log4Net.config file in each project.
+            // Filename for each log is configured in the Log4Net.config in each project.
             _devLog = LogManager.GetLogger("Logger");
             _adminLog = LogManager.GetLogger("adminLog");
         }
-
-        //public void Log(string msg, string fileName)
-        //{
-        //    _devLog.Info(msg);
-        //}
-
-        //public void Log(string msg, string fileName, Exception ex)
-        //{
-        //    _devLog.Error(msg, ex);
-        //}
-
-        //public void Log(string msg, string fileName, Exception ex, int level)
-        //{
-        //    var message = "[Niveau " + level + "] - " + msg;
-        //    switch (level)
-        //    {
-        //        case 1: _devLog.Error(message, ex); break;
-        //        case 2: _devLog.Warn(message, ex); break;
-        //        default:
-        //            _devLog.Info(message, ex); break;
-        //    }
-        //}
-
-        //public void Log(string msg, string fileName, int level)
-        //{
-        //    var message = "[Niveau " + level + "] - " + msg;
-        //    switch (level)
-        //    {
-        //        case 1: _devLog.Error(message); break;
-        //        case 2: _devLog.Warn(message); break;
-        //        default:
-        //            _devLog.Info(message); break;
-        //    }
-        //}
 
         public void Debug(string message)
         {
@@ -65,14 +31,9 @@ namespace Core.ApplicationServices.Logger
             _devLog.Error(message, exception);
         }
 
-        public void InfoAdmin(string msg)
+        public void LogForAdmin(string msg)
         {
             _adminLog.Info(msg);
-        }
-
-        public void ErrorAdmin(string msg)
-        {
-            _adminLog.Error(msg);
         }
     }
 }

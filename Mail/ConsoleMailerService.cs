@@ -47,7 +47,7 @@ namespace Mail
             catch (Exception e)
             {
                 Console.WriteLine("Kunne ikke sende daglig aktivitet i fejlloggen!");
-                _logger.ErrorAdmin("Fejl under afsendelse af daglig log aktivitet. Daglig aktivitet ikke udsendt.");
+                _logger.LogForAdmin("Fejl under afsendelse af daglig log aktivitet. Daglig aktivitet ikke udsendt.");
                 _logger.Error($"{GetType().Name}, RunMailService(), Error when trying to send daily log mail to admin", e);
             }
 
@@ -106,7 +106,7 @@ namespace Mail
                 catch (System.Net.Mail.SmtpException e)
                 {
                     Console.WriteLine("Kunne ikke oprette forbindelse til SMTP-Serveren. Forsøger igen...");
-                    _logger.ErrorAdmin("Kunne ikke forbinde til SMTP-server. Mails kan ikke sendes.");
+                    _logger.LogForAdmin("Kunne ikke forbinde til SMTP-server. Mails kan ikke sendes.");
                     _logger.Error($"{GetType().Name}, AttemptSendMails(), Could not connect to SMTP server, mails could not be send", e);
                     AttemptSendMails(service, payRoleDateTime, timesToAttempt - 1);
                 }
@@ -114,7 +114,7 @@ namespace Mail
             else
             {
                 Console.WriteLine("Alle forsøg fejlede. Programmet lukker om 3 sekunder.");
-                _logger.ErrorAdmin("Alle forsøg på at sende mailadviseringer til ledere fejlede");
+                _logger.LogForAdmin("Alle forsøg på at sende mailadviseringer til ledere fejlede");
                 _logger.Error($"{GetType().Name}, AttemptSendMails(), All attempts failed");
                 Thread.Sleep(3000);
 

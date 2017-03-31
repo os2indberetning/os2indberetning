@@ -41,7 +41,7 @@ namespace Mail.LogMailer
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, Messages(): Error when parsing log entry. Line in log= {line} ", "mail", e, 1);
+                    _logger.Error($"{this.GetType().Name}, Messages(): Error when parsing log entry. Line in log= {line} ", e);
                     Console.WriteLine(e.Message);
                 }
 

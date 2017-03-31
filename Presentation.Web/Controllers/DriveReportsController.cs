@@ -387,7 +387,7 @@ namespace OS2Indberetning.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.InfoAdmin($"Fejl under forsøg på at afvise en allerede godkendt indberetning fra {report.Person.FullName}. Rapportens status er ikke ændret.");
+                    _logger.LogForAdmin($"Fejl under forsøg på at afvise en allerede godkendt indberetning fra {report.Person.FullName}. Rapportens status er ikke ændret.");
                 }
             }
 
@@ -409,7 +409,7 @@ namespace OS2Indberetning.Controllers
             // User should not be allowed to change a Report which has been accepted or rejected.
             if (report.Status != ReportStatus.Pending)
             {
-                _logger.InfoAdmin("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.");
+                _logger.LogForAdmin("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.");
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 

@@ -184,14 +184,43 @@
            dataBound: function () {
                this.expandRow(this.tbody.find("tr.k-master-row").first());
            },
+           sortable: {
+               mode: "multiple"
+           },
            columns: [
                {
                    field: "FullName",
                    title: "Medarbejder",
                    template: function (data) {
                        return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                   },
+                   /*sortable: {
+                       compare: function (a, b){
+                            //If a should be sorted before b, return -1
+                            //IF b should be sorted before a, return 1
+                            //return 0 if equal.
+                            var aSplitted = splitFullnameAndMaNrForSorting(a);
+                            var bSplitted = splitFullnameAndMaNrForSorting(b);
+
+                            if(aSplitted[0] < bSplitted[0]){
+                                return -1;
+                            }
+                            else if(aSplitted[0] == bSplitted[0]){
+                                if(aSplitted[1] < bSplitted[1]){
+                                    return -1
+                                }
+                            }
+                            return 1;
+                       },
+                   }*/
+               },{
+                   field: "EmploymentId",
+                   title: "Medarbejdernummer",
+                   tempalte: function(data){
+                       return data.Employment.EmploymentId;
                    }
-               }, {
+               }, 
+               {
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
                }, {
@@ -282,6 +311,15 @@
                }
            ],
        };
+
+       /*var splitFullnameAndMaNrForSorting = function(input){
+            var patternFullname = new RegExp("(.*\)[.*\]");
+            var patternMaNr = new RegExp(".*(\[.*\])");
+            var fullname = patternFullname.exec(input)[1];
+            var maNr = patternMaNr.exec(input)[1];
+            return [fullname, maNr];
+       }*/
+
 
        $scope.checkAllBoxesOnPage = function () {
            /// <summary>

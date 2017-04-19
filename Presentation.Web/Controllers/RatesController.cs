@@ -108,16 +108,14 @@ namespace OS2Indberetning.Controllers
         [HttpGet]
         public IQueryable<Rate> ThisYearsRates()
         {
-            _logger.Log("RatesController. ThisYearsRates(). initial", "web", 3);
             IQueryable<Rate> result = null;
             try
             {
                 result = Repo.AsQueryable().Where(x => x.Active);
             }catch(Exception e)
             {
-                _logger.Log("RatesController. ThisYearsRates(). Exception", "web", e, 1);
+                _logger.Error($"{GetType().Name}, ThisYearsRates(), Error", e);
             }
-            _logger.Log("RatesController. ThisYearsRates(). END.", "web", 3);
             return result;
         }
     }

@@ -32,7 +32,7 @@ namespace Mail.LogMailer
                         var message = line.Substring(index + indexString.Count(), (line.Count() - (index + indexString.Count())));
                         
                         Console.WriteLine(stringDate);
-                        var date = DateTime.ParseExact(stringDate, "dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
+                        var date = DateTime.ParseExact(stringDate, "dd-MM-yyyy HH:mm:ss,fff", CultureInfo.InvariantCulture);
 
                         if (date < fromDate) break;
 
@@ -41,7 +41,7 @@ namespace Mail.LogMailer
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, Messages(): Error when parsing log entry. Line in log= {line} ", "mail", e, 1);
+                    _logger.Error($"{this.GetType().Name}, Messages(): Error when parsing log entry. Line in log= {line} ", e);
                     Console.WriteLine(e.Message);
                 }
 

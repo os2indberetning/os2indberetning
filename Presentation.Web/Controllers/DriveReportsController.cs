@@ -60,8 +60,6 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
         {
-            _logger.Log($"DriveReportsController, Get(). Initial", "web", 3);
-
             IQueryable<DriveReport> queryable = null;
             try
             {
@@ -87,7 +85,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log($"DriveReportsController, Get(). Exception={ex.Message}", "web", 3);
+                _logger.Error($"{GetType().Name}, Get(), queryOption={queryOptions}, status={status}, leaderId={leaderId}, getReportsWhereSubExists={getReportsWhereSubExists}", ex);
             }
             return Ok(queryable);
         }
@@ -101,17 +99,20 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetLatestReportForUser(int personId)
         {
-            _logger.Log($"DriveReportsController, GetLatestReportForUser(). Initial", "web", 3);
             try
             {
+                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var report = Repo.AsQueryable()
-                    .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
+                    .Where(
+                        x => x.PersonId.Equals(personId)
+                        && x.Employment.StartDateTimestamp < currentTimestamp
+                        && (x.Employment.EndDateTimestamp > currentTimestamp || x.Employment.EndDateTimestamp == 0)
+                        && !x.IsFromApp)
                     .OrderByDescending(x => x.CreatedDateTimestamp)
                     .FirstOrDefault();
 
                 if (report != null)
                 {
-                    _logger.Log($"DriveReportsController, GetLatestReportForUser(). End OK", "web", 3);
                     return Ok(report);
                 }
 
@@ -119,9 +120,9 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log($"DriveReportsController, GetLatestReportForUser(). Exception={ex.Message}", "web", 3);
+                _logger.Error($"{GetType().Name}, GetLatestReportForUser(), personId={personId}", ex);
             }
-            _logger.Log($"DriveReportsController, GetLatestReportForUser(). StatusCode= NoContent", "web", 3);
+            _logger.Debug($"{GetType().Name}, GetLatestReportForUser(), personId={personId}, statusCode=204 No Content");
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -133,9 +134,9 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetCalculationMethod()
         {
-
             bool isAltCalc;
             bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
+            _logger.Debug($"{GetType().Name}, GetCalculationMethod(), isAltCalc={isAltCalc}");
 
             if (parseSucces)
             {
@@ -159,6 +160,8 @@ namespace OS2Indberetning.Controllers
         [HttpGet]
         public IHttpActionResult Eksport(string start, string end, string name, string orgUnit = null)
         {
+            _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}");
+
             // Validate parameters
             long parsedStartDateUnix;
             long parsedEndDateUnix;
@@ -166,6 +169,7 @@ namespace OS2Indberetning.Controllers
             if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(start) || string.IsNullOrEmpty(end))
             {
                 return StatusCode(HttpStatusCode.NoContent);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, statusCode=204 No Content");
             }
             else
             {
@@ -177,6 +181,7 @@ namespace OS2Indberetning.Controllers
                 catch (Exception)
                 {
                     return StatusCode(HttpStatusCode.NoContent);
+                    _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, statusCode=204 No Content");
                 }
             }
 
@@ -185,6 +190,7 @@ namespace OS2Indberetning.Controllers
             if (person == null)
             {
                 return StatusCode(HttpStatusCode.NoContent);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, statusCode=204 No Content");
             }
 
             // Get all the persons drivereports that has been invoiced in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
@@ -217,7 +223,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Log($"Error when initializing export model, person = {person.FullName}, interval = {result.AdminName ?? "fejl i interval"}", "web", e, 3);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, Error when initializing export model", e);
             }
 
             DateTime unixDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -274,7 +280,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Log("drivereports Error " + e.Message, "web", 3);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, DriveReports error", e);
             }
 
             result.DriveReports = drivereports.ToArray();
@@ -386,7 +392,7 @@ namespace OS2Indberetning.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
+                    _logger.LogForAdmin($"Fejl under forsøg på at afvise en allerede godkendt indberetning fra {report.Person.FullName}. Rapportens status er ikke ændret.");
                 }
             }
 
@@ -408,12 +414,39 @@ namespace OS2Indberetning.Controllers
             // User should not be allowed to change a Report which has been accepted or rejected.
             if (report.Status != ReportStatus.Pending)
             {
-                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.", "web", 3);
+                _logger.LogForAdmin("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.");
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 
+            var status = new object();
+            if (delta.TryGetPropertyValue("Status", out status))
+            {
+                if (status.ToString().Equals("Rejected"))
+                {
+                    bool sendEmailResult = true;
+                    try
+                    {
+                        base.Patch(key, delta);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"{GetType().Name}, Patch(), Error when trying to update report status for user {report.Person.FullName}", ex);
+                        return InternalServerError();
+                    }
 
-            _driveService.SendMailIfRejectedReport(key, delta);
+                    try
+                    {
+                        _driveService.SendMailForRejectedReport(key, delta);
+                    }
+                    catch
+                    {
+                        _logger.LogForAdmin($"{report.Person.FullName} har fået en indberetning afvist af sin leder, men er ikke blevet notificeret via email");
+                        sendEmailResult = false;
+                    }
+                    return Ok(sendEmailResult);
+                }
+            }
+
             return base.Patch(key, delta);
         }
 

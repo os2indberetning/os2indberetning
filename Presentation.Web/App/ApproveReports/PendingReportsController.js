@@ -467,14 +467,21 @@
            });
 
            modalInstance.result.then(function (res) {
-               $scope.loadingPromise = Report.patch({ id: id, emailText : "Ingen besked" }, {
+               $scope.loadingPromise = Report.rejectReport({ id: id, emailText : "Ingen besked" }, {
                    "Status": "Rejected",
                    "ClosedDateTimestamp": moment().unix(),
                    "Comment": res.Comment,
                    "ApprovedById": $rootScope.CurrentUser.Id,
-               }, function () {
+               }, function (res) {
                    $scope.gridContainer.grid.dataSource.read();
-
+                   if(res.value){
+                        NotificationService.AutoFadeNotification("success", "Afvisning", "Indberetningen blev afvist.");
+                   } else{
+                        NotificationService.AutoFadeNotification("warning", "Afvisning", "Indberetningen blev afvist, men der kunne IKKE sendes notifikation til medarbejderen");
+                   }
+               }, function (res){
+                   $scope.gridContainer.grid.dataSource.read();
+                   NotificationService.AutoFadeNotification("danger", "Afvisning", "Indberetningen blev ikke afvist.");
                }).$promise;
            });
        }

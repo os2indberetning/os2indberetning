@@ -30,7 +30,7 @@ namespace DBUpdater
 
             ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
 
-            _logger.Log($"************* DBUpdater started ***************", "DBUpdater", 3);
+            _logger.Debug($"-------- DBUPDATER STARTED --------");
 
             IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
             
@@ -55,7 +55,7 @@ namespace DBUpdater
             service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
             service.AddLeadersToReportsThatHaveNone();
 
-            _logger.Log($"************* DBUpdater finished ***************", "DBUpdater", 3);
+            _logger.Debug($"-------- DBUPDATER FINISHED --------");
         }
 
 

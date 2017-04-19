@@ -6,6 +6,11 @@
             isArray: true, 
             url: "/odata/DriveReports(:id)?emailText=:emailText",
         },
+        "rejectReport": { 
+            method: "PATCH",
+            isArray: false,
+            url: "/odata/DriveReports(:id)?emailText=:emailText" 
+        },
         "getOwner": { 
             url: "/odata/DriveReports?$filter=Id eq :id&$select=Person&$expand=Person",
             method: "GET", 

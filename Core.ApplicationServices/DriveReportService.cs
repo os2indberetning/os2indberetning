@@ -193,35 +193,27 @@ namespace Core.ApplicationServices
 
         /// <summary>
         /// Is called from DriveReport Patch.
-        /// Sends email to the user associated with the report identified by key, if his/her report has been rejected.
+        /// Sends email to the user associated with the report identified by key, with notification about rejected report.
         /// </summary>
         /// <param name="key"></param>
         /// <param name="delta"></param>
-        public void SendMailIfRejectedReport(int key, Delta<DriveReport> delta)
+        public void SendMailForRejectedReport(int key, Delta<DriveReport> delta)
         {
-            var status = new object();
-            if (delta.TryGetPropertyValue("Status", out status))
+            var report = _driveReportRepository.AsQueryable().FirstOrDefault(r => r.Id == key);
+            var recipient = "";
+            if (report != null && !String.IsNullOrEmpty(report.Person.Mail))
             {
-                if (status.ToString().Equals("Rejected"))
-                {
-                    var report = _driveReportRepository.AsQueryable().FirstOrDefault(r => r.Id == key);
-                    var recipient = "";
-                    if (report != null && !String.IsNullOrEmpty(report.Person.Mail))
-                    {
-                        recipient = report.Person.Mail;
-                    } else
-                    {
-                        _logger.Log("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse. " + report.Person.FullName + " har derfor ikke modtaget en mailadvisering", "mail", 2);
-                        throw new Exception("Forsøg på at sende mail til person uden emailaddresse");
-                    }
-                    var comment = new object();
-                    if (delta.TryGetPropertyValue("Comment", out comment))
-                    {
-                        _mailSender.SendMail(recipient, "Afvist indberetning",
-                            "Din indberetning er blevet afvist med kommentaren: \n \n" + comment);
-                    }
-                }
-
+                recipient = report.Person.Mail;
+            } else
+            {
+                _logger.LogForAdmin("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse. " + report.Person.FullName + " har derfor ikke modtaget en mailadvisering");
+                throw new Exception("Forsøg på at sende mail til person uden emailaddresse");
+            }
+            var comment = new object();
+            if (delta.TryGetPropertyValue("Comment", out comment))
+            {
+                _mailSender.SendMail(recipient, "Afvist indberetning",
+                    "Din indberetning er blevet afvist med kommentaren: \n \n" + comment);
             }
         }
 

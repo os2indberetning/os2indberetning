@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Core.ApplicationServices.MailerService.Interface;
+using Core.ApplicationServices.Logger;
 
 namespace Mail.LogMailer
 {
@@ -15,12 +16,14 @@ namespace Mail.LogMailer
         private readonly ILogParser _logParser;
         private readonly ILogReader _logReader;
         private readonly IMailSender _mailSender;
+        private readonly ILogger _logger;
 
-        public LogMailer(ILogParser logParser, ILogReader logReader, IMailSender mailSender)
+        public LogMailer(ILogParser logParser, ILogReader logReader, IMailSender mailSender, ILogger logger)
         {
             _logParser = logParser;
             _logReader = logReader;
             _mailSender = mailSender;
+            _logger = logger;
         }
 
         public void Send()
@@ -32,11 +35,26 @@ namespace Mail.LogMailer
 
             var receivers = configvalue.Split(',');
 
-            var webLines = _logReader.Read("C:\\logs\\os2eindberetning\\web.log");
-            var dmzLines = _logReader.Read("C:\\logs\\os2eindberetning\\dmz.log");
-            var mailLines = _logReader.Read("C:\\logs\\os2eindberetning\\mail.log");
+            var webLines = new List<string>();
+            var dbupdaterLines = new List<string>();
+            var dmzLines = new List<string>();
+            var mailLines = new List<string>();
+
+            try
+            {
+                webLines = _logReader.Read("C:\\logs\\os2eindberetning\\admin\\web.log");
+                dbupdaterLines = _logReader.Read("C:\\logs\\os2eindberetning\\admin\\dbupdater.log");
+                dmzLines = _logReader.Read("C:\\logs\\os2eindberetning\\admin\\dmz.log");
+                mailLines = _logReader.Read("C:\\logs\\os2eindberetning\\admin\\mail.log");
+            }
+            catch (Exception ex)
+            {
+                _logger.Error($"{GetType().Name}, Send(), Error when trying to read from an admin log file", ex);
+                throw ex;
+            }
 
             var webMessage = String.Join(Environment.NewLine, _logParser.Messages(webLines, DateTime.Now.AddDays(-1)));
+            var dbupdaterMessage = String.Join(Environment.NewLine, _logParser.Messages(dbupdaterLines, DateTime.Now.AddDays(-1)));
             var dmzMessage = String.Join(Environment.NewLine, _logParser.Messages(dmzLines, DateTime.Now.AddDays(-1)));
             var mailMessage = String.Join(Environment.NewLine, _logParser.Messages(mailLines, DateTime.Now.AddDays(-1)));
 
@@ -48,6 +66,10 @@ namespace Mail.LogMailer
             if (webMessage.Any())
             {
                 result += "Web:" + newLine + newLine + webMessage + newLine + newLine;
+            }
+            if (dbupdaterMessage.Any())
+            {
+                result += "DBUpdater:" + newLine + newLine + webMessage + newLine + newLine;
             }
             if (dmzMessage.Any())
             {

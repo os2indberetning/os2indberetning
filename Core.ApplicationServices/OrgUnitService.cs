@@ -56,8 +56,15 @@ namespace Core.ApplicationServices
 
         public Person GetLeaderOfOrg(int orgUnitId)
         {
+            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             var orgUnit = _orgRepo.AsQueryable().Single(x => x.Id == orgUnitId);
-            var empl = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnitId == orgUnitId && x.IsLeader);
+            var empl = _emplRepo.AsQueryable().FirstOrDefault(
+                x => x.OrgUnitId == orgUnitId
+                && x.IsLeader
+                && x.StartDateTimestamp <= currentTimestamp // do not include future employments
+                && (x.EndDateTimestamp == 0 || x.EndDateTimestamp >= currentTimestamp) // do not include past employments
+                && x.Person.IsActive // only include employments with an active Person record);
+            );
             if (empl == null)
             {
                 var parent = orgUnit.Parent;

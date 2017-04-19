@@ -130,7 +130,7 @@ namespace Core.ApplicationServices
                     var reports2 = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
                     foreach (var report in reports2)
                     {
-                        report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                        report.ResponsibleLeaderId = sub.SubId;
                     }
                     _driveRepo.Save();
                 }

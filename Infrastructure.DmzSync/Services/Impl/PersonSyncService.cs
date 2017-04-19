@@ -51,7 +51,8 @@ namespace Infrastructure.DmzSync.Services.Impl
             var i = 0;
             var personList = _masterPersonRepo.AsQueryable().ToList();
             var max = personList.Count;
-            _logger.Log($"{this.GetType().Name}. SyncToDmz(). Amount of persons= {max}", "dmz", 3);
+
+            _logger.Debug($"{this.GetType().Name}, SyncToDmz(), Amount of persons= {max}");
 
             foreach (var person in personList)  
             {
@@ -97,7 +98,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     }
                 }catch(Exception ex)
                 {
-                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for person= {person}, ID= {person.Id}. Exception: {ex.Message}", "dmz", 1);
+                    _logger.Error($"{this.GetType().Name}, SyncToDmz(), Exception during sync to DMZ for personId= {person.Id}", ex);
                 }
             }
              _dmzProfileRepo.Save();
@@ -113,7 +114,7 @@ namespace Infrastructure.DmzSync.Services.Impl
             var i = 0;
             var personList = _masterPersonRepo.AsQueryable().ToList();
             var max = personList.Count;
-            _logger.Log($"{this.GetType().Name}. SyncEmployments(). Amount of persons= {max}", "dmz", 3);
+            _logger.Debug($"{this.GetType().Name}, SyncEmployments(), Amount of persons= {max}");
             foreach (var person in personList)
             {
                 i++;
@@ -163,9 +164,9 @@ namespace Infrastructure.DmzSync.Services.Impl
                 }
                 catch (Exception ex)
                 {
-                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for employments from OS2 database to DMZ database= {person}, ID= {person.Id}. Exception: {ex.Message}", "dmz", 1);
+                    _logger.Error($"{this.GetType().Name}, SyncToDmz(), Exception during sync to DMZ for employments from OS2 database to DMZ database, personId= {person.Id}. Exception: {ex.Message}", ex);
                 }
-                }
+            }
           
             _dmzProfileRepo.Save();
         }

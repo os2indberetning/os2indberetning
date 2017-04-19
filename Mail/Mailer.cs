@@ -17,10 +17,10 @@ namespace Mail
         {
             
             ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
-            _logger.Log($"************* Mail started ***************", "mail", 3);
+            _logger.Debug($"-------- MAIL STARTED --------");
             var service = NinjectWebKernel.CreateKernel().Get<ConsoleMailerService>();
             service.RunMailService();
-            _logger.Log($"************* Mail ended ***************", "mail", 3);
+            _logger.Debug($"-------- MAIL FINISHED --------");
         }
 
         

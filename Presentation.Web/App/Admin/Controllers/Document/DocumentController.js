@@ -35,6 +35,7 @@
 
         today = dd + '-' + mm + '-' + yyyy;
         $('#dateCreated').text(today);
+        $scope.Today = today;
 
 
 
@@ -47,7 +48,7 @@
             dataType: "json",
             success: function (result) {
                 $scope.Name = result.Name;
-                $scope.Licenseplates = result.LicensePlates;
+                $scope.LicensePlates = result.LicensePlates;
                 $scope.OrgUnit = result.OrgUnit;
                 $scope.Municipality = result.Municipality;
                 $scope.DateInterval = result.DateInterval;
@@ -68,7 +69,7 @@
             excel: {
                 fileName: "Rapport-" + today + ".xlsx",
                 proxyURL: "//demos.telerik.com/kendo-ui/service/export",
-                filterable: true
+                filterable: false
             }, pdf: {
                 margin: { top: "1cm", left: "1cm", right: "1cm", bottom: "1cm" },
                 landscape: true,
@@ -103,9 +104,6 @@
                 },
                 {
                     field: "CreatedDateTimestamp",
-                    headerAttributes: {
-                        "class": "verticalText"
-                    },
                     title: "Dato for indberetning", 
                     width: 100
                 },
@@ -215,16 +213,68 @@
             ],
             excelExport: function (e) {
                 var sheet = e.workbook.sheets[0];
-
-                var isRoundTripTemplate = kendo.template(this.columns[5].template);
+                // Apply grid header to excel sheet.
+                sheet.rows.unshift(
+                    {
+                        cells: [ // this is a row
+                            { value: "Navn" }, // this is column 1
+                            { value: $scope.Name } // this is column 2
+                        ]
+                    },
+                    {
+                        cells: [ 
+                            { value: "Nummerplade" },
+                            { value: $scope.LicensePlates }
+                        ]
+                    },
+                    {
+                        cells: [
+                            { value: "Adresse" }, 
+                            { value: $scope.HomeAddressStreet + " " + $scope.HomeAddressTown} 
+                        ]
+                    },
+                    {
+                        cells: [
+                            { value: "Afdeling" }, 
+                            { value: $scope.OrgUnit} 
+                        ]
+                    },
+                    {
+                        cells: [
+                            { value: "Kommune" },
+                            { value: $scope.Municipality}
+                        ]
+                    },
+                    {
+                        cells: [ 
+                            { value: "Dato interval for udbetaling" },
+                            { value: $scope.DateInterval}
+                        ]
+                    },
+                    {
+                        cells: [
+                            { value: "Admin" }, 
+                            { value: $scope.AdminName} 
+                        ]
+                    },
+                    {
+                        cells: [
+                            { value: "Dato for rapportdannelse" },
+                            { value: $scope.Today}
+                        ]
+                    }
+                )
+                
+                // Add roundtrip, extra distance and fourkmrule templates to the excel cheet columns.
+                var IsRoundTripTemplate = kendo.template(this.columns[5].template);
                 var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
                 var FourKmRuleTemplate = kendo.template(this.columns[7].template);
 
-                for (var i = 1; i < sheet.rows.length; i++) {
+                for (var i = 10; i < sheet.rows.length-1; i++) {
                     var row = sheet.rows[i];
 
-                    var isRoundTripdataItem = {
-                        isRoundTrip: row.cells[5].value
+                    var IsRoundTripdataItem = {
+                        IsRoundTrip: row.cells[5].value
                     };
                     var IsExtraDistancedataItem = {
                         IsExtraDistance: row.cells[6].value
@@ -232,7 +282,7 @@
                     var FourKmRuledataItem = {
                         FourKmRule: row.cells[7].value
                     };
-                    row.cells[5].value = isRoundTripTemplate(isRoundTripdataItem);
+                    row.cells[5].value = IsRoundTripTemplate(IsRoundTripdataItem);
                     row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
                     row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
                 }

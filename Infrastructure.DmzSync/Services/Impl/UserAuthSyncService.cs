@@ -42,7 +42,8 @@ namespace Infrastructure.DmzSync.Services.Impl
             var i = 0;
             var logins = _appLoginRepo.AsQueryable().ToList();
             var max = logins.Count;
-            _logger.Log($"{this.GetType().Name}. SyncEmployments(). Amount of logins= {max}", "dmz", 3);
+
+            _logger.Debug($"{this.GetType().Name}, SyncEmployments(), Amount of logins= {max}");
 
             foreach (var login in logins)
             {
@@ -81,7 +82,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     }
                 }catch(Exception ex)
                 {
-                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for mobileTokens from OS2 database to DMZ database. Login= {login}, LoginID= {login.Id}. Exception: {ex.Message}", "dmz", 1);
+                    _logger.Error($"{this.GetType().Name}, SyncToDmz(), Error during sync to DMZ for mobileTokens from OS2 database to DMZ database. Person= {login.Person.FullName}, LoginID= {login.Id}.", ex);
                 }
             }
 

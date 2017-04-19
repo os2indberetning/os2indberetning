@@ -50,6 +50,7 @@
                 $modalInstance.close();
             }, function () {
                 NotificationService.AutoFadeNotification("danger", "", "Kunne ikke oprette godkender (Du kan ikke oprette 2 godkendere for samme person i samme periode)");
+                $modalInstance.close();
             });
         };
 

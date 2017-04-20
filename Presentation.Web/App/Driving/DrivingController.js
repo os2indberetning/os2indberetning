@@ -1,6 +1,6 @@
 ﻿angular.module("application").controller("DrivingController", [
-    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal", "$location", "adminEditCurrentUser",
-    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal, $location, adminEditCurrentUser) {
+    "$scope", "Person", "PersonEmployments", "Rate", "LicensePlate", "PersonalRoute", "DriveReport", "Address", "SmartAdresseSource", "AddressFormatter", "$q", "$filter", "ReportId", "$timeout", "NotificationService", "PersonalAddress", "$rootScope", "$modalInstance", "$window", "$modal", "$location", "adminEditCurrentUser",
+    function ($scope, Person, PersonEmployments, Rate, LicensePlate, PersonalRoute, DriveReport, Address, SmartAdresseSource, AddressFormatter, $q, $filter, ReportId, $timeout, NotificationService, PersonalAddress, $rootScope, $modalInstance, $window, $modal, $location, adminEditCurrentUser) {
 
         $scope.ReadReportCommentHelp = $rootScope.HelpTexts.ReadReportCommentHelp.text;
         $scope.PurposeHelpText = $rootScope.HelpTexts.PurposeHelpText.text;
@@ -257,12 +257,12 @@
                     updateDrivenKm();
                     // The distance value saved on a drivereport is the distance after subtracting transport allowance.
                     // Therefore it is needed to add the transport allowance back on to the distance when editing it.
-                    report.Distance = (report.Distance + $scope.TransportAllowance).toFixed(2);
-                    if(report.IsRoundTrip){
-                        if(report.FourKmRule){
+                    report.Distance = (report.Distance + $scope.TransportAllowance).toFixed(1);
+                    if (report.IsRoundTrip) {
+                        if (report.FourKmRule) {
                             // Add distance form home to border again because of roun trip. 4 KM rule adjustment (= 4km) is only added once if roundtrip.
                             report.Distance = (Number(report.Distance.toString().replace(",", ".")) + $scope.DriveReport.FourKmRule.Value) / 2;
-                        } else{
+                        } else {
                             //Add transport allowance again because of roundtrip.
                             report.Distance = (Number(report.Distance.toString().replace(",", ".")) + $scope.TransportAllowance) / 2;
                         }
@@ -993,58 +993,56 @@
             /// <summary>
             /// Updates drivenkm fields under map widget.
             /// </summary>
-            //$timeout(function () {
-                if ($scope.DriveReport.KilometerAllowance != "CalculatedWithoutExtraDistance") {
-                    if (routeStartsAtHome() && routeEndsAtHome()) {
-                        $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
-                    } else if (routeStartsAtHome() || routeEndsAtHome()) {
-                        $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
-                    } else {
-                        $scope.TransportAllowance = 0;
-                    }
+            if ($scope.DriveReport.KilometerAllowance != "CalculatedWithoutExtraDistance") {
+                if (routeStartsAtHome() && routeEndsAtHome()) {
+                    $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
+                } else if (routeStartsAtHome() || routeEndsAtHome()) {
+                    $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
                 } else {
                     $scope.TransportAllowance = 0;
                 }
+            } else {
+                $scope.TransportAllowance = 0;
+            }
 
-                if ($scope.DriveReport.KilometerAllowance == "Read") {
-                    if ($scope.DriveReport.ReadDistance == undefined) {
-                        $scope.DriveReport.ReadDistance = 0;
-                    }
-                    $scope.DrivenKMDisplay = Number($scope.DriveReport.ReadDistance.toString().replace(",", "."));
+            if ($scope.DriveReport.KilometerAllowance == "Read") {
+                if ($scope.DriveReport.ReadDistance == undefined) {
+                    $scope.DriveReport.ReadDistance = 0;
+                }
+                $scope.DrivenKMDisplay = Number($scope.DriveReport.ReadDistance.toString().replace(",", "."));
+            } else {
+                if ($scope.latestMapDistance == undefined) {
+                    $scope.DrivenKMDisplay = 0;
                 } else {
-                    if ($scope.latestMapDistance == undefined) {
-                        $scope.DrivenKMDisplay = 0;
-                    } else {
-                        $scope.DrivenKMDisplay = $scope.latestMapDistance;
-                    }
+                    $scope.DrivenKMDisplay = $scope.latestMapDistance;
                 }
+            }
 
-                if ($scope.DriveReport.IsRoundTrip === true) {
-                    // Double the driven km if its a roundtrip.
-                    $scope.DrivenKMDisplay = Number($scope.DrivenKMDisplay) * 2;
-                    // If the route starts xor ends at home -> double the transportallowance.
-                    // The case where the route both ends and starts at home is already covered.
-                    if (routeStartsAtHome() != routeEndsAtHome()) {
+            if ($scope.DriveReport.IsRoundTrip === true) {
+                // Double the driven km if its a roundtrip.
+                $scope.DrivenKMDisplay = Number($scope.DrivenKMDisplay) * 2;
+                // If the route starts xor ends at home -> double the transportallowance.
+                // The case where the route both ends and starts at home is already covered.
+                if (routeStartsAtHome() != routeEndsAtHome()) {
 
-                        $scope.TransportAllowance = Number($scope.TransportAllowance) * 2;
-                    }
+                    $scope.TransportAllowance = Number($scope.TransportAllowance) * 2;
                 }
-                if ($scope.DriveReport.FourKmRule != undefined && $scope.DriveReport.FourKmRule.Using === true && $scope.DriveReport.FourKmRule.Value != undefined) {
-                    if (routeStartsAtHome() != routeEndsAtHome()) {
-                        if($scope.DriveReport.IsRoundTrip === true){
-                            $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
-                        }
-                        else{
-                            $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
-                        }
-                    } else if (routeStartsAtHome() && routeEndsAtHome()) {
+            }
+            if ($scope.DriveReport.FourKmRule != undefined && $scope.DriveReport.FourKmRule.Using === true && $scope.DriveReport.FourKmRule.Value != undefined) {
+                if (routeStartsAtHome() != routeEndsAtHome()) {
+                    if ($scope.DriveReport.IsRoundTrip === true) {
                         $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
-                    } 
-                    else {
-                        $scope.TransportAllowance = fourKmAdjustment;
                     }
+                    else {
+                        $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
+                    }
+                } else if (routeStartsAtHome() && routeEndsAtHome()) {
+                    $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
                 }
-            //});
+                else {
+                    $scope.TransportAllowance = fourKmAdjustment;
+                }
+            }
         }
 
         $scope.readDistanceChanged = function () {

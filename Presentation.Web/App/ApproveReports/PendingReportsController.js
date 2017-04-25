@@ -192,30 +192,11 @@
                    field: "FullName",
                    title: "Medarbejder",
                    template: function (data) {
-                       return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                       return data.FullName;
                    },
-                   /*sortable: {
-                       compare: function (a, b){
-                            //If a should be sorted before b, return -1
-                            //IF b should be sorted before a, return 1
-                            //return 0 if equal.
-                            var aSplitted = splitFullnameAndMaNrForSorting(a);
-                            var bSplitted = splitFullnameAndMaNrForSorting(b);
-
-                            if(aSplitted[0] < bSplitted[0]){
-                                return -1;
-                            }
-                            else if(aSplitted[0] == bSplitted[0]){
-                                if(aSplitted[1] < bSplitted[1]){
-                                    return -1
-                                }
-                            }
-                            return 1;
-                       },
-                   }*/
                },{
                    field: "EmploymentId",
-                   title: "Medarbejdernummer",
+                   title: "Ma.nummer",
                    tempalte: function(data){
                        return data.Employment.EmploymentId;
                    }

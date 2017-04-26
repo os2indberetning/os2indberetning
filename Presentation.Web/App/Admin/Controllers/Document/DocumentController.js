@@ -274,7 +274,7 @@
                 var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
                 var FourKmRuleTemplate = kendo.template(this.columns[7].template);
 
-                for (var i = 10; i < sheet0.rows.length-1; i++) {
+                for (var i = 1; i < sheet0.rows.length-1; i++) {
                     var row = sheet0.rows[i];
 
                     var IsRoundTripdataItem = {

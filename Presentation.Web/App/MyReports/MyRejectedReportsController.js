@@ -90,7 +90,20 @@ angular.module("application").controller("MyRejectedReportsController", [
                this.expandRow(this.tbody.find("tr.k-master-row").first());
            },
            columns: [
-              {
+               {
+                   field: "FullName",
+                   title: "Medarbejder",
+                   template: function (data) {
+                       return data.FullName;
+                   },
+               }, {
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   tempalte: function (data) {
+                       return data.Employment.EmploymentId;
+                   }
+               },
+               {
                   field: "DriveDateTimestamp",
                   template: function (data) {
                       var m = moment.unix(data.DriveDateTimestamp);

@@ -212,66 +212,70 @@
 
             ],
             excelExport: function (e) {
-                var sheet = e.workbook.sheets[0];
-                // Apply grid header to excel sheet.
-                sheet.rows.unshift(
-                    {
-                        cells: [ // this is a row
-                            { value: "Navn" }, // this is column 1
-                            { value: $scope.Name } // this is column 2
-                        ]
-                    },
-                    {
-                        cells: [ 
-                            { value: "Nummerplade" },
-                            { value: $scope.LicensePlates }
-                        ]
-                    },
-                    {
-                        cells: [
-                            { value: "Adresse" }, 
-                            { value: $scope.HomeAddressStreet + " " + $scope.HomeAddressTown} 
-                        ]
-                    },
-                    {
-                        cells: [
-                            { value: "Afdeling" }, 
-                            { value: $scope.OrgUnit} 
-                        ]
-                    },
-                    {
-                        cells: [
-                            { value: "Kommune" },
-                            { value: $scope.Municipality}
-                        ]
-                    },
-                    {
-                        cells: [ 
-                            { value: "Dato interval for udbetaling" },
-                            { value: $scope.DateInterval}
-                        ]
-                    },
-                    {
-                        cells: [
-                            { value: "Admin" }, 
-                            { value: $scope.AdminName} 
-                        ]
-                    },
-                    {
-                        cells: [
-                            { value: "Dato for rapportdannelse" },
-                            { value: $scope.Today}
-                        ]
-                    }
-                )
+                // e.workbook.sheets[1] will contain employee data from grid header.
+                e.workbook.sheets[1] = {
+                    rows:[
+                        {
+                            cells: [ // this is a row
+                                { value: "Navn" }, // this is column 1
+                                { value: $scope.Name } // this is column 2
+                            ]
+                        },
+                        {
+                            cells: [ 
+                                { value: "Nummerplade" },
+                                { value: $scope.LicensePlates }
+                            ]
+                        },
+                        {
+                            cells: [
+                                { value: "Adresse" }, 
+                                { value: $scope.HomeAddressStreet + " " + $scope.HomeAddressTown} 
+                            ]
+                        },
+                        {
+                            cells: [
+                                { value: "Afdeling" }, 
+                                { value: $scope.OrgUnit} 
+                            ]
+                        },
+                        {
+                            cells: [
+                                { value: "Kommune" },
+                                { value: $scope.Municipality}
+                            ]
+                        },
+                        {
+                            cells: [ 
+                                { value: "Dato interval for udbetaling" },
+                                { value: $scope.DateInterval}
+                            ]
+                        },
+                        {
+                            cells: [
+                                { value: "Admin" }, 
+                                { value: $scope.AdminName} 
+                            ]
+                        },
+                        {
+                            cells: [
+                                { value: "Dato for rapportdannelse" },
+                                { value: $scope.Today}
+                            ]
+                        }
+                    ]
+                }
+
+                // e.workbook.sheets[0] contains reports
+                var sheet0 = e.workbook.sheets[0];
                 
                 // Add roundtrip, extra distance and fourkmrule templates to the excel cheet columns.
                 var IsRoundTripTemplate = kendo.template(this.columns[5].template);
                 var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
                 var FourKmRuleTemplate = kendo.template(this.columns[7].template);
 
-                for (var i = 10; i < sheet.rows.length-1; i++) {
-                    var row = sheet.rows[i];
+                for (var i = 10; i < sheet0.rows.length-1; i++) {
+                    var row = sheet0.rows[i];
 
                     var IsRoundTripdataItem = {
                         IsRoundTrip: row.cells[5].value

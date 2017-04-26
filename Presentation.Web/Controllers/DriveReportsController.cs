@@ -208,7 +208,7 @@ namespace OS2Indberetning.Controllers
             ExportModel result = new ExportModel();
             try
             {
-                var adminInitials = User.Identity.Name.Split('\\')[1];
+                var adminInitials = "lfav"; //User.Identity.Name.Split('\\')[1];
                 result.DateInterval = $"{start} - {end}";
                 result.OrgUnit = (string.IsNullOrEmpty(orgUnit) || orgUnit.Equals("undefined")) ? "Ikke angivet" : orgUnit;
                 result.Name = person.FullName;
@@ -262,16 +262,23 @@ namespace OS2Indberetning.Controllers
                     };
 
                     bool firstPoint = true;
-                    foreach (var point in currentReport.DriveReportPoints.AsQueryable().OrderBy(x => x.Id))
+                    if (currentReport.KilometerAllowance == KilometerAllowance.Read)
                     {
-                        if (firstPoint)
+                        reportToBeAdded.Route = "Aflæst";
+                    }
+                    else
+                    {
+                        foreach (var point in currentReport.DriveReportPoints.AsQueryable().OrderBy(x => x.Id))
                         {
-                            reportToBeAdded.Route = reportToBeAdded.Route + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
-                            firstPoint = false;
-                        }
-                        else
-                        {
-                            reportToBeAdded.Route = reportToBeAdded.Route + " - " + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
+                            if (firstPoint)
+                            {
+                                reportToBeAdded.Route = reportToBeAdded.Route + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
+                                firstPoint = false;
+                            }
+                            else
+                            {
+                                reportToBeAdded.Route = reportToBeAdded.Route + " - " + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
+                            }
                         }
                     }
 

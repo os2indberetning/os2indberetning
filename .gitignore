@@ -198,6 +198,7 @@ ModelManifest.xml
 # NDK ignored files.
 */**/CustomSettings.config
 */**/connections.config
+*/**/Log4Net.config
 Presentation.Web/App/Mobile
 Presentation.Web/Installation af OS2 indberetning på Android.pdf
 Presentation.Web/Installation af OS2 indberetning på IPhone.pdf

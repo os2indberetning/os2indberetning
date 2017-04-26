@@ -184,14 +184,24 @@
            dataBound: function () {
                this.expandRow(this.tbody.find("tr.k-master-row").first());
            },
+           sortable: {
+               mode: "multiple"
+           },
            columns: [
                {
                    field: "FullName",
                    title: "Medarbejder",
                    template: function (data) {
-                       return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                       return data.FullName;
+                   },
+               },{
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   tempalte: function(data){
+                       return data.Employment.EmploymentId;
                    }
-               }, {
+               }, 
+               {
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
                }, {
@@ -282,6 +292,15 @@
                }
            ],
        };
+
+       /*var splitFullnameAndMaNrForSorting = function(input){
+            var patternFullname = new RegExp("(.*\)[.*\]");
+            var patternMaNr = new RegExp(".*(\[.*\])");
+            var fullname = patternFullname.exec(input)[1];
+            var maNr = patternMaNr.exec(input)[1];
+            return [fullname, maNr];
+       }*/
+
 
        $scope.checkAllBoxesOnPage = function () {
            /// <summary>

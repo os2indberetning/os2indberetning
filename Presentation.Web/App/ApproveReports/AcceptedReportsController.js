@@ -162,13 +162,19 @@
 
 
            columns: [
-               {
+                {
                    field: "FullName",
                    title: "Medarbejder",
                    template: function (data) {
-                       return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                       return data.FullName;
+                   },
+               },{
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   tempalte: function(data){
+                       return data.Employment.EmploymentId;
                    }
-               }, {
+               },  {
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
                }, {

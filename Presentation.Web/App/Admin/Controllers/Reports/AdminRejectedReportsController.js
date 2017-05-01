@@ -144,6 +144,12 @@ angular.module("application").controller("AdminRejectedReportsController", [
                    field: "FullName",
                    title: "Medarbejder"
                }, {
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   template: function(data){
+                       return data.Employment.EmploymentId;
+                   }
+               },{
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
                }, {

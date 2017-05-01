@@ -163,7 +163,7 @@
             },{
                 field: "EmploymentId",
                 title: "Ma.nummer",
-                tempalte: function(data){
+                template: function(data){
                     return data.Employment.EmploymentId;
                 }
             },  {

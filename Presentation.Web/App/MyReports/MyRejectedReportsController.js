@@ -39,7 +39,7 @@ angular.module("application").controller("MyRejectedReportsController", [
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Rejected &$expand=DriveReportPoints,ApprovedBy($select=FullName) &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
+                       url: "/odata/DriveReports?status=Rejected &$expand=DriveReportPoints,ApprovedBy($select=FullName),Employment($expand=OrgUnit) &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
                        dataType: "json",
                        cache: false
                    },
@@ -99,7 +99,7 @@ angular.module("application").controller("MyRejectedReportsController", [
                }, {
                    field: "EmploymentId",
                    title: "Ma.nummer",
-                   tempalte: function (data) {
+                   template: function(data){
                        return data.Employment.EmploymentId;
                    }
                },

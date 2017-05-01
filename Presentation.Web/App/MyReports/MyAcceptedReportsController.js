@@ -38,7 +38,7 @@ angular.module("application").controller("MyAcceptedReportsController", [
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Accepted &$expand=DriveReportPoints,ApprovedBy &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
+                       url: "/odata/DriveReports?status=Accepted &$expand=DriveReportPoints,ApprovedBy,Employment($expand=OrgUnit) &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
                        dataType: "json",
                        cache: false
                    },
@@ -100,7 +100,7 @@ angular.module("application").controller("MyAcceptedReportsController", [
                }, {
                    field: "EmploymentId",
                    title: "Ma.nummer",
-                   tempalte: function (data) {
+                   template: function(data){
                        return data.Employment.EmploymentId;
                    }
                },

@@ -38,7 +38,7 @@
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader &$filter=PersonId eq " + personId,
+                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit) &$filter=PersonId eq " + personId,
                        dataType: "json",
                        cache: false
                    },
@@ -100,7 +100,7 @@
                }, {
                    field: "EmploymentId",
                    title: "Ma.nummer",
-                   tempalte: function (data) {
+                   template: function(data){
                        return data.Employment.EmploymentId;
                    }
                },

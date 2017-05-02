@@ -267,8 +267,13 @@
                             if($scope.DriveReport.StartOrEndedAtHome === "Both"){
                                 fourKmAdjustmentNumber = fourKmAdjustmentNumber * 2; // Special situation for read reports. May be changed in the future.
                             }
-
-                            report.Distance = (distanceNumber + fourKmAdjustmentNumber) / 2;
+                            
+                            if($scope.DriveReport.StartOrEndedAtHome != "Neither"){
+                                report.Distance = (distanceNumber + fourKmAdjustmentNumber) / 2;
+                            }
+                            else{
+                                report.Distance = distanceNumber / 2;
+                            }
                         } else {
                             //Add transport allowance again because of roundtrip.
                             report.Distance = (Number(report.Distance) + $scope.TransportAllowance) / 2;

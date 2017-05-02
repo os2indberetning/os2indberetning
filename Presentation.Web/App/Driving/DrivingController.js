@@ -261,10 +261,17 @@
                     if (report.IsRoundTrip) {
                         if (report.FourKmRule) {
                             // Add distance form home to border again because of roun trip. 4 KM rule adjustment (= 4km) is only added once if roundtrip.
-                            report.Distance = (Number(report.Distance.toString().replace(",", ".")) + $scope.DriveReport.FourKmRule.Value) / 2;
+                            var distanceNumber = Number(report.Distance);
+                            var fourKmAdjustmentNumber = Number($scope.DriveReport.FourKmRule.Value);
+
+                            if($scope.DriveReport.StartOrEndedAtHome === "Both"){
+                                fourKmAdjustmentNumber = fourKmAdjustmentNumber * 2; // Special situation for read reports. May be changed in the future.
+                            }
+
+                            report.Distance = (distanceNumber + fourKmAdjustmentNumber) / 2;
                         } else {
                             //Add transport allowance again because of roundtrip.
-                            report.Distance = (Number(report.Distance.toString().replace(",", ".")) + $scope.TransportAllowance) / 2;
+                            report.Distance = (Number(report.Distance) + $scope.TransportAllowance) / 2;
                         }
                     }
                     $scope.DriveReport.ReadDistance = report.Distance.toString().replace(".", ",");
@@ -1031,7 +1038,7 @@
             if ($scope.DriveReport.FourKmRule != undefined && $scope.DriveReport.FourKmRule.Using === true && $scope.DriveReport.FourKmRule.Value != undefined) {
                 if (routeStartsAtHome() != routeEndsAtHome()) {
                     if ($scope.DriveReport.IsRoundTrip === true) {
-                        $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
+                        $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(".", ",")) * 2) + fourKmAdjustment;
                     }
                     else {
                         $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;

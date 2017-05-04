@@ -1217,9 +1217,7 @@
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-HK.min.js" />
     <Content Include="Scripts\kendo\messages\kendo.messages.zh-TW.min.js" />
     <Content Include="Scripts\kendo\pako_deflate.min.js" />
-    <None Include="Properties\PublishProfiles\Miracle-Test.pubxml" />
-    <None Include="Properties\PublishProfiles\Skanderborg.pubxml" />
-    <None Include="Properties\PublishProfiles\Test-backend.pubxml" />
+    <None Include="Properties\PublishProfiles\*.pubxml" />
     <None Include="Scripts\linq-vsdoc.js" />
     <Content Include="Scripts\linq.js" />
     <Content Include="Scripts\linq.min.js" />
@@ -2438,10 +2436,6 @@
   <Target Name="AfterBuild">
   </Target> -->
   <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
-    <Copy SourceFiles="%(Content.Identity)" 
-		  DestinationFiles="%(Content.Link)" 
-		  SkipUnchangedFiles='true' 
-		  OverwriteReadOnlyFiles='true' 
-		  Condition="'%(Content.Link)' != ''" />
+    <Copy SourceFiles="%(Content.Identity)" DestinationFiles="%(Content.Link)" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" Condition="'%(Content.Link)' != ''" />
   </Target>
 </Project>

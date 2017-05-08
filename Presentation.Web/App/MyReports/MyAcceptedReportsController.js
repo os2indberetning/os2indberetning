@@ -222,7 +222,7 @@ angular.module("application").controller("MyAcceptedReportsController", [
        }
 
        var getDataUrl = function (from, to) {
-           var url = "/odata/DriveReports?status=Accepted &$expand=DriveReportPoints,ApprovedBy";
+           var url = "/odata/DriveReports?status=Accepted &$expand=DriveReportPoints,ApprovedBy,Employment($expand=OrgUnit)";
            var filters = " &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            var result = url + filters;
            return result;

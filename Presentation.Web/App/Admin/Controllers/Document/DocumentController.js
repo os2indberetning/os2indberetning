@@ -43,7 +43,7 @@
 
         $.ajax({
             type: "GET",
-            url: "odata/DriveReports/Service.Eksport?start=" + startDate + "&end=" + endDate + "&name=" + employee + "&orgUnit=" + orgUnit,
+            url: "odata/DriveReports/Service.Eksport?start=" + startDate + "&end=" + endDate + "&personId=" + employee + "&orgunitId=" + orgUnit,
             contentType: "application/json;charset=utf-8",
             dataType: "json",
             success: function (result) {
@@ -93,8 +93,28 @@
                         }
                     }
                 },
-                pageSize: 10
+                pageSize: 20,
+               serverPaging: true,
+               serverAggregates: false,
+               serverSorting: true,
+               serverFiltering: true,
+               sort: { field: "DriveDateTimestamp", dir: "desc" },
             },
+            pageable: {
+               messages: {
+                   display: "{0} - {1} af {2} indberetninger", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                   empty: "Ingen indberetninger at vise",
+                   page: "Side",
+                   of: "af {0}", //{0} is total amount of pages
+                   itemsPerPage: "indberetninger pr. side",
+                   first: "Gå til første side",
+                   previous: "Gå til forrige side",
+                   next: "Gå til næste side",
+                   last: "Gå til sidste side",
+                   refresh: "Genopfrisk"
+               },
+               pageSizes: [5, 10, 20, 30, 40, 50, 100, 150, 200]
+           },
             resizable: true,
             columns: [
                 {

@@ -19,7 +19,7 @@
                     <label class="pull-left">Medarbejder navn</label><span style="color:red;">*</span>
                 </div>
                 <div class="col-sm-8">
-                    <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text"  k-options="autoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
+                    <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text"  k-options="personAutoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" k-data-value-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
     
                 </div>
             </div>
@@ -29,7 +29,7 @@
                     <label>Organisationsenhed</label>
                 </div>
                 <div class="col-sm-8">
-                    <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="autoCompleteOptions"  k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
+                    <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="orgunitAutoCompleteOptions"  k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'"  k-data-value-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
                 </div>
 
             </div>

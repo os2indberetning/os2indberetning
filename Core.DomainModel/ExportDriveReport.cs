@@ -19,12 +19,12 @@ namespace Core.DomainModel
         public string ApprovedDate { get; set; }
         public string ProcessedDate { get; set; }
         public string ApprovedBy { get; set; }
-        public string Accounting { get; set; }
         public string Route { get; set; }
         public double Distance { get; set; }
         public bool? IsRoundTrip { get; set; }
         public string LicensePlate { get; set; }
         public double Rate { get; set; }
         public string HomeAddress { get; set; }
+        public string UserComment { get; set; }
     }
 }

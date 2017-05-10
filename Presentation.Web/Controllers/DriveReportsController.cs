@@ -256,19 +256,20 @@ namespace OS2Indberetning.Controllers
                         ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced
                         ProcessedDate = unixDateTime.AddSeconds(currentReport.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10),
                         ApprovedBy = currentReport.ApprovedBy.FullName,
-                        Accounting = !string.IsNullOrEmpty(currentReport.AccountNumber) ? currentReport.AccountNumber : "Intet kontonummer",
                         Route = "",
                         Distance = currentReport.Distance,
                         IsRoundTrip = currentReport.IsRoundTrip,
                         LicensePlate = currentReport.LicensePlate,
                         Rate = currentReport.KmRate,
-                        HomeAddress = currentReport.Person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).First().Description
+                        HomeAddress = currentReport.Person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).First().Description,
+                        UserComment = ""
                     };
 
                     bool firstPoint = true;
                     if (currentReport.KilometerAllowance == KilometerAllowance.Read)
                     {
                         reportToBeAdded.Route = "Aflæst";
+                        reportToBeAdded.UserComment = currentReport.UserComment;
                     }
                     else
                     {
@@ -296,14 +297,6 @@ namespace OS2Indberetning.Controllers
 
             result.DriveReports = drivereports.ToArray();
 
-            foreach (var r in result.DriveReports)
-            {
-                if (!r.Accounting.Equals("Intet kontonummer"))
-                {
-                    r.Accounting = _Bankrepo.AsQueryable().Where(x => x.Number == r.Accounting).FirstOrDefault().Description;
-                }
-            }
-            
             return Json(result);
         }
 

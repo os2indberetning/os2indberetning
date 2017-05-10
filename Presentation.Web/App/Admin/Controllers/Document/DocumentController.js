@@ -225,8 +225,8 @@
                     width: 150
                 },
                 { 
-                    field: "Accounting", 
-                    title: "Kontering",
+                    field: "UserComment", 
+                    title: "Bemærkning",
                     width: 100 
                 }
 

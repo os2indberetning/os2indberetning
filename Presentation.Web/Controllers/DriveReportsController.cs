@@ -158,18 +158,20 @@ namespace OS2Indberetning.Controllers
         /// <param name="orgUnit"></param>
         /// <returns></returns>
         [HttpGet]
-        public IHttpActionResult Eksport(string start, string end, string name, string orgUnit = null)
+        public IHttpActionResult Eksport(string start, string end, string personId, string orgunitId = null)
         {
-            _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}");
+            _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}");
 
             // Validate parameters
             long parsedStartDateUnix;
             long parsedEndDateUnix;
+            int parsedPersonId;
+            int parsedOrgunitId = -1;
 
-            if (string.IsNullOrEmpty(name) || string.IsNullOrEmpty(start) || string.IsNullOrEmpty(end))
+            if (string.IsNullOrEmpty(personId) || string.IsNullOrEmpty(start) || string.IsNullOrEmpty(end))
             {
                 return StatusCode(HttpStatusCode.NoContent);
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, statusCode=204 No Content");
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
             }
             else
             {
@@ -177,31 +179,33 @@ namespace OS2Indberetning.Controllers
                 {
                     parsedStartDateUnix = (long)DateTime.Parse(start).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                     parsedEndDateUnix = (long)DateTime.Parse(end).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    parsedPersonId = int.Parse(personId);
                 }
                 catch (Exception)
                 {
                     return StatusCode(HttpStatusCode.NoContent);
-                    _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, statusCode=204 No Content");
+                    _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
                 }
             }
 
             // Get person for which report has been requested
-            var person = _personRepo.AsQueryable().Where(x => x.FullName == name).FirstOrDefault();
+            var person = _personRepo.AsQueryable().Where(x => x.Id == parsedPersonId).FirstOrDefault();
             if (person == null)
             {
                 return StatusCode(HttpStatusCode.NoContent);
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, statusCode=204 No Content");
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
             }
 
             // Get all the persons drivereports that has been invoiced in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
             List<DriveReport> reportsForRequestedTimespan = new List<DriveReport>();
-            if (orgUnit == null || orgUnit.Equals("undefined"))
+            if (orgunitId == null || orgunitId.Equals("undefined"))
             {
                 reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
             }
             else
             {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.LongDescription.Equals(orgUnit) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
+                parsedOrgunitId = int.Parse(orgunitId);
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.Id.Equals(parsedOrgunitId) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
             }
 
             // Initialize EksportModel
@@ -210,7 +214,7 @@ namespace OS2Indberetning.Controllers
             {
                 var adminInitials = User.Identity.Name.Split('\\')[1];
                 result.DateInterval = $"{start} - {end}";
-                result.OrgUnit = (string.IsNullOrEmpty(orgUnit) || orgUnit.Equals("undefined")) ? "Ikke angivet" : orgUnit;
+                result.OrgUnit = (parsedOrgunitId < 0) ? "Ikke angivet" : _orgrepo.AsQueryable().Where(x => x.Id == parsedOrgunitId).FirstOrDefault().LongDescription;
                 result.Name = person.FullName;
                 result.AdminName = _personRepo.AsQueryable().Where(x => x.Initials == adminInitials).First().FullName;
                 result.Municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"] ?? "Ikke angivet";
@@ -223,7 +227,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, Error when initializing export model", e);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, Error when initializing export model", e);
             }
 
             DateTime unixDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
@@ -287,7 +291,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, name={name}, orgUnit={orgUnit}, DriveReports error", e);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, DriveReports error", e);
             }
 
             result.DriveReports = drivereports.ToArray();

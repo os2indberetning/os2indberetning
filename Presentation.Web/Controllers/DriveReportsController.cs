@@ -28,11 +28,12 @@ namespace OS2Indberetning.Controllers
         private readonly ILogger _logger;
         private readonly IGenericRepository<OrgUnit> _orgrepo;
         private readonly IGenericRepository<BankAccount> _Bankrepo;
+        private readonly IGenericRepository<LicensePlate> _LicensePlateRepo;
 
 
 
 
-        public DriveReportsController(IGenericRepository<BankAccount> Bankrepo,IGenericRepository<OrgUnit> orgrepo, IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, ILogger logger)
+        public DriveReportsController(IGenericRepository<BankAccount> Bankrepo, IGenericRepository<OrgUnit> orgrepo, IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, ILogger logger)
             : base(repo, personRepo)
         {
             _driveService = driveService;
@@ -41,6 +42,7 @@ namespace OS2Indberetning.Controllers
             _personRepo = personRepo;
             _orgrepo = orgrepo;
             _Bankrepo = Bankrepo;
+            _LicensePlateRepo = licensePlateRepo;
         }
 
         // GET: odata/DriveReports
@@ -58,8 +60,6 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
         {
-            _logger.Log($"DriveReportsController, Get(). Initial", "web", 3);
-
             IQueryable<DriveReport> queryable = null;
             try
             {
@@ -85,7 +85,7 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception ex)
             {
-                _logger.Log($"DriveReportsController, Get(). Exception={ex.Message}", "web", 3);
+                _logger.Error($"{GetType().Name}, Get(), queryOption={queryOptions}, status={status}, leaderId={leaderId}, getReportsWhereSubExists={getReportsWhereSubExists}", ex);
             }
             return Ok(queryable);
         }
@@ -99,26 +99,30 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetLatestReportForUser(int personId)
         {
-            _logger.Log($"DriveReportsController, GetLatestReportForUser(). Initial", "web", 3);
             try
             {
+                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var report = Repo.AsQueryable()
-                    .Where(x => x.PersonId.Equals(personId) && !x.IsFromApp)
+                    .Where(
+                        x => x.PersonId.Equals(personId)
+                        && x.Employment.StartDateTimestamp < currentTimestamp
+                        && (x.Employment.EndDateTimestamp > currentTimestamp || x.Employment.EndDateTimestamp == 0)
+                        && !x.IsFromApp)
                     .OrderByDescending(x => x.CreatedDateTimestamp)
                     .FirstOrDefault();
 
                 if (report != null)
                 {
-                    _logger.Log($"DriveReportsController, GetLatestReportForUser(). End OK", "web", 3);
                     return Ok(report);
                 }
 
-               
-            }catch(Exception ex)
-            {
-                _logger.Log($"DriveReportsController, GetLatestReportForUser(). Exception={ex.Message}", "web", 3);
+
             }
-            _logger.Log($"DriveReportsController, GetLatestReportForUser(). StatusCode= NoContent", "web", 3);
+            catch (Exception ex)
+            {
+                _logger.Error($"{GetType().Name}, GetLatestReportForUser(), personId={personId}", ex);
+            }
+            _logger.Debug($"{GetType().Name}, GetLatestReportForUser(), personId={personId}, statusCode=204 No Content");
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -130,211 +134,172 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetCalculationMethod()
         {
-           
             bool isAltCalc;
             bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
+            _logger.Debug($"{GetType().Name}, GetCalculationMethod(), isAltCalc={isAltCalc}");
 
             if (parseSucces)
             {
                 return Ok(isAltCalc);
-            }else
+            }
+            else
             {
                 return Ok(false);
             }
-            
+
         }
 
+        /// <summary>
+        /// Used for generating reports for the tax authorities.
+        /// </summary>
+        /// <param name="start"></param>
+        /// <param name="end"></param>
+        /// <param name="name"></param>
+        /// <param name="orgUnit"></param>
+        /// <returns></returns>
         [HttpGet]
-        public IHttpActionResult Eksport( string start, string end, string name, string orgUnit = null, string manr = null)
+        public IHttpActionResult Eksport(string start, string end, string personId, string orgunitId = null)
         {
+            _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}");
 
-            var convertedManr = 0;
-            var convertedOrgUnit = 0;
-            List<DriveReport> reports = new List<DriveReport>();
-            
-            var person = _personRepo.AsQueryable().Where(x => x.FullName == name).First();
+            // Validate parameters
+            long parsedStartDateUnix;
+            long parsedEndDateUnix;
+            int parsedPersonId;
+            int parsedOrgunitId = -1;
 
+            if (string.IsNullOrEmpty(personId) || string.IsNullOrEmpty(start) || string.IsNullOrEmpty(end))
+            {
+                return StatusCode(HttpStatusCode.NoContent);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
+            }
+            else
+            {
+                try
+                {
+                    parsedStartDateUnix = (long)DateTime.Parse(start).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    parsedEndDateUnix = (long)DateTime.Parse(end).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    parsedPersonId = int.Parse(personId);
+                }
+                catch (Exception)
+                {
+                    return StatusCode(HttpStatusCode.NoContent);
+                    _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
+                }
+            }
+
+            // Get person for which report has been requested
+            var person = _personRepo.AsQueryable().Where(x => x.Id == parsedPersonId).FirstOrDefault();
             if (person == null)
             {
                 return StatusCode(HttpStatusCode.NoContent);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
             }
 
-
-            if (!string.IsNullOrEmpty(manr) && manr != "undefined")
+            // Get all the persons drivereports that has been invoiced in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
+            List<DriveReport> reportsForRequestedTimespan = new List<DriveReport>();
+            if (orgunitId == null || orgunitId.Equals("undefined"))
             {
-                convertedManr = Convert.ToInt32(manr);
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.EmploymentId == convertedManr && r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
             }
-            else {
-                reports.AddRange(Repo.AsQueryable().Where(r => r.Employment.PersonId == person.Id && (r.Status == ReportStatus.Accepted || r.Status == ReportStatus.Invoiced)));
+            else
+            {
+                parsedOrgunitId = int.Parse(orgunitId);
+                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.Id.Equals(parsedOrgunitId) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
             }
 
-        
-            Core.DomainModel.EksportModel result = new Core.DomainModel.EksportModel();
+            // Initialize EksportModel
+            ExportModel result = new ExportModel();
             try
             {
-                var adminName = User.Identity.Name.Split('\\');
-                var actualAdminName = adminName[1];
-                result.DateInterval = start + " - " + end;
-                result.orgUnits = new HashSet<string>();
-                result.name = person.FullName;
-                result.adminName = _personRepo.AsQueryable().Where(x => x.Initials == actualAdminName).First().FullName;
-                result.MaNumbers = new HashSet<int>();
-                result.municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"];
+                var adminInitials = User.Identity.Name.Split('\\')[1];
+                result.DateInterval = $"{start} - {end}";
+                result.OrgUnit = (parsedOrgunitId < 0) ? "Ikke angivet" : _orgrepo.AsQueryable().Where(x => x.Id == parsedOrgunitId).FirstOrDefault().LongDescription;
+                result.Name = person.FullName;
+                result.AdminName = _personRepo.AsQueryable().Where(x => x.Initials == adminInitials).First().FullName;
+                result.Municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"] ?? "Ikke angivet";
+                result.LicensePlates = string.Join(", ", _LicensePlateRepo.AsQueryable().Where(x => x.PersonId == person.Id).Select(y => y.Plate).ToArray()); // Combine all the users license plates into comma seperated string.
+
+                // Get alternative home adress if user has one, otherwise get home address
+                var HomeAddress = person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.AlternativeHome).FirstOrDefault() ?? person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).FirstOrDefault();
+                result.HomeAddressStreetAndNumber = $"{HomeAddress.StreetName} {HomeAddress.StreetNumber}";
+                result.HomeAddressZipCodeAndTown = $"{HomeAddress.ZipCode} {HomeAddress.Town}";
             }
             catch (Exception e)
             {
-                _logger.Log("RESULT IN FOR LOOP: " + result.adminName + "Eviroment username: " + Environment.UserName + "Persons repo: " + _personRepo.AsQueryable().Where(x => x != null), "web", 3);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, Error when initializing export model", e);
             }
 
-
-            if (!string.IsNullOrEmpty(orgUnit) && orgUnit != "undefined")
-            {
-                // convertedOrgUnit = Convert.ToInt32(orgUnit);
-                reports = reports.Where(e => e.Employment.OrgUnit.ShortDescription.ToLower() == orgUnit.ToLower()).ToList();
-
-            }
-
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            var convertedStart = Convert.ToDateTime(start);
-            var convertedEnd = Convert.ToDateTime(end);
-            List<Core.DomainModel.EksportDrivereport> drivereports = new List<Core.DomainModel.EksportDrivereport>();
+            DateTime unixDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            List<ExportDriveReport> drivereports = new List<ExportDriveReport>();
 
             try
             {
-                foreach (var repo in reports)
+                foreach (var currentReport in reportsForRequestedTimespan)
                 {
-                    
-                    if (repo.PersonId == person.Id)
+                    result.TotalAmount = result.TotalAmount + currentReport.AmountToReimburse;
+                    result.TotalDistance = result.TotalDistance + currentReport.Distance;
+
+                    var driveDate = unixDateTime.AddSeconds(currentReport.DriveDateTimestamp).ToLocalTime();
+                    var createdDate = unixDateTime.AddSeconds(currentReport.CreatedDateTimestamp).ToLocalTime();
+
+                    var reportToBeAdded = new ExportDriveReport
                     {
-                        var createdTime = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
+                        DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
+                        CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
+                        OrgUnit = currentReport.Employment.OrgUnit.ShortDescription,
+                        Purpose = currentReport.Purpose,
+                        IsExtraDistance = currentReport.IsExtraDistance,
+                        FourKmRule = currentReport.FourKmRule,
+                        DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
+                        AmountToReimburse = currentReport.AmountToReimburse,
+                        ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced
+                        ProcessedDate = unixDateTime.AddSeconds(currentReport.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10),
+                        ApprovedBy = currentReport.ApprovedBy.FullName,
+                        Route = "",
+                        Distance = currentReport.Distance,
+                        IsRoundTrip = currentReport.IsRoundTrip,
+                        LicensePlate = currentReport.LicensePlate,
+                        Rate = currentReport.KmRate,
+                        HomeAddress = currentReport.Person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).First().Description,
+                        UserComment = ""
+                    };
 
-                        if (createdTime > convertedStart && createdTime < convertedEnd)
+                    bool firstPoint = true;
+                    if (currentReport.KilometerAllowance == KilometerAllowance.Read)
+                    {
+                        reportToBeAdded.Route = "Aflæst";
+                        reportToBeAdded.UserComment = currentReport.UserComment;
+                    }
+                    else
+                    {
+                        foreach (var point in currentReport.DriveReportPoints.AsQueryable().OrderBy(x => x.Id))
                         {
-                            if (repo.Employment != null)
+                            if (firstPoint)
                             {
-                               if (repo.Employment.OrgUnit != null)
-
-                                result.wholeAmount = result.wholeAmount + repo.AmountToReimburse;
-                                result.wholeDistance = result.wholeDistance + repo.Distance;
-                                result.orgUnits.Add(repo.Employment.OrgUnit.ShortDescription);
-                                result.MaNumbers.Add(repo.Employment.EmploymentId);
-
-                                var driveDate = dtDateTime.AddSeconds(repo.DriveDateTimestamp).ToLocalTime();
-                                var createdDate = dtDateTime.AddSeconds(repo.CreatedDateTimestamp).ToLocalTime();
-
-                                var reportToBeAdded = new Core.DomainModel.EksportDrivereport
-                                {
-                                    DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
-                                    CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
-                                    OrgUnit = repo.Employment.OrgUnit.ShortDescription,
-                                    Purpose = repo.Purpose,
-                                    IsExtraDistance = repo.IsExtraDistance,
-                                    FourKmRule = repo.FourKmRule,
-                                    distanceFromHomeToBorder = person.DistanceFromHomeToBorder,
-                                    AmountToReimburse = repo.AmountToReimburse,
-                                    Route = "",
-                                    distance = repo.Distance,
-                                    isRoundTrip = repo.IsRoundTrip,
-                                    licensePlate = repo.LicensePlate,
-                                    
-                                };
-                               
-                             
-                                if (!reportToBeAdded.FourKmRule) {
-                                    reportToBeAdded.distanceFromHomeToBorder = 0;
-                                }
-                                if (repo.AccountNumber != null)
-                                {
-                                    reportToBeAdded.kontering = repo.AccountNumber;
-                                }
-                                if (repo.ProcessedDateTimestamp != 0)
-                                {
-                                    reportToBeAdded.processedDate = dtDateTime.AddSeconds(repo.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10);
-                                }
-                                else {
-                                    reportToBeAdded.processedDate = "Ikke sendt endnu!";
-                                }
-                                if (repo.ClosedDateTimestamp != 0)
-                                {
-                                    reportToBeAdded.approvedDate = dtDateTime.AddSeconds(repo.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10);
-                                }
-                                else {
-                                    reportToBeAdded.approvedDate = "Ikke accepteret endnu!";
-                                }
-                                if (repo.ApprovedBy != null) {
-                                    reportToBeAdded.ApprovedBy = repo.ApprovedBy.FullName;
-                                }
-                                else
-                                {
-                                    reportToBeAdded.ApprovedBy = "Ikke godkendt endnu!";
-
-                                }
-                                int counter = 0;
-                                foreach (var p in repo.DriveReportPoints.AsQueryable().OrderBy(x=> x.Id)) {
-
-                                    if (counter < 1)
-                                    {
-                                        reportToBeAdded.Route = reportToBeAdded.Route + p.StreetName + ", " + p.StreetNumber + ", " + p.ZipCode;
-                                        counter++;
-                                    }
-                                    else {
-                                        reportToBeAdded.Route =reportToBeAdded.Route + " - " + p.StreetName + ", " + p.StreetNumber +", " + p.ZipCode;
-                                    }
-                                }
-                                drivereports.Add(reportToBeAdded);
+                                reportToBeAdded.Route = reportToBeAdded.Route + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
+                                firstPoint = false;
+                            }
+                            else
+                            {
+                                reportToBeAdded.Route = reportToBeAdded.Route + " - " + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
                             }
                         }
                     }
+
+                    drivereports.Add(reportToBeAdded);
                 }
             }
             catch (Exception e)
             {
-                _logger.Log("drivereports Error " + e.Message, "web", 3);
+                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, DriveReports error", e);
             }
 
-            result.driveReports = drivereports.ToArray();
-           // result.municipality = reports.Select(x => x.Employment.OrgUnit.LongDescription).FirstOrDefault();
-
-
-            foreach (var r in result.driveReports) {
-
-                if (r.kontering != null) {
-                    r.kontering = _Bankrepo.AsQueryable().Where(x=> x.Number == r.kontering).FirstOrDefault().Description;
-                }
-                else
-                {
-                    r.kontering = "Ingen kontering.";
-                }
-            }
-
-            if (result.driveReports.Count() > 0)
-            {
-                return Json(result);
-            }
+            result.DriveReports = drivereports.ToArray();
 
             return Json(result);
         }
 
-        public string getRouteByreportId(int id){
-
-
-            return "";
-        }
-
-        public string convertRoute(EksportDrivereport[] reports){
-            string result = "Kan ikke finde ruten.";
-
-
-            foreach (var r in reports) {
-
-            }
-
-            return null;
-        }
-        
-
-        
         //GET: odata/DriveReports(5)
         /// <summary>
         /// ODATA API endpoint for a single drivereport.
@@ -369,7 +334,7 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public new IHttpActionResult Post(DriveReport driveReport, string emailText)
         {
-            if(CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
+            if (CurrentUser.IsAdmin && emailText != null && driveReport.Status == ReportStatus.Accepted)
             {
                 // An admin is trying to edit an already approved report.
                 var adminEditResult = _driveService.Create(driveReport);
@@ -423,12 +388,15 @@ namespace OS2Indberetning.Controllers
                 report.Status = ReportStatus.Rejected;
                 report.Comment = emailText;
                 report.ClosedDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-                try {
+                try
+                {
                     Repo.Save();
                     _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
                     return Ok();
-                } catch(Exception e) {
-                    _logger.Log("Fejl under forsøg på at afvise en allerede godkendt indberetning. Rapportens status er ikke ændret.", "web", e, 3);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogForAdmin($"Fejl under forsøg på at afvise en allerede godkendt indberetning fra {report.Person.FullName}. Rapportens status er ikke ændret.");
                 }
             }
 
@@ -450,12 +418,39 @@ namespace OS2Indberetning.Controllers
             // User should not be allowed to change a Report which has been accepted or rejected.
             if (report.Status != ReportStatus.Pending)
             {
-                _logger.Log("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.", "web", 3);
+                _logger.LogForAdmin("Forsøg på at redigere indberetning med anden status end afventende. Rapportens status er ikke ændret.");
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 
+            var status = new object();
+            if (delta.TryGetPropertyValue("Status", out status))
+            {
+                if (status.ToString().Equals("Rejected"))
+                {
+                    bool sendEmailResult = true;
+                    try
+                    {
+                        base.Patch(key, delta);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Error($"{GetType().Name}, Patch(), Error when trying to update report status for user {report.Person.FullName}", ex);
+                        return InternalServerError();
+                    }
 
-            _driveService.SendMailIfRejectedReport(key, delta);
+                    try
+                    {
+                        _driveService.SendMailForRejectedReport(key, delta);
+                    }
+                    catch
+                    {
+                        _logger.LogForAdmin($"{report.Person.FullName} har fået en indberetning afvist af sin leder, men er ikke blevet notificeret via email");
+                        sendEmailResult = false;
+                    }
+                    return Ok(sendEmailResult);
+                }
+            }
+
             return base.Patch(key, delta);
         }
 

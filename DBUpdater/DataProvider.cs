@@ -27,6 +27,8 @@ namespace DBUpdater
         /// <returns></returns>
         public IQueryable<Employee> GetEmployeesAsQueryable()
         {
+            _logger.Debug($"{GetType().Name}, GetEmployeesAsQueryable(), Employee import from views started");
+
             var result = new List<Employee>();
 
             using (var sqlConnection1 = new SqlConnection(_connectionString))
@@ -35,7 +37,7 @@ namespace DBUpdater
 
                 if(medarbejderView == null)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetEmployeesAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null", "DBUpdater", 1);
+                    _logger.Error($"{this.GetType().Name}, GetEmployeesAsQueryable(), DATABASE_VIEW_MEDARBEJDER is null");
                 }
 
                 var cmd = new SqlCommand
@@ -51,7 +53,6 @@ namespace DBUpdater
                     sqlConnection1.Open();
                     var reader = cmd.ExecuteReader();
 
-                    _logger.Log($"{this.GetType().Name}, Before looking at actual rows. Medarbejdere", "DBUpdater", 1);
                     while (reader.Read())
                     {
                         manr = SafeGetInt32(reader, 0);
@@ -84,7 +85,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetEmployeesAsQueryable(): DATABASE_VIEW_MEDARBEJDER={medarbejderView}, MaNr={manr}", "DBUpdater", e, 1);
+                    _logger.Error($"{this.GetType().Name}, GetEmployeesAsQueryable(), Error when importing employees, DATABASE_VIEW_MEDARBEJDER={medarbejderView}, MaNr={manr}", e);
                     throw;
                 }
             }
@@ -101,7 +102,7 @@ namespace DBUpdater
 
             if (organisationView == null)
             {
-                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null", "DBUpdater", 1);
+                _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null");
             }
 
             var result = new List<Organisation>();
@@ -118,7 +119,6 @@ namespace DBUpdater
                 {
                     sqlConnection.Open();
                     var reader = cmd.ExecuteReader();
-                    _logger.Log($"{this.GetType().Name}, Before looking at actual row. Organisation", "DBUpdater", 1);
                     while (reader.Read())
                     {
                         var currentRow = new Organisation
@@ -139,7 +139,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION={organisationView}", "DBUpdater", e, 1);
+                    _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryable(), Error when importing orgunits, DATABASE_VIEW_ORGANISATION={organisationView}", e);
                     throw;
                 }
             }

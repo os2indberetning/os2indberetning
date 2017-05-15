@@ -184,14 +184,24 @@
            dataBound: function () {
                this.expandRow(this.tbody.find("tr.k-master-row").first());
            },
+           sortable: {
+               mode: "multiple"
+           },
            columns: [
                {
                    field: "FullName",
                    title: "Medarbejder",
                    template: function (data) {
-                       return data.FullName + " [" + data.Employment.EmploymentId + "]";
+                       return data.FullName;
+                   },
+               },{
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   template: function(data){
+                       return data.Employment.EmploymentId;
                    }
-               }, {
+               }, 
+               {
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
                }, {
@@ -240,7 +250,10 @@
                    field: "KilometerAllowance",
                    title: "MK",
                    template: function (data) {
-                       return MkColumnFormatter.format(data);
+                       if (!data.FourKmRule) {
+                           return MkColumnFormatter.format(data);
+                       }
+                       return "";
                    }
                }, {
                    field: "FourKmRule",
@@ -279,6 +292,15 @@
                }
            ],
        };
+
+       /*var splitFullnameAndMaNrForSorting = function(input){
+            var patternFullname = new RegExp("(.*\)[.*\]");
+            var patternMaNr = new RegExp(".*(\[.*\])");
+            var fullname = patternFullname.exec(input)[1];
+            var maNr = patternMaNr.exec(input)[1];
+            return [fullname, maNr];
+       }*/
+
 
        $scope.checkAllBoxesOnPage = function () {
            /// <summary>
@@ -464,14 +486,21 @@
            });
 
            modalInstance.result.then(function (res) {
-               $scope.loadingPromise = Report.patch({ id: id, emailText : "Ingen besked" }, {
+               $scope.loadingPromise = Report.rejectReport({ id: id, emailText : "Ingen besked" }, {
                    "Status": "Rejected",
                    "ClosedDateTimestamp": moment().unix(),
                    "Comment": res.Comment,
                    "ApprovedById": $rootScope.CurrentUser.Id,
-               }, function () {
+               }, function (res) {
                    $scope.gridContainer.grid.dataSource.read();
-
+                   if(res.value){
+                        NotificationService.AutoFadeNotification("success", "Afvisning", "Indberetningen blev afvist.");
+                   } else{
+                        NotificationService.AutoFadeNotification("warning", "Afvisning", "Indberetningen blev afvist, men der kunne IKKE sendes notifikation til medarbejderen");
+                   }
+               }, function (res){
+                   $scope.gridContainer.grid.dataSource.read();
+                   NotificationService.AutoFadeNotification("danger", "Afvisning", "Indberetningen blev ikke afvist.");
                }).$promise;
            });
        }

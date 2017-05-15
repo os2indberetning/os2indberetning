@@ -162,6 +162,12 @@
                    field: "FullName",
                    title: "Medarbejder"
                }, {
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   template: function(data){
+                       return data.Employment.EmploymentId;
+                   }
+               },{
                    field: "Employment.OrgUnit.LongDescription",
                    title: "Org.enhed"
                }, {
@@ -210,7 +216,10 @@
                    field: "KilometerAllowance",
                    title: "MK",
                    template: function (data) {
-                       return MkColumnFormatter.format(data);
+                       if (!data.FourKmRule) {
+                           return MkColumnFormatter.format(data);
+                       }
+                       return "";
                    }
                }, {
                    field: "FourKmRule",

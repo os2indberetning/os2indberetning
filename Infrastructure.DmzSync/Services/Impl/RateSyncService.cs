@@ -49,7 +49,7 @@ namespace Infrastructure.DmzSync.Services.Impl
             var rateList = _masterRateRepo.AsQueryable().Where(x => x.Year == currentYear).ToList();
             var max = rateList.Count;
 
-            _logger.Log($"{this.GetType().Name}. SyncEmployments(). Amount of rates= {max}", "dmz", 3);
+            _logger.Debug($"{this.GetType().Name}, SyncEmployments(), Amount of rates= {max}");
 
             foreach (var masterRate in rateList)  
             {
@@ -83,7 +83,7 @@ namespace Infrastructure.DmzSync.Services.Impl
                     }
                 }catch(Exception ex)
                 {
-                    _logger.Log($"{this.GetType().Name}. SyncToDmz(). Exception during sync to DMZ for rates from OS2 database to DMZ database. Rate= {masterRate}, ID= {masterRate.Id}. Exception: {ex.Message}", "dmz", 1);
+                    _logger.Error($"{this.GetType().Name}, SyncToDmz(), Error during sync to DMZ for rates from OS2 database to DMZ database. Rate= {masterRate}, ID= {masterRate.Id}. Exception: {ex.Message}", ex);
                 }
             }
              _dmzRateRepo.Save();

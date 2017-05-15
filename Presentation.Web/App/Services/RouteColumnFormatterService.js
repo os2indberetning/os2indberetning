@@ -58,7 +58,7 @@
             if (data.KilometerAllowance != "Read") {
                     return result;
             } else {
-                    return "<div class='inline' kendo-tooltip k-content=\"'" + comment + "'\">Aflæst manuelt</div>";
+                    return "<div class='inline'>Aflæst manuelt</div>" + roundTrip + edited + commentToolTip;
             }
 
         }

@@ -167,9 +167,6 @@ namespace Infrastructure.AddressServices
             {
                 addressCoordinates.Longitude = addresses[0].adgangsadresse.adgangspunkt.koordinater[0].ToString().Replace(",", ".");
                 addressCoordinates.Latitude = addresses[0].adgangsadresse.adgangspunkt.koordinater[1].ToString().Replace(",", ".");
-
-                addressCoordinates.Longitude = addressCoordinates.Longitude.Remove(addressCoordinates.Longitude.IndexOf('.') + 1 + COORD_DECIMALS);
-                addressCoordinates.Latitude = addressCoordinates.Latitude.Remove(addressCoordinates.Latitude.IndexOf('.') + 1 + COORD_DECIMALS);
             }
             else
             {

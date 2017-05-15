@@ -97,6 +97,7 @@
     <Compile Include="LogMailer\ILogReader.cs" />
     <Compile Include="LogMailer\LogMailer.cs" />
     <Compile Include="LogMailer\LogParser.cs" />
+    <Compile Include="LogMailer\LogParserRegex.cs" />
     <Compile Include="LogMailer\LogReader.cs" />
     <Compile Include="Mailer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

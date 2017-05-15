@@ -36,7 +36,6 @@ namespace DBUpdater
         public void CreateNonExistingHistories()
         {
             Console.WriteLine("Creating non-existing address histories.");
-            _logger.Log($"{this.GetType().Name}, CreateNonExistingHistories(): Initial", "DBUpdater", 3);
             try
             {
                 var i = 0;
@@ -74,14 +73,13 @@ namespace DBUpdater
             }
             catch (Exception e)
             {
-                _logger.Log($"{this.GetType().Name}, CreateNonExistingHistories(): Error", "DBUpdater", e, 1);
+                _logger.Error($"{this.GetType().Name}, CreateNonExistingHistories(), Error", e);
                 throw e;
             }
         }
 
         public void UpdateAddressHistories()
         {
-            _logger.Log($"{this.GetType().Name}, UpdateAddressHistories(): Initial", "DBUpdater", 3);
             try
             {
                 var i = 0;
@@ -112,7 +110,7 @@ namespace DBUpdater
             }
             catch (Exception e)
             {
-                _logger.Log($"{this.GetType().Name}, UpdateAddressHistories(): Error", "DBUpdater", e, 1);
+                _logger.Error($"{this.GetType().Name}, UpdateAddressHistories(): Error", e);
                 throw e;
             }
         }

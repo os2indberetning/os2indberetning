@@ -36,44 +36,36 @@ namespace OS2Indberetning.Controllers
 
         protected override void Initialize(HttpControllerContext requestContext)
         {
-            _logger.Log("Before initialize. User.Identity.Name=" + User.Identity.Name, "web", 3);
             base.Initialize(requestContext);
 
             string[] httpUser = User.Identity.Name.Split('\\');
-
-            //TODO: RRO 2016-11-16 remove hack.
-            //DEBUG ON SERVER
-            if (httpUser[1] == "LEV_MIRACLE_RRO")
-            {
-                httpUser[1] = "JBD";
-            }
-            //END DEBUG
-
-            _logger.Log("httpuser: " + httpUser.ElementAtOrDefault(0) + " " + httpUser.ElementAtOrDefault(1), "web", 3);
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
 
-                _logger.Log("initials = " + initials, "web", 3);
-
                 CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
                 if (CurrentUser == null)
                 {
-                    _logger.Log("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                    _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                    _logger.Debug($"{GetType().Name}, Initialize(), AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
                     throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
                 }
                 if (!CurrentUser.IsActive)
                 {
-                    _logger.Log("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                    _logger.LogForAdmin("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                    _logger.Debug($"{GetType().Name}, Initialize(), Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
                     throw new UnauthorizedAccessException("Inaktiv bruger forsøgte at logge ind.");
                 }
             }
             else
             {
-                _logger.Log("Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.", "web", 3);
+                _logger.LogForAdmin("Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                _logger.Debug($"{GetType().Name}, Initialize(), Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
                 throw new UnauthorizedAccessException("Gyldig domænebruger ikke fundet.");
             }
+
+            _logger.Debug($"{GetType()}, Initialize(), User logged in: {User.Identity.Name}");
         }
 
         public BaseController(IGenericRepository<T> repository, IGenericRepository<Person> personRepo)

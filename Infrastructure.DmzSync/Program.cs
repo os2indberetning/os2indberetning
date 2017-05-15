@@ -50,73 +50,77 @@ namespace Infrastructure.DmzSync
             var userAuthSync = new UserAuthSyncService(new GenericRepository<Core.DomainModel.AppLogin>(new DataContext()), 
                 new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()),logger);
 
+            logger.Debug("-------- DMZSYNC STARTED --------");
+
             try
             {
-                logger.Log("SyncFromDMZ Initial", "dmz", 3);
+                logger.Debug("SyncFromDMZ started");
                 Console.WriteLine("DriveReportsSyncFromDmz");
                 driveSync.SyncFromDmz();
 
             }
             catch (Exception ex)
             {
-                logger.Log($"Class DmzSync. Main() Error during drivereport synchronization from DMZ. Method: driveSync.SyncFromDmz()", "dmz", ex, 1);
+                logger.Error($"Error during drivereport synchronization from DMZ", ex);
+                logger.LogForAdmin("Fejl under synkronisering af indberetninger fra DMZ. Mobilindberetninger er ikke synkroniserede.");
                 throw;
             }
 
             try
             {
-                logger.Log("OrgUnitSyncToDmz Initial", "dmz", 3);
+                logger.Debug("OrgUnitSyncToDmz started");
                 Console.WriteLine("OrgUnitSyncToDmz");
                 orgUnitSync.SyncToDmz();
             }
             catch (Exception ex)
             {
-                logger.Log($"Class DmzSync. Main() Error during orgunit synchronization from DMZ. Method: orgUnitSync.SyncToDmz()", "dmz", ex, 1);
+                logger.Error($"Error during orgunit synchronization to DMZ", ex);
+                logger.LogForAdmin("Fejl ved synkronisering af organisationsenheder til DMZ.");
                 throw;
             }
 
             try
             {
-                logger.Log("PersonSyncToDmz Initial", "dmz", 3);
+                logger.Debug("PersonSyncToDmz started");
                 Console.WriteLine("PersonSyncToDmz");
                 personSync.SyncToDmz();
 
             }
             catch (Exception ex)
             {
-                logger.Log($"Class DmzSync. Main() Error during people synchronization from DMZ. Method: personSync.SyncToDmz()", "dmz", ex, 1);
+                logger.Error($"Error during people synchronization to DMZ", ex);
+                logger.LogForAdmin("Fejl ved synkronisering af medarbejdere til DMZ.");
                 throw;
             }
 
             try
             {
-                logger.Log("RateSyncToDmz Initial", "dmz", 3);
+                logger.Debug("RateSyncToDmz started");
                 Console.WriteLine("RateSyncToDmz");
                 rateSync.SyncToDmz();
             }
             catch (Exception ex)
             {
-                logger.Log($"Class DmzSync. Main() Error during rate synchronization from DMZ. Method:  rateSync.SyncToDmz()", "dmz", ex, 1);
+                logger.Error($"Error during rate synchronization from DMZ", ex);
+                logger.LogForAdmin("Fejl ved synkronisering af takster til DMZ.");
                 throw;
             }
 
             try
             {
-                logger.Log("UserAuthSyncToDmz Initial", "dmz", 3);
+                logger.Debug("UserAuthSyncToDmz started");
                 Console.WriteLine("UserAuthSyncToDmz");
                 userAuthSync.SyncToDmz();
             }
             catch (Exception ex)
             {
-                logger.Log($"Class DmzSync. Main() Error during userauth synchronization from DMZ. Method:  userAuthSync.SyncToDmz()", "dmz", ex, 1);
+                logger.Error($"Error during userauth synchronization from DMZ", ex);
+                logger.LogForAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
                 throw;
             }
 
-            logger.Log("DMZ sync done", "dmz", 3);
+            logger.Debug("-------- DMZSYNC FINISHED --------");
             Console.WriteLine("Done");
-
-
-
         }
     }
 }

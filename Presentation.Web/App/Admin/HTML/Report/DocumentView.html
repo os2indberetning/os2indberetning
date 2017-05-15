@@ -1,30 +1,40 @@
 ﻿
 <script src="/Scripts/kendo/jszip.min.js"></script>
 <script src="/Scripts/kendo/kendo.all.min.js"></script>
+<style>
+    .k-grid .k-grid-header .k-header .k-link {
+    height: auto;
+    }
+    .k-grid  .k-grid-header  .k-header {
+        white-space: normal;
+    }
+</style>
 
 <div id="printThis">
-
-   
     <button class="k-button k-button-icontext k-grid-pdf" id="btnPDF"><span class="k-icon k-i-pdf"></span>Export Pdf</button>
     <button class="k-button k-button-icontext k-grid-excel" id="btnExcel"><span class="k-icon k-i-excel"></span>Export excel</button>
 
     <div kendo-grid="gridContainer.grid" id="grid" class="margin-top-10 scrollable" options="reports">
         <div class="k-header k-grid-toolbar ng-scope">
-          <div id="textwrapper" style="width:300px;">
-              Medarbejder navn: <span id="MaNavn" style="float:right;"></span><br />  MaNr: <text id="MaNr" style="float:right;"></text><br />
-                Kommune: <text  style="float:right;" id="Kommune"></text><br />  Organisationsenheder: <text id="Organisationsenheder"style="float:right;"></text><br />  DatoInterval:<div style="float:right;">{{datoInterval}}</div><br />  admin: <text style="float:right;" id="admin_der_har_trukket_rapporten"></text>
-            <br />Dato for rapportdannelse: <text style="float:right;" id="dateCreated"></text>
-            <br />
-              </div>
+            <div id="textwrapper" style="width:450px; float: left;" >
+                Medarbejdernavn: <span id="MaNavn" style="float:right;">{{Name}}</span><br />
+                Nummerplade(r): <text style="float:right;">{{LicensePlates}}</text><br />  
+                Adresse:
+                <text style="float:right;">{{HomeAddressStreet}}</text><br />
+                <text style="float:right;">{{HomeAddressTown}}</text><br />
+                Organisationsenhed: <text id="Organisationsenhed"style="float:right;">{{OrgUnit}}</text><br />  
+                Kommune: <text  style="float:right;" id="Kommune">{{Municipality}}</text><br />  
+                Datointerval for udbetaling:<div style="float:right;">{{DateInterval}}</div><br />  
+                Admin: <text style="float:right;" id="admin_der_har_trukket_rapporten">{{AdminName}}</text><br />
+                Dato for rapportdannelse: <text style="float:right;" id="dateCreated"></text><br />
+            </div>
+            <div style="float:left; padding-left:10px" >
+            </div>
             <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>Pdf</a>
             <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>xlsx</a>
         </div>
-       
     </div>
-    <!--div class="k-grid-footer k-grid-toolbar ng-scope">Samlet beløb: {{wholeAmount | currency:""}} kr. &emsp; Samlet Distance: {{wholeDistance | currency:""}} km.</div-->
 </div>
-
-
 
 <script type="text/javascript">
     $(document).ready(function () {

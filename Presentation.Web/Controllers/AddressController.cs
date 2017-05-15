@@ -58,8 +58,6 @@ namespace OS2Indberetning.Controllers
         /// <returns>Starting address of frontend map</returns>
         public Address GetMapStart()
         {
-            _logger.Log("AddressController. GetMapStart() initial. Current userId= " + CurrentUser.Id + "CurrentUserInitials= " + CurrentUser.Initials, "web", 3);
-
             if (MapStartAddress == null)
             {
                 var coordinates = NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>();
@@ -73,7 +71,6 @@ namespace OS2Indberetning.Controllers
 
                 MapStartAddress = coordinates.GetAddressCoordinates(MapStartAddress);
             }
-            _logger.Log("AddressController. GetMapStart() end. Returning mapstartAdressStreetname= " + MapStartAddress.StreetName, "web", 3);
             return MapStartAddress;
         }
 

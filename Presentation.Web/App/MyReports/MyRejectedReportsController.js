@@ -39,7 +39,7 @@ angular.module("application").controller("MyRejectedReportsController", [
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Rejected &$expand=DriveReportPoints,ApprovedBy($select=FullName) &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
+                       url: "/odata/DriveReports?status=Rejected &$expand=DriveReportPoints,ApprovedBy($select=FullName),Employment($expand=OrgUnit) &$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
                        dataType: "json",
                        cache: false
                    },
@@ -90,7 +90,20 @@ angular.module("application").controller("MyRejectedReportsController", [
                this.expandRow(this.tbody.find("tr.k-master-row").first());
            },
            columns: [
-              {
+               {
+                   field: "FullName",
+                   title: "Medarbejder",
+                   template: function (data) {
+                       return data.FullName;
+                   },
+               }, {
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   template: function(data){
+                       return data.Employment.EmploymentId;
+                   }
+               },
+               {
                   field: "DriveDateTimestamp",
                   template: function (data) {
                       var m = moment.unix(data.DriveDateTimestamp);
@@ -136,9 +149,21 @@ angular.module("application").controller("MyRejectedReportsController", [
                   field: "KilometerAllowance",
                   title: "MK",
                   template: function (data) {
-                    return MkColumnFormatter.format(data);
+                      if (!data.FourKmRule) {
+                          return MkColumnFormatter.format(data);
+                      }
+                      return "";
                   }
               },{
+                   field: "FourKmRule",
+                   title: "4 km",
+                   template: function (data) {
+                       if (data.FourKmRule) {
+                           return "<i class='fa fa-check'></i>";
+                       }
+                       return "";
+                   }
+               },{
                   field: "CreatedDateTimestamp",
                   template: function (data) {
                       var m = moment.unix(data.CreatedDateTimestamp);
@@ -194,7 +219,7 @@ angular.module("application").controller("MyRejectedReportsController", [
        }
 
        var getDataUrl = function (from, to) {
-           var url = "/odata/DriveReports?status=Rejected &$expand=DriveReportPoints,ApprovedBy($select=FullName)";
+           var url = "/odata/DriveReports?status=Rejected &$expand=DriveReportPoints,ApprovedBy($select=FullName),Employment($expand=OrgUnit)";
            var filters = "&$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            var result = url + filters;
            return result;

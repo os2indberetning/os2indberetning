@@ -745,7 +745,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 }
             });
 
-            _uut.SendMailIfRejectedReport(1, delta);
+            _uut.SendMailForRejectedReport(1, delta);
             _mailMock.Received().SendMail("test@mail.dk","Afvist indberetning","Din indberetning er blevet afvist med kommentaren: \n \n" + "Afvist, du");
         }
 
@@ -768,7 +768,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 }
             });
 
-            Assert.Throws<Exception>(() => _uut.SendMailIfRejectedReport(1, delta));
+            Assert.Throws<Exception>(() => _uut.SendMailForRejectedReport(1, delta));
         }
 
 

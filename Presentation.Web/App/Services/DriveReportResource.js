@@ -8,10 +8,12 @@
             method: "POST",
             isArray: false,
             transformRequest: function ($scope) {
-
+                
+                // The year of the driving
+                var driveYear = $scope.DriveReport.Date.getFullYear();
                 var getKmRate = function () {
                     for (var i = 0; i < $scope.KmRate.length; i++) {
-                        if ($scope.KmRate[i].Id == $scope.DriveReport.KmRate) {
+                        if ($scope.KmRate[i].Year == driveYear && $scope.KmRate[i].TypeId == $scope.DriveReport.KmRate) {
                             return $scope.KmRate[i];
                         }
                     }
@@ -148,9 +150,11 @@
             url: "/odata/DriveReports(:id)?:query&emailText=:emailText",
             transformRequest: function ($scope) {
 
+                // The year of the driving
+                var driveYear = $scope.DriveReport.Date.getFullYear();
                 var getKmRate = function () {
                     for (var i = 0; i < $scope.KmRate.length; i++) {
-                        if ($scope.KmRate[i].Id == $scope.DriveReport.KmRate) {
+                        if ($scope.KmRate[i].Year == driveYear && $scope.KmRate[i].TypeId == $scope.DriveReport.KmRate) {
                             return $scope.KmRate[i];
                         }
                     }

@@ -38,7 +38,7 @@
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader &$filter=PersonId eq " + personId,
+                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit) &$filter=PersonId eq " + personId,
                        dataType: "json",
                        cache: false
                    },
@@ -92,6 +92,19 @@
            },
            columns: [
                {
+                   field: "FullName",
+                   title: "Medarbejder",
+                   template: function (data) {
+                       return data.FullName;
+                   },
+               }, {
+                   field: "EmploymentId",
+                   title: "Ma.nummer",
+                   template: function(data){
+                       return data.Employment.EmploymentId;
+                   }
+               },
+               {
                    field: "DriveDateTimestamp",
                    template: function (data) {
                        var m = moment.unix(data.DriveDateTimestamp);
@@ -144,9 +157,21 @@
                   field: "KilometerAllowance",
                   title: "MK",
                   template: function (data) {
-                    return MkColumnFormatter.format(data);
+                      if(!data.FourKmRule){
+                        return MkColumnFormatter.format(data);
+                      }
+                      return "";
                   }
               },{
+                   field: "FourKmRule",
+                   title: "4 km",
+                   template: function (data) {
+                       if (data.FourKmRule) {
+                           return "<i class='fa fa-check'></i>";
+                       }
+                       return "";
+                   }
+               },{
                    field: "CreatedDateTimestamp",
                    template: function (data) {
                        var m = moment.unix(data.CreatedDateTimestamp);
@@ -254,7 +279,7 @@
        }
 
        var getDataUrl = function (from, to) {
-           var url = "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader";
+           var url = "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit)";
            var filters = "&$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            var result = url + filters;
            return result;

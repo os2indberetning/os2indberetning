@@ -26,6 +26,7 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
         private readonly ILogger _logger;
 
+       
         public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, ILogger log)
             : base(repo, repo)
         {
@@ -46,7 +47,6 @@ namespace OS2Indberetning.Controllers
         [EnableQuery]
         public IHttpActionResult GetPerson(ODataQueryOptions<Person> queryOptions)
         {
-            _logger.Log("GetPerson initial", "web", 3);
             var res = GetQueryable(queryOptions);
             _person.ScrubCprFromPersons(res);
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
@@ -55,7 +55,6 @@ namespace OS2Indberetning.Controllers
             //for a list of users, each time we needed someones employment we made queries
             //to that person anyway, so the return of this function has all employments
             //including the expired ones.
-            _logger.Log("GetPerson() end OK.", "web", 3);
             return Ok(res);
         }
 
@@ -73,8 +72,6 @@ namespace OS2Indberetning.Controllers
         {
             try
             {
-                _logger.Log("GetCurrentUser() initial. Current userId=" + CurrentUser.Id + "CurrentUserInitials="+CurrentUser.Initials, "web", 3);
-            
                 var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == CurrentUser.Id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
                 var employmentList = employments.ToList();
@@ -92,9 +89,8 @@ namespace OS2Indberetning.Controllers
            
             }catch(Exception ex)
             {
-                _logger.Log("Exception GetCurrentUser(). Exception: " + ex.Message, "web", ex, 1);
+                _logger.Error($"{GetType().Name}, GetCurrentUser(), Error", ex);
             }
-            _logger.Log("GetCurrentUser() end" + CurrentUser.FullName, "web", 3);
             return CurrentUser;
 
         }

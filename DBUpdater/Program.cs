@@ -26,7 +26,7 @@ namespace DBUpdater
     {
         static void Main(string[] args)
         {
-           
+
             var ninjectKernel = NinjectWebKernel.CreateKernel();
 
             ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
@@ -34,7 +34,7 @@ namespace DBUpdater
             _logger.Debug($"-------- DBUPDATER STARTED --------");
 
             IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
-            
+
             var service = new UpdateService(ninjectKernel.Get<IGenericRepository<Employment>>(),
                 ninjectKernel.Get<IGenericRepository<OrgUnit>>(),
                 ninjectKernel.Get<IGenericRepository<Person>>(),
@@ -50,7 +50,7 @@ namespace DBUpdater
                 ninjectKernel.Get<IGenericRepository<Substitute>>());
 
             var dbSync = ConfigurationManager.AppSettings["DATABASE_INTEGRATION"] ?? "SOFD";
-            _logger.Log($"Database integration = {dbSync}", "dbupdater");
+            _logger.Debug($"Database integration = {dbSync}");
 
             switch (dbSync)
             {
@@ -63,7 +63,7 @@ namespace DBUpdater
                     service.MigrateEmployees();
                     break;
                 default:
-                    _logger.Log("Could not read database integration type, check CustomSettings.config. DBUpdater will NOT run.", "dbupdater");
+                    _logger.Error("Could not read database integration type, check CustomSettings.config. DBUpdater will NOT run.");
                     return;
             }
 
@@ -74,7 +74,7 @@ namespace DBUpdater
             _logger.Debug($"-------- DBUPDATER FINISHED --------");
         }
 
-        }
-
     }
+
 }
+

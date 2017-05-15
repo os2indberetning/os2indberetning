@@ -51,7 +51,7 @@ namespace OS2Indberetning.Controllers
             int countFailed = 0;
             int countSucces = 0;
 
-            _logger.Log("----- Begynd afsendelse -----", "SD");
+            _logger.Debug("----- Begynd afsendelse -----");
 
             SdService.KoerselOpret20120201OperationRequest opret;
             SdService.KoerselOpret20120201PortTypeClient client;
@@ -69,12 +69,12 @@ namespace OS2Indberetning.Controllers
             }
             catch (Exception e)
             {
-                _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when initating SD client", "web", e, 1);
-                _logger.Log("Fejl ved initialisering af kontakt til server, ingen indberetninger er afsendt.", "SD");
+                _logger.Debug($"{this.GetType().ToString()}, sendDataToSd(), error when initating SD client");
+                _logger.Debug("Fejl ved initialisering af kontakt til server, ingen indberetninger er afsendt.");
                 return StatusCode(HttpStatusCode.InternalServerError);
             }
 
-            _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), ----- Loop start -----", "SD");
+            _logger.Debug($"{this.GetType().ToString()}, sendDataToSd(), ----- Loop start -----");
 
             foreach (var t in _repo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList())
             {
@@ -122,12 +122,12 @@ namespace OS2Indberetning.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {t.Employment.ServiceNumber}, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", "web", e, 1);
-                    _logger.Log($"Fejl for medarbejder: Servicenummer = {t.Employment.ServiceNumber}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}", "SD");
+                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {t.Employment.ServiceNumber}, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", e);
+                    _logger.Error($"Fejl for medarbejder: Servicenummer = {t.Employment.ServiceNumber}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}");
                     countFailed++;
                 }
             }
-            _logger.Log($"----- Afsendelse afsluttet. {countFailed} ud af {countFailed + countSucces} afsendelser fejlede -----", "SD");
+            _logger.Debug($"----- Afsendelse afsluttet. {countFailed} ud af {countFailed + countSucces} afsendelser fejlede -----");
 
             return Ok();
         }

@@ -392,6 +392,7 @@
     <Compile Include="Migrations\201610171116384_AddedIDMFields.cs" />
     <Compile Include="Migrations\201610171116384_AddedIDMFields.Designer.cs">
       <DependentUpon>201610171116384_AddedIDMFields.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\201612201449247_EFUpdateFix.cs" />
     <Compile Include="Migrations\201612201449247_EFUpdateFix.Designer.cs">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
@@ -664,6 +665,7 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201610171116384_AddedIDMFields.resx">
       <DependentUpon>201610171116384_AddedIDMFields.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612201449247_EFUpdateFix.resx">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
     </EmbeddedResource>

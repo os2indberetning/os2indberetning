@@ -190,7 +190,7 @@ namespace DBUpdater
 
             if (organisationView == null)
             {
-                _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null", "DBUpdater", 1);
+                _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryable(): DATABASE_VIEW_ORGANISATION is null");
             }
 
             var result = new List<IDMOrganisation>();
@@ -225,12 +225,12 @@ namespace DBUpdater
                 }
                 catch (EndOfStreamException eose)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Connection timed out", "dbupdater", eose);
+                    _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Connection timed out", eose);
                     throw;
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading organisations from IDM view", "dbupdater", e);
+                    _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading organisations from IDM view", e);
                     throw;
                 }
             }
@@ -243,7 +243,7 @@ namespace DBUpdater
 
             if (medarbejderView == null)
             {
-                _logger.Log($"{this.GetType().Name}, GetEmployeesAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null", "DBUpdater", 1);
+                _logger.Error($"{this.GetType().Name}, GetEmployeesAsQueryable(): DATABASE_VIEW_MEDARBEJDER is null");
             }
 
             var result = new List<IDMEmployee>();
@@ -292,7 +292,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading employees from IDM view", "dbupdater", e);
+                    _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryableIDM(): Error when reading employees from IDM view", e);
                     throw;
                 }
             }

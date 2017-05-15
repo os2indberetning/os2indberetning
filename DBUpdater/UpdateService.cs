@@ -563,7 +563,7 @@ namespace DBUpdater
         public void MigrateOrganisationsIDM()
         {
             var orgs = _dataProvider.GetOrganisationsAsQueryableIDM();
-            _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM() Amount of orgs=" + orgs.Count(), "DBUpdater", 3);
+            _logger.Debug($"{this.GetType().Name}, MigrateOrganisationsIDM() Amount of orgs=" + orgs.Count());
 
             var i = 0;
             foreach (var org in orgs)
@@ -578,7 +578,7 @@ namespace DBUpdater
 
                 if (string.IsNullOrEmpty(org.Vejnavn))
                 {
-                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(), Orgunit skipped since it had no address, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count(), "DBUpdater", 2);
+                    _logger.Debug($"{this.GetType().Name}, MigrateOrganisationsIDM(), Orgunit skipped since it had no address, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count());
                     continue;
                 }
 
@@ -609,7 +609,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", "DBUpdater", e, 1);
+                    _logger.Error($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", e);
                     throw;
                 }
 
@@ -625,7 +625,7 @@ namespace DBUpdater
                 // Check if orgunit was imported form view to Indberetning database, since it could have been skipped in previous loop, if it had no address.
                 if(orgToInsert == null)
                 {
-                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(), ParentOrgunit not added to orgunit, since orgunit was not found, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count(), "DBUpdater", 2);
+                    _logger.Debug($"{this.GetType().Name}, MigrateOrganisationsIDM(), ParentOrgunit not added to orgunit, since orgunit was not found, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count());
                     continue;
                 }
 
@@ -640,11 +640,11 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", "DBUpdater", e, 1);
+                    _logger.Error($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", e);
                     throw;
                 }
             }
-            _logger.Log($"{this.GetType().Name}, MigrateOrganisationsIDM() DONE, Amount of orgs=" + orgs.Count(), "DBUpdater", 3);
+            _logger.Debug($"{this.GetType().Name}, MigrateOrganisationsIDM() DONE, Amount of orgs=" + orgs.Count());
             Console.WriteLine("Done migrating organisations.");
         }
 
@@ -653,7 +653,7 @@ namespace DBUpdater
         /// </summary>
         public void MigrateEmployeesIDM()
         {
-            _logger.Log($"{this.GetType().Name}, MigrateEmployeesIDM() Start", "DBUpdater", 3);
+            _logger.Debug($"{this.GetType().Name}, MigrateEmployeesIDM() Start");
             foreach (var person in _personRepo.AsQueryable())
             {
                 person.IsActive = false;
@@ -696,7 +696,7 @@ namespace DBUpdater
             }
             catch (Exception e)
             {
-                _logger.Log($"{this.GetType().Name}, MigrateEmployeesIDM() error on save", "DBUpdater", 1);
+                _logger.Error($"{this.GetType().Name}, MigrateEmployeesIDM() error on save", e);
                 throw;
             }
 
@@ -760,7 +760,7 @@ namespace DBUpdater
                     _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
                 }
             }
-            _logger.Log($"{this.GetType().Name}, MigrateEmployeesIDM() Done", "DBUpdater", 3);
+            _logger.Debug($"{this.GetType().Name}, MigrateEmployeesIDM() Done");
         }
 
         /// <summary>
@@ -838,7 +838,7 @@ namespace DBUpdater
             }
             catch (Exception e)
             {
-                _logger.Log($"{this.GetType().Name}, UpdateHomeAddressIDM(), Error when updating address for CPR={cpr}", "DBUpdater", e, 3);
+                _logger.Error($"{this.GetType().Name}, UpdateHomeAddressIDM(), Error when updating address for CPR={cpr}", e);
                 throw;
             }
         }
@@ -912,7 +912,7 @@ namespace DBUpdater
         {
             if (empl.AnsættelseFra == null)
             {
-                _logger.Log($"{this.GetType().Name}, CreateEmploymentIDM(), Employment not created for personId={personId} with OrgUnitOUID={empl.OrgEnhedOUID} due to missing employment start date", "DBUpdater", 2);
+                _logger.Debug($"{this.GetType().Name}, CreateEmploymentIDM(), Employment not created for personId={personId} with OrgUnitOUID={empl.OrgEnhedOUID} due to missing employment start date");
                 return null;
             }
 
@@ -920,7 +920,7 @@ namespace DBUpdater
 
             if (orgUnit == null)
             {
-                _logger.Log($"{this.GetType().Name}, CreateEmploymentIDM(), Employment not created for personId={personId} with OrgUnitOUID={empl.OrgEnhedOUID} due to orgunit not found", "DBUpdater", 2);
+                _logger.Debug($"{this.GetType().Name}, CreateEmploymentIDM(), Employment not created for personId={personId} with OrgUnitOUID={empl.OrgEnhedOUID} due to orgunit not found");
                 return null;
             }
 

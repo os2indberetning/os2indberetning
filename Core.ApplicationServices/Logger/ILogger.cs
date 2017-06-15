@@ -27,5 +27,7 @@ namespace Core.ApplicationServices.Logger
         /// <param name="message"></param>
         void LogForAdmin(string message);
 
+        void AuditLog(string msg);
+
     }
 }

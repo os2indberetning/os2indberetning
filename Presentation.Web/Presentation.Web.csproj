@@ -276,6 +276,8 @@
     <Compile Include="Controllers\PointsController.cs" />
     <Compile Include="Controllers\TestReportsController.cs" />
     <Compile Include="Controllers\HelpTextController.cs" />
+    <Compile Include="Filters\AuditlogFilter.cs" />
+    <Compile Include="Filters\AuditMVCFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

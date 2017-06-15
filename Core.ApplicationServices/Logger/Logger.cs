@@ -13,12 +13,18 @@ namespace Core.ApplicationServices.Logger
     {
         private ILog _devLog;
         private ILog _adminLog;
+        private ILog _auditLog;
 
         public Logger()
         {
             // Filename for each log is configured in the Log4Net.config in each project.
             _devLog = LogManager.GetLogger("Logger");
             _adminLog = LogManager.GetLogger("adminLog");
+            try
+            {
+                _auditLog = LogManager.GetLogger("auditLog");
+            }
+            catch { }
         }
 
         public void Debug(string message)
@@ -34,6 +40,11 @@ namespace Core.ApplicationServices.Logger
         public void LogForAdmin(string msg)
         {
             _adminLog.Info(msg);
+        }
+
+        public void AuditLog(string msg)
+        {
+            _auditLog.Info(msg);
         }
     }
 }

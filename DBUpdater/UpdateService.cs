@@ -86,6 +86,17 @@ namespace DBUpdater
             {
                 result.Add(address);
             }
+            else if (index == 0)
+            {
+                // This is for handling a special case of an adress where the street name starts with a number. The street that prompted this fix was "6. Julivej" in Fredericia.
+                // This fix may call for a refactor of the entire method to a more generic handling of addresses.
+
+                var addressWithoutFirstChar = address.Substring(1, address.Length - 1);
+                var newIndexofFirstDigit = addressWithoutFirstChar.IndexOfAny("0123456789".ToCharArray());
+
+                result.Add(address.Substring(0, newIndexofFirstDigit));
+                result.Add(address.Substring(newIndexofFirstDigit + 1, address.Length - (newIndexofFirstDigit + 1)));
+            }
             else
             {
                 result.Add(address.Substring(0, index - 1));

@@ -271,6 +271,14 @@ namespace DBUpdater
             _personalAddressRepo.Save();
             _emplRepo.Save();
 
+            // Makes all employees wihtout employments inactive.
+            var peopleWithoutEmployment = _personRepo.AsQueryable().Where(x => !x.Employments.Any());
+            foreach(var person in peopleWithoutEmployment)
+            {
+                person.IsActive = false;
+            }
+            _personRepo.Save();
+
             Console.WriteLine("Before Dirty Adresses");
             var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
             if (dirtyAddressCount > 0)
@@ -302,8 +310,10 @@ namespace DBUpdater
 
             if (orgUnit == null)
             {
+                // Employee employment will not be created, and if the employee does not have any other employments.
                 _logger.Error($"{this.GetType().Name}, CreateEmployment(), OrgUnit does not exist. MaNr={empl.MaNr}, orgUnitId={empl.LOSOrgId}");
-                throw new Exception("OrgUnit does not exist.");
+                _logger.LogForAdmin($"Medarbejderen {empl.Fornavn} {empl.Efternavn} med medarbejdernummer {empl.MaNr} er forsøgt importeret, men er fejlet da organisationsenheden med id {empl.LOSOrgId} ikke kan findes. Medarbejderen er gjort inaktiv, og kan ikke bruge systemet.");
+                return null;
             }
 
             var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnitId == orgUnit.Id && x.EmploymentId == empl.MaNr);

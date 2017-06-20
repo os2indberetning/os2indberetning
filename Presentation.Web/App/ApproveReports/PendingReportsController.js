@@ -18,6 +18,7 @@
 
 
        $scope.tableSortHelp = $rootScope.HelpTexts.TableSortHelp.text;
+       $scope.showSubbedHelp = $rootScope.HelpTexts.ShowSubbedHelpText.text;
 
        // Set personId. The value on $rootScope is set in resolve in application.js
        var personId = $rootScope.CurrentUser.Id;
@@ -58,7 +59,7 @@
        $scope.checkAllBox = {};
 
        $scope.checkboxes = {};
-       $scope.checkboxes.showSubbed = false;
+       $scope.checkboxes.showSubbed = true;
 
        var checkedReports = [];
 
@@ -133,7 +134,7 @@
                 type: "odata-v4",
                 transport: {
                     read: {
-                        url: "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
+                        url: "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")",
                         dataType: "json",
                         cache: false
                     },

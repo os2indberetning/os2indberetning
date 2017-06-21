@@ -18,7 +18,7 @@
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort>44302</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
+    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
     <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
@@ -256,6 +256,7 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CoordinateController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LoggingController.cs" />
     <Compile Include="Controllers\MailNotificationsController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\EmploymentController.cs" />
@@ -277,7 +278,6 @@
     <Compile Include="Controllers\TestReportsController.cs" />
     <Compile Include="Controllers\HelpTextController.cs" />
     <Compile Include="Filters\AuditlogFilter.cs" />
-    <Compile Include="Filters\AuditMVCFilter.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>

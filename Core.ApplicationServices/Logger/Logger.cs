@@ -14,6 +14,7 @@ namespace Core.ApplicationServices.Logger
         private ILog _devLog;
         private ILog _adminLog;
         private ILog _auditLog;
+        private ILog _auditLogDmz;
 
         public Logger()
         {
@@ -25,6 +26,7 @@ namespace Core.ApplicationServices.Logger
                 _auditLog = LogManager.GetLogger("auditLog");
             }
             catch { }
+            _auditLogDmz = LogManager.GetLogger("auditLogDMZ");
         }
 
         public void Debug(string message)
@@ -41,10 +43,20 @@ namespace Core.ApplicationServices.Logger
         {
             _adminLog.Info(msg);
         }
-
-        public void AuditLog(string msg)
+        
+        public void AuditLog(string user, string userLocation, string controller, string action, string parameters)
         {
-            _auditLog.Info(msg);
+            _auditLog.Info(FormatAuditlog(user, userLocation, controller, action, parameters));
+        }
+
+        public void AuditLogDMZ(string user, string userLocation, string controller, string action, string parameters)
+        {
+            _auditLogDmz.Info(FormatAuditlog(user, userLocation, controller, action, parameters));
+        }
+
+        private string FormatAuditlog(string user, string userLocation, string controller, string action, string parameters)
+        {
+            return $"Timestamp: {DateTime.Now} - User: {user ?? "not available"} - Location: {userLocation ?? "not available"} - Controller: {controller ?? "not available"} - Action: {action ?? "not available"} - Parameters: {parameters ?? "not available"}";
         }
     }
 }

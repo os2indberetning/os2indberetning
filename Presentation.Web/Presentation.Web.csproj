@@ -18,7 +18,7 @@
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
     <IISExpressSSLPort>44302</IISExpressSSLPort>
-    <IISExpressAnonymousAuthentication>enabled</IISExpressAnonymousAuthentication>
+    <IISExpressAnonymousAuthentication>disabled</IISExpressAnonymousAuthentication>
     <IISExpressWindowsAuthentication>enabled</IISExpressWindowsAuthentication>
     <IISExpressUseClassicPipelineMode>false</IISExpressUseClassicPipelineMode>
     <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
@@ -275,7 +275,6 @@
     <Compile Include="Controllers\AddressController.cs" />
     <Compile Include="Controllers\SubstitutesController.cs" />
     <Compile Include="Controllers\PointsController.cs" />
-    <Compile Include="Controllers\TestReportsController.cs" />
     <Compile Include="Controllers\HelpTextController.cs" />
     <Compile Include="Filters\AuditlogFilter.cs" />
     <Compile Include="Global.asax.cs">

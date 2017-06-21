@@ -20,14 +20,25 @@ namespace OS2Indberetning.Filters
 
         public override void OnActionExecuting(HttpActionContext actionContext)
         {
-            System.Diagnostics.Trace.TraceInformation("Executing!!!");
-            var user = HttpContext.Current.User.Identity.Name;
-            var location = HttpContext.Current.Request.UserHostAddress;
-            var controller = actionContext.RequestContext.RouteData.Values["controller"].ToString();
-            var action = actionContext.RequestContext.RouteData.Values["action"].ToString();
-            var parameters = JsonConvert.SerializeObject(actionContext.ActionArguments);
+            try
+            {
+                var user = HttpContext.Current.User.Identity.Name;
+                var location = HttpContext.Current.Request.UserHostAddress;
 
-            _logger.AuditLog($"{DateTime.Now.Date} - {user} - {location} - {controller} - {action} - {parameters}");
+                object controller, action = null;
+                actionContext.RequestContext.RouteData.Values.TryGetValue("controller", out controller);
+                actionContext.RequestContext.RouteData.Values.TryGetValue("action", out action);
+
+                var parameters = JsonConvert.SerializeObject(actionContext.ActionArguments);
+
+                _logger.AuditLog(user, location, controller?.ToString(), action?.ToString(), parameters);
+            }
+            catch (Exception e)
+            {
+                int i = 0;
+                throw;
+            }
+
             base.OnActionExecuting(actionContext);
         }
 

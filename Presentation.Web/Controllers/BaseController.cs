@@ -44,7 +44,7 @@ namespace OS2Indberetning.Controllers
             {
                 var initials = httpUser[1].ToLower();
 
-                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
+                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials) && p.IsActive);
                 if (CurrentUser == null)
                 {
                     _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");

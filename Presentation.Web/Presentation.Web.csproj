@@ -256,7 +256,6 @@
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CoordinateController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
-    <Compile Include="Controllers\LoggingController.cs" />
     <Compile Include="Controllers\MailNotificationsController.cs" />
     <Compile Include="Controllers\FileController.cs" />
     <Compile Include="Controllers\EmploymentController.cs" />

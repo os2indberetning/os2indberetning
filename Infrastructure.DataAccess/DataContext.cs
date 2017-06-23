@@ -37,6 +37,7 @@ namespace Infrastructure.DataAccess
         public IDbSet<CachedAddress> CachedAddresses { get; set; }
         public IDbSet<AddressHistory> AddressHistory { get; set; }
         public IDbSet<AppLogin> AppLogin { get; set; }
+        public IDbSet<Auditlog> Auditlog { get; set; }
 
 
         /**

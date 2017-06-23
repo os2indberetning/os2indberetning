@@ -7,6 +7,7 @@ using System.Web;
 using System.Web.Http.Filters;
 using System.Web.Http.Controllers;
 using System.Web.OData.Query;
+using System.Net.Http;
 
 namespace OS2Indberetning.Filters
 {
@@ -53,7 +54,14 @@ namespace OS2Indberetning.Filters
                 // No paramater of type ODataQueryOptions was found in actionContext.ActionArguments, which is fine.
             }
 
-            _logger.AuditLog(user, location, controller?.ToString(), action?.ToString(), jsonParameters);
+            try
+            {
+                _logger.AuditLog(user, location, controller?.ToString(), action?.ToString(), jsonParameters);
+            }
+            catch (Exception)
+            {
+                actionContext.Response = actionContext.Request.CreateErrorResponse(System.Net.HttpStatusCode.InternalServerError, "Auditlogging failed");
+            }
 
             base.OnActionExecuting(actionContext);
         }

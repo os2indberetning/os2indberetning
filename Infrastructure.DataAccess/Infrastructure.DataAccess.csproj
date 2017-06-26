@@ -393,9 +393,9 @@
     <Compile Include="Migrations\201612201449247_EFUpdateFix.Designer.cs">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201706230853148_AuditlogAdded.cs" />
-    <Compile Include="Migrations\201706230853148_AuditlogAdded.Designer.cs">
-      <DependentUpon>201706230853148_AuditlogAdded.cs</DependentUpon>
+    <Compile Include="Migrations\201706261225262_AddedAuditlog.cs" />
+    <Compile Include="Migrations\201706261225262_AddedAuditlog.Designer.cs">
+      <DependentUpon>201706261225262_AddedAuditlog.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
@@ -666,8 +666,8 @@
     <EmbeddedResource Include="Migrations\201612201449247_EFUpdateFix.resx">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201706230853148_AuditlogAdded.resx">
-      <DependentUpon>201706230853148_AuditlogAdded.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201706261225262_AddedAuditlog.resx">
+      <DependentUpon>201706261225262_AddedAuditlog.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

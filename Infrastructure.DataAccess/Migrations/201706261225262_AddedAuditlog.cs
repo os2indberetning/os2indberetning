@@ -3,7 +3,7 @@ namespace Infrastructure.DataAccess.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AuditlogAdded : DbMigration
+    public partial class AddedAuditlog : DbMigration
     {
         public override void Up()
         {
@@ -18,6 +18,7 @@ namespace Infrastructure.DataAccess.Migrations
                         Controller = c.String(unicode: false),
                         Action = c.String(unicode: false),
                         Parameters = c.String(unicode: false),
+                        WrittenToLogFile = c.Boolean(nullable: false),
                     })
                 .PrimaryKey(t => t.Id)                ;
             

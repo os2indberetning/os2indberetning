@@ -15,5 +15,6 @@ namespace Core.DomainModel
         public string Controller { get; set; }
         public string Action { get; set; }
         public string Parameters { get; set; }
+        public bool WrittenToLogFile { get; set; }
     }
 }

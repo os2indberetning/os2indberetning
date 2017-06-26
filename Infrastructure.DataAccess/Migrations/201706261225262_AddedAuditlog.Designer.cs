@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AuditlogAdded : IMigrationMetadata
+    public sealed partial class AddedAuditlog : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AuditlogAdded));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddedAuditlog));
         
         string IMigrationMetadata.Id
         {
-            get { return "201706230853148_AuditlogAdded"; }
+            get { return "201706261225262_AddedAuditlog"; }
         }
         
         string IMigrationMetadata.Source

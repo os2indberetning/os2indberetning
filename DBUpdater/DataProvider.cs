@@ -47,7 +47,7 @@ namespace DBUpdater
                     Connection = sqlConnection1
                 };
 
-                int? manr = 0;
+                string manr = "0";
                 try
                 {
                     sqlConnection1.Open();
@@ -55,7 +55,7 @@ namespace DBUpdater
 
                     while (reader.Read())
                     {
-                        manr = SafeGetInt32(reader, 0);
+                        manr = SafeGetInt32(reader, 0).ToString();
                         var currentRow = new Employee
                         {
                             //Fix to see the actual row in log when an exception happens. Look in exception catch.

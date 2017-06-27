@@ -397,6 +397,10 @@
     <Compile Include="Migrations\201612201449247_EFUpdateFix.Designer.cs">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201706271216417_EmploymentIdDatatypeChanged.cs" />
+    <Compile Include="Migrations\201706271216417_EmploymentIdDatatypeChanged.Designer.cs">
+      <DependentUpon>201706271216417_EmploymentIdDatatypeChanged.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -668,6 +672,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612201449247_EFUpdateFix.resx">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201706271216417_EmploymentIdDatatypeChanged.resx">
+      <DependentUpon>201706271216417_EmploymentIdDatatypeChanged.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

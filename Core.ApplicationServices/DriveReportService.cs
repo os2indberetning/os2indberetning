@@ -115,9 +115,6 @@ namespace Core.ApplicationServices
                 }
             }
 
-
-
-
             // Round off Distance and AmountToReimburse to two decimals.
             report.Distance = Convert.ToDouble(report.Distance.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
             report.AmountToReimburse = Convert.ToDouble(report.AmountToReimburse.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
@@ -125,7 +122,13 @@ namespace Core.ApplicationServices
             var createdReport = _driveReportRepository.Insert(report);
             createdReport.ResponsibleLeaderId = GetResponsibleLeaderForReport(report).Id;
             createdReport.ActualLeaderId = GetActualLeaderForReport(report).Id;
-            
+
+            if (report.Status == ReportStatus.Rejected)
+            {
+                // User is editing a rejected report to try and get it approved.
+                report.Status = ReportStatus.Pending;
+            }
+
             _driveReportRepository.Save();
 
             // If the report is calculated or from an app, then we would like to store the points.
@@ -158,10 +161,6 @@ namespace Core.ApplicationServices
                     _driveReportRepository.Save();
                 }
             }
-
-
-
-            //AddFullName(report);
 
             return report;
         }

@@ -58,8 +58,11 @@ namespace OS2Indberetning.Filters
             {
                 _logger.AuditLog(user, location, controller?.ToString(), action?.ToString(), jsonParameters);
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                _logger.Error($"{GetType().Name}, OnActionExecuting(), Auditlogging failed.", e);
+
+                // By setting the Response, the filter returns the call without finished the original request. User should not be able to invoke actions if it can not be auditlogged.
                 actionContext.Response = actionContext.Request.CreateErrorResponse(System.Net.HttpStatusCode.InternalServerError, "Auditlogging failed");
             }
 

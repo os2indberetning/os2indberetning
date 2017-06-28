@@ -18,7 +18,6 @@ using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
-    [AuditlogFilter]
     public class PersonController : BaseController<Person>
     {
         private IPersonService _person;
@@ -67,7 +66,6 @@ namespace OS2Indberetning.Controllers
         /// Strips CPR-number off.
         /// </summary>
         /// <returns>The user currently logged in.</returns>
-        [AuditlogFilter]
         [EnableQuery(MaxExpansionDepth = 4)]
         // Disable caching.
         [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]

@@ -332,7 +332,6 @@ namespace OS2Indberetning.Controllers
         /// </summary>
         /// <param name="driveReport"></param>
         /// <returns>The posted report.</returns>
-        [AuditlogFilter]
         [EnableQuery]
         public new IHttpActionResult Post(DriveReport driveReport, string emailText)
         {

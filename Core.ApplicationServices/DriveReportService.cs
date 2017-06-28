@@ -33,11 +33,12 @@ namespace Core.ApplicationServices
         private readonly IGenericRepository<OrgUnit> _orgUnitRepository;
         private readonly IGenericRepository<Employment> _employmentRepository;
         private readonly IGenericRepository<Substitute> _substituteRepository;
+        private readonly IGenericRepository<Person> _personRepository;
         private readonly IMailSender _mailSender;
 
         private readonly ILogger _logger;
 
-        public DriveReportService(IMailSender mailSender, IGenericRepository<DriveReport> driveReportRepository, IReimbursementCalculator calculator, IGenericRepository<OrgUnit> orgUnitRepository, IGenericRepository<Employment> employmentRepository, IGenericRepository<Substitute> substituteRepository, IAddressCoordinates coordinates, IRoute<RouteInformation> route, IGenericRepository<RateType> rateTypeRepo)
+        public DriveReportService(IMailSender mailSender, IGenericRepository<DriveReport> driveReportRepository, IReimbursementCalculator calculator, IGenericRepository<OrgUnit> orgUnitRepository, IGenericRepository<Employment> employmentRepository, IGenericRepository<Substitute> substituteRepository, IAddressCoordinates coordinates, IRoute<RouteInformation> route, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<Person> personRepo, ILogger logger)
         {
             _route = route;
             _rateTypeRepo = rateTypeRepo;
@@ -48,7 +49,8 @@ namespace Core.ApplicationServices
             _substituteRepository = substituteRepository;
             _mailSender = mailSender;
             _driveReportRepository = driveReportRepository;
-            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+            _personRepository = personRepo;
+            _logger = logger;
         }
 
         /// <summary>
@@ -163,6 +165,8 @@ namespace Core.ApplicationServices
 
             //AddFullName(report);
 
+            SixtyDayRuleCheck(report);
+
             return report;
         }
 
@@ -217,14 +221,29 @@ namespace Core.ApplicationServices
             }
         }
 
-    
+        private void SixtyDayRuleCheck(DriveReport report)
+        {
+            if (report.SixtyDaysRule)
+            {
+                _logger.LogForAdmin($"Brugeren {report.Person.FullName} har angivet at være omfattet af 60-dages reglen");
+
+                // Send mails to admins
+                foreach (var recipient in _personRepository.AsQueryable().Where(x => x.IsAdmin && !string.IsNullOrEmpty(x.Mail)).Select(x => x.Mail))
+                {
+                    _mailSender.SendMail(recipient, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
+                }
+
+                // Send mail to responsible leader
+                _mailSender.SendMail(report.ResponsibleLeader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
+            }
+        }
 
         /// <summary>
         /// Gets the Responsible Leader and sets it for each of the reports in repo.
         /// </summary>
         /// <param name="repo"></param>
         /// <returns>DriveReports with ResponsibleLeader attached</returns>
-        
+
 
         /// <summary>
         /// Gets the ResponsibleLeader for driveReport
@@ -409,6 +428,8 @@ namespace Core.ApplicationServices
             dtDateTime = dtDateTime.AddSeconds(unixTime).ToLocalTime();
             return dtDateTime.Day + "/" + dtDateTime.Month + "/" + dtDateTime.Year;
         }
+
+
 
 
     }

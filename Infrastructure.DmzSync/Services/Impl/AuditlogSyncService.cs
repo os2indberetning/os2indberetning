@@ -112,11 +112,11 @@ namespace Infrastructure.DmzSync.Services.Impl
         }
 
         /// <summary>
-        /// This method cleans up the backend table of auditlogs by deleting entries older than a month. It is assumed that any issues with writing to the log file will be fixed within a month.
+        /// This method cleans up the backend table of auditlogs by deleting entries older than three months. It is assumed that any issues with writing to the log file will be fixed within three months.
         /// </summary>
         private void CleanUp()
         {
-            foreach(var record in _masterAuditlogRepo.AsQueryable().Where(x => DateTime.Parse(x.Date) < DateTime.Now.AddMonths(-1) && x.WrittenToLogFile)){
+            foreach(var record in _masterAuditlogRepo.AsQueryable().Where(x => DateTime.Parse(x.Date) < DateTime.Now.AddMonths(-3) && x.WrittenToLogFile)){
                 _masterAuditlogRepo.Delete(record);
             }
 

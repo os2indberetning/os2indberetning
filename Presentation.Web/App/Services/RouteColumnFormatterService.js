@@ -22,7 +22,7 @@
             var globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Se rute på kort'\"><a ng-click='showRouteModal(" + data.Id + ")'><i class='fa fa-globe fa-2x'></i></a></div>";
             var SixtyDaysRuleToolTip = "";
             if(data.SixtyDaysRule){
-                SixtyDaysRuleToolTip = "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'Brugeren er muligvis omfattet af 60-dages reglen'\"><i class=\"fa fa-2x fa-exclamation-triangle\"></i></div>";
+                SixtyDaysRuleToolTip = "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'Medarbejderen er muligvis omfattet af 60-dages reglen'\"><i class=\"fa fa-2x fa-exclamation-triangle\"></i></div>";
             }
             if (data.IsOldMigratedReport) {
                 globe = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning er overført fra eIndberetning og der kan ikke genereres en rute på et kort'\"><i class='fa fa-circle-thin fa-2x'></i></a></div>";

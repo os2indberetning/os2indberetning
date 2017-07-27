@@ -778,6 +778,7 @@
             setNotRoute();
 
             $scope.DriveReport.IsRoundTrip = false;
+            $scope.DriveReport.SixtyDaysRule = false;
             loadValuesFromReport($scope.latestDriveReport);
             $scope.DriveReport.Addresses = [{ Name: "" }, { Name: "" }];
             $scope.DriveReport.ReadDistance = 0;

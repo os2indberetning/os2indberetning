@@ -251,6 +251,7 @@ namespace OS2Indberetning.Controllers
                         Purpose = currentReport.Purpose,
                         IsExtraDistance = currentReport.IsExtraDistance,
                         FourKmRule = currentReport.FourKmRule,
+                        SixtyDaysRule = currentReport.SixtyDaysRule,
                         DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
                         AmountToReimburse = currentReport.AmountToReimburse,
                         ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced

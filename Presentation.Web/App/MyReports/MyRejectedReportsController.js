@@ -189,7 +189,11 @@ angular.module("application").controller("MyRejectedReportsController", [
                   template: function (data) {
                       return data.ApprovedBy.FullName + "<div kendo-tooltip k-content=\"'" + data.Comment + "'\"><i class='fa fa-comment-o'></i></div>";
                   }
-              }
+              }, {
+                   field: "Id",
+                   template: "<a ng-click=deleteClick(${Id})>Slet</a> | <a ng-click=editClick(${Id})>Rediger</a>",
+                   title: "Muligheder"
+               }
            ],
            scrollable: false
        };
@@ -257,6 +261,55 @@ angular.module("application").controller("MyRejectedReportsController", [
                        return routeId;
                    }
                }
+           });
+       }
+
+              $scope.deleteClick = function (id) {
+           /// <summary>
+           /// Opens delete report modal
+           /// </summary>
+           /// <param name="id"></param>
+           var modalInstance = $modal.open({
+               templateUrl: '/App/MyReports/ConfirmDeleteTemplate.html',
+               controller: 'ConfirmDeleteReportController',
+               backdrop: "static",
+               resolve: {
+                   itemId: function () {
+                       return id;
+                   }
+               }
+           });
+
+           modalInstance.result.then(function (res) {
+               Report.delete({ id: id }, function () {
+                   $scope.gridContainer.grid.dataSource.read();
+               });
+           });
+       }
+
+       $scope.editClick = function (id) {
+           /// <summary>
+           /// Opens edit report modal
+           /// </summary>
+           /// <param name="id"></param>
+
+           var modalInstance = $modal.open({
+               templateUrl: '/App/MyReports/EditReportTemplate.html',
+               controller: 'DrivingController',
+               backdrop: "static",
+               windowClass: "app-modal-window-full",
+               resolve: {
+                   adminEditCurrentUser : function() {return 0;},
+                   ReportId: function () {
+                       return id;
+                   }
+               }
+           });
+
+           $rootScope.editModalInstance = modalInstance;
+
+           modalInstance.result.then(function (res) {
+               $scope.gridContainer.grid.dataSource.read();
            });
        }
    }

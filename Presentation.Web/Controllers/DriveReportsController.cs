@@ -17,6 +17,7 @@ using System.Configuration;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using OS2Indberetning.Models;
+using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {

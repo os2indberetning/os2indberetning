@@ -20,9 +20,11 @@ using Core.DomainModel.Example;
 using Core.DomainServices;
 using Ninject;
 using Expression = System.Linq.Expressions.Expression;
+using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
+    [AuditlogFilter]
     public class BaseController<T> : ODataController where T : class
     {
         protected ODataValidationSettings ValidationSettings = new ODataValidationSettings();

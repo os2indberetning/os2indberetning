@@ -27,5 +27,9 @@ namespace Core.ApplicationServices.Logger
         /// <param name="message"></param>
         void LogForAdmin(string message);
 
+        void AuditLog(string user, string userLocation, string controller, string action, string parameters);
+
+        void AuditLogDMZ(string user, string userLocation, string controller, string action, string parameters);
+
     }
 }

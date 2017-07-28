@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Auditlog.cs" />
     <Compile Include="DriveReport.cs" />
     <Compile Include="Employment.cs" />
     <Compile Include="GPSCoordinate.cs" />

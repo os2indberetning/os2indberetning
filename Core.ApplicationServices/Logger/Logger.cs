@@ -13,12 +13,20 @@ namespace Core.ApplicationServices.Logger
     {
         private ILog _devLog;
         private ILog _adminLog;
+        private ILog _auditLog;
+        private ILog _auditLogDmz;
 
         public Logger()
         {
             // Filename for each log is configured in the Log4Net.config in each project.
             _devLog = LogManager.GetLogger("Logger");
             _adminLog = LogManager.GetLogger("adminLog");
+            try
+            {
+                _auditLog = LogManager.GetLogger("auditLog");
+            }
+            catch { }
+            _auditLogDmz = LogManager.GetLogger("auditLogDMZ");
         }
 
         public void Debug(string message)
@@ -34,6 +42,21 @@ namespace Core.ApplicationServices.Logger
         public void LogForAdmin(string msg)
         {
             _adminLog.Info(msg);
+        }
+        
+        public void AuditLog(string user, string userLocation, string controller, string action, string parameters)
+        {
+            _auditLog.Info(FormatAuditlog(user, userLocation, controller, action, parameters));
+        }
+
+        public void AuditLogDMZ(string user, string userLocation, string controller, string action, string parameters)
+        {
+            _auditLogDmz.Info(FormatAuditlog(user, userLocation, controller, action, parameters));
+        }
+
+        private string FormatAuditlog(string user, string userLocation, string controller, string action, string parameters)
+        {
+            return $"Timestamp: {DateTime.Now} - User: {user ?? "not available"} - Location: {userLocation ?? "not available"} - Controller: {controller ?? "not available"} - Action: {action ?? "not available"} - Parameters: {parameters ?? "not available"}";
         }
     }
 }

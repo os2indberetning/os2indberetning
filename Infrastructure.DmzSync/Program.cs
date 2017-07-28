@@ -50,6 +50,8 @@ namespace Infrastructure.DmzSync
             var userAuthSync = new UserAuthSyncService(new GenericRepository<Core.DomainModel.AppLogin>(new DataContext()), 
                 new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()),logger);
 
+            var auditlogSync = new AuditlogSyncService(new GenericDmzRepository<Core.DmzModel.Auditlog>(new DmzContext()), new GenericRepository<Core.DomainModel.Auditlog>(new DataContext()), logger);
+
             logger.Debug("-------- DMZSYNC STARTED --------");
 
             try
@@ -116,6 +118,19 @@ namespace Infrastructure.DmzSync
             {
                 logger.Error($"Error during userauth synchronization from DMZ", ex);
                 logger.LogForAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
+                throw;
+            }
+
+            try
+            {
+                logger.Debug("AuditlogSyncFromDmz started");
+                Console.WriteLine("AuditlogSyncFromDmz");
+                auditlogSync.SyncFromDmz();
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Error during auditlog synchronization from DMZ", ex);
+                logger.LogForAdmin("Fejl ved synkronisering af auditlogs fra DMZ.");
                 throw;
             }
 

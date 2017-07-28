@@ -396,6 +396,7 @@
 	<Compile Include="Migrations\201706261225262_AddedAuditlog.cs" />
     <Compile Include="Migrations\201706261225262_AddedAuditlog.Designer.cs">
       <DependentUpon>201706261225262_AddedAuditlog.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\201706280903322_SixtyDaysRuleAddedToDriveReport.cs" />
     <Compile Include="Migrations\201706280903322_SixtyDaysRuleAddedToDriveReport.Designer.cs">
       <DependentUpon>201706280903322_SixtyDaysRuleAddedToDriveReport.cs</DependentUpon>

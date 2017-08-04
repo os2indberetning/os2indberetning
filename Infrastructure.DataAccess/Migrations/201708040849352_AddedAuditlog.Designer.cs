@@ -13,7 +13,7 @@ namespace Infrastructure.DataAccess.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201706261225262_AddedAuditlog"; }
+            get { return "201708040849352_AddedAuditlog"; }
         }
         
         string IMigrationMetadata.Source

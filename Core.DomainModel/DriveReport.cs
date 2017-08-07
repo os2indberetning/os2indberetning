@@ -28,7 +28,14 @@ namespace Core.DomainModel
         public double KmRate { get; set; }
         public long DriveDateTimestamp { get; set; }
         public bool FourKmRule { get; set; }
-        public double HomeToBorderDistance { get; set; } //Used with 4 km rule, when report is from app.
+        /// <summary>
+        /// Indicates how many of the 4 km from the 4 km rule has been deducted from this report, if the FourKmRule property is true. Will be zero if FourKmRule property is false.
+        /// </summary>
+        public double FourKmRuleDeducted { get; set; }
+        /// <summary>
+        /// Used with 4 km rule, when report is from app.
+        /// </summary>
+        public double HomeToBorderDistance { get; set; }
         public bool StartsAtHome { get; set; }
         public bool EndsAtHome { get; set; }
         public string LicensePlate { get; set; }

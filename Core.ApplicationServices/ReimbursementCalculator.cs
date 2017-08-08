@@ -23,6 +23,7 @@ namespace Core.ApplicationServices
         private readonly IGenericRepository<Employment> _emplrepo;
         private readonly IGenericRepository<AddressHistory> _addressHistoryRepo;
         private readonly IGenericRepository<RateType> _rateTypeRepo;
+        private readonly IGenericRepository<DriveReport> _driveReportRepository;
         private const int FourKmAdjustment = 4;
         // Coordinate threshold is the amount two gps coordinates can differ and still be considered the same address.
         // Third decimal is 100 meters, so 0.001 means that addresses within 100 meters of each other will be considered the same when checking if route starts or ends at home.
@@ -30,7 +31,7 @@ namespace Core.ApplicationServices
 
         private readonly ILogger _logger;
 
-        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger, IGenericRepository<RateType> rateTypeRepo)
+        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<DriveReport> driveReportRepo)
         {
             _route = route;
             _personService = personService;
@@ -39,6 +40,7 @@ namespace Core.ApplicationServices
             _addressHistoryRepo = addressHistoryRepo;
             _logger = logger;
             _rateTypeRepo = rateTypeRepo;
+            _driveReportRepository = driveReportRepo;
         }
 
         /// <summary>
@@ -94,7 +96,7 @@ namespace Core.ApplicationServices
 
 
             var employment = _emplrepo.AsQueryable().FirstOrDefault(x => x.Id.Equals(report.EmploymentId));
-            
+
             Address workAddress = employment.OrgUnit.Address;
 
             if (addressHistory != null && addressHistory.WorkAddress != null)
@@ -103,7 +105,7 @@ namespace Core.ApplicationServices
                 workAddress = addressHistory.WorkAddress;
             }
 
-            
+
             if (employment.AlternativeWorkAddress != null)
             {
                 // Overwrite workaddress if an alternative work address exists.
@@ -134,7 +136,7 @@ namespace Core.ApplicationServices
             if (report.FourKmRule)
             {
                 //Take users provided distance from home to border of municipality. If report is from app, use distance provided in report, else use distance saved on person.
-                var borderDistance = report.IsFromApp? report.HomeToBorderDistance : person.DistanceFromHomeToBorder;
+                var borderDistance = report.IsFromApp ? report.HomeToBorderDistance : person.DistanceFromHomeToBorder;
 
                 //Adjust distance based on if user starts or ends at home
                 if (report.StartsAtHome)
@@ -210,7 +212,7 @@ namespace Core.ApplicationServices
                                     report.RouteGeometry = drivenRoute.GeoPoints;
                                 }
 
-                                break; 
+                                break;
                             }
                             else
                             {
@@ -219,7 +221,7 @@ namespace Core.ApplicationServices
                                     report.Distance = drivenRoute.Length;
 
                                     //Save RouteGeometry
-                                    report.RouteGeometry = drivenRoute.GeoPoints; 
+                                    report.RouteGeometry = drivenRoute.GeoPoints;
                                 }
 
                                 break;
@@ -296,14 +298,66 @@ namespace Core.ApplicationServices
                 report.Distance *= 2;
             }
 
-            if (report.FourKmRule)
-            {
-                report.Distance -= FourKmAdjustment;
-            }
+            CalculateFourKmRuleForReport(report);
 
-             SetAmountToReimburse(report);
+            SetAmountToReimburse(report);
 
             return report;
+        }
+
+        /// <summary>
+        /// Calculates how many of the 4 km from the Four Km Rule should be deducted from this report. 
+        /// The calculated amount will then be deducted from the distance, and saved in the FourKmRuleDeducted property
+        /// </summary>
+        /// <param name="report"></param>
+        /// <returns></returns>
+        public DriveReport CalculateFourKmRuleForReport(DriveReport report)
+        {
+            var result = report;
+
+            if (report.FourKmRule)
+            {
+                // Find all the reports of the employment from the same day that uses the four km rule and has not been rejected, and select the FourKmRuleDeducted property.
+                List<DriveReport> reportsFromSameDayWithFourKmRule;
+                reportsFromSameDayWithFourKmRule = _driveReportRepository.AsQueryable().Where(x => x.PersonId == report.PersonId
+                    && x.Status != ReportStatus.Rejected
+                    && x.FourKmRule).ToList();
+
+                reportsFromSameDayWithFourKmRule.RemoveAll(x => !AreReportsDrivenOnSameDay(report.DriveDateTimestamp, x.DriveDateTimestamp));
+
+                // Sum the values selected to get the total deducted amount of the day.
+                var totalDeductedFromSameDay = reportsFromSameDayWithFourKmRule.Take(reportsFromSameDayWithFourKmRule.Count()).Sum(x => x.FourKmRuleDeducted);
+
+                // If less than four km has been deducted, deduct the remaining amount from the current report. Cannot deduct more than the distance of the report.
+                if (totalDeductedFromSameDay < FourKmAdjustment)
+                {
+                    if (report.Distance < FourKmAdjustment - totalDeductedFromSameDay)
+                    {
+                        report.FourKmRuleDeducted = report.Distance;
+                        report.Distance = 0;
+                    }
+                    else
+                    {
+                        report.FourKmRuleDeducted = FourKmAdjustment - totalDeductedFromSameDay;
+                        report.Distance -= report.FourKmRuleDeducted;
+                    }
+                }
+            }
+
+            return report;
+        }
+
+        public bool AreReportsDrivenOnSameDay(long unixTimeStamp1, long unixTimeStamp2)
+        {
+            var result = false;
+            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+            DateTime driveDate1 = dtDateTime.AddSeconds(unixTimeStamp1).ToLocalTime();
+            DateTime driveDate2 = dtDateTime.AddSeconds(unixTimeStamp2).ToLocalTime();
+            if (driveDate1.Date.Equals(driveDate2.Date))
+            {
+                result = true;
+            }
+            return result;
         }
 
         private void SetAmountToReimburse(DriveReport report)

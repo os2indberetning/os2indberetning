@@ -226,79 +226,32 @@ namespace Core.ApplicationServices
         }
 
         /// <summary>
-        /// Calculates how many of the 4 km from the Four Km Rule should be deducted from this report. 
-        /// The calculated amount will then be deducted from the distance, and saved in the FourKmRuleDeducted property
-        /// </summary>
-        /// <param name="report"></param>
-        /// <returns></returns>
-        public DriveReport CalculateFourKmRuleForReport(DriveReport report)
-        {
-            var result = report;
-
-            if (report.FourKmRule)
-            {
-                // Find all the reports of the employment from the same day that uses the four km rule and has not been rejected, and select the FourKmRuleDeducted property.
-                var reportsFromSameDayWithFourKmRule = _driveReportRepository.AsQueryable().Where(x => x.PersonId == report.PersonId
-                    && AreReportsDrivenOnSameDay(report.DriveDateTimestamp, x.DriveDateTimestamp)
-                    && x.Status != ReportStatus.Rejected
-                    && x.FourKmRule)
-                    .Select(y => y.FourKmRuleDeducted);
-
-                // Sum the values selected to get the total deducted amount of the day.
-                var totalDeductedFromSameDay = reportsFromSameDayWithFourKmRule.Take(reportsFromSameDayWithFourKmRule.Count()).Sum();
-
-                // If less than four km has been deducted, deduct the remaining amount from the current report. Cannot deduct more than the distance of the report.
-                if (totalDeductedFromSameDay < 4)
-                {
-                    if (report.Distance < totalDeductedFromSameDay)
-                    {
-                        report.FourKmRuleDeducted = report.Distance;
-                        report.Distance = 0;
-                    }
-                    else
-                    {
-                        report.FourKmRuleDeducted = 4 - totalDeductedFromSameDay;
-                        report.Distance -= report.FourKmRuleDeducted;
-                    }
-                }
-
-                _driveReportRepository.Save();
-            }
-
-            return report;
-        }
-
-        /// <summary>
-        /// Recalculates the deduction of 4 km from the persons reports driven on the date of the given unix time stamp
+        /// Recalculates the deduction of 4 km from the persons reports driven on the date of the given unix time stamp. Does not recalculate rejected or invoiced reports.
         /// </summary>
         /// <param name="DriveDateTimestamp"></param>
         /// <param name="PersonId"></param>
-        public void CalculateFourKmRuleForOtherReports(long DriveDateTimestamp, int PersonId)
+        public void CalculateFourKmRuleForOtherReports(DriveReport report)
         {
-            var reportsFromSameDayWithFourKmRule = _driveReportRepository.AsQueryable().Where(x => x.PersonId == PersonId
-                    && AreReportsDrivenOnSameDay(DriveDateTimestamp, x.DriveDateTimestamp)
+            if (report.Status.Equals(ReportStatus.Rejected))
+            {
+                report.FourKmRuleDeducted = 0;
+            }
+
+            var reportsFromSameDayWithFourKmRule = _driveReportRepository.AsQueryable().Where(x => x.PersonId == report.PersonId
                     && x.Status != ReportStatus.Rejected
+                    && x.Status != ReportStatus.Invoiced
                     && x.FourKmRule)
-                    .OrderBy(x => x.DriveDateTimestamp);
+                    .OrderBy(x => x.DriveDateTimestamp).ToList();
 
-            foreach(var report in reportsFromSameDayWithFourKmRule)
+            foreach(var r in reportsFromSameDayWithFourKmRule)
             {
-                CalculateFourKmRuleForReport(report);
+                if (_calculator.AreReportsDrivenOnSameDay(report.DriveDateTimestamp, r.DriveDateTimestamp))
+                {
+                    _calculator.CalculateFourKmRuleForReport(r); 
+                }
             }
 
-        }
-
-        private bool AreReportsDrivenOnSameDay(long unixTimeStamp1, long unixTimeStamp2)
-        {
-            var result = false;
-            DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            DateTime driveDate1 = dtDateTime.AddSeconds(unixTimeStamp1).ToLocalTime();
-            DateTime driveDate2 = dtDateTime.AddSeconds(unixTimeStamp2).ToLocalTime();
-            if (driveDate1.Date.Equals(driveDate2.Date))
-            {
-                result = true;
-            }
-            return result;
+            _driveReportRepository.Save();
         }
 
         private void SixtyDayRuleCheck(DriveReport report)

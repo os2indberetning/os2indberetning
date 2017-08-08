@@ -8,6 +8,7 @@ namespace Infrastructure.DataAccess.Migrations
         public override void Up()
         {
             AddColumn("Reports", "FourKmRuleDeducted", c => c.Double(false, 0));
+            Sql("UPDATE reports SET FourKmRuleDeducted = 4 WHERE FourKmRule = 1");
         }
         
         public override void Down()

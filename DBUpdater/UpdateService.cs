@@ -372,7 +372,16 @@ namespace DBUpdater
 
             var launderer = new CachedAddressLaunderer(_cachedRepo, _actualLaunderer, _coordinates);
 
-            var splitStreetAddress = SplitAddressOnNumber(empl.Adresse);
+            List<string> splitStreetAddress = null;
+            try
+            {
+                splitStreetAddress = SplitAddressOnNumber(empl.Adresse);
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{this.GetType().Name}, UpdateHomeAddress(), Error when splitting address. personId={personId}, address={empl.Adresse}", e);
+                throw;
+            }
 
             var addressToLaunder = new Address
             {
@@ -541,14 +550,22 @@ namespace DBUpdater
             var reports = _reportRepo.AsQueryable().Where(r => r.ResponsibleLeader == null || r.ActualLeader == null).ToList();
             foreach (var report in reports)
             {
-                i++;
-                Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
-                report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
-                report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
-                if (i % 100 == 0)
+                try
                 {
-                    Console.WriteLine("Saving to database");
-                    _reportRepo.Save();
+                    i++;
+                    Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
+                    report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                    report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
+                    if (i % 100 == 0)
+                    {
+                        Console.WriteLine("Saving to database");
+                        _reportRepo.Save();
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"{this.GetType().Name}, UpdateLeadersOnExpiredOrActivatedSubstitutes(), Error, report = {report.Id}", e);
+                    throw;
                 }
             }
             _reportRepo.Save();

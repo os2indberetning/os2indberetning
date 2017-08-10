@@ -167,8 +167,6 @@ namespace Core.ApplicationServices
                 }
             }
 
-
-
             //AddFullName(report);
 
             SixtyDayRuleCheck(report);
@@ -225,6 +223,35 @@ namespace Core.ApplicationServices
                 _mailSender.SendMail(recipient, "Afvist indberetning",
                     "Din indberetning er blevet afvist med kommentaren: \n \n" + comment);
             }
+        }
+
+        /// <summary>
+        /// Recalculates the deduction of 4 km from the persons reports driven on the date of the given unix time stamp. Does not recalculate rejected or invoiced reports.
+        /// </summary>
+        /// <param name="DriveDateTimestamp"></param>
+        /// <param name="PersonId"></param>
+        public void CalculateFourKmRuleForOtherReports(DriveReport report)
+        {
+            if (report.Status.Equals(ReportStatus.Rejected))
+            {
+                report.FourKmRuleDeducted = 0;
+            }
+
+            var reportsFromSameDayWithFourKmRule = _driveReportRepository.AsQueryable().Where(x => x.PersonId == report.PersonId
+                    && x.Status != ReportStatus.Rejected
+                    && x.Status != ReportStatus.Invoiced
+                    && x.FourKmRule)
+                    .OrderBy(x => x.DriveDateTimestamp).ToList();
+
+            foreach(var r in reportsFromSameDayWithFourKmRule)
+            {
+                if (_calculator.AreReportsDrivenOnSameDay(report.DriveDateTimestamp, r.DriveDateTimestamp))
+                {
+                    _calculator.CalculateFourKmRuleForReport(r); 
+                }
+            }
+
+            _driveReportRepository.Save();
         }
 
         private void SixtyDayRuleCheck(DriveReport report)

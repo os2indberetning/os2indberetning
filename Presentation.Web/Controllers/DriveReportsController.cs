@@ -393,6 +393,10 @@ namespace OS2Indberetning.Controllers
                 try
                 {
                     Repo.Save();
+                    if (report.FourKmRule)
+                    {
+                        _driveService.CalculateFourKmRuleForOtherReports(report); 
+                    }
                     _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
                     return Ok();
                 }
@@ -433,6 +437,7 @@ namespace OS2Indberetning.Controllers
                     try
                     {
                         base.Patch(key, delta);
+                        _driveService.CalculateFourKmRuleForOtherReports(report);
                     }
                     catch (Exception ex)
                     {
@@ -465,16 +470,24 @@ namespace OS2Indberetning.Controllers
         /// <returns></returns>
         public new IHttpActionResult Delete([FromODataUri] int key)
         {
-            if (CurrentUser.IsAdmin)
-            {
-                return base.Delete(key);
-            }
             var report = Repo.AsQueryable().SingleOrDefault(x => x.Id.Equals(key));
             if (report == null)
             {
                 return NotFound();
             }
-            return report.PersonId.Equals(CurrentUser.Id) ? base.Delete(key) : Unauthorized();
+            if (report.PersonId.Equals(CurrentUser.Id) || CurrentUser.IsAdmin)
+            {
+                var deleteResult = base.Delete(key);
+                if (report.FourKmRule)
+                {
+                    _driveService.CalculateFourKmRuleForOtherReports(report); 
+                }
+                return deleteResult;
+            }
+            else
+            {
+                return Unauthorized();
+            }
         }
     }
 }

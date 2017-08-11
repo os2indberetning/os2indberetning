@@ -31,7 +31,7 @@ namespace DBUpdater
 
             using (var sqlConnection1 = new SqlConnection(_connectionString))
             {
-                string medarbejderView = ConfigurationManager.AppSettings["DATABASE_VIEW_MEDARBEJDER"];
+                string medarbejderView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_MEDARBEJDER"];
 
                 if(medarbejderView == null)
                 {
@@ -96,7 +96,7 @@ namespace DBUpdater
         /// <returns></returns>
         public IQueryable<Organisation> GetOrganisationsAsQueryable()
         {
-            string organisationView = ConfigurationManager.AppSettings["DATABASE_VIEW_ORGANISATION"];
+            string organisationView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_ORGANISATION"];
 
             if (organisationView == null)
             {

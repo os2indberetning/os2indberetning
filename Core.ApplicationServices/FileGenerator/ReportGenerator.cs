@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.ApplicationServices.Logger;
 
 namespace Core.ApplicationServices.FileGenerator
 {
@@ -10,11 +11,13 @@ namespace Core.ApplicationServices.FileGenerator
     {
         private readonly IGenericRepository<DriveReport> _reportRepo;
         private readonly IReportFileWriter _fileWriter;
+        private ILogger _logger;
         
-        public ReportGenerator(IGenericRepository<DriveReport> reportRepo, IReportFileWriter fileWriter)
+        public ReportGenerator(IGenericRepository<DriveReport> reportRepo, IReportFileWriter fileWriter, ILogger logger)
         {
             _reportRepo = reportRepo;
             _fileWriter = fileWriter;
+            _logger = logger;
         }
 
         public void WriteRecordsToFileAndAlterReportStatus()
@@ -22,11 +25,21 @@ namespace Core.ApplicationServices.FileGenerator
             var usersToReimburse = GetUsersAndReportsToReimburse();
             var records = RecordListBuilder(usersToReimburse);
 
-            var success = _fileWriter.WriteRecordsToFile(records);
+            bool success;
+            try
+            {
+                success = _fileWriter.WriteRecordsToFile(records);
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{GetType().Name}, WriteRecordsToFileAndAlterReportStatus(), Error when writing records to IND01-file", e);
+                throw;
+            }
 
             if (!success)
             {
                 //There was an error writing the file so the reports should not be marked as invoiced
+                _logger.Error($"{GetType().Name}, WriteRecordsToFileAndAlterReportStatus(), Error when writing records to IND01-file, reports status not updated to processed.");
                 return;
             }
 

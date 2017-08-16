@@ -44,14 +44,14 @@ namespace OS2Indberetning.Controllers
             }
             try
             {
-                new ReportGenerator(_repo, new ReportFileWriter()).WriteRecordsToFileAndAlterReportStatus();
+                new ReportGenerator(_repo, new ReportFileWriter(), _logger).WriteRecordsToFileAndAlterReportStatus();
                 _logger.Debug($"{GetType().Name}, Get(), Generate KMD file finished");
                 return Ok();
             }
             catch (Exception e)
             {
                 _logger.LogForAdmin("Fejl ved generering af fil til KMD. Filen blev ikke genereret.");
-                _logger.Error($"{GetType().Name}, Get(), Error when generating file for KMD, Status Code: 500 Internal Server Error");
+                _logger.Error($"{GetType().Name}, Get(), Error when generating file for KMD, Status Code: 500 Internal Server Error", e);
                 return InternalServerError();
             }
         }

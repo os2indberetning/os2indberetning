@@ -19,7 +19,7 @@ using Infrastructure.DataAccess;
 using Ninject;
 using OS2Indberetning;
 using Core.ApplicationServices.Logger;
-
+using System.Threading.Tasks;
 
 namespace Core.ApplicationServices
 {
@@ -260,15 +260,22 @@ namespace Core.ApplicationServices
             {
                 _logger.LogForAdmin($"Brugeren {report.Person.FullName} har angivet at være omfattet af 60-dages reglen");
 
-                // Send mails to admins
-                foreach (var recipient in _personRepository.AsQueryable().Where(x => x.IsAdmin && !string.IsNullOrEmpty(x.Mail)).Select(x => x.Mail))
-                {
-                    _mailSender.SendMail(recipient, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
-                }
-
-                // Send mail to responsible leader
-                _mailSender.SendMail(report.ResponsibleLeader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
+                // Sending notification mails to admins and leader must be done in seperate thread to not block the response to the client.
+                var recipients = _personRepository.AsQueryable().Where(x => x.IsAdmin && !string.IsNullOrEmpty(x.Mail)).Select(x => x.Mail).ToList();
+                Task.Factory.StartNew(() => SendSixtyDaysRuleNotifications(report, recipients));
             }
+        }
+
+        private void SendSixtyDaysRuleNotifications(DriveReport report, List<string> recipients)
+        {
+            // Send mails to admins
+            foreach (var recipient in recipients)
+            {
+                _mailSender.SendMail(recipient, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
+            }
+
+            // Send mail to leader.
+            _mailSender.SendMail(report.ResponsibleLeader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
         }
 
         /// <summary>

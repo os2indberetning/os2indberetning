@@ -186,7 +186,7 @@
             </div>
             <div class="row">
                 <div class="col-sm-6 margin-bottom-10" style="margin-left: -15px">
-                    <div ng-show="hasAccessToFourKmRule" class="col-sm-12 margin-bottom-10">
+                    <div ng-show="hasAccessToFourKmRule" class="col-sm-12 margin-top-5">
                         <input type="checkbox" class="k-checkbox" ng-change="fourKmRuleChanged()" id="FourKmRule" ng-model="DriveReport.FourKmRule.Using" /><label for="FourKmRule" class="k-checkbox-label">Jeg bruger 4 Km-reglen</label>
                         <span ng-show="fourKmRuleHelpText" popover="{{fourKmRuleHelpText}}" popover-append-to-body='true' popover-trigger="mouseenter" class="info-popup"><i class="fa fa-question"></i></span>
                     </div>
@@ -206,6 +206,7 @@
             <div class="row">
                 <div class="col-lg-12 margin-bottom-10">
                     <input type="checkbox" class="k-checkbox" id="sixtyDaysRule" ng-model="DriveReport.SixtyDaysRule" /><label for="sixtyDaysRule" class="k-checkbox-label">60 dages reglen</label>
+                    <span ng-show="sixtyDaysRuleHelptext" popover="{{sixtyDaysRuleHelptext}}" popover-append-to-body='true' popover-trigger="mouseenter" class="info-popup"><i class="fa fa-question"></i></span>
                 </div>
             </div>
 

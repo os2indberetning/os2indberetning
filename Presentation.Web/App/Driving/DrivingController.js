@@ -6,6 +6,7 @@
         $scope.PurposeHelpText = $rootScope.HelpTexts.PurposeHelpText.text;
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
+        $scope.sixtyDaysRuleHelptext = $rootScope.HelpTexts.SixtyDaysRuleHelptext.text;
 
 
 
@@ -234,6 +235,7 @@
                 $scope.DriveReport.Status = report.Status;
                 $scope.DriveReport.FourKmRule.Using = report.FourKmRule;
                 $scope.DriveReport.FourKmRule.Deducted = report.FourKmRuleDeducted;
+                $scope.DriveReport.SixtyDaysRule = report.SixtyDaysRule;
                 $scope.DriveReport.Date = moment.unix(report.DriveDateTimestamp)._d;
 
                 if (report.KilometerAllowance == "Read") {

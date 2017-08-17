@@ -6,7 +6,7 @@
         $scope.PurposeHelpText = $rootScope.HelpTexts.PurposeHelpText.text;
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
-        $scope.sixtyDaysRuleHelptext = $rootScope.HelpTexts.SixtyDaysRuleHelptext.text;
+        $scope.sixtyDaysRuleHelptext = $rootScope.HelpTexts.SixtyDaysRuleHelpText.text;
 
 
 
@@ -283,7 +283,7 @@
                         }
                     }
                     if(report.FourKmRule){
-                        $scope.DriveReport.Distance = Distance + $scope.DriveReport.FourKmRule.Deducted;
+                        report.Distance = Number(report.Distance) + $scope.DriveReport.FourKmRule.Deducted;
                     }
                     $scope.DriveReport.ReadDistance = report.Distance.toString().replace(".", ",");
                 } else {

@@ -34,11 +34,11 @@
 
             var edited = "";
 
-            if (data.CreatedDateTimestamp < data.EditedDateTimestamp) {
+            if (data.CreatedDateTimestamp < data.EditedDateTimestamp && !(data.Status == "Accepted" || data.Status == "Invoiced")) {
                 edited = "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning er blevet redigeret'\"><i class='fa fa-pencil fa-2x'></i></div>";
             }
 
-            var result = toolTip + roundTrip + SixtyDaysRuleToolTip + globe;
+            var result = toolTip + roundTrip + SixtyDaysRuleToolTip + globe + edited;
             var comment = data.UserComment != null ? data.UserComment : "Ingen kommentar angivet";
             
 

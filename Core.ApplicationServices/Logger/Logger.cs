@@ -46,17 +46,17 @@ namespace Core.ApplicationServices.Logger
         
         public void AuditLog(string user, string userLocation, string controller, string action, string parameters)
         {
-            _auditLog.Info(FormatAuditlog(user, userLocation, controller, action, parameters));
+            _auditLog.Info(FormatAuditlog(DateTime.Now.ToString(), user, userLocation, controller, action, parameters));
         }
 
-        public void AuditLogDMZ(string user, string userLocation, string controller, string action, string parameters)
+        public void AuditLogDMZ(string date, string user, string userLocation, string controller, string action, string parameters)
         {
-            _auditLogDmz.Info(FormatAuditlog(user, userLocation, controller, action, parameters));
+            _auditLogDmz.Info(FormatAuditlog(date, user, userLocation, controller, action, parameters));
         }
 
-        private string FormatAuditlog(string user, string userLocation, string controller, string action, string parameters)
+        private string FormatAuditlog(string date, string user, string userLocation, string controller, string action, string parameters)
         {
-            return $"Timestamp: {DateTime.Now} - User: {user ?? "not available"} - Location: {userLocation ?? "not available"} - Controller: {controller ?? "not available"} - Action: {action ?? "not available"} - Parameters: {parameters ?? "not available"}";
+            return $"Timestamp: {date} - User: {user ?? "not available"} - Location: {userLocation ?? "not available"} - Controller: {controller ?? "not available"} - Action: {action ?? "not available"} - Parameters: {parameters ?? "not available"}";
         }
     }
 }

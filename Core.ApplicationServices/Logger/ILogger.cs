@@ -29,7 +29,7 @@ namespace Core.ApplicationServices.Logger
 
         void AuditLog(string user, string userLocation, string controller, string action, string parameters);
 
-        void AuditLogDMZ(string user, string userLocation, string controller, string action, string parameters);
+        void AuditLogDMZ(string date, string user, string userLocation, string controller, string action, string parameters);
 
     }
 }

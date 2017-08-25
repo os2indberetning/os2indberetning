@@ -89,7 +89,7 @@ namespace Infrastructure.DmzSync.Services.Impl
             {
                 foreach (var record in _masterAuditlogRepo.AsQueryable().Where(x => !x.WrittenToLogFile).OrderBy(x => x.Id))
                 {
-                    _logger.AuditLogDMZ(record.User, record.Location, record.Controller, record.Action, record.Parameters);
+                    _logger.AuditLogDMZ(record.Date, record.User, record.Location, record.Controller, record.Action, record.Parameters);
                     record.WrittenToLogFile = true;
                 }
             }

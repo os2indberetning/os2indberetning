@@ -163,7 +163,7 @@
                    title: "Medarbejder"
                }, {
                    field: "EmploymentId",
-                   title: "Ma.nummer",
+                   title: "MA.NR.",
                    template: function(data){
                        return data.Employment.EmploymentId;
                    }

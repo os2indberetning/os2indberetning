@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OS2Indberetning.Filters;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Web.Http;
 
 namespace OS2Indberetning.Controllers
 {
+    [AuditlogFilter]
     public class HelpTextController : ApiController
     {
         // GET api/<controller>/5

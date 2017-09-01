@@ -145,7 +145,7 @@ angular.module("application").controller("AdminRejectedReportsController", [
                    title: "Medarbejder"
                }, {
                    field: "EmploymentId",
-                   title: "Ma.nummer",
+                   title: "MA.NR.",
                    template: function(data){
                        return data.Employment.EmploymentId;
                    }
@@ -208,7 +208,7 @@ angular.module("application").controller("AdminRejectedReportsController", [
                    title: "4 km",
                    template: function (data) {
                        if (data.FourKmRule) {
-                           return "<i class='fa fa-check'></i>";
+                           return "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning har fået fratrukket " + data.FourKmRuleDeducted.toFixed(2) + " ud af 4 kilometer'\"><i class='fa fa-check'></i></div>";
                        }
                        return "";
                    }

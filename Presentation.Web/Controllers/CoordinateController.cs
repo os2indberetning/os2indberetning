@@ -4,9 +4,11 @@ using System.Web.Http;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.ApplicationServices.Logger;
+using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
+    [AuditlogFilter]
     public class CoordinateController : ApiController
     {
         private readonly IAddressCoordinates _coordinates;

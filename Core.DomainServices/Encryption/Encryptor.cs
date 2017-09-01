@@ -99,5 +99,10 @@ namespace Core.DomainServices.Encryption
             return appLogin;
         }
 
+        public static string DecryptUser(string encryptedUser)
+        {
+            return StringCipher.Decrypt(encryptedUser, EncryptKey);
+        }
+
     }
 }

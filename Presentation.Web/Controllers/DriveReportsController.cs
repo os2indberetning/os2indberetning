@@ -17,6 +17,7 @@ using System.Configuration;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using OS2Indberetning.Models;
+using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
@@ -251,6 +252,7 @@ namespace OS2Indberetning.Controllers
                         Purpose = currentReport.Purpose,
                         IsExtraDistance = currentReport.IsExtraDistance,
                         FourKmRule = currentReport.FourKmRule,
+                        SixtyDaysRule = currentReport.SixtyDaysRule,
                         DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
                         AmountToReimburse = currentReport.AmountToReimburse,
                         ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced
@@ -391,6 +393,10 @@ namespace OS2Indberetning.Controllers
                 try
                 {
                     Repo.Save();
+                    if (report.FourKmRule)
+                    {
+                        _driveService.CalculateFourKmRuleForOtherReports(report); 
+                    }
                     _driveService.SendMailToUserAndApproverOfEditedReport(report, emailText, CurrentUser, "afvist");
                     return Ok();
                 }
@@ -431,6 +437,7 @@ namespace OS2Indberetning.Controllers
                     try
                     {
                         base.Patch(key, delta);
+                        _driveService.CalculateFourKmRuleForOtherReports(report);
                     }
                     catch (Exception ex)
                     {
@@ -463,16 +470,24 @@ namespace OS2Indberetning.Controllers
         /// <returns></returns>
         public new IHttpActionResult Delete([FromODataUri] int key)
         {
-            if (CurrentUser.IsAdmin)
-            {
-                return base.Delete(key);
-            }
             var report = Repo.AsQueryable().SingleOrDefault(x => x.Id.Equals(key));
             if (report == null)
             {
                 return NotFound();
             }
-            return report.PersonId.Equals(CurrentUser.Id) ? base.Delete(key) : Unauthorized();
+            if (report.PersonId.Equals(CurrentUser.Id) || CurrentUser.IsAdmin)
+            {
+                var deleteResult = base.Delete(key);
+                if (report.FourKmRule)
+                {
+                    _driveService.CalculateFourKmRuleForOtherReports(report); 
+                }
+                return deleteResult;
+            }
+            else
+            {
+                return Unauthorized();
+            }
         }
     }
 }

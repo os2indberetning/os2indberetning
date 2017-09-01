@@ -75,12 +75,17 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             return repo;
         }
 
+        protected IGenericRepository<DriveReport> GetDriveReportRepository()
+        {
+            return Substitute.For<IGenericRepository<DriveReport>>();
+        }
+
         protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData)
         { //TODO changed to make the code compile
             var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
             historyMock.AsQueryable().ReturnsForAnyArgs(new List<AddressHistory>().AsQueryable());
 
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository());
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository(), GetDriveReportRepository());
         }
 
         protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<AddressHistory> historyMockData)
@@ -88,7 +93,7 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
             historyMock.AsQueryable().ReturnsForAnyArgs(historyMockData.AsQueryable());
 
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData), historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository());
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData), historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository(), GetDriveReportRepository());
         }
 
         protected DriveReport GetDriveReport()

@@ -13,6 +13,8 @@ namespace Core.ApplicationServices.Interfaces
         DriveReport Create(DriveReport report);
         void SendMailForRejectedReport(int key, Delta<DriveReport> delta);
 
+        void CalculateFourKmRuleForOtherReports(DriveReport report);
+
         Person GetResponsibleLeaderForReport(DriveReport driveReport);
         Person GetActualLeaderForReport(DriveReport driveReport);
         bool Validate(DriveReport report);

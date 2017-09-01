@@ -43,7 +43,9 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         private IRoute<RouteInformation> _routeMock;
         private IAddressCoordinates _coordinatesMock;
         private IMailSender _mailMock;
+        private IGenericRepository<Person> _personMock;
         private List<DriveReport> repoList;
+        private Core.ApplicationServices.Logger.ILogger _logger;
 
         [SetUp]
         public void SetUp()
@@ -59,6 +61,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _subMock = Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
             _mailMock = Substitute.For<IMailSender>();
             _reportRepoMock = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
+            _personMock = Substitute.For <IGenericRepository<Person>>();
+            _logger = new Core.ApplicationServices.Logger.Logger();
 
             _reportRepoMock.Insert(new DriveReport()).ReturnsForAnyArgs(x => x.Arg<DriveReport>()).AndDoes(x => repoList.Add(x.Arg<DriveReport>())).AndDoes(x => x.Arg<DriveReport>().Id = idCounter).AndDoes(x => idCounter++);
             _reportRepoMock.AsQueryable().ReturnsForAnyArgs(repoList.AsQueryable());
@@ -76,7 +80,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Length = 2000
             });
 
-            _uut = new DriveReportService(_mailMock, _reportRepoMock, _calculatorMock, _orgUnitMock, _emplMock, _subMock, _coordinatesMock, _routeMock, _rateTypeMock);
+            _uut = new DriveReportService(_mailMock, _reportRepoMock, _calculatorMock, _orgUnitMock, _emplMock, _subMock, _coordinatesMock, _routeMock, _rateTypeMock, _personMock, _logger);
 
         }
 

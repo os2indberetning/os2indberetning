@@ -176,6 +176,16 @@
                     width: 50
                 },
                 {
+                    field: "FourKmRuleDeducted", 
+                    title: "4-km fratrukket",
+                    width: 50
+                },
+                { 
+                    field: "DistanceFromHomeToBorder", 
+                    title: "KM til kommunegrænse", 
+                    width: 110 
+                },
+                {
                     field: "SixtyDaysRule", 
                     title: "60-dage",
                     template: function (data) {
@@ -185,11 +195,6 @@
                             return "Ja";
                     },
                     width: 50
-                },
-                { 
-                    field: "DistanceFromHomeToBorder", 
-                    title: "KM til kommunegrænse", 
-                    width: 110 
                 },
                 {
                     field: "Distance", 
@@ -304,7 +309,7 @@
                 var IsRoundTripTemplate = kendo.template(this.columns[5].template);
                 var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
                 var FourKmRuleTemplate = kendo.template(this.columns[7].template);
-                var SixtyDaysRuleTemplate = kendo.template(this.columns[8].template);
+                var SixtyDaysRuleTemplate = kendo.template(this.columns[10].template);
 
                 for (var i = 1; i < sheet0.rows.length-1; i++) {
                     var row = sheet0.rows[i];
@@ -319,12 +324,12 @@
                         FourKmRule: row.cells[7].value
                     };
                     var SixtyDaysRuledataItem = {
-                        SixtyDaysRule: row.cells[8].value
+                        SixtyDaysRule: row.cells[10].value
                     };
                     row.cells[5].value = IsRoundTripTemplate(IsRoundTripdataItem);
                     row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
                     row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
-                    row.cells[8].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
+                    row.cells[10].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
                 }
             }
         }

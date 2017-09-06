@@ -252,6 +252,7 @@ namespace OS2Indberetning.Controllers
                         Purpose = currentReport.Purpose,
                         IsExtraDistance = currentReport.IsExtraDistance,
                         FourKmRule = currentReport.FourKmRule,
+                        FourKmRuleDeducted = currentReport.FourKmRuleDeducted,
                         SixtyDaysRule = currentReport.SixtyDaysRule,
                         DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
                         AmountToReimburse = currentReport.AmountToReimburse,

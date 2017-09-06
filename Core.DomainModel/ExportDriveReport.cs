@@ -14,6 +14,7 @@ namespace Core.DomainModel
         public string Purpose { get; set; }
         public bool? IsExtraDistance { get; set; }
         public bool FourKmRule { get; set; }
+        public double FourKmRuleDeducted { get; set; }
         public bool SixtyDaysRule { get; set; }
         public double DistanceFromHomeToBorder { get; set; }
         public double AmountToReimburse { get; set; }

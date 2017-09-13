@@ -6,14 +6,14 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Data.Entity.Migrations.Infrastructure;
     using System.Resources;
     
-    [GeneratedCode("EntityFramework.Migrations", "6.9.6")]
+    [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
     public sealed partial class AddedIDMFields : IMigrationMetadata
     {
         private readonly ResourceManager Resources = new ResourceManager(typeof(AddedIDMFields));
         
         string IMigrationMetadata.Id
         {
-            get { return "201610171116384_AddedIDMFields"; }
+            get { return "201709131145541_AddedIDMFields"; }
         }
         
         string IMigrationMetadata.Source

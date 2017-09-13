@@ -7,9 +7,9 @@ namespace Infrastructure.DataAccess.Migrations
     {
         public override void Up()
         {
-            AddColumn("Employments", "ServiceNumber", c => c.String(nullable: true));
-            AddColumn("Employments", "InstituteCode", c => c.String(nullable: true));
-            AddColumn("OrgUnits", "OrgOUID", c => c.String(nullable: true));
+            AddColumn("Employments", "ServiceNumber", c => c.String(unicode: false));
+            AddColumn("Employments", "InstituteCode", c => c.String(unicode: false));
+            AddColumn("OrgUnits", "OrgOUID", c => c.String(unicode: false));
         }
         
         public override void Down()

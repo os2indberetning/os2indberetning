@@ -151,9 +151,9 @@
            });
        }
 
-       $scope.generateKMDFileClicked = function () {
+       $scope.generateFileReportClicked = function () {
            /// <summary>
-           /// Opens confirm generate kmd file modal
+           /// Opens confirm generate file report modal
            /// </summary>
            var modalInstance = $modal.open({
                templateUrl: 'App/Admin/HTML/Administration/Modal/ConfirmGenerateFileModalTemplate.html',
@@ -163,16 +163,16 @@
            });
 
            modalInstance.result.then(function (person) {
-               File.generateKMDFile(function () {
-                   NotificationService.AutoFadeNotification("success", "", "Fil til KMD blev genereret.");
+               File.generateFileReport(function () {
+                   NotificationService.AutoFadeNotification("success", "", "Indberetninger blev overført til lønsystem");
                }, function () {
-                   NotificationService.AutoFadeNotification("danger", "", "Fil til KMD blev ikke genereret.");
+                   NotificationService.AutoFadeNotification("danger", "", "Indberetninger blev IKKE overført til lønsystem");
                });
            });
        }
 
 
-       $scope.sendDataToSDClicked = function () {
+       /*$scope.sendDataToSDClicked = function () {
            /// <summary>
            /// Opens confirm generate kmd file modal
            /// </summary>
@@ -192,7 +192,7 @@
                    NotificationService.AutoFadeNotification("danger", "", "Data blev ikke sendt!");
                });
            });
-       }
+       }*/
 
 
    }

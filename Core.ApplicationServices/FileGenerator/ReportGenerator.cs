@@ -7,7 +7,7 @@ using Core.ApplicationServices.Logger;
 
 namespace Core.ApplicationServices.FileGenerator
 {
-    public class ReportGenerator
+    public class ReportGenerator : IReportGenerator
     {
         private readonly IGenericRepository<DriveReport> _reportRepo;
         private readonly IReportFileWriter _fileWriter;

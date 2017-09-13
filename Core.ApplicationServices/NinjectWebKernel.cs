@@ -19,6 +19,7 @@ using Ninject;
 using Ninject.Web.Common;
 using OS2Indberetning;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
+using Core.ApplicationServices.FileGenerator;
 
 namespace Core.ApplicationServices
 {
@@ -75,6 +76,9 @@ namespace Core.ApplicationServices
             kernel.Bind<IOrgUnitService>().To<OrgUnitService>();
             kernel.Bind<ILogger>().To<Logger.Logger>();
             kernel.Bind<IAppLoginService>().To<AppLoginService>();
+            kernel.Bind<ITransferToPayrollService>().To<TransferToPayrollService>();
+            kernel.Bind<IReportGenerator>().To<ReportGenerator>();
+            kernel.Bind<IReportFileWriter>().To<ReportFileWriter>();
         }        
     }
 }

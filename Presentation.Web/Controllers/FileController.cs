@@ -9,6 +9,7 @@ using System.Web.Optimization;
 using Core.ApplicationServices;
 using Core.ApplicationServices.FileGenerator;
 using Core.ApplicationServices.Logger;
+using Core.ApplicationServices.Interfaces;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
@@ -18,14 +19,16 @@ namespace OS2Indberetning.Controllers
     public class FileController : BaseController<DriveReport>
     {
         private readonly IGenericRepository<DriveReport> _repo;
+        private readonly ITransferToPayrollService _transferToPayrollService;
 
         private readonly ILogger _logger;
 
 
 
-        public FileController(IGenericRepository<DriveReport> repo, IGenericRepository<Person> personRepo, ILogger logger) : base(repo, personRepo)
+        public FileController(IGenericRepository<DriveReport> repo, IGenericRepository<Person> personRepo, ITransferToPayrollService transferToPayrollService, ILogger logger) : base(repo, personRepo)
         {
             _repo = repo;
+            _transferToPayrollService = transferToPayrollService;
             _logger = logger;
         }
 
@@ -44,7 +47,7 @@ namespace OS2Indberetning.Controllers
             }
             try
             {
-                new ReportGenerator(_repo, new ReportFileWriter(), _logger).WriteRecordsToFileAndAlterReportStatus();
+                _transferToPayrollService.TransferReportsToPayroll();
                 _logger.Debug($"{GetType().Name}, Get(), Generate KMD file finished");
                 return Ok();
             }

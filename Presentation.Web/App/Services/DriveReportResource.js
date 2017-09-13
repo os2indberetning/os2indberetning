@@ -29,6 +29,7 @@
                 driveReport.KmRate = parseFloat(getKmRate().KmRate);
                 driveReport.TFCode = getKmRate().Type.TFCode;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;
+                driveReport.SixtyDaysRule = $scope.DriveReport.SixtyDaysRule;
 
                 driveReport.KilometerAllowance = $scope.DriveReport.KilometerAllowance;
                 driveReport.Distance = 0;
@@ -168,6 +169,7 @@
                 driveReport.KmRate = parseFloat(getKmRate().KmRate);
                 driveReport.TFCode = getKmRate().Type.TFCode;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;
+                driveReport.SixtyDaysRule = $scope.DriveReport.SixtyDaysRule;
 
                 driveReport.KilometerAllowance = $scope.DriveReport.KilometerAllowance;
                 driveReport.Distance = 0;

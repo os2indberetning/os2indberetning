@@ -33,7 +33,7 @@ namespace DBUpdater
 
             using (var sqlConnection1 = new SqlConnection(_connectionString))
             {
-                string medarbejderView = ConfigurationManager.AppSettings["DATABASE_VIEW_MEDARBEJDER"];
+                string medarbejderView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_MEDARBEJDER"];
 
                 if(medarbejderView == null)
                 {
@@ -47,7 +47,6 @@ namespace DBUpdater
                     Connection = sqlConnection1
                 };
 
-                int? manr = 0;
                 try
                 {
                     sqlConnection1.Open();
@@ -55,37 +54,44 @@ namespace DBUpdater
 
                     while (reader.Read())
                     {
-                        manr = SafeGetInt32(reader, 0);
-                        var currentRow = new Employee
+                        int? manr = 0;
+                        try
                         {
-                            //Fix to see the actual row in log when an exception happens. Look in exception catch.
-                            //MaNr = SafeGetInt32(reader, 0),
-                            MaNr = manr,
-                            AnsaettelsesDato = SafeGetDate(reader, 1),
-                            OphoersDato = SafeGetDate(reader, 2),
-                            Fornavn = SafeGetString(reader, 3),
-                            Efternavn = SafeGetString(reader, 4),
-                            ADBrugerNavn = SafeGetString(reader, 5),
-                            Adresse = SafeGetString(reader, 6),
-                            Stednavn = SafeGetString(reader, 7),
-                            PostNr = SafeGetString(reader, 8) == null ? 0 : int.Parse(SafeGetString(reader, 8)),
-                            By = SafeGetString(reader, 9),
-                            Land = SafeGetString(reader, 10),
-                            Email = SafeGetString(reader, 11),
-                            CPR = SafeGetString(reader, 12),
-                            LOSOrgId = SafeGetInt32(reader, 13),
-                            Leder = reader.GetBoolean(14),
-                            Stillingsbetegnelse = SafeGetString(reader, 15),
-                            Omkostningssted = SafeGetInt64(reader, 16),
-                            AnsatForhold = SafeGetString(reader, 17),
-                            EkstraCiffer = SafeGetInt16(reader, 18)
-                        };
-                        result.Add(currentRow);
+                            manr = SafeGetInt32(reader, 0);
+                            var currentRow = new Employee
+                            {
+                                MaNr = manr,
+                                AnsaettelsesDato = SafeGetDate(reader, 1),
+                                OphoersDato = SafeGetDate(reader, 2),
+                                Fornavn = SafeGetString(reader, 3),
+                                Efternavn = SafeGetString(reader, 4),
+                                ADBrugerNavn = SafeGetString(reader, 5),
+                                Adresse = SafeGetString(reader, 6),
+                                Stednavn = SafeGetString(reader, 7),
+                                PostNr = SafeGetString(reader, 8) == null ? 0 : int.Parse(SafeGetString(reader, 8)),
+                                By = SafeGetString(reader, 9),
+                                Land = SafeGetString(reader, 10),
+                                Email = SafeGetString(reader, 11),
+                                CPR = SafeGetString(reader, 12),
+                                LOSOrgId = SafeGetInt32(reader, 13),
+                                Leder = reader.GetBoolean(14),
+                                Stillingsbetegnelse = SafeGetString(reader, 15),
+                                Omkostningssted = SafeGetInt64(reader, 16),
+                                AnsatForhold = SafeGetString(reader, 17),
+                                EkstraCiffer = SafeGetInt16(reader, 18)
+                            };
+                            result.Add(currentRow);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error($"{this.GetType().Name}, GetEmployeesAsQueryable(), Error when reading data for employee with MaNr={manr}", e);
+                            throw;
+                        }
                     }
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().Name}, GetEmployeesAsQueryable(), Error when importing employees, DATABASE_VIEW_MEDARBEJDER={medarbejderView}, MaNr={manr}", e);
+                    _logger.Error($"{this.GetType().Name}, GetEmployeesAsQueryable(), Error when importing employees, DATABASE_VIEW_MEDARBEJDER={medarbejderView}", e);
                     throw;
                 }
             }
@@ -98,7 +104,7 @@ namespace DBUpdater
         /// <returns></returns>
         public IQueryable<Organisation> GetOrganisationsAsQueryable()
         {
-            string organisationView = ConfigurationManager.AppSettings["DATABASE_VIEW_ORGANISATION"];
+            string organisationView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_ORGANISATION"];
 
             if (organisationView == null)
             {
@@ -121,20 +127,31 @@ namespace DBUpdater
                     var reader = cmd.ExecuteReader();
                     while (reader.Read())
                     {
-                        var currentRow = new Organisation
+                        int LOSOrgId = -1;
+                        try
                         {
-                            LOSOrgId = reader.GetInt32(0),
-                            ParentLosOrgId = SafeGetInt32(reader, 1),
-                            KortNavn = SafeGetString(reader, 2),
-                            Navn = SafeGetString(reader, 3),
-                            Gade = SafeGetString(reader, 4),
-                            Stednavn = SafeGetString(reader, 5),
-                            Postnr = SafeGetInt16(reader, 6),
-                            By = SafeGetString(reader, 7),
-                            Omkostningssted = SafeGetInt64(reader, 8),
-                            Level = reader.GetInt32(9)
-                        };
-                        result.Add(currentRow);
+                            LOSOrgId = reader.GetInt32(0);
+                            var currentRow = new Organisation
+                            {
+                                LOSOrgId = LOSOrgId,
+                                ParentLosOrgId = SafeGetInt32(reader, 1),
+                                KortNavn = SafeGetString(reader, 2),
+                                Navn = SafeGetString(reader, 3),
+                                Gade = SafeGetString(reader, 4),
+                                Stednavn = SafeGetString(reader, 5),
+                                Postnr = SafeGetInt16(reader, 6),
+                                By = SafeGetString(reader, 7),
+                                Omkostningssted = SafeGetInt64(reader, 8),
+                                Level = reader.GetInt32(9)
+                            };
+
+                            result.Add(currentRow);
+                        }
+                        catch (Exception e)
+                        {
+                            _logger.Error($"{this.GetType().Name}, GetOrganisationsAsQueryable(), Error when reading data for LOSOrgId={LOSOrgId}", e);
+                            throw;
+                        }
                     }
                 }
                 catch (Exception e)
@@ -150,7 +167,17 @@ namespace DBUpdater
         {
             if (!reader.IsDBNull(colIndex))
             {
-                return reader.GetDateTime(colIndex);
+                DateTime data;
+                try
+                {
+                    data = reader.GetDateTime(colIndex);
+                }
+                catch (Exception)
+                {
+                    _logger.Error($"{this.GetType().Name}, SafeGetDate(), Error for colIndex={colIndex}");
+                    throw;
+                }
+                return data;
             }
             return null;
         }
@@ -159,7 +186,17 @@ namespace DBUpdater
         {
             if (!reader.IsDBNull(colIndex))
             {
-                return reader.GetString(colIndex);
+                string data;
+                try
+                {
+                    data = reader.GetString(colIndex);
+                }
+                catch (Exception)
+                {
+                    _logger.Error($"{this.GetType().Name}, SafeGetString(), Error for colIndex={colIndex}");
+                    throw;
+                }
+                return data;
             }
             return null;
         }
@@ -171,15 +208,25 @@ namespace DBUpdater
                 // This if statement was added because Syddjurs changed their datatype on a row from smallint to tinyint, while Favrskov did not.
                 // A tinyint is a byte, which is handled by the first check.
                 // A smallint will be handled by the else statement.
-                if (reader.GetFieldType(colIndex) == typeof(byte))
+                int? data;
+                try
                 {
-                    var b = reader.GetByte(colIndex);
-                    return Convert.ToInt32(b);
+                    if (reader.GetFieldType(colIndex) == typeof(byte))
+                    {
+                        var b = reader.GetByte(colIndex);
+                        data = Convert.ToInt32(b);
+                    }
+                    else
+                    {
+                        data = reader.GetInt16(colIndex);
+                    }
                 }
-                else
+                catch (Exception)
                 {
-                    return reader.GetInt16(colIndex);
+                    _logger.Error($"{this.GetType().Name}, SafeGetInt16(), Error for colIndex={colIndex}");
+                    throw;
                 }
+                return data;
             }
             return null;
         }
@@ -303,7 +350,17 @@ namespace DBUpdater
         {
             if (!reader.IsDBNull(colIndex))
             {
-                return reader.GetInt32(colIndex);
+                int? data;
+                try
+                {
+                    data = reader.GetInt32(colIndex);
+                }
+                catch (Exception)
+                {
+                    _logger.Error($"{this.GetType().Name}, SafeGetInt32(), Error for colIndex={colIndex}");
+                    throw;
+                }
+                return data;
             }
             return null;
         }
@@ -312,7 +369,17 @@ namespace DBUpdater
         {
             if (!reader.IsDBNull(colIndex))
             {
-                return reader.GetInt64(colIndex);
+                long? data;
+                try
+                {
+                    data = reader.GetInt64(colIndex);
+                }
+                catch (Exception)
+                {
+                    _logger.Error($"{this.GetType().Name}, SafeGetInt64(), Error for colIndex={colIndex}");
+                    throw;
+                }
+                return data;
             }
             return null;
         }

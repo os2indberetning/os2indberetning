@@ -18,6 +18,7 @@
 
 
        $scope.tableSortHelp = $rootScope.HelpTexts.TableSortHelp.text;
+       $scope.showSubbedHelp = $rootScope.HelpTexts.ShowSubbedHelpText.text;
 
        // Set personId. The value on $rootScope is set in resolve in application.js
        var personId = $rootScope.CurrentUser.Id;
@@ -58,7 +59,7 @@
        $scope.checkAllBox = {};
 
        $scope.checkboxes = {};
-       $scope.checkboxes.showSubbed = false;
+       $scope.checkboxes.showSubbed = true;
 
        var checkedReports = [];
 
@@ -133,7 +134,7 @@
                 type: "odata-v4",
                 transport: {
                     read: {
-                        url: "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
+                        url: "/odata/DriveReports?status=Pending &$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeader &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")",
                         dataType: "json",
                         cache: false
                     },
@@ -196,7 +197,7 @@
                    },
                },{
                    field: "EmploymentId",
-                   title: "Ma.nummer",
+                   title: "MA.NR.",
                    template: function(data){
                        return data.Employment.EmploymentId;
                    }
@@ -260,7 +261,7 @@
                    title: "4 km",
                    template: function (data) {
                        if (data.FourKmRule) {
-                           return "<i class='fa fa-check'></i>";
+                           return "<div class='inline pull-right margin-right-5' kendo-tooltip k-content=\"'Denne indberetning har fået fratrukket " + data.FourKmRuleDeducted.toFixed(2) + " ud af 4 kilometer'\"><i class='fa fa-check'></i></div>";
                        }
                        return "";
                    }

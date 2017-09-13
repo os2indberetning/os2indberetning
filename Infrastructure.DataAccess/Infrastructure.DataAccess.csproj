@@ -397,6 +397,18 @@
     <Compile Include="Migrations\201612201449247_EFUpdateFix.Designer.cs">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201706280903322_SixtyDaysRuleAddedToDriveReport.cs" />
+    <Compile Include="Migrations\201706280903322_SixtyDaysRuleAddedToDriveReport.Designer.cs">
+      <DependentUpon>201706280903322_SixtyDaysRuleAddedToDriveReport.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708040849352_AddedAuditlog.cs" />
+    <Compile Include="Migrations\201708040849352_AddedAuditlog.Designer.cs">
+      <DependentUpon>201708040849352_AddedAuditlog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201708071204441_FourKmRuleDeductedAddedToDriveReport.cs" />
+    <Compile Include="Migrations\201708071204441_FourKmRuleDeductedAddedToDriveReport.Designer.cs">
+      <DependentUpon>201708071204441_FourKmRuleDeductedAddedToDriveReport.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -668,6 +680,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201612201449247_EFUpdateFix.resx">
       <DependentUpon>201612201449247_EFUpdateFix.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201706280903322_SixtyDaysRuleAddedToDriveReport.resx">
+      <DependentUpon>201706280903322_SixtyDaysRuleAddedToDriveReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708040849352_AddedAuditlog.resx">
+      <DependentUpon>201708040849352_AddedAuditlog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201708071204441_FourKmRuleDeductedAddedToDriveReport.resx">
+      <DependentUpon>201708071204441_FourKmRuleDeductedAddedToDriveReport.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -20,9 +20,11 @@ using Core.DomainModel.Example;
 using Core.DomainServices;
 using Ninject;
 using Expression = System.Linq.Expressions.Expression;
+using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
+    [AuditlogFilter]
     public class BaseController<T> : ODataController where T : class
     {
         protected ODataValidationSettings ValidationSettings = new ODataValidationSettings();
@@ -44,7 +46,7 @@ namespace OS2Indberetning.Controllers
             {
                 var initials = httpUser[1].ToLower();
 
-                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials));
+                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials) && p.IsActive);
                 if (CurrentUser == null)
                 {
                     _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");

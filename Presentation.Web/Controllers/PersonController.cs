@@ -14,6 +14,7 @@ using Core.DomainServices.RoutingClasses;
 using Infrastructure.DataAccess;
 using Newtonsoft.Json.Schema;
 using Core.ApplicationServices.Logger;
+using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
@@ -58,7 +59,7 @@ namespace OS2Indberetning.Controllers
             return Ok(res);
         }
 
-        
+
         /// <summary>
         /// GET API endpoint for CurrentUser.
         /// Sets HomeWorkDistance on each of the users employments.

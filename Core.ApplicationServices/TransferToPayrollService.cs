@@ -26,8 +26,9 @@ namespace Core.ApplicationServices
 
         public void TransferReportsToPayroll()
         {
-            bool useSdAsIntegration = false;
+            bool useSdAsIntegration = false; // use KMD as defualt, since that's currently what most use.
             var parseResult = bool.TryParse(ConfigurationManager.AppSettings["UseSd"], out useSdAsIntegration);
+            _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), UseSd configuration = {useSdAsIntegration}");
             if (useSdAsIntegration)
             {
                 SendDataToSDWebservice();

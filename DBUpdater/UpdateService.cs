@@ -310,7 +310,7 @@ namespace DBUpdater
                 return null;
             }
 
-            var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnitId == orgUnit.Id && x.EmploymentId == empl.MaNr);
+            var employment = _emplRepo.AsQueryable().FirstOrDefault(x => x.OrgUnitId == orgUnit.Id && string.Equals(x.EmploymentId, empl.MaNr));
 
             //It is ok that we do not save after inserting untill
             //we are done as we loop over employments from the view, and 
@@ -329,7 +329,7 @@ namespace DBUpdater
             employment.ExtraNumber = empl.EkstraCiffer ?? 0;
             employment.EmploymentType = int.Parse(empl.AnsatForhold);
             employment.CostCenter = empl.Omkostningssted;
-            employment.EmploymentId = empl.MaNr ?? 0;
+            employment.EmploymentId = string.IsNullOrEmpty(empl.MaNr) ? "0" : empl.MaNr;
 
             if (empl.OphoersDato != null)
             {
@@ -980,9 +980,8 @@ namespace DBUpdater
             employment.StartDateTimestamp = (Int32)(startDate.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             employment.ExtraNumber = 0;
             employment.CostCenter = 0;
-            employment.EmploymentId = 0;
+            employment.EmploymentId = empl.Tjenestenummer;
             employment.InstituteCode = empl.Institutionskode;
-            employment.ServiceNumber = empl.Tjenestenummer;
 
 
             if (empl.AnsættelseTil != null && empl.AnsættelseTil != Convert.ToDateTime("31-12-9999"))

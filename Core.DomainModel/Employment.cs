@@ -6,7 +6,7 @@ namespace Core.DomainModel
     public class Employment
     {
         public int Id { get; set; }
-        public int EmploymentId { get; set; }
+        public string EmploymentId { get; set; } // string datatype to handle IDs starting with 0 or containing characters.
         public string Position { get; set; }
         public bool IsLeader { get; set; }
         public long StartDateTimestamp { get; set; }
@@ -23,7 +23,6 @@ namespace Core.DomainModel
         public int OrgUnitId { get; set; }
         public virtual OrgUnit OrgUnit { get; set; }
         public long? CostCenter { get; set; }
-        public string ServiceNumber { get; set; }
         public string InstituteCode { get; set; }
     }
 

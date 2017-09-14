@@ -8,7 +8,7 @@ namespace DBUpdater.Models
 {
     public class Employee
     {
-        public int? MaNr { get; set; }
+        public string MaNr { get; set; }
         public DateTime? AnsaettelsesDato { get; set; }
         public DateTime? OphoersDato { get; set; }
         public string Fornavn { get; set; }

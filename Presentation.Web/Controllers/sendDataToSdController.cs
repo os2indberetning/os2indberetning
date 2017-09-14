@@ -85,7 +85,7 @@ namespace OS2Indberetning.Controllers
                 try
                 {
                     opret.InddataStruktur.AarsagTekst = t.Purpose;
-                    opret.InddataStruktur.AnsaettelseIdentifikator = t.Employment.ServiceNumber;
+                    opret.InddataStruktur.AnsaettelseIdentifikator = t.Employment.EmploymentId;
                     opret.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? "";
                     opret.InddataStruktur.PersonnummerIdentifikator = t.Person.CprNumber;
                     opret.InddataStruktur.RegistreringTypeIdentifikator = t.TFCode;
@@ -122,8 +122,8 @@ namespace OS2Indberetning.Controllers
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {t.Employment.ServiceNumber}, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", e);
-                    _logger.Error($"Fejl for medarbejder: Servicenummer = {t.Employment.ServiceNumber}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}");
+                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {t.Employment.EmploymentId}, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", e);
+                    _logger.Error($"Fejl for medarbejder: Servicenummer = {t.Employment.EmploymentId}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}");
                     countFailed++;
                 }
             }

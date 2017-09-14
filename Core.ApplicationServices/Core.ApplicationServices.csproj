@@ -80,6 +80,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.2\lib\net45\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Http, Version=5.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -129,6 +131,11 @@
     <Compile Include="MailerService\Interface\IMailService.cs" />
     <Compile Include="NinjectDependencyScope.cs" />
     <Compile Include="NinjectWebKernel.cs" />
+    <Compile Include="Service References\SdService1\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="SubstituteService.cs" />
     <Compile Include="RatePostService.cs" />
     <Compile Include="DriveReportService.cs" />
@@ -147,6 +154,52 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+    <None Include="Service References\SdService1\Core.ApplicationServices.SdService1.KoerselOpret20120201OperationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SdService1\Core.ApplicationServices.SdService1.KoerselOpret20120201Type.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SdService1\CPR_PersonCivilRegistrationIdentifier.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\KoerselOpret20120201.wsdl" />
+    <None Include="Service References\SdService1\SD_AarsagTekst_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_EmploymentIdentifier_20111201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_InstitutionIdentifier_20111201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KilometerMaal_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KoerselDato_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KoerselOpretInterface_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KoerselOpretRequestInterface_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KoerselOpretRequest_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KoertFraTekst_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_KoertTilTekst_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_Regel60DageIndikator_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Service References\SdService1\SD_RegistreringTypeIdentifikator_20120201.xsd">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.DmzModel\Core.DmzModel.csproj">
@@ -176,6 +229,21 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadataStorage Include="Service References\SdService1\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SdService1\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SdService1\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SdService1\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />

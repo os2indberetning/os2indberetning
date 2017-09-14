@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class EmploymentIdDatatypeChanged : IMigrationMetadata
+    public sealed partial class EmploymentIdDatatypeChange : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(EmploymentIdDatatypeChanged));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(EmploymentIdDatatypeChange));
         
         string IMigrationMetadata.Id
         {
-            get { return "201706271216417_EmploymentIdDatatypeChanged"; }
+            get { return "201709140735147_EmploymentIdDatatypeChange"; }
         }
         
         string IMigrationMetadata.Source

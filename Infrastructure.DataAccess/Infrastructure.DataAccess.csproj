@@ -408,9 +408,10 @@
     <Compile Include="Migrations\201709131145541_AddedIDMFields.cs" />
     <Compile Include="Migrations\201709131145541_AddedIDMFields.Designer.cs">
       <DependentUpon>201709131145541_AddedIDMFields.cs</DependentUpon>
-    <Compile Include="Migrations\201706271216417_EmploymentIdDatatypeChanged.cs" />
-    <Compile Include="Migrations\201706271216417_EmploymentIdDatatypeChanged.Designer.cs">
-      <DependentUpon>201706271216417_EmploymentIdDatatypeChanged.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201709140735147_EmploymentIdDatatypeChange.cs" />
+    <Compile Include="Migrations\201709140735147_EmploymentIdDatatypeChange.Designer.cs">
+      <DependentUpon>201709140735147_EmploymentIdDatatypeChange.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
@@ -692,8 +693,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201709131145541_AddedIDMFields.resx">
       <DependentUpon>201709131145541_AddedIDMFields.cs</DependentUpon>
-    <EmbeddedResource Include="Migrations\201706271216417_EmploymentIdDatatypeChanged.resx">
-      <DependentUpon>201706271216417_EmploymentIdDatatypeChanged.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201709140735147_EmploymentIdDatatypeChange.resx">
+      <DependentUpon>201709140735147_EmploymentIdDatatypeChange.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

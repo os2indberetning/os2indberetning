@@ -3,7 +3,7 @@ namespace Infrastructure.DataAccess.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class EmploymentIdDatatypeChanged : DbMigration
+    public partial class EmploymentIdDatatypeChange : DbMigration
     {
         public override void Up()
         {
@@ -13,8 +13,8 @@ namespace Infrastructure.DataAccess.Migrations
         
         public override void Down()
         {
-            AlterColumn("Employments", "EmploymentId", c => c.Int(nullable: false));
             AddColumn("Employments", "ServiceNumber", c => c.String(unicode: false));
+            AlterColumn("Employments", "EmploymentId", c => c.Int(nullable: false));
         }
     }
 }

@@ -18,9 +18,10 @@ namespace Core.ApplicationServices
         private readonly IGenericRepository<DriveReport> _driveReportRepo;
         private readonly ILogger _logger;
 
-        public TransferToPayrollService(IReportGenerator reportGenerator, ILogger logger)
+        public TransferToPayrollService(IReportGenerator reportGenerator, IGenericRepository<DriveReport> driveReportRepo, ILogger logger)
         {
             _reportGenerator = reportGenerator;
+            _driveReportRepo = driveReportRepo;
             _logger = logger;
         }
 
@@ -46,72 +47,67 @@ namespace Core.ApplicationServices
 
         private void SendDataToSDWebservice()
         {
+            SdWebService.KoerselOpret20120201OperationRequest operationRequest;
+            SdWebService.KoerselOpret20120201PortTypeClient portTypeClient;
             int countFailed = 0;
             int countSucces = 0;
 
-            _logger.Debug("----- Begynd afsendelse -----");
-
-            SdService1.KoerselOpret20120201OperationRequest opret;
-            SdService1.KoerselOpret20120201PortTypeClient client;
-
             try
             {
-                opret = new SdService1.KoerselOpret20120201OperationRequest();
-                client = new SdService1.KoerselOpret20120201PortTypeClient();
-                client.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"] ?? "";
-                client.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"] ?? "";
-                // SdService.KoerselOpret20120201Type type = new SdService.KoerselOpret20120201Type();
-                // SdService.KoerselOpret20120201OperationResponse respone = new SdService.KoerselOpret20120201OperationResponse();
+                operationRequest = new SdWebService.KoerselOpret20120201OperationRequest();
+                portTypeClient = new SdWebService.KoerselOpret20120201PortTypeClient();
+                portTypeClient.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"] ?? "";
+                portTypeClient.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"] ?? "";
 
-                opret.InddataStruktur = new SdService1.KoerselOpretRequestType();
+                operationRequest.InddataStruktur = new SdWebService.KoerselOpretRequestType();
             }
             catch (Exception e)
             {
-                _logger.Debug($"{this.GetType().ToString()}, sendDataToSd(), error when initating SD client");
-                _logger.Debug("Fejl ved initialisering af kontakt til server, ingen indberetninger er afsendt.");
+                _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), error when initating SD client", e);
                 throw e;
             }
 
-            _logger.Debug($"{this.GetType().ToString()}, sendDataToSd(), ----- Loop start -----");
+            var reports = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList();
+            _logger.Error($"{this.GetType().ToString()}, SendDataToSDWebservice(), Number of reports to send: {reports.Count}");
 
-            foreach (var t in _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted).ToList())
+            foreach (var report in reports)
             {
-                double koerselDato = t.DriveDateTimestamp;
+                double koerselDato = report.DriveDateTimestamp;
                 System.DateTime KoerseldateTime = new System.DateTime(1970, 1, 1, 0, 0, 0, 0);
                 KoerseldateTime = KoerseldateTime.AddSeconds(koerselDato);
 
                 try
                 {
-                    opret.InddataStruktur.AarsagTekst = t.Purpose;
-                    opret.InddataStruktur.AnsaettelseIdentifikator = t.Employment.EmploymentId;
-                    opret.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? "";
-                    opret.InddataStruktur.PersonnummerIdentifikator = t.Person.CprNumber;
-                    opret.InddataStruktur.RegistreringTypeIdentifikator = t.TFCode;
-                    opret.InddataStruktur.KoerselDato = KoerseldateTime.Date;
-                    opret.InddataStruktur.KilometerMaal = Convert.ToDecimal(t.Distance);
+                    operationRequest.InddataStruktur.AarsagTekst = report.Purpose;
+                    operationRequest.InddataStruktur.AnsaettelseIdentifikator = report.Employment.EmploymentId;
+                    operationRequest.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? "";
+                    operationRequest.InddataStruktur.PersonnummerIdentifikator = report.Person.CprNumber;
+                    operationRequest.InddataStruktur.RegistreringTypeIdentifikator = report.TFCode;
+                    operationRequest.InddataStruktur.KoerselDato = KoerseldateTime.Date;
+                    operationRequest.InddataStruktur.KilometerMaal = Convert.ToDecimal(report.Distance);
 
-                    var startPoint = t.DriveReportPoints.Where(d => d.DriveReportId == t.Id && d.PreviousPointId == null && d.NextPointId != null).FirstOrDefault();
+                    var startPoint = report.DriveReportPoints.Where(d => d.DriveReportId == report.Id && d.PreviousPointId == null && d.NextPointId != null).FirstOrDefault();
                     if (startPoint != null)
                     {
-                        opret.InddataStruktur.KoertFraTekst = startPoint.StreetName + ", " + startPoint.StreetNumber + ", " + startPoint.ZipCode + ", " + startPoint.Town;
+                        operationRequest.InddataStruktur.KoertFraTekst = startPoint.StreetName + ", " + startPoint.StreetNumber + ", " + startPoint.ZipCode + ", " + startPoint.Town;
                     }
-                    var endpoint = t.DriveReportPoints.Where(d => d.DriveReportId == t.Id && d.PreviousPointId == null && d.NextPointId != null).FirstOrDefault();
+                    var endpoint = report.DriveReportPoints.Where(d => d.DriveReportId == report.Id && d.PreviousPointId == null && d.NextPointId != null).FirstOrDefault();
 
                     if (endpoint != null)
                     {
-                        opret.InddataStruktur.KoertTilTekst = endpoint.StreetName + ", " + endpoint.StreetNumber + ", " + endpoint.ZipCode + ", " + endpoint.Town;
+                        operationRequest.InddataStruktur.KoertTilTekst = endpoint.StreetName + ", " + endpoint.StreetNumber + ", " + endpoint.ZipCode + ", " + endpoint.Town;
                     }
-                    opret.InddataStruktur.Regel60DageIndikator = false;
+                    operationRequest.InddataStruktur.Regel60DageIndikator = false;
 
-                    //send data to SD
+                    // Send data to SD
 
-                    var response = client.KoerselOpret20120201Operation(opret.InddataStruktur);
+                    var response = portTypeClient.KoerselOpret20120201Operation(operationRequest.InddataStruktur);
 
-                    t.Status = ReportStatus.Invoiced;
+                    report.Status = ReportStatus.Invoiced;
 
                     var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
                     var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
-                    t.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
+                    report.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
 
                     _driveReportRepo.Save();
 
@@ -120,8 +116,8 @@ namespace Core.ApplicationServices
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {t.Employment.EmploymentId}, EmploymentId = {t.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", e);
-                    _logger.Error($"Fejl for medarbejder: Servicenummer = {t.Employment.EmploymentId}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}");
+                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), error when sending data, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Kørselsdato = {KoerseldateTime.Date}", e);
+                    _logger.Error($"Fejl for medarbejder: Servicenummer = {report.Employment.EmploymentId}, Kørselsdato = {KoerseldateTime.Date} --- Fejlbesked fra SD server: {e.Message}");
                     countFailed++;
                 }
             }

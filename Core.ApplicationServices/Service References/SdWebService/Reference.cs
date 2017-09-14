@@ -8,24 +8,24 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Core.ApplicationServices.SDService {
+namespace Core.ApplicationServices.SdWebService {
     
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    [System.ServiceModel.ServiceContractAttribute(Namespace="www.sd.dk/sdws/KoerselOpret20120201", ConfigurationName="SDService.KoerselOpret20120201PortType")]
+    [System.ServiceModel.ServiceContractAttribute(Namespace="www.sd.dk/sdws/KoerselOpret20120201", ConfigurationName="SdWebService.KoerselOpret20120201PortType")]
     public interface KoerselOpret20120201PortType {
         
         // CODEGEN: Generating message contract since the operation KoerselOpret20120201Operation is neither RPC nor document wrapped.
         [System.ServiceModel.OperationContractAttribute(Action="https://service.sd.dk/sdws/services/KoerselOpret20120201", ReplyAction="*")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse KoerselOpret20120201Operation(Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest request);
+        Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse KoerselOpret20120201Operation(Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest request);
         
         [System.ServiceModel.OperationContractAttribute(Action="https://service.sd.dk/sdws/services/KoerselOpret20120201", ReplyAction="*")]
-        System.Threading.Tasks.Task<Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse> KoerselOpret20120201OperationAsync(Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest request);
+        System.Threading.Tasks.Task<Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse> KoerselOpret20120201OperationAsync(Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest request);
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -183,7 +183,7 @@ namespace Core.ApplicationServices.SDService {
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.6.1064.2")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("System.Xml", "4.7.2102.0")]
     [System.SerializableAttribute()]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -235,12 +235,12 @@ namespace Core.ApplicationServices.SDService {
     public partial class KoerselOpret20120201OperationRequest {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:oio:sd:snitflader:2012.02.01", Order=0)]
-        public Core.ApplicationServices.SDService.KoerselOpretRequestType InddataStruktur;
+        public Core.ApplicationServices.SdWebService.KoerselOpretRequestType InddataStruktur;
         
         public KoerselOpret20120201OperationRequest() {
         }
         
-        public KoerselOpret20120201OperationRequest(Core.ApplicationServices.SDService.KoerselOpretRequestType InddataStruktur) {
+        public KoerselOpret20120201OperationRequest(Core.ApplicationServices.SdWebService.KoerselOpretRequestType InddataStruktur) {
             this.InddataStruktur = InddataStruktur;
         }
     }
@@ -252,23 +252,23 @@ namespace Core.ApplicationServices.SDService {
     public partial class KoerselOpret20120201OperationResponse {
         
         [System.ServiceModel.MessageBodyMemberAttribute(Namespace="urn:oio:sd:snitflader:2012.02.01", Order=0)]
-        public Core.ApplicationServices.SDService.KoerselOpret20120201Type KoerselOpret20120201;
+        public Core.ApplicationServices.SdWebService.KoerselOpret20120201Type KoerselOpret20120201;
         
         public KoerselOpret20120201OperationResponse() {
         }
         
-        public KoerselOpret20120201OperationResponse(Core.ApplicationServices.SDService.KoerselOpret20120201Type KoerselOpret20120201) {
+        public KoerselOpret20120201OperationResponse(Core.ApplicationServices.SdWebService.KoerselOpret20120201Type KoerselOpret20120201) {
             this.KoerselOpret20120201 = KoerselOpret20120201;
         }
     }
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public interface KoerselOpret20120201PortTypeChannel : Core.ApplicationServices.SDService.KoerselOpret20120201PortType, System.ServiceModel.IClientChannel {
+    public interface KoerselOpret20120201PortTypeChannel : Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType, System.ServiceModel.IClientChannel {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.CodeDom.Compiler.GeneratedCodeAttribute("System.ServiceModel", "4.0.0.0")]
-    public partial class KoerselOpret20120201PortTypeClient : System.ServiceModel.ClientBase<Core.ApplicationServices.SDService.KoerselOpret20120201PortType>, Core.ApplicationServices.SDService.KoerselOpret20120201PortType {
+    public partial class KoerselOpret20120201PortTypeClient : System.ServiceModel.ClientBase<Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType>, Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType {
         
         public KoerselOpret20120201PortTypeClient() {
         }
@@ -290,26 +290,26 @@ namespace Core.ApplicationServices.SDService {
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse Core.ApplicationServices.SDService.KoerselOpret20120201PortType.KoerselOpret20120201Operation(Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest request) {
+        Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType.KoerselOpret20120201Operation(Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest request) {
             return base.Channel.KoerselOpret20120201Operation(request);
         }
         
-        public Core.ApplicationServices.SDService.KoerselOpret20120201Type KoerselOpret20120201Operation(Core.ApplicationServices.SDService.KoerselOpretRequestType InddataStruktur) {
-            Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest inValue = new Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest();
+        public Core.ApplicationServices.SdWebService.KoerselOpret20120201Type KoerselOpret20120201Operation(Core.ApplicationServices.SdWebService.KoerselOpretRequestType InddataStruktur) {
+            Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest inValue = new Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest();
             inValue.InddataStruktur = InddataStruktur;
-            Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse retVal = ((Core.ApplicationServices.SDService.KoerselOpret20120201PortType)(this)).KoerselOpret20120201Operation(inValue);
+            Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse retVal = ((Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType)(this)).KoerselOpret20120201Operation(inValue);
             return retVal.KoerselOpret20120201;
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
-        System.Threading.Tasks.Task<Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse> Core.ApplicationServices.SDService.KoerselOpret20120201PortType.KoerselOpret20120201OperationAsync(Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest request) {
+        System.Threading.Tasks.Task<Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse> Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType.KoerselOpret20120201OperationAsync(Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest request) {
             return base.Channel.KoerselOpret20120201OperationAsync(request);
         }
         
-        public System.Threading.Tasks.Task<Core.ApplicationServices.SDService.KoerselOpret20120201OperationResponse> KoerselOpret20120201OperationAsync(Core.ApplicationServices.SDService.KoerselOpretRequestType InddataStruktur) {
-            Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest inValue = new Core.ApplicationServices.SDService.KoerselOpret20120201OperationRequest();
+        public System.Threading.Tasks.Task<Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse> KoerselOpret20120201OperationAsync(Core.ApplicationServices.SdWebService.KoerselOpretRequestType InddataStruktur) {
+            Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest inValue = new Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationRequest();
             inValue.InddataStruktur = InddataStruktur;
-            return ((Core.ApplicationServices.SDService.KoerselOpret20120201PortType)(this)).KoerselOpret20120201OperationAsync(inValue);
+            return ((Core.ApplicationServices.SdWebService.KoerselOpret20120201PortType)(this)).KoerselOpret20120201OperationAsync(inValue);
         }
     }
 }

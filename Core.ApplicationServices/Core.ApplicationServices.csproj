@@ -131,7 +131,7 @@
     <Compile Include="MailerService\Interface\IMailService.cs" />
     <Compile Include="NinjectDependencyScope.cs" />
     <Compile Include="NinjectWebKernel.cs" />
-    <Compile Include="Service References\SdService1\Reference.cs">
+    <Compile Include="Service References\SdWebService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Reference.svcmap</DependentUpon>
@@ -154,50 +154,50 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Service References\SdService1\Core.ApplicationServices.SdService1.KoerselOpret20120201OperationResponse.datasource">
+    <None Include="Service References\SdWebService\Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\SdService1\Core.ApplicationServices.SdService1.KoerselOpret20120201Type.datasource">
+    <None Include="Service References\SdWebService\Core.ApplicationServices.SdWebService.KoerselOpret20120201Type.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
-    <None Include="Service References\SdService1\CPR_PersonCivilRegistrationIdentifier.xsd">
+    <None Include="Service References\SdWebService\CPR_PersonCivilRegistrationIdentifier.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\KoerselOpret20120201.wsdl" />
-    <None Include="Service References\SdService1\SD_AarsagTekst_20120201.xsd">
+    <None Include="Service References\SdWebService\KoerselOpret20120201.wsdl" />
+    <None Include="Service References\SdWebService\SD_AarsagTekst_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_EmploymentIdentifier_20111201.xsd">
+    <None Include="Service References\SdWebService\SD_EmploymentIdentifier_20111201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_InstitutionIdentifier_20111201.xsd">
+    <None Include="Service References\SdWebService\SD_InstitutionIdentifier_20111201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KilometerMaal_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KilometerMaal_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KoerselDato_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KoerselDato_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KoerselOpretInterface_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KoerselOpretInterface_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KoerselOpretRequestInterface_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KoerselOpretRequestInterface_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KoerselOpretRequest_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KoerselOpretRequest_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KoertFraTekst_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KoertFraTekst_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_KoertTilTekst_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_KoertTilTekst_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_Regel60DageIndikator_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_Regel60DageIndikator_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
-    <None Include="Service References\SdService1\SD_RegistreringTypeIdentifikator_20120201.xsd">
+    <None Include="Service References\SdWebService\SD_RegistreringTypeIdentifikator_20120201.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -231,16 +231,16 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
-    <WCFMetadataStorage Include="Service References\SdService1\" />
+    <WCFMetadataStorage Include="Service References\SdWebService\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\SdService1\configuration91.svcinfo" />
+    <None Include="Service References\SdWebService\configuration91.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\SdService1\configuration.svcinfo" />
+    <None Include="Service References\SdWebService\configuration.svcinfo" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Service References\SdService1\Reference.svcmap">
+    <None Include="Service References\SdWebService\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

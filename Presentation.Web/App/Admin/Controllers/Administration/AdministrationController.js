@@ -85,9 +85,41 @@
                    template: function (data) {
                        return "<a ng-click='removeAdmin(" + data.Id + ",\"" + data.FullName + "\")'>Slet</a>";
                    }
+               }, {
+                   field: "IsAdmin",
+                   title: "isadmin",
+                   template: function (data) {
+                       if (data.IsAdmin) {
+                           return "<input type='checkbox' ng-click='rowChecked(" + data.Id + ", false)' checked></input>";
+                       } else {
+                           return "<input type='checkbox' ng-click='rowChecked(" + data.Id + ", true)'></input>";
+                       }
+                   }
                }
            ],
        };
+
+       $scope.rowChecked = function (id, newValue) {
+        /// <summary>
+        /// Is called when the user checks an orgunit in the grid.
+        /// Patches HasAccessToFourKmRule on the backend.
+        /// </summary>
+        /// <param name="id"></param>
+
+        Person.patch({ id: id }, { "IsAdmin": newValue }).$promise.then(function () {
+            if (newValue) {
+                NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel tilføjet.");
+            } else {
+                NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel fjernet.");
+            }
+
+            $scope.gridContainer.grid.dataSource.read();
+            //// Reload CurrentUser to update FourKmRule in DrivingController
+           // Person.GetCurrentUser().$promise.then(function (data) {
+             //   $scope.CurrentUser = data;
+           //});
+        });
+    }
 
        $scope.removeAdmin = function (Id, FullName) {
            /// <summary>

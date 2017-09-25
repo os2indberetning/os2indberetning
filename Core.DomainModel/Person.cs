@@ -4,6 +4,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.DomainModel
 {
+    public enum AdminType
+    {
+        NotAdmin = 0,
+        AdminWithoutMailNotifications = 1,
+        Admin = 2
+    }
+
     public class Person
     {
         [Key]

@@ -391,6 +391,7 @@ namespace OS2Indberetning.Controllers
                 report.Status = ReportStatus.Rejected;
                 report.Comment = emailText;
                 report.ClosedDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                report.ApprovedBy = CurrentUser;
                 try
                 {
                     Repo.Save();

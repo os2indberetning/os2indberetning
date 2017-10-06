@@ -25,7 +25,7 @@ namespace ApplicationServices.Test.FileGenerator
 
         private static readonly Employment Employment = new Employment
         {
-            EmploymentId = 2,
+            EmploymentId = "2",
             EmploymentType = 1
         };
 

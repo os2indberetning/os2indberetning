@@ -75,17 +75,25 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             return repo;
         }
 
-        protected IGenericRepository<DriveReport> GetDriveReportRepository()
+        protected IGenericRepository<DriveReport> GetDriveReportRepository(List<DriveReport> driveReportMockData = null)
         {
-            return Substitute.For<IGenericRepository<DriveReport>>();
+            var repo = Substitute.For<IGenericRepository<DriveReport>>();
+            var list = driveReportMockData ?? new List<DriveReport>();
+
+            // repo.AsQueryable().Returns(x => driveReportMockData.AsQueryable());
+            repo.AsQueryable().Returns(info => list.AsQueryable());
+
+            return repo;
         }
 
-        protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData)
+        protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<DriveReport> driveReportMockData = null)
         { //TODO changed to make the code compile
             var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
             historyMock.AsQueryable().ReturnsForAnyArgs(new List<AddressHistory>().AsQueryable());
 
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository(), GetDriveReportRepository());
+            var driveReportRepo = GetDriveReportRepository(driveReportMockData);
+
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository(), driveReportRepo);
         }
 
         protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<AddressHistory> historyMockData)

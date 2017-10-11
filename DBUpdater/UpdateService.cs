@@ -266,10 +266,12 @@ namespace DBUpdater
             _emplRepo.Save();
 
             // Makes all employees wihtout employments inactive.
-            var peopleWithoutEmployment = _personRepo.AsQueryable().Where(x => !x.Employments.Any());
-            foreach(var person in peopleWithoutEmployment)
+            foreach(var person in _personRepo.AsQueryable().ToList())
             {
-                person.IsActive = false;
+                if (person.Employments == null || !person.Employments.Any())
+                {
+                    person.IsActive = false;
+                }
             }
             _personRepo.Save();
 

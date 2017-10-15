@@ -42,7 +42,15 @@
         };
 
         DriveReport.getCalculationMethod().$promise.then(function (res) {
-            $scope.alternativeCalculation = res.value;
+            //Used for switch calculation profile between (ndk = Nordjurskommune, "" = standard)
+            //$scope.alternativeCalculation = res.value;
+            $scope.alternativeCalculationKey = res.value;
+            if (res.value === "") {
+                $scope.alternativeCalculation = false;
+            } else {
+                $scope.alternativeCalculation = true;
+            }
+            //
             if (!$scope.alternativeCalculation) {
                 $scope.buildDataSource.data([
                     { value: "Calculated", key: "Beregnet" },
@@ -52,13 +60,15 @@
                 //Set calculation specific text
                 $scope.alternativeCalculationTextReimbursement = "Merkørselsfradrag";
             } else {
-                $scope.buildDataSource.data([
-                    { value: "Calculated", key: "Beregnet" },
-                    { value: "Read", key: "Aflæst" },
-                ]);
-                //Set calculation specific text
-                $scope.alternativeCalculationTextReimbursement = "Fradrag";
-                $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
+                if ($scope.alternativeCalculationKey === "ndk") {
+                    $scope.buildDataSource.data([
+                        { value: "Calculated", key: "Beregnet" },
+                        { value: "Read", key: "Aflæst" },
+                    ]);
+                    //Set calculation specific text
+                    $scope.alternativeCalculationTextReimbursement = "Fradrag";
+                    $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
+                }
             }
         });
 
@@ -914,9 +924,11 @@
                     $scope.AlternativeCalculationTextDistanceForReport = "";
                 }
                 else {
-                    console.log("altcalc:" + $scope.alternativeCalculation);
-                    console.log("usingfourkm:" + $scope.DriveReport.FourKmRule.Using);
-                    $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
+                    if ($scope.alternativeCalculationKey === "ndk") {
+                        console.log("altcalc:" + $scope.alternativeCalculation);
+                        console.log("usingfourkm:" + $scope.DriveReport.FourKmRule.Using);
+                        $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
+                    }
                 }
             }
             updateDrivenKm();
@@ -994,14 +1006,61 @@
             /// <summary>
             /// Updates drivenkm fields under map widget.
             /// </summary>
+            $timeout(function () {
             if ($scope.DriveReport.KilometerAllowance != "CalculatedWithoutExtraDistance") {
-                if (routeStartsAtHome() && routeEndsAtHome()) {
-                    $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
-                } else if (routeStartsAtHome() || routeEndsAtHome()) {
-                    $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
-                } else {
-                    $scope.TransportAllowance = 0;
+                if (!$scope.alternativeCalculation) {
+
+                    if (routeStartsAtHome() && routeEndsAtHome()) {
+                        $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
+                    } else if (routeStartsAtHome() || routeEndsAtHome()) {
+                        $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
+                    } else {
+                        $scope.TransportAllowance = 0;
+                    }
                 }
+                else {
+                    // Get route based on work address if it starts or ends at home.
+                    if ($scope.alternativeCalculationKey === "ndk") {
+                        if (routeStartsAtHome() || routeEndsAtHome()) {
+                            var employmentId = $scope.DriveReport.Position;
+                            var transportType = 0;
+                            if (getKmRate($scope.DriveReport.KmRate).Type.IsBike) {
+                                transportType = 1;
+                            }
+                            var adresses = [];
+                            if (employmentId != undefined && transportType != undefined) {
+                                angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
+                                    // Format all addresses and add them to postRequest
+                                    if (!$scope.isAddressNameSet(addr) && addr.Personal != "") {
+                                        var format = AddressFormatter.fn(addr.Personal);
+                                        adresses.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
+                                    } else if ($scope.isAddressNameSet(addr)) {
+                                        var format = AddressFormatter.fn(addr.Name);
+                                        adresses.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
+                                    }
+                                });
+                                $scope.TransportAllowance = 0;
+                                DriveReport.getNDKWorkRouteCalculation({ employmentId: employmentId, transportType: transportType, startsHome: routeStartsAtHome(), endsHome: routeEndsAtHome() }, adresses).$promise.then(function (res) {
+                                    $scope.NDKWorkRouteDistance = res.resultData;
+                                    if ($scope.latestMapDistance != undefined) {
+                                        if ($scope.latestMapDistance > $scope.NDKWorkRouteDistance) {
+                                            $scope.TransportAllowance = $scope.latestMapDistance - $scope.NDKWorkRouteDistance;
+                                            if ($scope.DriveReport.IsRoundTrip) {
+                                                $scope.TransportAllowance = Number($scope.TransportAllowance) * 2;
+                                            }
+                                        }
+                                    }
+                                });
+                            } else {
+                                $scope.TransportAllowance = 0;
+                            }
+
+                        } else {
+                            $scope.TransportAllowance = 0;
+                        }
+                    }
+                }
+                //
             } else {
                 $scope.TransportAllowance = 0;
             }
@@ -1041,6 +1100,7 @@
                     $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2);
                 }
             }
+           });
         }
 
         $scope.readDistanceChanged = function () {

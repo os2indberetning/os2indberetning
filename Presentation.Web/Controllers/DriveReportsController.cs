@@ -136,17 +136,25 @@ namespace OS2Indberetning.Controllers
         public IHttpActionResult GetCalculationMethod()
         {
             bool isAltCalc;
-            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
+            //bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
+            string CalcMethod = ConfigurationManager.AppSettings["AlternativeCalculationMethod"];
+            if (CalcMethod == "")
+                isAltCalc = false;
+            else
+                isAltCalc = true;
+
             _logger.Debug($"{GetType().Name}, GetCalculationMethod(), isAltCalc={isAltCalc}");
 
-            if (parseSucces)
-            {
-                return Ok(isAltCalc);
-            }
-            else
-            {
-                return Ok(false);
-            }
+            return Ok(isAltCalc);
+
+            //if (parseSucces)
+            //{
+            //    return Ok(isAltCalc);
+            //}
+            //else
+            //{
+            //    return Ok(false);
+            //}
 
         }
 

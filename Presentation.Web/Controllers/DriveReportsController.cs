@@ -145,7 +145,9 @@ namespace OS2Indberetning.Controllers
 
             _logger.Debug($"{GetType().Name}, GetCalculationMethod(), isAltCalc={isAltCalc}");
 
-            return Ok(isAltCalc);
+            //return Ok(isAltCalc);
+            return Ok(CalcMethod);
+
 
             //if (parseSucces)
             //{

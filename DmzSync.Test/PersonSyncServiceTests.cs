@@ -61,7 +61,7 @@ namespace DmzSync.Test
                         new Employment()
                         {
                             Id = 1,
-                            EmploymentId = "1",
+                            EmploymentId = 1,
                             PersonId = 1,
                             Position = "Tester",
                             OrgUnit = new Core.DomainModel.OrgUnit()
@@ -84,7 +84,7 @@ namespace DmzSync.Test
                         new Employment()
                         {
                             Id = 1,
-                            EmploymentId = "2",
+                            EmploymentId = 2,
                             PersonId = 2,
                             Position = "Tester2",
                             OrgUnit = new Core.DomainModel.OrgUnit()
@@ -107,7 +107,7 @@ namespace DmzSync.Test
                         new Employment()
                         {
                             Id = 1,
-                            EmploymentId = "3",
+                            EmploymentId = 3,
                             PersonId = 3,
                             Position = "Tester3",
                             OrgUnit = new Core.DomainModel.OrgUnit()

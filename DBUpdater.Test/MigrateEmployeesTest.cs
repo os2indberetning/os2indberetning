@@ -702,7 +702,15 @@ namespace DBUpdater.Test
                 CprNumber = "123",
                 Initials = "test",
                 IsAdmin = true,
-                Mail = "foo@bar.com"
+                Mail = "foo@bar.com",
+                Employments = new List<Employment>
+                {
+                    new Employment
+                    {
+                        PersonId = 1,
+                        OrgUnitId = 1
+                    }
+                }
             });
 
             _dataProvider.GetEmployeesAsQueryable().ReturnsForAnyArgs(new List<Employee>

@@ -306,7 +306,8 @@ namespace Core.ApplicationServices
         }
 
         /// <summary>
-        /// Calculates how many of the 4 km from the Four Km Rule should be deducted from this report. 
+        /// Calculates how many of the 4 km from the Four Km Rule should be deducted from this report based on how many of the daily 4 km has 
+        /// allready been deducted from other of the users reports from the same day.
         /// The calculated amount will then be deducted from the distance, and saved in the FourKmRuleDeducted property
         /// </summary>
         /// <param name="report"></param>

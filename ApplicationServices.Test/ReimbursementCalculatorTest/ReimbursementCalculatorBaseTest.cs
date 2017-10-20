@@ -18,9 +18,6 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
 
         protected IPersonService GetPersonServiceMock()
         {
-
-
-
             var personService = Substitute.For<IPersonService>();
 
             personService.GetHomeAddress(new Person()).ReturnsForAnyArgs(info =>

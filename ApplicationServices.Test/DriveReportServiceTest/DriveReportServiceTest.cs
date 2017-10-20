@@ -69,6 +69,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _reportRepoMock.AsQueryable().ReturnsForAnyArgs(repoList.AsQueryable());
 
             _calculatorMock.Calculate(new RouteInformation(), new DriveReport()).ReturnsForAnyArgs(x => x.Arg<DriveReport>());
+            // The mocked reports share the exact same timestamp if they are driven on same day, so for test purposes we check if they are identical, so we are able to mock the method.
+            _calculatorMock.AreReportsDrivenOnSameDay(1, 1).ReturnsForAnyArgs(x => (long)x[0] == (long)x[1]);
 
             _rateTypeMock.AsQueryable().ReturnsForAnyArgs(new List<RateType>
             {
@@ -776,7 +778,101 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         }
 
 
+        [Test]
+        public void ReCalculateFourKmRuleForOtherReports_WhenDeletingFirstReportOfTheDay()
+        {
+            var driveDateTimestampToday = ToUnixTime(DateTime.Now);
+            var driveDateTimestampYesterday = ToUnixTime(DateTime.Now.AddDays(-1));
 
-       
+            var drivereportToCalculate1 = new DriveReport()
+            {
+                PersonId = 1,
+                DriveDateTimestamp = driveDateTimestampToday,
+                Status = ReportStatus.Accepted,
+                Distance = 50,
+                FourKmRule = true,
+                FourKmRuleDeducted = 0
+            };
+
+            var drivereportToCalculate2 = new DriveReport()
+            {
+                PersonId = 1,
+                DriveDateTimestamp = driveDateTimestampYesterday,
+                Status = ReportStatus.Accepted,
+                Distance = 50,
+                FourKmRule = true,
+                FourKmRuleDeducted = 0
+            };
+
+            var firstDrivereportOfTheDay = new DriveReport()
+            {
+                PersonId = 1,
+                DriveDateTimestamp = driveDateTimestampToday,
+                Status = ReportStatus.Accepted,
+                Distance = 50,
+                FourKmRule = true,
+                FourKmRuleDeducted = 4
+            };
+
+            _reportRepoMock.Insert(drivereportToCalculate1);
+            _reportRepoMock.Insert(drivereportToCalculate2);
+            _uut.CalculateFourKmRuleForOtherReports(firstDrivereportOfTheDay);
+
+            _calculatorMock.Received().CalculateFourKmRuleForReport(drivereportToCalculate1); // Report from same day should be recalculated
+            _calculatorMock.DidNotReceive().CalculateFourKmRuleForReport(drivereportToCalculate2); // Report from yesterday should not be recalculated
+            _calculatorMock.DidNotReceive().CalculateFourKmRuleForReport(firstDrivereportOfTheDay); // Deleted report should not be recalculated
+        }
+
+        [Test]
+        public void ReCalculateFourKmRuleForOtherReports_WhenReportIsRejected()
+        {
+            var driveDateTimestampToday = ToUnixTime(DateTime.Now);
+            var driveDateTimestampYesterday = ToUnixTime(DateTime.Now.AddDays(-1));
+
+            var drivereportToCalculate1 = new DriveReport()
+            {
+                PersonId = 1,
+                DriveDateTimestamp = driveDateTimestampToday,
+                Status = ReportStatus.Accepted,
+                Distance = 50,
+                FourKmRule = true,
+                FourKmRuleDeducted = 0
+            };
+
+            var drivereportToCalculate2 = new DriveReport()
+            {
+                PersonId = 1,
+                DriveDateTimestamp = driveDateTimestampYesterday,
+                Status = ReportStatus.Accepted,
+                Distance = 50,
+                FourKmRule = true,
+                FourKmRuleDeducted = 0
+            };
+
+            var firstDrivereportOfTheDay = new DriveReport()
+            {
+                PersonId = 1,
+                DriveDateTimestamp = driveDateTimestampToday,
+                Status = ReportStatus.Accepted,
+                Distance = 50,
+                FourKmRule = true,
+                FourKmRuleDeducted = 4
+            };
+
+            _reportRepoMock.Insert(drivereportToCalculate1);
+            _reportRepoMock.Insert(drivereportToCalculate2);
+            _uut.CalculateFourKmRuleForOtherReports(firstDrivereportOfTheDay);
+
+            _calculatorMock.Received().CalculateFourKmRuleForReport(drivereportToCalculate1); // Report from same day should be recalculated
+            _calculatorMock.DidNotReceive().CalculateFourKmRuleForReport(drivereportToCalculate2); // Report from yesterday should not be recalculated
+            _calculatorMock.DidNotReceive().CalculateFourKmRuleForReport(firstDrivereportOfTheDay); // Deleted report should not be recalculated
+        }
+
+        private long ToUnixTime(DateTime date)
+        {
+            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+            return Convert.ToInt64((date - epoch).TotalSeconds);
+        }
+
     }
 }

@@ -69,7 +69,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _reportRepoMock.AsQueryable().ReturnsForAnyArgs(repoList.AsQueryable());
 
             _calculatorMock.Calculate(new RouteInformation(), new DriveReport()).ReturnsForAnyArgs(x => x.Arg<DriveReport>());
-            // The mocked reports share the exact same timestamp if they are driven on same day, so for test purposes we check if they are identical, so we are able to mock the method.
+            // The mocked reports share the exact same timestamp if they are driven on same day, so for test purposes we simplify the method and check if they are identical, so we are able to mock the method.
             _calculatorMock.AreReportsDrivenOnSameDay(1, 1).ReturnsForAnyArgs(x => (long)x[0] == (long)x[1]);
 
             _rateTypeMock.AsQueryable().ReturnsForAnyArgs(new List<RateType>
@@ -833,7 +833,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             {
                 PersonId = 1,
                 DriveDateTimestamp = driveDateTimestampToday,
-                Status = ReportStatus.Accepted,
+                Status = ReportStatus.Pending,
                 Distance = 50,
                 FourKmRule = true,
                 FourKmRuleDeducted = 0
@@ -861,6 +861,9 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
             _reportRepoMock.Insert(drivereportToCalculate1);
             _reportRepoMock.Insert(drivereportToCalculate2);
+            _reportRepoMock.Insert(firstDrivereportOfTheDay);
+
+            firstDrivereportOfTheDay.Status = ReportStatus.Rejected;
             _uut.CalculateFourKmRuleForOtherReports(firstDrivereportOfTheDay);
 
             _calculatorMock.Received().CalculateFourKmRuleForReport(drivereportToCalculate1); // Report from same day should be recalculated

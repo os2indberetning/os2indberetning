@@ -14,7 +14,23 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
 {
     public class ReimbursementCalculatorBaseTest
     {
+        private RepoMocker<AddressHistory> _addressHistoryMocker;
+        private RepoMocker<DriveReport> _driveReportMocker;
+        private RepoMocker<Person> _personMocker;
+        private RepoMocker<Employment> _employmentMocker;
+        private RepoMocker<RateType> _rateTypeMocker;
+        private ILogger _logger;
 
+        [SetUp]
+        public void Setup()
+        {
+            _addressHistoryMocker = new RepoMocker<AddressHistory>();
+            _driveReportMocker = new RepoMocker<DriveReport>();
+            _personMocker = new RepoMocker<Person>();
+            _employmentMocker = new RepoMocker<Employment>();
+            _rateTypeMocker = new RepoMocker<RateType>();
+            _logger = Substitute.For<ILogger>();
+        }
 
         protected IPersonService GetPersonServiceMock()
         {
@@ -38,69 +54,6 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             return personService;
         }
 
-        protected IGenericRepository<Person> GetPersonRepository()
-        {
-            var repo = Substitute.For<IGenericRepository<Person>>();
-
-            repo.AsQueryable().Returns(info => new List<Person>()
-            {
-                new Person()
-                {
-                    Id = 1,
-                    FirstName = "Jacob",
-                    LastName = "Jensen",
-                    DistanceFromHomeToBorder = 2,
-                }
-            }.AsQueryable());
-
-            return repo;
-        }
-
-        protected IGenericRepository<Employment> GetEmplRepository(List<Employment> mockData)
-        {
-            var repo = Substitute.For<IGenericRepository<Employment>>();
-
-            repo.AsQueryable().Returns(info => mockData.AsQueryable());
-
-            return repo;
-        } 
-
-        protected IGenericRepository<RateType> GetRateTypeRepository()
-        {
-            var repo = Substitute.For<IGenericRepository<RateType>>();
-            
-            return repo;
-        }
-
-        protected IGenericRepository<DriveReport> GetDriveReportRepository(List<DriveReport> driveReportMockData = null)
-        {
-            var repo = Substitute.For<IGenericRepository<DriveReport>>();
-            var list = driveReportMockData ?? new List<DriveReport>();
-
-            // repo.AsQueryable().Returns(x => driveReportMockData.AsQueryable());
-            repo.AsQueryable().Returns(info => list.AsQueryable());
-
-            return repo;
-        }
-
-        protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<DriveReport> driveReportMockData = null)
-        { //TODO changed to make the code compile
-            var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
-            historyMock.AsQueryable().ReturnsForAnyArgs(new List<AddressHistory>().AsQueryable());
-
-            var driveReportRepo = GetDriveReportRepository(driveReportMockData);
-
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData),historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository(), driveReportRepo);
-        }
-
-        protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<AddressHistory> historyMockData)
-        { //TODO changed to make the code compile
-            var historyMock = NSubstitute.Substitute.For<IGenericRepository<AddressHistory>>();
-            historyMock.AsQueryable().ReturnsForAnyArgs(historyMockData.AsQueryable());
-
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), GetPersonRepository(), GetEmplRepository(emplMockData), historyMock, NSubstitute.Substitute.For<ILogger>(), GetRateTypeRepository(), GetDriveReportRepository());
-        }
-
         protected DriveReport GetDriveReport()
         {
             return new DriveReport()
@@ -121,7 +74,74 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
                 }
             };
         }
+
+        protected IReimbursementCalculator GetCalculator()
+        {
+            var addressHistoryRepo = _addressHistoryMocker.GetMockedRepo();
+            var driveReportRepo = _driveReportMocker.GetMockedRepo();
+            var personRepo = _personMocker.GetMockedRepo();
+            var employmentRepo = _employmentMocker.GetMockedRepo();
+            var rateTypeRepo = _rateTypeMocker.GetMockedRepo();
+            var route = new RouterMock();
+            var personService = GetPersonServiceMock();
+
+            return new ReimbursementCalculator(route, personService, personRepo, employmentRepo, addressHistoryRepo, _logger, rateTypeRepo, driveReportRepo);
+        }
+
+        protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<DriveReport> driveReportMockData = null)
+        {
+            var addressHistoryRepo = _addressHistoryMocker.GetMockedRepo();
+            var driveReportRepo = _driveReportMocker.GetMockedRepo(driveReportMockData);
+            var personRepo = _personMocker.GetMockedRepo(new List<Person>()
+            {
+                new Person()
+                {
+                    Id = 1,
+                    FirstName = "Jacob",
+                    LastName = "Jensen",
+                    DistanceFromHomeToBorder = 2,
+                }
+            });
+            var employmentRepo = _employmentMocker.GetMockedRepo(emplMockData);
+            var rateTypeRepo = _rateTypeMocker.GetMockedRepo();
+            var route = new RouterMock();
+            var personService = GetPersonServiceMock();
+
+            return new ReimbursementCalculator(route, personService, personRepo, employmentRepo, addressHistoryRepo, _logger, rateTypeRepo, driveReportRepo);
+        }
+
+        protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<AddressHistory> historyMockData)
+        { 
+            var addressHistoryRepo = _addressHistoryMocker.GetMockedRepo(historyMockData);
+            var driveReportRepo = _driveReportMocker.GetMockedRepo();
+            var personRepo = _personMocker.GetMockedRepo(new List<Person>()
+            {
+                new Person()
+                {
+                    Id = 1,
+                    FirstName = "Jacob",
+                    LastName = "Jensen",
+                    DistanceFromHomeToBorder = 2,
+                }
+            });
+            var employmentRepo = _employmentMocker.GetMockedRepo(emplMockData);
+            var rateTypeRepo = _rateTypeMocker.GetMockedRepo();
+
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), personRepo, employmentRepo, addressHistoryRepo, _logger, rateTypeRepo, driveReportRepo);
+        }
     }
+
+    class RepoMocker<T> where T : class
+        {
+            public IGenericRepository<T> GetMockedRepo(List<T> mockData = null)
+            {
+                var repo = Substitute.For<IGenericRepository<T>>();
+                var list = mockData ?? new List<T>();
+                repo.AsQueryable().ReturnsForAnyArgs(list.AsQueryable());
+
+                return repo;
+            }
+        }
 
     class RouterMock : IRoute<RouteInformation>
     {

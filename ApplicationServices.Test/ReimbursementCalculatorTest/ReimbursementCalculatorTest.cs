@@ -985,6 +985,28 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
 
         #endregion
 
+        [Test]
+        public void AreReportsDrivenOnSameDay_ShouldReturnTrue()
+        {
+            var calculator = GetCalculator();
+            DateTime dt = new DateTime(2017, 10, 23, 12, 30, 0);
+            long timestamp1 = ToUnixTime(dt);
+            long timestamp2 = ToUnixTime(dt.AddHours(5));
+
+            Assert.AreEqual(true, calculator.AreReportsDrivenOnSameDay(timestamp1, timestamp2));
+        }
+
+        [Test]
+        public void AreReportsDrivenOnSameDay_ShouldReturnFalse()
+        {
+            var calculator = GetCalculator();
+            DateTime dt = new DateTime(2017, 10, 23, 12, 30, 0);
+            long timestamp1 = ToUnixTime(dt);
+            long timestamp2 = ToUnixTime(dt.AddHours(48));
+
+            Assert.AreEqual(false, calculator.AreReportsDrivenOnSameDay(timestamp1, timestamp2));
+        }
+
         private long ToUnixTime(DateTime date)
         {
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

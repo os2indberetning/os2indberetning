@@ -61,6 +61,7 @@ namespace DmzSync.Test
                         new Employment()
                         {
                             Id = 1,
+                            EmploymentId = 1,
                             PersonId = 1,
                             Position = "Tester",
                             OrgUnit = new Core.DomainModel.OrgUnit()
@@ -83,6 +84,7 @@ namespace DmzSync.Test
                         new Employment()
                         {
                             Id = 1,
+                            EmploymentId = 2,
                             PersonId = 2,
                             Position = "Tester2",
                             OrgUnit = new Core.DomainModel.OrgUnit()
@@ -105,6 +107,7 @@ namespace DmzSync.Test
                         new Employment()
                         {
                             Id = 1,
+                            EmploymentId = 3,
                             PersonId = 3,
                             Position = "Tester3",
                             OrgUnit = new Core.DomainModel.OrgUnit()
@@ -127,13 +130,7 @@ namespace DmzSync.Test
         [Test]
         public void ClearDmz_ShouldCallDeleteRange()
         {
-            _dmzProfileList.Add(new Profile());
-            _dmzProfileList.Add(new Profile());
-            _dmzProfileList.Add(new Profile());
-            var numberOfReceivedCalls = 0;
-            _dmzRepoMock.WhenForAnyArgs(x => x.DeleteRange(_dmzProfileList)).Do(p => numberOfReceivedCalls++);
-            _uut.ClearDmz();
-            Assert.AreEqual(1, numberOfReceivedCalls);
+            Assert.Throws<NotImplementedException>(() => _uut.ClearDmz());
         }
 
         [Test]

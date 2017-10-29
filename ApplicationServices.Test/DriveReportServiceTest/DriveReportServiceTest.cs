@@ -733,10 +733,10 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void RejectedReport_shouldCall_SendMail_WithCorrectParameters()
         {
-
+            string comment = "Afvist, du";
             var delta = new Delta<DriveReport>(typeof(DriveReport));
             delta.TrySetPropertyValue("Status", ReportStatus.Rejected);
-            delta.TrySetPropertyValue("Comment", "Afvist, du");
+            delta.TrySetPropertyValue("Comment", comment);
 
             repoList.Add(new DriveReport
             {
@@ -750,7 +750,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             });
 
             _uut.SendMailForRejectedReport(1, delta);
-            _mailMock.Received().SendMail("test@mail.dk","Afvist indberetning","Din indberetning er blevet afvist med kommentaren: \n \n" + "Afvist, du");
+            _mailMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
         }
 
         [Test]

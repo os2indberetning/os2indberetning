@@ -49,40 +49,40 @@ namespace DmzSync.Test
         [Test]
         public void ClearDmz_ShouldCallDeleteRange()
         {
-            var numberOfReceivedCalls = 0;
-            _dmzRepoMock.WhenForAnyArgs(x => x.DeleteRange(_dmzRateList)).Do(p => numberOfReceivedCalls++);
-            _uut.ClearDmz();
-            Assert.AreEqual(1, numberOfReceivedCalls);
+            Assert.Throws<NotImplementedException>(() => _uut.ClearDmz());
         }
 
         [Test]
         public void SyncToDmz_ShouldInsertIntoDmz()
         {
+            _dmzRepoMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DmzModel.Rate>().AsQueryable());
+
             _masterRepoMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Rate>()
             {
                 new Core.DomainModel.Rate()
                 {
                     Active = true,
                     Id = 1,
-                    Year = 2015,
+                    Year = DateTime.Now.Year,
                     Type = new RateType(){Description = "TEST"}
                 },
                 new Core.DomainModel.Rate()
                 {
                     Active = true,
                     Id = 2,
-                    Year = 2015,
+                    Year = DateTime.Now.Year,
                     Type = new RateType(){Description = "TEST"}
                 },
                 new Core.DomainModel.Rate()
                 {
                     Active = false,
                     Id = 3,
-                    Year = 2015,
+                    Year = DateTime.Now.AddYears(-1).Year,
                     Type = new RateType(){Description = "TEST"}
                 }
 
             }.AsQueryable());
+
             _uut.SyncToDmz();
             Assert.AreEqual(2,_dmzRateList.Count);
         }

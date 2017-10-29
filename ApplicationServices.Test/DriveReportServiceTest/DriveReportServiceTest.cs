@@ -871,6 +871,28 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _calculatorMock.DidNotReceive().CalculateFourKmRuleForReport(firstDrivereportOfTheDay); // Deleted report should not be recalculated
         }
 
+
+        [Test]
+        public void CreateDriveReportWithSixtyDaysRule_ShouldSendEmail()
+        {
+            var driveReport = new DriveReport()
+            {
+                PersonId = 1,
+                KilometerAllowance = KilometerAllowance.Calculated,
+                Distance = 42,
+                SixtyDaysRule = true
+            };
+            _uut.Create(driveReport);
+
+            _mailMock.ReceivedWithAnyArgs().SendMail("","","");            
+        }
+
+        [Test]
+        public void CreateDriveReportWithoutSixtyDaysRule_ShouldNotSendEmail()
+        {
+
+        }
+
         private long ToUnixTime(DateTime date)
         {
             var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);

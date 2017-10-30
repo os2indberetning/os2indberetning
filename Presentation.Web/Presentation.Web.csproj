@@ -304,7 +304,6 @@
     </Compile>
     <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportController.js" />
-    <Content Include="App\Admin\HTML\Administration\Modal\ConfirmDataSendSDModalTemplate.html" />
     <Content Include="App\Admin\HTML\Document\View.html" />
     <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />

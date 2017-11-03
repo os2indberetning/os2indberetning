@@ -175,85 +175,12 @@ namespace Core.ApplicationServices
             {
                 case KilometerAllowance.Calculated:
                     {
-                        // Norddjurs Kommune uses an alternative way of calculating the amount to reimburse. Instead of subtracting the distance from home to work from the driven distance,
-                        // either the home-to-destination or work-to-destination distance is used, which ever is shortest. This only applies to routes starting from home, in any other case
-                        // the standard calculation method is used.
-                        //bool useNorddjursAltCalculation;
-                        //bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out useNorddjursAltCalculation);
-                        //useNorddjursAltCalculation = parseSucces ? useNorddjursAltCalculation : false;
-
                         string alternativeCalculationMethod = ConfigurationManager.AppSettings["AlternativeCalculationMethod"];
                         if (alternativeCalculationMethod == null) alternativeCalculationMethod = string.Empty;
                         // Use Norddjurs alternative reimbursemnt calculation method if configured so.
                         if (alternativeCalculationMethod.ToLower() == "ndk")
                         {
-                            //// The alternative calculationmethod is only used for reports starting at home.
-                            //if (report.StartsAtHome)
-                            //{
-                            //    // Distance from home.
-                            //    var homeDistance = report.Distance;
-                            //    if (!report.IsFromApp)
-                            //    {
-                            //        // In case the report is not from app then get distance from the supplied route.
-                            //        homeDistance = drivenRoute.Length;
-                            //    }
-
-                            //    // Get distance from work.
-                            //    var addresses = new List<Address>();
-                            //    addresses.Add(workAddress);
-                            //    foreach (Address address in report.DriveReportPoints)
-                            //    {
-                            //        if (!(address.Latitude == homeAddress.Latitude && address.Longitude == homeAddress.Longitude))
-                            //        {
-                            //            addresses.Add(address);
-                            //        }
-                            //    }
-
-                            //    var isBike = _rateTypeRepo.AsQueryable().First(x => x.TFCode.Equals(report.TFCode)).IsBike;
-
-                            //    var workDistance = _route.GetRoute(isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, addresses).Length;
-
-                            //    // Compare the distance from home to the distance from work and apply the shortest of them.
-                            //    report.Distance = homeDistance < workDistance ? homeDistance : workDistance;
-
-                            //    if (!report.IsFromApp)
-                            //    {
-                            //        //Get RouteGeometry from driven route if the report is not from app. If it is from App then RouteGeometry is already set.
-                            //        report.RouteGeometry = drivenRoute.GeoPoints;
-                            //    }
-
-                            //    break;
-                            //}
-                            //else
-                            //{
-                            //    if (!report.IsFromApp)
-                            //    {
-                            //        report.Distance = drivenRoute.Length;
-
-                            //        //Save RouteGeometry
-                            //        report.RouteGeometry = drivenRoute.GeoPoints;
-                            //    }
-
-                            //    break;
-                            //}
-
-                            // Norddjurs Kommune uses an alternative method of calculating the distance to reimburse.
-                            // Instead of just subtracting the daily distance from HOME to WORK from the driven distance, the shortest of
-                            // either HOME to LOCATION or WORK to LOCATION is used. The "daily "distance from HOME to WORK is newer subtracted!
-                            //
-                            // 1) When starting from home
-                            //    * To select which route is used, the shortest of either the distance between HOME and LOCATION or
-                            //      the distance between WORK and LOCATION, is selected.
-                            //      The LOCATION is always the second point on the drive route, because the first is HOME.
-                            //    * To calculate the distance to subtract, the total distance of the two routes is calculated.
-                            //
-                            // 2) When finishing at home
-                            //    * To select which route is used, the shortest of either the distance between LOCATION and HOME or
-                            //      the distance between LOCATION and WORK, is selected.
-                            //      The LOCATION is always the second last point on the drive route, because the last is HOME.
-                            //    * To calculate the distance to subtract, the total distance of the two routes is calculated.
-                            //
-                            // Both calculations can apply, when starting and finishing at home.
+                            
 
                             // Newer subtract the "daily" distance between HOME and WORK.
                             toSubtractHomeRule = 0.0;

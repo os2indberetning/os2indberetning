@@ -45,6 +45,89 @@ namespace Core.ApplicationServices
             _reportGenerator.WriteRecordsToFileAndAlterReportStatus();
         }
 
+        private void SendDataToSD()
+        {
+            SdKoersel.AnsaettelseKoerselOpret20170501OperationRequest operationRequest;
+            SdKoersel.AnsaettelseKoerselOpret20170501PortTypeClient portTypeClient;
+
+            try
+            {
+                operationRequest = new SdKoersel.AnsaettelseKoerselOpret20170501OperationRequest();
+                portTypeClient = new SdKoersel.AnsaettelseKoerselOpret20170501PortTypeClient();
+                portTypeClient.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"] ?? "";
+                portTypeClient.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"] ?? "";
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when initiating SD client", e);
+                throw e;
+            }
+
+            var reportsToInvoice = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
+            _logger.Error($"{this.GetType().ToString()}, SendDataToSD(), Number of reports to invoice: {reportsToInvoice.Count}");
+
+            foreach(DriveReport report in reportsToInvoice)
+            {
+                SdKoersel.AnsaettelseKoerselOpretInputType requestData = new SdKoersel.AnsaettelseKoerselOpretInputType();
+                try
+                {
+                    requestData = PrepareRequestData(requestData, report);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when preparing data, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    continue;
+                }
+
+                try
+                {
+                    var response = portTypeClient.AnsaettelseKoerselOpret20170501Operation(requestData);
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when sending data to SD, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    continue;
+                }
+
+                report.Status = ReportStatus.Invoiced;
+
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
+                report.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
+
+                try
+                {
+                    _driveReportRepo.Save();
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when saving invoice status for report after sending to SD. Report has been sent, but status has NOT been changed, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    _logger.LogForAdmin($"En indberetning er blevet sendt til udbetaling via SD Løn, men dens status er ikke blevet ændret i OS2 Indberetning. Den vil dermed potentielt kunne sendes til udbetaling igen. Det drejer sig om medarbejder: {report.Person.Initials}, og indberetning med med ID: {report.Id}, kørt den: {new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp)}");
+                }
+            }
+        }
+
+        private SdKoersel.AnsaettelseKoerselOpretInputType PrepareRequestData(SdKoersel.AnsaettelseKoerselOpretInputType opretInputType, DriveReport report)
+        {
+            opretInputType.Item = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? ""; // InstitutionIdentifikator
+            if (string.IsNullOrEmpty(opretInputType.Item))
+            {
+                throw new Exception("PROTECTED_institutionNumber må ikke være tom");
+            }
+            opretInputType.ItemElementName = SdKoersel.ItemChoiceType.InstitutionIdentifikator;
+            opretInputType.BrugerIdentifikator = report.Person.CprNumber;
+            opretInputType.Item1 = report.Employment.EmploymentId; // AnsaettelseIdentifikator 
+            opretInputType.RegistreringTypeIdentifikator = report.TFCode;
+            opretInputType.GodkendtIndikator = true;
+            opretInputType.KoerselDato = new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp);
+            opretInputType.RegistreringNummerIdentifikator = report.LicensePlate;
+            opretInputType.KontrolleretIndikator = true; // TODO: hvad betyder denne?
+            opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);
+            opretInputType.Regel60DageIndikator = false; // TODO: skal denne sættes?
+
+            return opretInputType;
+        }
+
         private void SendDataToSDWebservice()
         {
             SdWebService.KoerselOpret20120201OperationRequest operationRequest;

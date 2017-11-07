@@ -1,8 +1,10 @@
 ﻿using Core.ApplicationServices.FileGenerator;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
+using Core.ApplicationServices.SilkeborgData;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -16,23 +18,26 @@ namespace Core.ApplicationServices
     {
         private readonly IReportGenerator _reportGenerator;
         private readonly IGenericRepository<DriveReport> _driveReportRepo;
+        private readonly ISdClient _sdClient;
         private readonly ILogger _logger;
+        private readonly ICustomSettings _customSettings;
 
-        public TransferToPayrollService(IReportGenerator reportGenerator, IGenericRepository<DriveReport> driveReportRepo, ILogger logger)
+        public TransferToPayrollService(IReportGenerator reportGenerator, IGenericRepository<DriveReport> driveReportRepo, ISdClient sdClient, ILogger logger, ICustomSettings customSettings)
         {
             _reportGenerator = reportGenerator;
             _driveReportRepo = driveReportRepo;
+            _sdClient = sdClient;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         public void TransferReportsToPayroll()
         {
-            bool useSdAsIntegration = false; // use KMD as defualt, since that's currently what most use.
-            var parseResult = bool.TryParse(ConfigurationManager.AppSettings["UseSd"], out useSdAsIntegration);
+            bool useSdAsIntegration = _customSettings.SdIsEnabled;
             _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), UseSd configuration = {useSdAsIntegration}");
             if (useSdAsIntegration)
             {
-                SendDataToSDWebservice();
+                SendDataToSD();
             }
             else
             {
@@ -47,22 +52,6 @@ namespace Core.ApplicationServices
 
         private void SendDataToSD()
         {
-            SdKoersel.AnsaettelseKoerselOpret20170501OperationRequest operationRequest;
-            SdKoersel.AnsaettelseKoerselOpret20170501PortTypeClient portTypeClient;
-
-            try
-            {
-                operationRequest = new SdKoersel.AnsaettelseKoerselOpret20170501OperationRequest();
-                portTypeClient = new SdKoersel.AnsaettelseKoerselOpret20170501PortTypeClient();
-                portTypeClient.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"] ?? "";
-                portTypeClient.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"] ?? "";
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when initiating SD client", e);
-                throw e;
-            }
-
             var reportsToInvoice = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
             _logger.Error($"{this.GetType().ToString()}, SendDataToSD(), Number of reports to invoice: {reportsToInvoice.Count}");
 
@@ -81,7 +70,7 @@ namespace Core.ApplicationServices
 
                 try
                 {
-                    var response = portTypeClient.AnsaettelseKoerselOpret20170501Operation(requestData);
+                    // var response = _sdClient.SendRequest(requestData);
                 }
                 catch (Exception e)
                 {
@@ -109,7 +98,7 @@ namespace Core.ApplicationServices
 
         private SdKoersel.AnsaettelseKoerselOpretInputType PrepareRequestData(SdKoersel.AnsaettelseKoerselOpretInputType opretInputType, DriveReport report)
         {
-            opretInputType.Item = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? ""; // InstitutionIdentifikator
+            opretInputType.Item = _customSettings.SdInstitutionNumber; // InstitutionIdentifikator
             if (string.IsNullOrEmpty(opretInputType.Item))
             {
                 throw new Exception("PROTECTED_institutionNumber må ikke være tom");

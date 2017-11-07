@@ -143,6 +143,7 @@
     <Compile Include="SubstituteServiceTest\SubstituteServiceTest.cs" />
     <Compile Include="ReimbursementCalculatorTest\ReimbursementCalculatorBaseTest.cs" />
     <Compile Include="ReimbursementCalculatorTest\ReimbursementCalculatorTest.cs" />
+    <Compile Include="TransferToPayrollServiceTest\TransferToPayrollServiceTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\connections.config">

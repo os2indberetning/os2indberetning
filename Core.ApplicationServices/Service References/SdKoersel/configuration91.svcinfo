@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="fWxDxsxee/HNXs3ixjwOZQRBcx8=">
+<SavedWcfConfigurationInformation xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Version="9.1" CheckSum="4nL1DHOP1C5Cr1utM+hobdFgtl4=">
   <bindingConfigurations>
-    <bindingConfiguration bindingType="basicHttpBinding" name="AnsaettelseKoerselOpret20170501Binding">
+    <bindingConfiguration bindingType="basicHttpBinding" name="AnsaettelseKoerselOpret20170501Binding2">
       <properties>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>AnsaettelseKoerselOpret20170501Binding</serializedValue>
+          <serializedValue>AnsaettelseKoerselOpret20170501Binding2</serializedValue>
         </property>
         <property path="/closeTimeout" isComplexType="false" isExplicitlyDefined="true" clrType="System.TimeSpan, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -110,10 +110,10 @@
         </property>
       </properties>
     </bindingConfiguration>
-    <bindingConfiguration bindingType="basicHttpBinding" name="AnsaettelseKoerselOpret20170501Binding1">
+    <bindingConfiguration bindingType="basicHttpBinding" name="AnsaettelseKoerselOpret20170501Binding3">
       <properties>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>AnsaettelseKoerselOpret20170501Binding1</serializedValue>
+          <serializedValue>AnsaettelseKoerselOpret20170501Binding3</serializedValue>
         </property>
         <property path="/closeTimeout" isComplexType="false" isExplicitlyDefined="true" clrType="System.TimeSpan, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />
@@ -221,7 +221,7 @@
     </bindingConfiguration>
   </bindingConfigurations>
   <endpoints>
-    <endpoint name="AnsaettelseKoerselOpret20170501" contract="SdKoersel.AnsaettelseKoerselOpret20170501PortType" bindingType="basicHttpBinding" address="https://service.sd.dk/sdws-indberetning/services/AnsaettelseKoerselOpret20170501" bindingConfiguration="AnsaettelseKoerselOpret20170501Binding">
+    <endpoint name="AnsaettelseKoerselOpret201705011" contract="SdKoersel.AnsaettelseKoerselOpret20170501PortType" bindingType="basicHttpBinding" address="https://service.sd.dk/sdws-indberetning/services/AnsaettelseKoerselOpret20170501" bindingConfiguration="AnsaettelseKoerselOpret20170501Binding2">
       <properties>
         <property path="/address" isComplexType="false" isExplicitlyDefined="true" clrType="System.Uri, System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>https://service.sd.dk/sdws-indberetning/services/AnsaettelseKoerselOpret20170501</serializedValue>
@@ -233,7 +233,7 @@
           <serializedValue>basicHttpBinding</serializedValue>
         </property>
         <property path="/bindingConfiguration" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>AnsaettelseKoerselOpret20170501Binding</serializedValue>
+          <serializedValue>AnsaettelseKoerselOpret20170501Binding2</serializedValue>
         </property>
         <property path="/contract" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue>SdKoersel.AnsaettelseKoerselOpret20170501PortType</serializedValue>
@@ -296,7 +296,7 @@
           <serializedValue>False</serializedValue>
         </property>
         <property path="/name" isComplexType="false" isExplicitlyDefined="true" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
-          <serializedValue>AnsaettelseKoerselOpret20170501</serializedValue>
+          <serializedValue>AnsaettelseKoerselOpret201705011</serializedValue>
         </property>
         <property path="/kind" isComplexType="false" isExplicitlyDefined="false" clrType="System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089">
           <serializedValue />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="b3973f3c-a65d-407c-a625-6c2c6423d00a" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
+<ReferenceGroup xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" ID="aff621df-6ee8-4b20-8080-1250f3287fb6" xmlns="urn:schemas-microsoft-com:xml-wcfservicemap">
   <ClientOptions>
     <GenerateAsynchronousMethods>false</GenerateAsynchronousMethods>
     <GenerateTaskBasedAsynchronousMethod>true</GenerateTaskBasedAsynchronousMethod>
@@ -22,7 +22,7 @@
     <MetadataSource Address="https://service.sd.dk/sdws-indberetning/AnsaettelseKoerselOpret20170501.wsdl" Protocol="http" SourceId="1" />
   </MetadataSources>
   <Metadata>
-    <MetadataFile FileName="AnsaettelseKoerselOpret20170501.wsdl" MetadataType="Wsdl" ID="836e6b45-48ec-4251-b334-c81ccfa9d36f" SourceId="1" SourceUrl="https://service.sd.dk/sdws-indberetning/AnsaettelseKoerselOpret20170501.wsdl" />
+    <MetadataFile FileName="AnsaettelseKoerselOpret20170501.wsdl" MetadataType="Wsdl" ID="009b975d-211f-4539-8721-0f2ad550df52" SourceId="1" SourceUrl="https://service.sd.dk/sdws-indberetning/AnsaettelseKoerselOpret20170501.wsdl" />
   </Metadata>
   <Extensions>
     <ExtensionFile FileName="configuration91.svcinfo" Name="configuration91.svcinfo" />

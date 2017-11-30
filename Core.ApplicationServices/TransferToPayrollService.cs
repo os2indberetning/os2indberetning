@@ -70,7 +70,7 @@ namespace Core.ApplicationServices
 
                 try
                 {
-                    // var response = _sdClient.SendRequest(requestData);
+                    var response = _sdClient.SendRequest(requestData);
                 }
                 catch (Exception e)
                 {
@@ -110,7 +110,7 @@ namespace Core.ApplicationServices
             opretInputType.GodkendtIndikator = true;
             opretInputType.KoerselDato = new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp);
             opretInputType.RegistreringNummerIdentifikator = report.LicensePlate;
-            opretInputType.KontrolleretIndikator = true; // TODO: hvad betyder denne?
+            opretInputType.KontrolleretIndikator = true;
             opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);
             opretInputType.Regel60DageIndikator = false; // TODO: skal denne sættes?
 

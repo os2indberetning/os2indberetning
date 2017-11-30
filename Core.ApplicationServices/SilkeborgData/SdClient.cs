@@ -36,15 +36,18 @@ namespace Core.ApplicationServices
 
         public AnsaettelseKoerselOpret20170501Type SendRequest(AnsaettelseKoerselOpretInputType requestData)
         {
-            try
-            {
-                return _portTypeClient.AnsaettelseKoerselOpret20170501Operation(requestData);
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"{this.GetType().ToString()}, SendRequest(), Error when sending data to SD", e);
-                throw;
-            }
+            //try
+            //{
+            //    return _portTypeClient.AnsaettelseKoerselOpret20170501Operation(requestData);
+            //}
+            //catch (Exception e)
+            //{
+            //    _logger.Error($"{this.GetType().ToString()}, SendRequest(), Error when sending data to SD", e);
+            //    throw;
+            //}
+
+            // TODO: Aktiver overførsel til SD ved at indkommentere ovenstående, og udkommenere/slette nedenstående.
+            throw new Exception("Overførsel til SD er deaktiveret i koden mens der udvikles og debugges");
         }
     }
 }

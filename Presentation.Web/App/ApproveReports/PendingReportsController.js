@@ -51,8 +51,7 @@
        }
 
        // dates for kendo filter.
-       var fromDateFilter = new Date();
-       fromDateFilter.setDate(fromDateFilter.getDate() - (365*2));
+       var fromDateFilter = new Date(2014, 0, 1);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 

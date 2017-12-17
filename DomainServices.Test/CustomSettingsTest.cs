@@ -17,6 +17,7 @@ namespace DomainServices.Test
         [SetUp]
         public void Setup()
         {
+            // will test with values found in app.config in DomainServices.Test project
             _customSettings = new CustomSettings();
         }
 

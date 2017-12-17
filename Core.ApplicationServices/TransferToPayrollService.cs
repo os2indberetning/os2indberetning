@@ -1,8 +1,10 @@
 ﻿using Core.ApplicationServices.FileGenerator;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
+using Core.ApplicationServices.SilkeborgData;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -16,23 +18,25 @@ namespace Core.ApplicationServices
     {
         private readonly IReportGenerator _reportGenerator;
         private readonly IGenericRepository<DriveReport> _driveReportRepo;
+        private readonly ISdClient _sdClient;
         private readonly ILogger _logger;
+        private readonly ICustomSettings _customSettings;
 
-        public TransferToPayrollService(IReportGenerator reportGenerator, IGenericRepository<DriveReport> driveReportRepo, ILogger logger)
+        public TransferToPayrollService(IReportGenerator reportGenerator, IGenericRepository<DriveReport> driveReportRepo, ISdClient sdClient, ILogger logger, ICustomSettings customSettings)
         {
             _reportGenerator = reportGenerator;
             _driveReportRepo = driveReportRepo;
+            _sdClient = sdClient;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         public void TransferReportsToPayroll()
         {
-            bool useSdAsIntegration = false; // use KMD as defualt, since that's currently what most use.
-            var parseResult = bool.TryParse(ConfigurationManager.AppSettings["UseSd"], out useSdAsIntegration);
-            _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), UseSd configuration = {useSdAsIntegration}");
-            if (useSdAsIntegration)
+            _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), UseSd configuration = {_customSettings.SdIsEnabled}");
+            if (_customSettings.SdIsEnabled)
             {
-                SendDataToSDWebservice();
+                SendDataToSD();
             }
             else
             {
@@ -43,6 +47,77 @@ namespace Core.ApplicationServices
         private void GenerateFileForKMD()
         {
             _reportGenerator.WriteRecordsToFileAndAlterReportStatus();
+        }
+
+        private void SendDataToSD()
+        {
+            var reportsToInvoice = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
+            _logger.ErrorSd($"{this.GetType().ToString()}, SendDataToSD(), Number of reports to invoice: {reportsToInvoice.Count}");
+
+            foreach(DriveReport report in reportsToInvoice)
+            {
+                SdKoersel.AnsaettelseKoerselOpretInputType requestData = new SdKoersel.AnsaettelseKoerselOpretInputType();
+                try
+                {
+                    requestData = PrepareRequestData(requestData, report);
+                }
+                catch(SdConfigException se)
+                {
+                    throw se; // This error is a general config error, and must break the loop.
+                }
+                catch (Exception e)
+                {
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when preparing data, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    continue;
+                }
+
+                try
+                {
+                    var response = _sdClient.SendRequest(requestData);
+                }
+                catch (Exception e)
+                {
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when sending data to SD, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    continue;
+                }
+
+                report.Status = ReportStatus.Invoiced;
+
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
+                report.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
+
+                try
+                {
+                    _driveReportRepo.Save();
+                }
+                catch (Exception e)
+                {
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when saving invoice status for report after sending to SD. Report has been sent, but status has NOT been changed, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    _logger.LogForAdmin($"En indberetning er blevet sendt til udbetaling via SD Løn, men dens status er ikke blevet ændret i OS2 Indberetning. Den vil dermed potentielt kunne sendes til udbetaling igen. Det drejer sig om medarbejder: {report.Person.Initials}, og indberetning med med ID: {report.Id}, kørt den: {new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp)}");
+                }
+            }
+        }
+
+        private SdKoersel.AnsaettelseKoerselOpretInputType PrepareRequestData(SdKoersel.AnsaettelseKoerselOpretInputType opretInputType, DriveReport report)
+        {
+            opretInputType.Item = _customSettings.SdInstitutionNumber; // InstitutionIdentifikator
+            if (string.IsNullOrEmpty(opretInputType.Item))
+            {
+                throw new SdConfigException("PROTECTED_institutionNumber må ikke være tom");
+            }
+            opretInputType.ItemElementName = SdKoersel.ItemChoiceType.InstitutionIdentifikator;
+            opretInputType.BrugerIdentifikator = report.Person.CprNumber;
+            opretInputType.Item1 = report.Employment.EmploymentId; // AnsaettelseIdentifikator 
+            opretInputType.RegistreringTypeIdentifikator = report.TFCode;
+            opretInputType.GodkendtIndikator = true;
+            opretInputType.KoerselDato = new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp);
+            opretInputType.RegistreringNummerIdentifikator = report.LicensePlate;
+            opretInputType.KontrolleretIndikator = true;
+            opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);
+            opretInputType.Regel60DageIndikator = false;
+
+            return opretInputType;
         }
 
         private void SendDataToSDWebservice()
@@ -101,7 +176,7 @@ namespace Core.ApplicationServices
 
                     // Send data to SD
 
-                    var response = portTypeClient.KoerselOpret20120201Operation(operationRequest.InddataStruktur);
+                    //var response = portTypeClient.KoerselOpret20120201Operation(operationRequest.InddataStruktur);
 
                     report.Status = ReportStatus.Invoiced;
 
@@ -122,6 +197,13 @@ namespace Core.ApplicationServices
                 }
             }
             _logger.Debug($"----- Afsendelse afsluttet. {countFailed} ud af {countFailed + countSucces} afsendelser fejlede -----");
+        }
+    }
+
+    public class SdConfigException : Exception
+    {
+        public SdConfigException(string message) : base(message)
+        {
         }
     }
 }

@@ -15,6 +15,7 @@ namespace Core.ApplicationServices.Logger
         private ILog _adminLog;
         private ILog _auditLog;
         private ILog _auditLogDmz;
+        private ILog _sdLog;
 
         public Logger()
         {
@@ -27,6 +28,7 @@ namespace Core.ApplicationServices.Logger
             }
             catch { }
             _auditLogDmz = LogManager.GetLogger("auditLogDMZ");
+            _sdLog = LogManager.GetLogger("SdLog");
         }
 
         public void Debug(string message)
@@ -52,6 +54,16 @@ namespace Core.ApplicationServices.Logger
         public void AuditLogDMZ(string date, string user, string userLocation, string controller, string action, string parameters)
         {
             _auditLogDmz.Info(FormatAuditlog(date, user, userLocation, controller, action, parameters));
+        }
+
+        public void DebugSd(string message)
+        {
+            _sdLog.Info(message);
+        }
+
+        public void ErrorSd(string message, Exception exception = null)
+        {
+            _sdLog.Error(message, exception);
         }
 
         private string FormatAuditlog(string date, string user, string userLocation, string controller, string action, string parameters)

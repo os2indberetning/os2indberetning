@@ -61,9 +61,9 @@ namespace Core.ApplicationServices
                 {
                     requestData = PrepareRequestData(requestData, report);
                 }
-                catch(SdException se)
+                catch(SdConfigException se)
                 {
-                    throw se;
+                    throw se; // This error is a general config error, and must break the loop.
                 }
                 catch (Exception e)
                 {
@@ -104,7 +104,7 @@ namespace Core.ApplicationServices
             opretInputType.Item = _customSettings.SdInstitutionNumber; // InstitutionIdentifikator
             if (string.IsNullOrEmpty(opretInputType.Item))
             {
-                throw new SdException("PROTECTED_institutionNumber må ikke være tom");
+                throw new SdConfigException("PROTECTED_institutionNumber må ikke være tom");
             }
             opretInputType.ItemElementName = SdKoersel.ItemChoiceType.InstitutionIdentifikator;
             opretInputType.BrugerIdentifikator = report.Person.CprNumber;
@@ -200,9 +200,9 @@ namespace Core.ApplicationServices
         }
     }
 
-    public class SdException : Exception
+    public class SdConfigException : Exception
     {
-        public SdException(string message) : base(message)
+        public SdConfigException(string message) : base(message)
         {
         }
     }

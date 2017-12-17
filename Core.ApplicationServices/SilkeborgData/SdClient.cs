@@ -38,7 +38,7 @@ namespace Core.ApplicationServices
         {
             try
             {
-                return _portTypeClient.AnsaettelseKoerselOpret20170501Operation(requestData);
+                return _portTypeClient.AnsaettelseKoerselOpret20170501Operation(requestData); 
             }
             catch (Exception)
             {

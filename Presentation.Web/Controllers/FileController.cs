@@ -48,13 +48,13 @@ namespace OS2Indberetning.Controllers
             try
             {
                 _transferToPayrollService.TransferReportsToPayroll();
-                _logger.Debug($"{GetType().Name}, Get(), Generate KMD file finished");
+                _logger.Debug($"{GetType().Name}, Get(), Transfer to payroll finished");
                 return Ok();
             }
             catch (Exception e)
             {
-                _logger.LogForAdmin("Fejl ved generering af fil til KMD. Filen blev ikke genereret.");
-                _logger.Error($"{GetType().Name}, Get(), Error when generating file for KMD, Status Code: 500 Internal Server Error", e);
+                _logger.LogForAdmin("Fejl ved overførsel til lønsystem. Overførslen blev ikke gennemført.");
+                _logger.Error($"{GetType().Name}, Get(), Error when transfering reports to payroll, Status Code: 500 Internal Server Error", e);
                 return InternalServerError();
             }
         }

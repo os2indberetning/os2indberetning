@@ -33,9 +33,8 @@ namespace Core.ApplicationServices
 
         public void TransferReportsToPayroll()
         {
-            bool useSdAsIntegration = _customSettings.SdIsEnabled;
-            _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), UseSd configuration = {useSdAsIntegration}");
-            if (useSdAsIntegration)
+            _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), UseSd configuration = {_customSettings.SdIsEnabled}");
+            if (_customSettings.SdIsEnabled)
             {
                 SendDataToSD();
             }
@@ -53,7 +52,7 @@ namespace Core.ApplicationServices
         private void SendDataToSD()
         {
             var reportsToInvoice = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
-            _logger.Error($"{this.GetType().ToString()}, SendDataToSD(), Number of reports to invoice: {reportsToInvoice.Count}");
+            _logger.ErrorSd($"{this.GetType().ToString()}, SendDataToSD(), Number of reports to invoice: {reportsToInvoice.Count}");
 
             foreach(DriveReport report in reportsToInvoice)
             {
@@ -62,9 +61,13 @@ namespace Core.ApplicationServices
                 {
                     requestData = PrepareRequestData(requestData, report);
                 }
+                catch(SdException se)
+                {
+                    throw se;
+                }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when preparing data, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when preparing data, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
                     continue;
                 }
 
@@ -74,7 +77,7 @@ namespace Core.ApplicationServices
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when sending data to SD, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when sending data to SD, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
                     continue;
                 }
 
@@ -90,7 +93,7 @@ namespace Core.ApplicationServices
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().ToString()}, sendDataToSd(), Error when saving invoice status for report after sending to SD. Report has been sent, but status has NOT been changed, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when saving invoice status for report after sending to SD. Report has been sent, but status has NOT been changed, Servicenummer = {report.Employment.EmploymentId}, EmploymentId = {report.EmploymentId}, Report = {report.Id}", e);
                     _logger.LogForAdmin($"En indberetning er blevet sendt til udbetaling via SD Løn, men dens status er ikke blevet ændret i OS2 Indberetning. Den vil dermed potentielt kunne sendes til udbetaling igen. Det drejer sig om medarbejder: {report.Person.Initials}, og indberetning med med ID: {report.Id}, kørt den: {new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp)}");
                 }
             }
@@ -101,7 +104,7 @@ namespace Core.ApplicationServices
             opretInputType.Item = _customSettings.SdInstitutionNumber; // InstitutionIdentifikator
             if (string.IsNullOrEmpty(opretInputType.Item))
             {
-                throw new Exception("PROTECTED_institutionNumber må ikke være tom");
+                throw new SdException("PROTECTED_institutionNumber må ikke være tom");
             }
             opretInputType.ItemElementName = SdKoersel.ItemChoiceType.InstitutionIdentifikator;
             opretInputType.BrugerIdentifikator = report.Person.CprNumber;
@@ -112,7 +115,7 @@ namespace Core.ApplicationServices
             opretInputType.RegistreringNummerIdentifikator = report.LicensePlate;
             opretInputType.KontrolleretIndikator = true;
             opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);
-            opretInputType.Regel60DageIndikator = false; // TODO: skal denne sættes?
+            opretInputType.Regel60DageIndikator = false;
 
             return opretInputType;
         }
@@ -173,7 +176,7 @@ namespace Core.ApplicationServices
 
                     // Send data to SD
 
-                    var response = portTypeClient.KoerselOpret20120201Operation(operationRequest.InddataStruktur);
+                    //var response = portTypeClient.KoerselOpret20120201Operation(operationRequest.InddataStruktur);
 
                     report.Status = ReportStatus.Invoiced;
 
@@ -194,6 +197,13 @@ namespace Core.ApplicationServices
                 }
             }
             _logger.Debug($"----- Afsendelse afsluttet. {countFailed} ud af {countFailed + countSucces} afsendelser fejlede -----");
+        }
+    }
+
+    public class SdException : Exception
+    {
+        public SdException(string message) : base(message)
+        {
         }
     }
 }

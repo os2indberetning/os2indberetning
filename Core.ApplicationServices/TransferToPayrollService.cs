@@ -42,6 +42,7 @@ namespace Core.ApplicationServices
             {
                 GenerateFileForKMD();
             }
+            _logger.Debug($"{GetType().Name}, TransferReportsToPayroll(), Transfer finished");
         }
 
         private void GenerateFileForKMD()
@@ -51,7 +52,9 @@ namespace Core.ApplicationServices
 
         private void SendDataToSD()
         {
+            _logger.ErrorSd($"{this.GetType().ToString()}, SendDataToSD(), --------- TRANSFER TO SD STARTED -----------");
             var reportsToInvoice = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
+            var reportsToInvoiceWithZeroDistance = _driveReportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance == 0).ToList();
             _logger.ErrorSd($"{this.GetType().ToString()}, SendDataToSD(), Number of reports to invoice: {reportsToInvoice.Count}");
 
             foreach(DriveReport report in reportsToInvoice)
@@ -97,6 +100,26 @@ namespace Core.ApplicationServices
                     _logger.LogForAdmin($"En indberetning er blevet sendt til udbetaling via SD Løn, men dens status er ikke blevet ændret i OS2 Indberetning. Den vil dermed potentielt kunne sendes til udbetaling igen. Det drejer sig om medarbejder: {report.Person.Initials}, og indberetning med med ID: {report.Id}, kørt den: {new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp)}");
                 }
             }
+
+            foreach (DriveReport report in reportsToInvoiceWithZeroDistance)
+            {
+                report.Status = ReportStatus.Invoiced;
+
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+                var deltaTime = DateTime.Now.ToUniversalTime() - epoch;
+                report.ProcessedDateTimestamp = (long)deltaTime.TotalSeconds;
+
+                try
+                {
+                    _driveReportRepo.Save();
+                }
+                catch (Exception e)
+                {
+                    _logger.ErrorSd($"{this.GetType().ToString()}, sendDataToSd(), Error when saving invoice status for report with distance = 0", e);
+                }
+            }
+
+            _logger.ErrorSd($"{this.GetType().ToString()}, SendDataToSD(), --------- TRANSFER TO SD FINISHED -----------");
         }
 
         private SdKoersel.AnsaettelseKoerselOpretInputType PrepareRequestData(SdKoersel.AnsaettelseKoerselOpretInputType opretInputType, DriveReport report)
@@ -116,6 +139,7 @@ namespace Core.ApplicationServices
             opretInputType.KontrolleretIndikator = true;
             opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);
             opretInputType.Regel60DageIndikator = false;
+            opretInputType.DokumentationEksternIndikator = true;
 
             return opretInputType;
         }

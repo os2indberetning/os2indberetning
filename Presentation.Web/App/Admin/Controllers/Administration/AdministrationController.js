@@ -86,40 +86,36 @@
                        return "<a ng-click='removeAdmin(" + data.Id + ",\"" + data.FullName + "\")'>Slet</a>";
                    }
                }, {
-                   field: "IsAdmin",
-                   title: "isadmin",
+                   field: "AdminReceiveMail",
+                   title: "Modtag emails",
                    template: function (data) {
-                       if (data.IsAdmin) {
-                           return "<input type='checkbox' ng-click='rowChecked(" + data.Id + ", false)' checked></input>";
+                       if (data.AdminRecieveMail) {
+                           return "<input type='checkbox' ng-click='adminRecieveMailChecked(" + data.Id + ", false)' checked></input>";
                        } else {
-                           return "<input type='checkbox' ng-click='rowChecked(" + data.Id + ", true)'></input>";
+                           return "<input type='checkbox' ng-click='adminRecieveMailChecked(" + data.Id + ", true)'></input>";
                        }
                    }
                }
            ],
        };
 
-       $scope.rowChecked = function (id, newValue) {
+       $scope.adminRecieveMailChecked = function (id, newValue) {
         /// <summary>
         /// Is called when the user checks an orgunit in the grid.
         /// Patches HasAccessToFourKmRule on the backend.
         /// </summary>
         /// <param name="id"></param>
 
-        Person.patch({ id: id }, { "IsAdmin": newValue }).$promise.then(function () {
-            if (newValue) {
-                NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel tilføjet.");
-            } else {
-                NotificationService.AutoFadeNotification("success", "", "Adgang til 4 km-regel fjernet.");
-            }
+            Person.patch({ id: id }, { "AdminRecieveMail": newValue }).$promise.then(function () {
+                    if (newValue) {
+                        NotificationService.AutoFadeNotification("success", "", "Admin modtager nu emails");
+                    } else {
+                        NotificationService.AutoFadeNotification("success", "", "Admin modtager ikke længere emails");
+                    }
 
-            $scope.gridContainer.grid.dataSource.read();
-            //// Reload CurrentUser to update FourKmRule in DrivingController
-           // Person.GetCurrentUser().$promise.then(function (data) {
-             //   $scope.CurrentUser = data;
-           //});
-        });
-    }
+                    $scope.gridContainer.grid.dataSource.read();
+            });
+        }
 
        $scope.removeAdmin = function (Id, FullName) {
            /// <summary>

@@ -4,13 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.DomainModel
 {
-    public enum AdminType
-    {
-        NotAdmin = 0,
-        AdminWithoutMailNotifications = 1,
-        Admin = 2
-    }
-
     public class Person
     {
         [Key]
@@ -24,7 +17,17 @@ namespace Core.DomainModel
         public double DistanceFromHomeToBorder { get; set; }
         public string Initials { get; set; }
         public string FullName { get; set; }
-        public bool IsAdmin { get; set; }
+
+        private bool _isAdmin;
+        public bool IsAdmin
+        {
+            get { return _isAdmin; }
+            
+            // Set AdminRecieveMail to true as default when person is made admin, and to false when admin privilege is revoked.
+            set { AdminRecieveMail = value; _isAdmin = value; } 
+        }
+
+        public bool AdminRecieveMail { get; set; }
         public bool IsSubstitute { get; set; }
         public bool IsActive { get; set; }
         public bool HasAppPassword { get; set; }

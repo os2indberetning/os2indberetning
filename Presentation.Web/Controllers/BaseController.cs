@@ -41,7 +41,7 @@ namespace OS2Indberetning.Controllers
             base.Initialize(requestContext);
 
             string[] httpUser = User.Identity.Name.Split('\\');
-            //httpUser[1] = "smb";
+            httpUser[1] = "mhn";
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {

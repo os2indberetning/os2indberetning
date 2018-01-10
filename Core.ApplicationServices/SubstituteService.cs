@@ -78,15 +78,16 @@ namespace Core.ApplicationServices
             // newSub is a substitute
             if (newSub.PersonId.Equals(newSub.LeaderId))
             {
-                if (_subRepo.AsQueryable().Any(x => x.OrgUnitId.Equals(newSub.OrgUnitId) &&
-                    // Id has to be different. Otherwise it will return true when trying to patch a sub
-                    // Because a substitute already exists in the period, however that is the same sub we are trying to change.
-                    x.Id != newSub.Id &&
-                    ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
-                    (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
-                {
-                    return false;
-                }
+                //if (_subRepo.AsQueryable().Any(x => x.OrgUnitId.Equals(newSub.OrgUnitId) &&
+                //    // Id has to be different. Otherwise it will return true when trying to patch a sub
+                //    // Because a substitute already exists in the period, however that is the same sub we are trying to change.
+                //    x.Id != newSub.Id &&
+                //    ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
+                //    (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
+                //{
+                //    return false;
+                //}
+                return true;
             }
             // newSub is a personal approver
             else

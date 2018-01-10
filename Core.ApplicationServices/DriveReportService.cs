@@ -372,7 +372,7 @@ namespace Core.ApplicationServices
             var loopHasFinished = false;
             while (!loopHasFinished)
             {
-                sub = _substituteRepository.AsQueryable().SingleOrDefault(s => s.OrgUnitId == orgToCheck.Id && s.PersonId == leader.Id && s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp && s.PersonId.Equals(s.LeaderId));
+                sub = _substituteRepository.AsQueryable().FirstOrDefault(s => s.OrgUnitId == orgToCheck.Id && s.PersonId == leader.Id && s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp && s.PersonId.Equals(s.LeaderId));
                 if (sub != null)
                 {
                     if(sub.Sub == null)

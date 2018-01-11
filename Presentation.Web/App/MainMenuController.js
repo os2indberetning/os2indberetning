@@ -14,7 +14,9 @@ angular.module("application").controller("MainMenuController", [
                $scope.showApproveReports = res.IsLeader || res.IsSubstitute;
                $scope.UserName = res.FullName;
            }).catch(function(e){
-               $window.location.href = "login.ashx"
+               if ($rootScope.HelpTexts.AUTHENTICATION.text == "SAML") {
+                   $window.location.href = "login.ashx"
+               }
            });
        }
 

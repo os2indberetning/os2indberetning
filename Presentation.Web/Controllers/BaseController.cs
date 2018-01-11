@@ -41,14 +41,20 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-            string[] httpUser = User.Identity.Name.Split('\\');
+            string[] httpUser = new string[2];
             //httpUser[1] = "123";
 
-            if (Saml20Identity.Current != null)
+            if (ConfigurationManager.AppSettings["AUTHENTICATION"].Equals("SAML"))
             {
-                httpUser = new string[2];
-                httpUser[0] = "Miracle";
-                httpUser[1] = "rro";
+                if (Saml20Identity.Current != null)
+                {
+                    httpUser[0] = "Miracle";
+                    httpUser[1] = "jle";
+                }
+            }
+            else
+            {
+                httpUser = User.Identity.Name.Split('\\');
             }
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))

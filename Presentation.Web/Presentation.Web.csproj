@@ -332,7 +332,6 @@
       <Link>CustomSettings.config</Link>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="idp-metadata\local_demo_idp.xml" />
     <Content Include="login.ashx" />
     <Content Include="logout.ashx" />
     <Content Include="metadata.ashx" />

@@ -163,6 +163,11 @@ namespace OS2Indberetning.Controllers
         {
             _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}");
 
+            if (!CurrentUser.IsAdmin)
+            {
+                return StatusCode(HttpStatusCode.Forbidden);
+            }
+
             // Validate parameters
             long parsedStartDateUnix;
             long parsedEndDateUnix;
@@ -213,7 +218,7 @@ namespace OS2Indberetning.Controllers
             ExportModel result = new ExportModel();
             try
             {
-                var adminInitials = User.Identity.Name.Split('\\')[1];
+                var adminInitials = CurrentUser.Initials;
                 result.DateInterval = $"{start} - {end}";
                 result.OrgUnit = (parsedOrgunitId < 0) ? "Ikke angivet" : _orgrepo.AsQueryable().Where(x => x.Id == parsedOrgunitId).FirstOrDefault().LongDescription;
                 result.Name = person.FullName;

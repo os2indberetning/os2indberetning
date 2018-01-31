@@ -332,9 +332,9 @@
       <Link>CustomSettings.config</Link>
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Handlers\login.ashx" />
-    <Content Include="Handlers\logout.ashx" />
-    <Content Include="Handlers\metadata.ashx" />
+    <Content Include="login.ashx" />
+    <Content Include="logout.ashx" />
+    <Content Include="metadata.ashx" />
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -756,7 +756,6 @@
     <Content Include="fonts\fontawesome-webfont.svg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="idp-metadata\ballerup-idp-meatdata.xml" />
     <Content Include="Scripts\angular-busy.min.js" />
     <Content Include="Scripts\kendo-ie-fix.js" />
     <Content Include="Scripts\kendo\angular.min.js" />
@@ -2366,6 +2365,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Handlers\" />
+    <Folder Include="idp-metadata\" />
     <Folder Include="Views\Configurations\" />
     <Folder Include="Views\Configuration\" />
     <Folder Include="Views\Manifest\" />

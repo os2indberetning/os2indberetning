@@ -41,39 +41,48 @@ namespace OS2Indberetning.Controllers
         {
             base.Initialize(requestContext);
 
-            string[] httpUser = new string[2];
-            //httpUser[1] = "123";
-
             if (ConfigurationManager.AppSettings["AUTHENTICATION"].Equals("SAML"))
             {
-                if (Saml20Identity.Current != null)
-                {
-                    httpUser[0] = "Miracle";
-                    httpUser[1] = "jle";
-                }
+                LoginUserSAML();
             }
             else
             {
-                httpUser = User.Identity.Name.Split('\\');
+                LoginUserWindowsIntegratedAuthentication();
             }
+
+            _logger.Debug($"{GetType()}, Initialize(), User logged in: {CurrentUser.FullName}");
+        }
+
+        private void LoginUserSAML()
+        {
+            if (Saml20Identity.Current != null)
+            {
+                string username;
+                try
+                {
+                    username = Saml20Identity.Current["urn:oid:0.9.2342.19200300.100.1.1"].First().AttributeValue.First();
+                    _logger.Debug($"{GetType().Name}, USERNAME = {username}");
+                }
+                catch (Exception e)
+                {
+                    _logger.Error($"{GetType().Name}, Valid attribute not available on SAML token", e);
+                    throw new UnauthorizedAccessException("Valid SAML attribute not available");
+                }
+                ValidateUser(username);
+            }
+            else
+            {
+                throw new UnauthorizedAccessException("SAML token not available");
+            }
+        }
+
+        private void LoginUserWindowsIntegratedAuthentication()
+        {
+            string[] httpUser = User.Identity.Name.Split('\\');
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
             {
-                var initials = httpUser[1].ToLower();
-
-                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials) && p.IsActive);
-                if (CurrentUser == null)
-                {
-                    _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
-                    _logger.Debug($"{GetType().Name}, Initialize(), AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
-                    throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
-                }
-                if (!CurrentUser.IsActive)
-                {
-                    _logger.LogForAdmin("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
-                    _logger.Debug($"{GetType().Name}, Initialize(), Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
-                    throw new UnauthorizedAccessException("Inaktiv bruger forsøgte at logge ind.");
-                }
+                ValidateUser(httpUser[1]);
             }
             else
             {
@@ -81,8 +90,23 @@ namespace OS2Indberetning.Controllers
                 _logger.Debug($"{GetType().Name}, Initialize(), Gyldig domænebruger ikke fundet (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
                 throw new UnauthorizedAccessException("Gyldig domænebruger ikke fundet.");
             }
+        }
 
-            _logger.Debug($"{GetType()}, Initialize(), User logged in: {User.Identity.Name}");
+        private void ValidateUser(string initials)
+        {
+            CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials) && p.IsActive);
+            if (CurrentUser == null)
+            {
+                _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                _logger.Debug($"{GetType().Name}, Initialize(), AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
+            }
+            if (!CurrentUser.IsActive)
+            {
+                _logger.LogForAdmin("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                _logger.Debug($"{GetType().Name}, Initialize(), Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                throw new UnauthorizedAccessException("Inaktiv bruger forsøgte at logge ind.");
+            }
         }
 
         public BaseController(IGenericRepository<T> repository, IGenericRepository<Person> personRepo)

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Core.DomainModel;
 using Presentation.Web.Test.Controllers;
+using Core.DomainServices;
 
 namespace ConsoleApplications.Test.Mailer
 {
@@ -10,7 +11,7 @@ namespace ConsoleApplications.Test.Mailer
         public MailNotificationSchedule noti1 = new MailNotificationSchedule()
         {
             Id = 1,
-            DateTimestamp = ToUnixTime(DateTime.Now),
+            DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
             Notified = false,
             Repeat = true
         };
@@ -18,7 +19,7 @@ namespace ConsoleApplications.Test.Mailer
         public MailNotificationSchedule noti2 = new MailNotificationSchedule()
         {
             Id = 2,
-            DateTimestamp = ToUnixTime(DateTime.Now.AddDays(1)),
+            DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
             Notified = false,
             Repeat = true
         };
@@ -31,18 +32,6 @@ namespace ConsoleApplications.Test.Mailer
                 noti1,
                 noti2,
             };
-        }
-
-        public static long ToUnixTime(DateTime date)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date - epoch).TotalSeconds);
-        }
-
-        public static DateTime FromUnixTime(long unixTime)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return epoch.AddSeconds(unixTime);
         }
     }
 }

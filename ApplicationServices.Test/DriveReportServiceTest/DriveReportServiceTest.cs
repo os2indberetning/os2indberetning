@@ -781,8 +781,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void ReCalculateFourKmRuleForOtherReports_WhenDeletingFirstReportOfTheDay()
         {
-            var driveDateTimestampToday = ToUnixTime(DateTime.Now);
-            var driveDateTimestampYesterday = ToUnixTime(DateTime.Now.AddDays(-1));
+            var driveDateTimestampToday = Utilities.ToUnixTime(DateTime.Now);
+            var driveDateTimestampYesterday = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
 
             var drivereportToCalculate1 = new DriveReport()
             {
@@ -826,8 +826,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void ReCalculateFourKmRuleForOtherReports_WhenReportIsRejected()
         {
-            var driveDateTimestampToday = ToUnixTime(DateTime.Now);
-            var driveDateTimestampYesterday = ToUnixTime(DateTime.Now.AddDays(-1));
+            var driveDateTimestampToday = Utilities.ToUnixTime(DateTime.Now);
+            var driveDateTimestampYesterday = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
 
             var drivereportToCalculate1 = new DriveReport()
             {
@@ -892,12 +892,5 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         {
 
         }
-
-        private long ToUnixTime(DateTime date)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date - epoch).TotalSeconds);
-        }
-
     }
 }

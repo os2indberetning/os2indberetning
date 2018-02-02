@@ -7,6 +7,7 @@ using Core.DomainModel;
 using Mail;
 using NSubstitute;
 using NUnit.Framework;
+using Core.DomainServices;
 
 namespace ConsoleApplications.Test
 {
@@ -31,14 +32,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = false,
                 Repeat = false
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = ToUnixTime(DateTime.Now.AddDays(1)),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
                 Notified = false,
                 Repeat = false
             };
@@ -58,14 +59,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = false,
                 Repeat = true
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = false,
                 Repeat = true
             };
@@ -87,14 +88,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = false,
                 Repeat = false
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = false,
                 Repeat = true
             };
@@ -113,14 +114,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = ToUnixTime(DateTime.Now.AddDays(1)),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
                 Notified = false,
                 Repeat = true
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = ToUnixTime(DateTime.Now.AddDays(2)),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(2)),
                 Notified = false,
                 Repeat = true
             };
@@ -137,14 +138,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = true,
                 Repeat = true
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = ToUnixTime(DateTime.Now),
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
                 Notified = true,
                 Repeat = true
             };
@@ -152,22 +153,6 @@ namespace ConsoleApplications.Test
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger);
             uut.RunMailService();
             mailSub.DidNotReceive().SendMails(new DateTime());
-        }
-
-
-
-       
-
-        public long ToUnixTime(DateTime date)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date - epoch).TotalSeconds);
-        }
-
-        public DateTime FromUnixTime(long unixTime)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return epoch.AddSeconds(unixTime);
         }
     }
 }

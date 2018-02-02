@@ -477,7 +477,7 @@ namespace Core.ApplicationServices
             }
 
             mailContent += "Afstand: " + report.Distance.ToString().Replace(".",",") + Environment.NewLine
-            + "Kørselsdato: " + FromUnixTime(report.DriveDateTimestamp) + Environment.NewLine + Environment.NewLine
+            + "Kørselsdato: " + Utilities.FromUnixTime(report.DriveDateTimestamp) + Environment.NewLine + Environment.NewLine
             + "Hvis du mener at dette er en fejl, så kontakt mig da venligst på " + admin.Mail + Environment.NewLine
             + "Med venlig hilsen " + admin.FullName + Environment.NewLine + Environment.NewLine
             + "Besked fra administrator: " + Environment.NewLine + emailText;
@@ -489,21 +489,5 @@ namespace Core.ApplicationServices
 
 
         }
-
-        /// <summary>
-        /// Converts timestamp to datetime
-        /// </summary>
-        /// <param name="unixTime">Timestamp to convert</param>
-        /// <returns>DateTime</returns>
-        private string FromUnixTime(long unixTime)
-        {
-            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
-            dtDateTime = dtDateTime.AddSeconds(unixTime).ToLocalTime();
-            return dtDateTime.Day + "/" + dtDateTime.Month + "/" + dtDateTime.Year;
-        }
-
-
-
-
     }
 }

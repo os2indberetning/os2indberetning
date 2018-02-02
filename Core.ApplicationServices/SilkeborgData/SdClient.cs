@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Core.ApplicationServices.SdKoersel;
 using Core.ApplicationServices.Logger;
-using Core.DomainServices.Interfaces;
+using Core.ApplicationServices.Interfaces;
 
 namespace Core.ApplicationServices
 {

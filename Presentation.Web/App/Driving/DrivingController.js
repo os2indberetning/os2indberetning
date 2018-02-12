@@ -99,8 +99,6 @@
 
             console.log("name: " + $rootScope.CurrentUser.id);
 
-            $scope.DriveReport.KilometerAllowance = $rootScope.CurrentUser.Employments[0].OrgUnit.DefaultKilometerAllowance;
-
             $scope.DriveReport.Addresses = [];
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });
@@ -171,10 +169,25 @@
             $scope.DriveReport.FourKmRule = {};
             $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
             
+            var initialKilometerAllowance = "Calculated";
+
             if(report.EmploymentId != null){
-             // Set default DriveReport Position to position from previous report
-            $scope.DriveReport.Position = report.EmploymentId;
+                // Set default DriveReport Position to position from previous report
+                $scope.DriveReport.Position = report.EmploymentId;
+                
+                var employment;
+                angular.forEach($scope.currentUser.Employments, function (empl, key) {
+                    if (empl.Id == $scope.DriveReport.Position) {
+                        employment = empl;
+                    }
+                });
+                
+                if(employment != null){
+                    initialKilometerAllowance = employment.OrgUnit.DefaultKilometerAllowance;
+                }
             }
+
+            $scope.DriveReport.KilometerAllowance = initialKilometerAllowance;
           
             // Select position in dropdown.
             $scope.container.PositionDropDown.select(function (item) {
@@ -1113,6 +1126,27 @@
             modalInstance.result.then(function () {
                 $scope.clearReport();
             });
+        }
+
+        $scope.sixtyDaysRuleApplied = function() {
+            if($scope.DriveReport.SixtyDaysRule == true) {
+                var modalInstance = $modal.open({
+                    templateUrl: '/App/Driving/ConfirmApplySixtyDaysRuleTemplate.html',
+                    controller: 'ConfirmApplySixtyDaysRuleController',
+                    backdrop: "static",
+                    resolve: {
+                        sixtyDaysRuleHelptext: function() {
+                            return $scope.sixtyDaysRuleHelptext;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // do nothing, checkbox remains checked
+                }, function() {
+                    $scope.DriveReport.SixtyDaysRule = false; // uncheck checkbox
+                });
+            }
         }
 
         $scope.openNoLicensePlateModal = function () {

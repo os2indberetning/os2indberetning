@@ -131,6 +131,13 @@
     <Compile Include="MailerService\Interface\IMailService.cs" />
     <Compile Include="NinjectDependencyScope.cs" />
     <Compile Include="NinjectWebKernel.cs" />
+    <Compile Include="SilkeborgData\ISdClient.cs" />
+    <Compile Include="SilkeborgData\SdClient.cs" />
+    <Compile Include="Service References\SdKoersel\Reference.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </Compile>
     <Compile Include="Service References\SdWebService\Reference.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -152,8 +159,17 @@
     <Compile Include="TransferToPayrollService.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
+    <None Include="Service References\SdKoersel\AnsaettelseKoerselOpret20170501.wsdl" />
+    <None Include="Service References\SdKoersel\Core.ApplicationServices.SdKoersel.AnsaettelseKoerselOpret20170501OperationResponse.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
+    <None Include="Service References\SdKoersel\Core.ApplicationServices.SdKoersel.AnsaettelseKoerselOpret20170501Type.datasource">
+      <DependentUpon>Reference.svcmap</DependentUpon>
+    </None>
     <None Include="Service References\SdWebService\Core.ApplicationServices.SdWebService.KoerselOpret20120201OperationResponse.datasource">
       <DependentUpon>Reference.svcmap</DependentUpon>
     </None>
@@ -231,6 +247,7 @@
     <WCFMetadata Include="Service References\" />
   </ItemGroup>
   <ItemGroup>
+    <WCFMetadataStorage Include="Service References\SdKoersel\" />
     <WCFMetadataStorage Include="Service References\SdWebService\" />
   </ItemGroup>
   <ItemGroup>
@@ -241,6 +258,18 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Service References\SdWebService\Reference.svcmap">
+      <Generator>WCF Proxy Generator</Generator>
+      <LastGenOutput>Reference.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SdKoersel\configuration91.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SdKoersel\configuration.svcinfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Service References\SdKoersel\Reference.svcmap">
       <Generator>WCF Proxy Generator</Generator>
       <LastGenOutput>Reference.cs</LastGenOutput>
     </None>

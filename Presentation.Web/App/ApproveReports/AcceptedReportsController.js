@@ -37,8 +37,7 @@
        });
 
        // dates for kendo filter.
-       var fromDateFilter = new Date();
-       fromDateFilter.setMonth(fromDateFilter.getMonth() - 12);
+       var fromDateFilter = new Date(2014, 0, 1);
        fromDateFilter = $scope.getStartOfDayStamp(fromDateFilter);
        var toDateFilter = $scope.getEndOfDayStamp(new Date());
 
@@ -293,10 +292,8 @@
            /// Loads initial date filters.
            /// </summary>
            // Set initial values for kendo datepickers.
-           var from = new Date();
-           from.setMonth(from.getMonth() - 12);
            $scope.dateContainer.toDate = new Date();
-           $scope.dateContainer.fromDate = from;
+           $scope.dateContainer.fromDate = new Date("01-01-2014");
        }
 
        // Event handlers

@@ -23,7 +23,7 @@ namespace ApplicationServices.Test.FileGenerator
 
         private static readonly Employment _employment = new Employment
         {
-            EmploymentId = 2,
+            EmploymentId = "2",
             EmploymentType = 1,
             CostCenter = 1234,
         };

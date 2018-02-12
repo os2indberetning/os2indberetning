@@ -20,6 +20,8 @@ using Ninject.Web.Common;
 using OS2Indberetning;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.FileGenerator;
+using Core.DomainServices.Interfaces;
+using Core.ApplicationServices.SilkeborgData;
 
 namespace Core.ApplicationServices
 {
@@ -79,6 +81,8 @@ namespace Core.ApplicationServices
             kernel.Bind<ITransferToPayrollService>().To<TransferToPayrollService>();
             kernel.Bind<IReportGenerator>().To<ReportGenerator>();
             kernel.Bind<IReportFileWriter>().To<ReportFileWriter>();
+            kernel.Bind<ICustomSettings>().To<CustomSettings>();
+            kernel.Bind<ISdClient>().To<SdClient>();
         }        
     }
 }

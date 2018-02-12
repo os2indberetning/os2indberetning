@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<wsdl:definitions xmlns:response="urn:oio:sd:snitflader:2017.05.01" xmlns:tns="www.sd.dk/sdws/AnsaettelseKoerselOpret20170501" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:request="urn:oio:sd:snitflader:2017.05.01" xmlns="http://www.w3.org/2001/XMLSchema" targetNamespace="www.sd.dk/sdws/AnsaettelseKoerselOpret20170501" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">
+  <wsdl:types>
+    <xsd:schema elementFormDefault="qualified" targetNamespace="http://rep.oio.dk/sd.dk/xml.schema/20070301/">
+      <xsd:element xmlns:sd20070301="http://rep.oio.dk/sd.dk/xml.schema/20070301/" name="RegistrationAccountIdentifier" type="sd20070301:RegistrationAccountIdentifierType" />
+      <xsd:simpleType xmlns:sd20070301="http://rep.oio.dk/sd.dk/xml.schema/20070301/" name="RegistrationAccountIdentifierType">
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value="[0-9]{10}" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema elementFormDefault="qualified" targetNamespace="http://rep.oio.dk/sd.dk/xml.schema/20070401/">
+      <xsd:element xmlns:sd20070401="http://rep.oio.dk/sd.dk/xml.schema/20070401/" name="AppointmentCode" type="sd20070401:AppointmentCodeType" />
+      <xsd:simpleType xmlns:sd20070401="http://rep.oio.dk/sd.dk/xml.schema/20070401/" name="AppointmentCodeType">
+        <xsd:restriction base="xsd:string">
+          <xsd:pattern value=".|Empty" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema elementFormDefault="qualified" targetNamespace="http://rep.oio.dk/skat.dk/motor/class/registreringnummer/xml/schemas/20080401/">
+      <xsd:element name="RegistreringNummerIdentifikator" type="xsd:string">
+        <xsd:annotation>
+          <xsd:documentation>Et registreringsnummer kan være opdelt i en eller to rækker. Da man eksempelvis i forhold til ønskeplader selv kan vælge indholdet på række 1 og række 2, vil det være relevant at have et felt, som samler de to rækker i en samlet indholdsattribut. 
+Hvis der kun er en enkelt række, så vil indholdet både stå i række 1 og i den samlede række.
+Denne attribut kan afledes af det samlede indhold i række 1 og række2.
+</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+    </xsd:schema>
+    <xsd:schema elementFormDefault="qualified" targetNamespace="urn:oio:sd:snitflader:2011.12.01">
+      <xsd:element xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="DepartmentIdentifier" type="sd20111201:DepartmentIdentifierType" />
+      <xsd:simpleType xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="DepartmentIdentifierType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="JobPositionIdentifier" type="sd20111201:JobPositionIdentifierType" />
+      <xsd:simpleType xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="JobPositionIdentifierType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="InstitutionIdentifier" type="sd20111201:InstitutionIdentifierType" />
+      <xsd:simpleType xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="InstitutionIdentifierType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="EmploymentIdentifier" type="sd20111201:EmploymentIdentifierType" />
+      <xsd:simpleType xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="EmploymentIdentifierType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="UUIDIdentifier" type="sd20111201:UUIDIdentifierType" />
+      <xsd:simpleType xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" name="UUIDIdentifierType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema elementFormDefault="qualified" targetNamespace="urn:oio:sd:snitflader:2012.02.01">
+      <xsd:element xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="Regel60DageIndikator" type="xsd:boolean" />
+      <xsd:element xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="RegistreringTypeIdentifikator" type="sd20120201:RegistreringTypeIdentifikatorType" />
+      <xsd:simpleType xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="RegistreringTypeIdentifikatorType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sdsd20120201="urn:oio:sd:snitflader:2012.02.01" name="KoertFraTekst" type="sdsd20120201:KoertFraTekstType" />
+      <xsd:simpleType xmlns:sdsd20120201="urn:oio:sd:snitflader:2012.02.01" name="KoertFraTekstType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="KoertTilTekst" type="sd20120201:KoertTilTekstType" />
+      <xsd:simpleType xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="KoertTilTekstType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="AarsagTekst" type="sd20120201:AarsagTekstType" />
+      <xsd:simpleType xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="AarsagTekstType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="KoerselDato" type="xsd:date" />
+      <xsd:element xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="KilometerMaal" type="sd20120201:KilometerMaalType" />
+      <xsd:simpleType xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" name="KilometerMaalType">
+        <xsd:restriction base="xsd:decimal">
+          <xsd:fractionDigits value="2" />
+        </xsd:restriction>
+      </xsd:simpleType>
+    </xsd:schema>
+    <xsd:schema xmlns:sd="urn:oio:sd:snitflader:2017.05.01" xmlns:sd20070401="http://rep.oio.dk/sd.dk/xml.schema/20070401/" xmlns:skat20080401="http://rep.oio.dk/skat.dk/motor/class/registreringnummer/xml/schemas/20080401/" xmlns:sd20070301="http://rep.oio.dk/sd.dk/xml.schema/20070301/" xmlns:sd20111201="urn:oio:sd:snitflader:2011.12.01" xmlns:sd20120201="urn:oio:sd:snitflader:2012.02.01" elementFormDefault="qualified" targetNamespace="urn:oio:sd:snitflader:2017.05.01">
+      <xsd:element name="AnsaettelseKoerselOpret" type="sd:AnsaettelseKoerselOpretInputType" />
+      <xsd:complexType name="AnsaettelseKoerselOpretInputType">
+        <xsd:sequence>
+          <xsd:choice>
+            <xsd:element name="InstitutionIdentifikator" type="sd20111201:InstitutionIdentifierType" />
+            <xsd:element name="InstitutionUUIDIdentifikator" type="sd20111201:UUIDIdentifierType" />
+          </xsd:choice>
+          <xsd:element ref="sd:BrugerIdentifikator" />
+          <xsd:choice>
+            <xsd:element name="AnsaettelseIdentifikator" type="sd20111201:EmploymentIdentifierType" />
+            <xsd:element name="AnsaettelseUUIDIdentifikator" type="sd20111201:UUIDIdentifierType">
+              <xsd:annotation>
+                <xsd:documentation>SD understøtter i 2017 ikke UUID på ansættelser.</xsd:documentation>
+              </xsd:annotation>
+            </xsd:element>
+          </xsd:choice>
+          <xsd:element ref="sd20120201:RegistreringTypeIdentifikator" />
+          <xsd:element ref="sd20120201:KoerselDato" />
+          <xsd:element ref="sd20120201:KilometerMaal" />
+          <xsd:element minOccurs="0" name="KontoNummerIdentifikator" type="sd20070301:RegistrationAccountIdentifierType" />
+          <xsd:element ref="sd:GodkendtIndikator" />
+          <xsd:element ref="sd:KontrolleretIndikator" />
+          <xsd:element ref="sd:DokumentationEksternIndikator" />
+          <xsd:element ref="sd20120201:Regel60DageIndikator" />
+          <xsd:element minOccurs="0" ref="skat20080401:RegistreringNummerIdentifikator" />
+          <xsd:element minOccurs="0" ref="sd20120201:AarsagTekst" />
+          <xsd:element minOccurs="0" ref="sd20120201:KoertFraTekst" />
+          <xsd:element minOccurs="0" ref="sd20120201:KoertTilTekst" />
+          <xsd:element minOccurs="0" maxOccurs="unbounded" ref="sd:KoertViaTekst" />
+          <xsd:choice>
+            <xsd:element minOccurs="0" name="KonteringAfvigendeEnhedIdentifikator" type="sd20111201:DepartmentIdentifierType" />
+            <xsd:element name="KonteringAfvigendeEnhedUUIDIdentifikator" type="sd20111201:UUIDIdentifierType" />
+          </xsd:choice>
+          <xsd:element minOccurs="0" name="KonteringAfvigendeStillingIdentifikator" type="sd20111201:JobPositionIdentifierType" />
+          <xsd:element minOccurs="0" name="KonteringAfvigendeTjenesteKode" type="sd20070401:AppointmentCodeType" />
+        </xsd:sequence>
+      </xsd:complexType>
+      <xsd:element xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="BrugerIdentifikator" type="sd20170501:BrugerIdentifikatorType" />
+      <xsd:simpleType xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="BrugerIdentifikatorType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="KontrolleretIndikator" type="xsd:boolean">
+        <xsd:annotation>
+          <xsd:documentation>kontrolleretIndikator angiver om registreringen er kontrolleret af revisor.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="GodkendtIndikator" type="xsd:boolean" />
+      <xsd:element xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="DokumentationEksternIndikator" type="xsd:boolean">
+        <xsd:annotation>
+          <xsd:documentation>Angiver om der forefindes ekstern dokumentation.</xsd:documentation>
+        </xsd:annotation>
+      </xsd:element>
+      <xsd:element xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="KoertViaTekst" type="sd20170501:KoertViaTekstType" />
+      <xsd:simpleType xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="KoertViaTekstType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+      <xsd:element name="AnsaettelseKoerselOpret20170501" type="sd:AnsaettelseKoerselOpret20170501Type" />
+      <xsd:complexType name="AnsaettelseKoerselOpret20170501Type">
+        <xsd:sequence>
+          <xsd:element name="InddataStruktur" type="sd:AnsaettelseKoerselOpretInputType" />
+          <xsd:element minOccurs="0" ref="sd:RegistreringIdentifikator" />
+        </xsd:sequence>
+        <xsd:attribute name="dannetDatoTid" type="xsd:dateTime" use="required" />
+      </xsd:complexType>
+      <xsd:element xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="RegistreringIdentifikator" type="sd20170501:RegistreringIdentifikatorType" />
+      <xsd:simpleType xmlns:sd20170501="urn:oio:sd:snitflader:2017.05.01" name="RegistreringIdentifikatorType">
+        <xsd:restriction base="xsd:string" />
+      </xsd:simpleType>
+    </xsd:schema>
+  </wsdl:types>
+  <wsdl:message name="AnsaettelseKoerselOpret20170501Response">
+    <wsdl:part name="AnsaettelseKoerselOpret20170501" element="request:AnsaettelseKoerselOpret20170501" />
+  </wsdl:message>
+  <wsdl:message name="AnsaettelseKoerselOpret20170501Request">
+    <wsdl:part name="AnsaettelseKoerselOpret" element="request:AnsaettelseKoerselOpret" />
+  </wsdl:message>
+  <wsdl:portType name="AnsaettelseKoerselOpret20170501PortType">
+    <wsdl:operation name="AnsaettelseKoerselOpret20170501Operation">
+      <wsdl:input message="tns:AnsaettelseKoerselOpret20170501Request" />
+      <wsdl:output message="tns:AnsaettelseKoerselOpret20170501Response" />
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="AnsaettelseKoerselOpret20170501Binding" type="tns:AnsaettelseKoerselOpret20170501PortType">
+    <wsdlsoap:binding transport="http://schemas.xmlsoap.org/soap/http" />
+    <wsdl:operation name="AnsaettelseKoerselOpret20170501Operation">
+      <wsdlsoap:operation soapAction="https://service.sd.dk/sdws-indberetning/services/AnsaettelseKoerselOpret20170501" />
+      <wsdl:input>
+        <wsdlsoap:body use="literal" />
+      </wsdl:input>
+      <wsdl:output>
+        <wsdlsoap:body use="literal" />
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AnsaettelseKoerselOpret20170501Service">
+    <wsdl:port name="AnsaettelseKoerselOpret20170501" binding="tns:AnsaettelseKoerselOpret20170501Binding">
+      <wsdlsoap:address location="https://service.sd.dk/sdws-indberetning/services/AnsaettelseKoerselOpret20170501" />
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

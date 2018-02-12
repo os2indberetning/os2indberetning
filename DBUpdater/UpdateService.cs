@@ -266,10 +266,12 @@ namespace DBUpdater
             _emplRepo.Save();
 
             // Makes all employees wihtout employments inactive.
-            var peopleWithoutEmployment = _personRepo.AsQueryable().Where(x => !x.Employments.Any());
-            foreach(var person in peopleWithoutEmployment)
+            foreach(var person in _personRepo.AsQueryable().ToList())
             {
-                person.IsActive = false;
+                if (person.Employments == null || !person.Employments.Any())
+                {
+                    person.IsActive = false;
+                }
             }
             _personRepo.Save();
 
@@ -603,54 +605,62 @@ namespace DBUpdater
             var i = 0;
             foreach (var org in orgs)
             {
-                i++;
-                if (i % 10 == 0)
-                {
-                    Console.WriteLine("Migrating organisation " + i + " of " + orgs.Count() + ".");
-                }
-
-                var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
-
-                if (string.IsNullOrEmpty(org.Vejnavn))
-                {
-                    _logger.Debug($"{this.GetType().Name}, MigrateOrganisationsIDM(), Orgunit skipped since it had no address, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count());
-                    continue;
-                }
-
-                var workAddress = GetWorkAddressIDM(org);
-
-                if (orgToInsert == null)
-                {
-                    orgToInsert = _orgRepo.Insert(new OrgUnit());
-                    orgToInsert.HasAccessToFourKmRule = false;
-                }
-
-                orgToInsert.Level = 0;//This is because in IDM level doesn't exist
-                orgToInsert.LongDescription = org.Navn;
-                orgToInsert.ShortDescription = org.Navn; //Specificed by customer that name or nothing should just be used
-                orgToInsert.OrgOUID = org.OUID;
-
-                var addressChanged = false;
-
-                if (workAddress != orgToInsert.Address)
-                {
-                    addressChanged = true;
-                    orgToInsert.Address = workAddress;
-                }
-
                 try
                 {
-                    _orgRepo.Save();
+                    i++;
+                    if (i % 10 == 0)
+                    {
+                        Console.WriteLine("Migrating organisation " + i + " of " + orgs.Count() + ".");
+                    }
+
+                    var orgToInsert = _orgRepo.AsQueryable().FirstOrDefault(x => x.OrgOUID == org.OUID);
+
+                    if (string.IsNullOrEmpty(org.Vejnavn))
+                    {
+                        _logger.Debug($"{this.GetType().Name}, MigrateOrganisationsIDM(), Orgunit skipped since it had no address, OrgId={org.OUID}, OrgNavn={org.Navn}" + orgs.Count());
+                        continue;
+                    }
+
+                    var workAddress = GetWorkAddressIDM(org);
+
+                    if (orgToInsert == null)
+                    {
+                        orgToInsert = _orgRepo.Insert(new OrgUnit());
+                        orgToInsert.HasAccessToFourKmRule = false;
+                    }
+
+                    orgToInsert.Level = 0;//This is because in IDM level doesn't exist
+                    orgToInsert.LongDescription = org.Navn;
+                    orgToInsert.ShortDescription = org.Navn; //Specificed by customer that name or nothing should just be used
+                    orgToInsert.OrgOUID = org.OUID;
+
+                    var addressChanged = false;
+
+                    if (workAddress != orgToInsert.Address)
+                    {
+                        addressChanged = true;
+                        orgToInsert.Address = workAddress;
+                    }
+
+                    try
+                    {
+                        _orgRepo.Save();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.Error($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", e);
+                        throw;
+                    }
+
+                    if (addressChanged)
+                    {
+                        workAddress.OrgUnitId = orgToInsert.Id;
+                    }
                 }
                 catch (Exception e)
                 {
                     _logger.Error($"{this.GetType().Name}, MigrateOrganisationsIDM(). OrgId={org.OUID}, OrgNavn={org.Navn}", e);
                     throw;
-                }
-
-                if (addressChanged)
-                {
-                    workAddress.OrgUnitId = orgToInsert.Id;
                 }
             }
             foreach (var org in orgs)

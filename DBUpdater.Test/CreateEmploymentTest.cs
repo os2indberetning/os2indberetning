@@ -110,8 +110,8 @@ namespace DBUpdater.Test
             Assert.That(res.ElementAt(0).ExtraNumber.Equals(1));
             Assert.That(res.ElementAt(0).IsLeader.Equals(true));
             Assert.That(res.ElementAt(0).Position.Equals("Udvikler"));
-            Assert.That(res.ElementAt(0).StartDateTimestamp.Equals(1430179200));
-            Assert.That(res.ElementAt(0).EndDateTimestamp.Equals(1431388800));
+            Assert.AreEqual(1430179200, res.ElementAt(0).StartDateTimestamp);
+            Assert.AreEqual(1431475200, res.ElementAt(0).EndDateTimestamp);
             Assert.That(res.ElementAt(0).PersonId.Equals(1));
             Assert.That(res.ElementAt(0).EmploymentType.Equals(1));
 
@@ -158,7 +158,7 @@ namespace DBUpdater.Test
                 OphoersDato = new DateTime(2015, 5, 12)
             };
 
-            Assert.Throws<Exception>(() => _uut.CreateEmployment(empl, 10));
+            Assert.IsNull(_uut.CreateEmployment(empl, 10));
         }
 
 

@@ -203,3 +203,5 @@ ModelManifest.xml
 /.vs/config
 /Presentation.Web/Content/favicon.png
 Presentation.Web/private.css
+*.pubxml
+Presentation.Web/idp-metadata/

@@ -234,6 +234,7 @@ namespace Core.ApplicationServices
         {
             if (report.Status.Equals(ReportStatus.Rejected))
             {
+                report.Distance += report.FourKmRuleDeducted;
                 report.FourKmRuleDeducted = 0;
             }
 

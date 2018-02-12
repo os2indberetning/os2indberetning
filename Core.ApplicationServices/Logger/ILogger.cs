@@ -31,5 +31,9 @@ namespace Core.ApplicationServices.Logger
 
         void AuditLogDMZ(string date, string user, string userLocation, string controller, string action, string parameters);
 
+        void DebugSd(string message);
+
+        void ErrorSd(string message, Exception exception = null);
+
     }
 }

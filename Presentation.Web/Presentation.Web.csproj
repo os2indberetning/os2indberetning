@@ -307,6 +307,8 @@
     <Content Include="App-icons\os2i-144x144.png" />
     <Content Include="App-icons\os2i-57x57.png" />
     <Content Include="App-icons\os2i-72x72.png" />
+    <Content Include="App\Driving\ConfirmApplySixtyDaysRuleController.js" />
+    <Content Include="App\Driving\ConfirmApplySixtyDaysRuleTemplate.html" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Oblique.ttf" />

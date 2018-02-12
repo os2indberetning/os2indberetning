@@ -1128,6 +1128,27 @@
             });
         }
 
+        $scope.sixtyDaysRuleApplied = function() {
+            if($scope.DriveReport.SixtyDaysRule == true) {
+                var modalInstance = $modal.open({
+                    templateUrl: '/App/Driving/ConfirmApplySixtyDaysRuleTemplate.html',
+                    controller: 'ConfirmApplySixtyDaysRuleController',
+                    backdrop: "static",
+                    resolve: {
+                        sixtyDaysRuleHelptext: function() {
+                            return $scope.sixtyDaysRuleHelptext;
+                        }
+                    }
+                });
+
+                modalInstance.result.then(function () {
+                    // do nothing, checkbox remains checked
+                }, function() {
+                    $scope.DriveReport.SixtyDaysRule = false; // uncheck checkbox
+                });
+            }
+        }
+
         $scope.openNoLicensePlateModal = function () {
             /// <summary>
             /// Opens no license plate modal.

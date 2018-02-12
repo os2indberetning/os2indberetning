@@ -12,7 +12,7 @@
     <div class="col-sm-12 col-md-6">
         <form novalidate class="driving-report-form">
             <div class="row">
-                <div class="col-sm-12">
+                <div class="col-sm-7">
                     <div class="form-group form-inline">
                         <label for="date">Dato for tjenestekørsel </label>
                         <input culture="'da-DK'" kendo-date-picker="container.driveDatePicker" k-max="container.datePickerMaxDate" k-format="'dd/MM/yyyy'" ng-model="notUsed" k-ng-model="DriveReport.Date" k-options="DateOptions" />
@@ -20,6 +20,14 @@
                         <label ng-if="dateErrorMessage.length > 0" ng-bind="dateErrorMessage" class="text-danger"></label>
                     </div>
                 </div>
+                <div class="col-sm-5">
+                        <div class="form-group">
+                            <label for="">Nummerplade</label> <span ng-show="!userHasLicensePlate" popover="{{noLicensePlateHelpText}}" popover-trigger="mouseenter" popover-append-to-body='true' class="info-popup"><i class="fa fa-question"></i></span>
+                            <select ng-disabled="!showLicensePlate" class="fill-width" kendo-drop-down-list="container.LicensePlateDropDown" ng-model="DriveReport.LicensePlate" id="" k-data-source="LicensePlates" k-data-text-field="'PresentationString'" k-data-value-field="'Plate'" k-placeholder="'Brugerens nummerplade(r)'"></select>
+    
+                            <label class="text-danger" ng-if="licensePlateErrorMessage.length > 0" ng-bind="licensePlateErrorMessage"></label>
+                        </div>
+                    </div>
             </div>
             <div class="row m-b-l">
                 <div class="col-lg-12">
@@ -35,20 +43,12 @@
                 </div>
             </div>
             <div class="row m-b-l">
-                <div class="col-lg-7">
+                <div class="col-lg-12">
                     <div class="form-group">
                         <label for="">Stilling og ansættelsested</label>
                         <select class="fill-width" kendo-drop-down-list="container.PositionDropDown" ng-model="DriveReport.Position" id="" ng-change="employmentChanged()" k-data-source="Employments" k-data-text-field="'PresentationString'" k-data-value-field="'Id'" k-placeholder="'Brugerens stilling(er)'"><option>' '</option></select>
                     </div>
                 </div>
-                <div class="col-sm-5">
-                        <div class="form-group">
-                            <label for="">Nummerplade</label> <span ng-show="!userHasLicensePlate" popover="{{noLicensePlateHelpText}}" popover-trigger="mouseenter" popover-append-to-body='true' class="info-popup"><i class="fa fa-question"></i></span>
-                            <select ng-disabled="!showLicensePlate" class="fill-width" kendo-drop-down-list="container.LicensePlateDropDown" ng-model="DriveReport.LicensePlate" id="" k-data-source="LicensePlates" k-data-text-field="'PresentationString'" k-data-value-field="'Plate'" k-placeholder="'Brugerens nummerplade(r)'"></select>
-    
-                            <label class="text-danger" ng-if="licensePlateErrorMessage.length > 0" ng-bind="licensePlateErrorMessage"></label>
-                        </div>
-                    </div>
             </div>
             <div class="row m-b-l">
                 <div class="col-sm-7">

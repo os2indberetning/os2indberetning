@@ -38,7 +38,7 @@ namespace Mail
         public void RunMailService()
         {
 
-            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), new MailSender(_logger), _logger);
+            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger);
             try
             {
                 logMailer.Send();

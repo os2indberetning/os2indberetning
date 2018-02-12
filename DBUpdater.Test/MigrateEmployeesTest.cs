@@ -29,7 +29,7 @@ namespace DBUpdater.Test
         private IAddressCoordinates _coordinates;
         private IDbUpdaterDataProvider _dataProvider;
         private IGenericRepository<WorkAddress> _workAddressRepoMock;
-        private IMailSender _mailSenderMock;
+        private IMailService _mailServiceMock;
         private IGenericRepository<DriveReport> _reportRepo;
         private IDriveReportService _driveService;
         private ISubstituteService _subservice;
@@ -58,7 +58,7 @@ namespace DBUpdater.Test
             _coordinates = NSubstitute.Substitute.For<IAddressCoordinates>();
             _dataProvider = NSubstitute.Substitute.For<IDbUpdaterDataProvider>();
             _workAddressRepoMock = NSubstitute.Substitute.For<IGenericRepository<WorkAddress>>();
-            _mailSenderMock = NSubstitute.Substitute.For<IMailSender>();
+            _mailServiceMock = NSubstitute.Substitute.For<IMailService>();
 
             _subRepo = NSubstitute.Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
             _reportRepo = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
@@ -95,7 +95,7 @@ namespace DBUpdater.Test
             _actualLaunderer.Launder(new Address()).ReturnsForAnyArgs(x => x.Arg<CachedAddress>());
 
             _uut = new UpdateService(_emplRepoMock, _orgUnitRepoMock, _personRepoMock, _cachedAddressRepoMock,
-            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
+            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailServiceMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
 
             _orgUnitRepoMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
             {
@@ -725,7 +725,7 @@ namespace DBUpdater.Test
             }.AsQueryable());
 
             _uut = new UpdateService(_emplRepoMock, _orgUnitRepoMock, _personRepoMock, _cachedAddressRepoMock,
-            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSenderMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
+            _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailServiceMock, NSubstitute.Substitute.For<IAddressHistoryService>(), _reportRepo, _driveService, _subservice, _subRepo);
 
             _cachedAddressRepoMock.Insert(new CachedAddress()
             {
@@ -738,7 +738,7 @@ namespace DBUpdater.Test
             });
             
             _uut.MigrateEmployees();
-            _mailSenderMock.ReceivedWithAnyArgs().SendMail("", "", "");
+            _mailServiceMock.ReceivedWithAnyArgs().SendMailToAdmins("", "");
         }
 
         [Test]
@@ -761,7 +761,7 @@ namespace DBUpdater.Test
             });
 
             _uut.MigrateEmployees();
-            _mailSenderMock.DidNotReceiveWithAnyArgs().SendMail("", "", "");
+            _mailServiceMock.DidNotReceiveWithAnyArgs().SendMail("", "", "");
         }
 
     }

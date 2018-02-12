@@ -34,7 +34,7 @@ namespace DBUpdater.Test
         private IAddressLaunderer _actualLaunderer;
         private IAddressCoordinates _coordinates;
         private IDbUpdaterDataProvider _dataProvider;
-        private IMailSender _mailSender;
+        private IMailService _mailServiceMock;
 
         [SetUp]
         public void SetUp()
@@ -54,7 +54,7 @@ namespace DBUpdater.Test
             _actualLaunderer = NSubstitute.Substitute.For<IAddressLaunderer>();
             _coordinates = NSubstitute.Substitute.For<IAddressCoordinates>();
             _dataProvider = NSubstitute.Substitute.For<IDbUpdaterDataProvider>();
-            _mailSender = NSubstitute.Substitute.For<IMailSender>();
+            _mailServiceMock = NSubstitute.Substitute.For<IMailService>();
 
             _orgUnitRepoMock.AsQueryable().Returns(orgList.AsQueryable());
 
@@ -72,7 +72,7 @@ namespace DBUpdater.Test
             _actualLaunderer.Launder(new Address()).ReturnsForAnyArgs(x => x.Arg<CachedAddress>());
 
             _uut = new UpdateService(_emplRepoMock, _orgUnitRepoMock, _personRepoMock, _cachedAddressRepoMock,
-                _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailSender, NSubstitute.Substitute.For<IAddressHistoryService>(),_reportRepo,_driveService, _subservice, _subRepo);
+                _personalAddressRepoMock, _actualLaunderer, _coordinates, _dataProvider, _mailServiceMock, NSubstitute.Substitute.For<IAddressHistoryService>(),_reportRepo,_driveService, _subservice, _subRepo);
 
         }
 

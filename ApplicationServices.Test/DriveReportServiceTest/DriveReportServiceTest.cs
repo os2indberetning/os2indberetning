@@ -42,7 +42,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         private IGenericRepository<RateType> _rateTypeMock;
         private IRoute<RouteInformation> _routeMock;
         private IAddressCoordinates _coordinatesMock;
-        private IMailSender _mailMock;
+        private IMailService _mailServiceMock;
         private IGenericRepository<Person> _personMock;
         private List<DriveReport> repoList;
         private Core.ApplicationServices.Logger.ILogger _logger;
@@ -60,7 +60,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _routeMock = Substitute.For<IRoute<RouteInformation>>();
             _coordinatesMock = Substitute.For<IAddressCoordinates>();
             _subMock = Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
-            _mailMock = Substitute.For<IMailSender>();
+            _mailServiceMock = Substitute.For<IMailService>();
             _reportRepoMock = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
             _personMock = Substitute.For<IGenericRepository<Person>>();
             _logger = new Core.ApplicationServices.Logger.Logger();
@@ -95,7 +95,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Length = 2000
             });
 
-            _uut = new DriveReportService(_mailMock, _reportRepoMock, _calculatorMock, _orgUnitMock, _emplMock, _subMock, _coordinatesMock, _routeMock, _rateTypeMock, _personMock, _logger);
+            _uut = new DriveReportService(_mailServiceMock, _reportRepoMock, _calculatorMock, _orgUnitMock, _emplMock, _subMock, _coordinatesMock, _routeMock, _rateTypeMock, _personMock, _logger);
 
         }
 
@@ -752,7 +752,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             });
 
             _uut.SendMailForRejectedReport(1, delta);
-            _mailMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
+            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
         }
 
         [Test]
@@ -884,7 +884,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             };
             _uut.Create(driveReport);
 
-            _mailMock.ReceivedWithAnyArgs().SendMail("","","");            
+            _mailServiceMock.ReceivedWithAnyArgs().SendMail("","","");            
         }
 
         [Test]

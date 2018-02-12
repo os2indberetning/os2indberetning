@@ -34,11 +34,11 @@ namespace Core.ApplicationServices
         private readonly IGenericRepository<Employment> _employmentRepository;
         private readonly IGenericRepository<Substitute> _substituteRepository;
         private readonly IGenericRepository<Person> _personRepository;
-        private readonly IMailSender _mailSender;
+        private readonly IMailService _mailService;
 
         private readonly ILogger _logger;
 
-        public DriveReportService(IMailSender mailSender, IGenericRepository<DriveReport> driveReportRepository, IReimbursementCalculator calculator, IGenericRepository<OrgUnit> orgUnitRepository, IGenericRepository<Employment> employmentRepository, IGenericRepository<Substitute> substituteRepository, IAddressCoordinates coordinates, IRoute<RouteInformation> route, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<Person> personRepo, ILogger logger)
+        public DriveReportService(IMailService mailService, IGenericRepository<DriveReport> driveReportRepository, IReimbursementCalculator calculator, IGenericRepository<OrgUnit> orgUnitRepository, IGenericRepository<Employment> employmentRepository, IGenericRepository<Substitute> substituteRepository, IAddressCoordinates coordinates, IRoute<RouteInformation> route, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<Person> personRepo, ILogger logger)
         {
             _route = route;
             _rateTypeRepo = rateTypeRepo;
@@ -47,7 +47,7 @@ namespace Core.ApplicationServices
             _orgUnitRepository = orgUnitRepository;
             _employmentRepository = employmentRepository;
             _substituteRepository = substituteRepository;
-            _mailSender = mailSender;
+            _mailService = mailService;
             _driveReportRepository = driveReportRepository;
             _personRepository = personRepo;
             _logger = logger;
@@ -220,7 +220,7 @@ namespace Core.ApplicationServices
             var comment = new object();
             if (delta.TryGetPropertyValue("Comment", out comment))
             {
-                _mailSender.SendMail(recipient, "Afvist indberetning",
+                _mailService.SendMail(recipient, "Afvist indberetning",
                     "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
             }
         }
@@ -261,21 +261,17 @@ namespace Core.ApplicationServices
                 _logger.LogForAdmin($"Brugeren {report.Person.FullName} har angivet at være omfattet af 60-dages reglen");
 
                 // Sending notification mails to admins and leader must be done in seperate thread to not block the response to the client.
-                var recipients = _personRepository.AsQueryable().Where(x => x.IsAdmin && !string.IsNullOrEmpty(x.Mail)).Select(x => x.Mail).ToList();
-                Task.Factory.StartNew(() => SendSixtyDaysRuleNotifications(report, recipients));
+                Task.Factory.StartNew(() => SendSixtyDaysRuleNotifications(report));
             }
         }
 
-        private void SendSixtyDaysRuleNotifications(DriveReport report, List<string> recipients)
+        private void SendSixtyDaysRuleNotifications(DriveReport report)
         {
             // Send mails to admins
-            foreach (var recipient in recipients)
-            {
-                _mailSender.SendMail(recipient, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
-            }
+            _mailService.SendMailToAdmins($"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
 
             // Send mail to leader.
-            _mailSender.SendMail(report.ResponsibleLeader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
+            _mailService.SendMail(report.ResponsibleLeader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
         }
 
         /// <summary>
@@ -481,9 +477,9 @@ namespace Core.ApplicationServices
             + "Med venlig hilsen " + admin.FullName + Environment.NewLine + Environment.NewLine
             + "Besked fra administrator: " + Environment.NewLine + emailText;
 
-            _mailSender.SendMail(report.Person.Mail, "En administrator har ændret i din indberetning.", mailContent);
+            _mailService.SendMail(report.Person.Mail, "En administrator har ændret i din indberetning.", mailContent);
 
-            _mailSender.SendMail(report.ApprovedBy.Mail, "En administrator har ændret i en indberetning du har godkendt.", mailContent);
+            _mailService.SendMail(report.ApprovedBy.Mail, "En administrator har ændret i en indberetning du har godkendt.", mailContent);
 
 
 

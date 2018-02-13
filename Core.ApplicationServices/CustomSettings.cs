@@ -192,10 +192,48 @@ namespace Core.ApplicationServices
             }
         }
 
+        public string AdDomain
+        {
+            get
+            {
+                return GetProtectedValue("AD_DOMAIN");
+            }
+        }
+        public string DailyErrorLogMail
+        {
+            get {
+                return GetProtectedValue("PROTECTED_DailyErrorLogMail");
+            }
+        }
+
+        public string DbViewMedarbejder
+        {
+            get {
+                return GetProtectedValue("PROTECTED_DATABASE_VIEW_MEDARBEJDER");
+            }
+        }
+
+        public string DbViewOrganisation
+        {
+            get
+            {
+                return GetProtectedValue("PROTECTED_DATABASE_VIEW_ORGANISATION");
+            }
+        }
+
+        public string DbIntegration
+        {
+            get
+            {
+                return GetProtectedValue("DATABASE_INTEGRATION");
+            }
+        }
+
         private string GetProtectedValue(string key)
         {
             return GetValue(_protected + key);
         }
+
         private string GetValue(string key)
         {
             string result;

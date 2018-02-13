@@ -875,22 +875,73 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void CreateDriveReportWithSixtyDaysRule_ShouldSendEmail()
         {
-            var driveReport = new DriveReport()
+            var empl = new Employment
             {
-                PersonId = 1,
-                KilometerAllowance = KilometerAllowance.Calculated,
-                Distance = 42,
-                SixtyDaysRule = true
+                Id = 4,
+                EmploymentId = "123",
+                OrgUnitId = 2,
+                OrgUnit = new OrgUnit(),
+                Person = new Person() { Id = 1, FullName = "Person" },
+                PersonId = 12,
+                IsLeader = false
             };
-            _uut.Create(driveReport);
+
+            var leaderEmpl = new Employment
+            {
+                Id = 1,
+                OrgUnitId = 2,
+                OrgUnit = new OrgUnit()
+                {
+                    Id = 2
+                },
+                Person = new Person() { Id = 13, FullName = "Leader" },
+                PersonId = 13,
+                IsLeader = true
+            };
+
+            _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
+            {
+                new OrgUnit()
+                {
+                    Id = 2
+                }
+            }.AsQueryable());
+
+            _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>().AsQueryable());
+
+            _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
+            {
+             empl, leaderEmpl
+            }.AsQueryable());
+
+            _routeMock.GetRoute(DriveReportTransportType.Car, new List<Address>()).ReturnsForAnyArgs(new RouteInformation()
+            {
+                Length = -10
+            });
+
+            var report = new DriveReport
+            {
+                KilometerAllowance = KilometerAllowance.Calculated,
+                DriveReportPoints = new List<DriveReportPoint>
+                {
+                    new DriveReportPoint(),
+                    new DriveReportPoint(),
+                    new DriveReportPoint()
+                },
+                Distance = 42,
+                SixtyDaysRule = true,
+                PersonId = 12,
+                EmploymentId = 4,
+                Purpose = "Test",
+                TFCode = "1234",
+                Employment = empl,
+                ResponsibleLeader = new Person {Mail = "leadermail@test.test" },
+                Person = new Person() { Id = 1, FirstName = "Person", LastName = "Person", FullName = "Person Person" },
+            };
+
+            _uut.Create(report);
 
             _mailServiceMock.ReceivedWithAnyArgs().SendMail("","","");            
-        }
-
-        [Test]
-        public void CreateDriveReportWithoutSixtyDaysRule_ShouldNotSendEmail()
-        {
-
         }
 
         private long ToUnixTime(DateTime date)

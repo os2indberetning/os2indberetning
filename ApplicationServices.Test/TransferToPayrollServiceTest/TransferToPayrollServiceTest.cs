@@ -103,7 +103,7 @@ namespace ApplicationServices.Test.TransferToPayrollServiceTest
                 }
             });
 
-            var shouldNotProcessBecauseZeroDistance = _reportRepoMock.Insert(new DriveReport
+            var shouldChangeStatus = _reportRepoMock.Insert(new DriveReport
             {
                 Status = ReportStatus.Accepted,
                 Distance = 0,
@@ -127,7 +127,7 @@ namespace ApplicationServices.Test.TransferToPayrollServiceTest
             Assert.AreEqual(ReportStatus.Invoiced, shouldProcessAndChangeStatus.Status);
             Assert.AreEqual(ReportStatus.Pending, shouldNotProcessBecausePending.Status);
             Assert.AreEqual(ReportStatus.Rejected, shouldNotProcessBecauseRejected.Status);
-            Assert.AreEqual(ReportStatus.Accepted, shouldNotProcessBecauseZeroDistance.Status);
+            Assert.AreEqual(ReportStatus.Invoiced, shouldChangeStatus.Status);
             _sdClientMock.ReceivedWithAnyArgs(1).SendRequest(new Core.ApplicationServices.SdKoersel.AnsaettelseKoerselOpretInputType());
         }
     }

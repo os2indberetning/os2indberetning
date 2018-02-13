@@ -261,8 +261,7 @@ namespace Core.ApplicationServices
             {
                 _logger.LogForAdmin($"Brugeren {report.Person.FullName} har angivet at være omfattet af 60-dages reglen");
 
-                // Sending notification mails to admins and leader must be done in seperate thread to not block the response to the client.
-                Task.Factory.StartNew(() => SendSixtyDaysRuleNotifications(report));
+                SendSixtyDaysRuleNotifications(report);
             }
         }
 

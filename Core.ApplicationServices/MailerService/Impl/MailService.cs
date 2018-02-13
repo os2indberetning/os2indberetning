@@ -85,24 +85,24 @@ namespace Core.ApplicationServices.MailerService.Impl
 
         public void SendMailToAdmins(string subject, string text)
         {
-            if (!string.IsNullOrEmpty(text))
-            {
-                var adminEmailAdresses = _personRepo.AsQueryable().Where(p => p.IsActive && p.IsAdmin && p.AdminRecieveMail && !string.IsNullOrEmpty(p.Mail)).Select(p => p.Mail);
+            var adminEmailAdresses = _personRepo.AsQueryable().Where(p => p.IsActive && p.IsAdmin && p.AdminReceiveMail && !string.IsNullOrEmpty(p.Mail)).Select(p => p.Mail);
 
-                foreach (var emailAddress in adminEmailAdresses)
-                {
-                    _mailSender.SendMail(emailAddress, subject, text);
-                } 
-            }
-            else
+            foreach (var emailAddress in adminEmailAdresses)
             {
-                throw new ArgumentException("Text can not be null or empty", text);
-            }
+                _mailSender.SendMail(emailAddress, subject, text);
+            } 
         }
 
         public void SendMail(string toAddress, string subject, string text)
         {
-            _mailSender.SendMail(toAddress, subject, text);
+            if (!string.IsNullOrEmpty(toAddress))
+            {
+                _mailSender.SendMail(toAddress, subject, text); 
+            }
+            else
+            {
+                throw new ArgumentException("Receiving emailaddress can not be null or empty", "toAddress");
+            }
         }
     }
 }

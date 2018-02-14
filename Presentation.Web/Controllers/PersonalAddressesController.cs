@@ -73,6 +73,11 @@ namespace OS2Indberetning.Controllers
             var result = coordinates.GetAddressCoordinates(personalAddress);
             personalAddress.Latitude = result.Latitude;
             personalAddress.Longitude = result.Longitude;
+            personalAddress.StreetName = result.StreetName;
+            personalAddress.StreetNumber = result.StreetNumber;
+            personalAddress.ZipCode = result.ZipCode;
+            personalAddress.Town = result.Town;
+
             return base.Post(personalAddress);
         }
 

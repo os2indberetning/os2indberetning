@@ -65,21 +65,18 @@
                             <p class="pull-left">Afvigende adresse</p>
                             <span class="info-popup pull-left margin-left-5" ng-show="AlternativeHomeAddressHelpText" popover="{{AlternativeHomeAddressHelpText}}" popover-trigger="mouseenter"><i class="fa fa-question"></i></span>
                         </div>
-
                     </div>
-
                     <div class="row">
                         <div class="col-xs-7">
-
                             <input type="text" kendo-auto-complete ng-change="homeAddressChanged()" k-data-text-field="'tekst'" k-data-value-field="'tekst'"
-                                   k-data-source="SmartAddress" ng-model="alternativeHomeAddress.string" class="fill-width" k-placeholder="'Skriv her'" />
-
+                                   k-data-source="SmartAddress" ng-model="alternativeHomeAddress.string" class="fill-width" k-placeholder="'Skriv her'"
+                                   k-options="addressFieldOptions" />
                         </div>
                         <div class="col-xs-2">
 
                         </div>
                         <div class="col-xs-1 pull-left margin-right-20">
-                            <button ng-click="saveAlternativeHomeAddress()" class="btn btn-success">Gem</button>
+                            <button ng-click="saveAlternativeHomeAddress()" ng-disabled="addressNotFound" class="btn btn-success">Gem</button>
                         </div>
 
                         <div class="col-xs-1 pull-left margin-right-5">

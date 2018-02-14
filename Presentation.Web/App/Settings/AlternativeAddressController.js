@@ -260,6 +260,32 @@
         homeAddressIsDirty = true;
     }
 
+    $scope.addressFieldOptions = {
+        dataBound: function () {
+            $scope.addressNotFound = this.dataSource._data.length == 0;
+            $scope.$apply();
+        },
+    }
+    
+    $scope.workAddressFieldOptions = [];
+    $scope.workAddressNotFound = [];
+    
+    angular.forEach($scope.employments, function(value, key){
+        $scope.workAddressNotFound.push(false);
+        $scope.workAddressFieldOptions.push({
+            options: {
+                dataBound: function () {
+                    $scope.workAddressNotFound[key] = this.dataSource._data.length == 0;
+                    $scope.$apply();
+                }
+            }
+        })
+    })
+
+    $scope.getNotFound = function(index){
+        return $scope.workAddressNotFound[index];
+    }
+    
     var checkShouldPrompt = function () {
         /// <summary>
         /// Return true if there are unsaved changes on the page. 

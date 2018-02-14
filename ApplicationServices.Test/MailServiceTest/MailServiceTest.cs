@@ -90,7 +90,7 @@ namespace ApplicationServices.Test.MailServiceTest
             {
                 Mail = "admin2@test.test",
                 IsAdmin = true,
-                AdminReceiveMail = false,
+                AdminRecieveMail = false,
                 IsActive = true
             });
             var admin3 = _personRepoMock.Insert(new Person

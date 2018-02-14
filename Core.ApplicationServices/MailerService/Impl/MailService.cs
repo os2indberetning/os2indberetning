@@ -85,7 +85,7 @@ namespace Core.ApplicationServices.MailerService.Impl
 
         public void SendMailToAdmins(string subject, string text)
         {
-            var adminEmailAdresses = _personRepo.AsQueryable().Where(p => p.IsActive && p.IsAdmin && p.AdminReceiveMail && !string.IsNullOrEmpty(p.Mail)).Select(p => p.Mail);
+            var adminEmailAdresses = _personRepo.AsQueryable().Where(p => p.IsActive && p.IsAdmin && p.AdminRecieveMail && !string.IsNullOrEmpty(p.Mail)).Select(p => p.Mail);
 
             foreach (var emailAddress in adminEmailAdresses)
             {

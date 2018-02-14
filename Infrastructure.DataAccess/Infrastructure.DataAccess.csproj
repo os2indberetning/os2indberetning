@@ -413,9 +413,9 @@
     <Compile Include="Migrations\201709140735147_EmploymentIdDatatypeChange.Designer.cs">
       <DependentUpon>201709140735147_EmploymentIdDatatypeChange.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201801091256536_AddedAdminReceiveMail.cs" />
-    <Compile Include="Migrations\201801091256536_AddedAdminReceiveMail.Designer.cs">
-      <DependentUpon>201801091256536_AddedAdminReceiveMail.cs</DependentUpon>
+    <Compile Include="Migrations\201802141027552_AdminRecieveMailAdded.cs" />
+    <Compile Include="Migrations\201802141027552_AdminRecieveMailAdded.Designer.cs">
+      <DependentUpon>201802141027552_AdminRecieveMailAdded.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
@@ -701,8 +701,8 @@
     <EmbeddedResource Include="Migrations\201709140735147_EmploymentIdDatatypeChange.resx">
       <DependentUpon>201709140735147_EmploymentIdDatatypeChange.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201801091256536_AddedAdminReceiveMail.resx">
-      <DependentUpon>201801091256536_AddedAdminReceiveMail.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201802141027552_AdminRecieveMailAdded.resx">
+      <DependentUpon>201802141027552_AdminRecieveMailAdded.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

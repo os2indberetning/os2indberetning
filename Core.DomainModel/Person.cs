@@ -24,10 +24,10 @@ namespace Core.DomainModel
             get { return _isAdmin; }
             
             // Set AdminRecieveMail to true as default when person is made admin, and to false when admin privilege is revoked.
-            set { AdminReceiveMail = value; _isAdmin = value; } 
+            set { AdminRecieveMail = value; _isAdmin = value; } 
         }
 
-        public bool AdminReceiveMail { get; set; }
+        public bool AdminRecieveMail { get; set; }
         public bool IsSubstitute { get; set; }
         public bool IsActive { get; set; }
         public bool HasAppPassword { get; set; }

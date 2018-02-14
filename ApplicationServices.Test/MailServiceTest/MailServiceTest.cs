@@ -23,7 +23,6 @@ namespace ApplicationServices.Test.MailServiceTest
         private IGenericRepository<Person> _personRepoMock;
         private List<Person> _personList;
         private IMailSender _mailSenderMock;
-        private IDriveReportService _driveReportServiceMock;
         private ILogger _loggerMock;
 
         [SetUp]
@@ -39,10 +38,9 @@ namespace ApplicationServices.Test.MailServiceTest
             _personRepoMock.AsQueryable().ReturnsForAnyArgs(_personList.AsQueryable());
 
             _mailSenderMock = NSubstitute.Substitute.For<IMailSender>();
-            _driveReportServiceMock = NSubstitute.Substitute.For<IDriveReportService>();
             _loggerMock = NSubstitute.Substitute.For<ILogger>();
 
-            _mailService = new MailService(_reportRepoMock, _substitueRepoMock, _personRepoMock, _mailSenderMock, _driveReportServiceMock, _loggerMock);
+            _mailService = new MailService(_reportRepoMock, _substitueRepoMock, _personRepoMock, _mailSenderMock, _loggerMock);
         }
 
         [Test]

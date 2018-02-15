@@ -5,7 +5,6 @@ using Core.ApplicationServices.Logger;
 using Core.ApplicationServices.SilkeborgData;
 using Core.DomainModel;
 using Core.DomainServices;
-using Core.DomainServices.Interfaces;
 using NSubstitute;
 using NUnit.Framework;
 using System;

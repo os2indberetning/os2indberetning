@@ -51,6 +51,7 @@
     <Compile Include="CachedAddressLaundererTest.cs" />
     <Compile Include="CustomSettingsTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UtilititesTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

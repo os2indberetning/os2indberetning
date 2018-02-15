@@ -61,6 +61,11 @@
                 <label for="">Hjemmeadresse: </label> ({{ homeAddress }})
                 <div class="margin-right-15">
                     <div class="row">
+                        <div class="col-xs-12">
+                            <div ng-hide="!addressNotFound" style="margin-bottom: 15px; border-radius: 25px; padding: 15px; background-color: #ffffff;">OS2Indberetning kan ikke finde adressen. Kontroller venligst stavemåden, om husnummeret er korrekt fx 3A, og at der ikke indgår etager som fx 3, 1th. Hvis du har kopieret adressen ind, prøv da at skrive den i stedet.</div>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-xs-7">
                             <p class="pull-left">Afvigende adresse</p>
                             <span class="info-popup pull-left margin-left-5" ng-show="AlternativeHomeAddressHelpText" popover="{{AlternativeHomeAddressHelpText}}" popover-trigger="mouseenter"><i class="fa fa-question"></i></span>

@@ -24,8 +24,7 @@
                 // Prepare all data to  be uploaded
                 driveReport.Purpose = $scope.DriveReport.Purpose;
 
-                var offset = $scope.DriveReport.Date.getTimezoneOffset()*60*1000;
-                driveReport.DriveDateTimestamp = Math.floor(($scope.DriveReport.Date.getTime() - offset) / 1000);
+                driveReport.DriveDateTimestamp = Math.floor($scope.DriveReport.Date.getTime() / 1000);
                 driveReport.KmRate = parseFloat(getKmRate().KmRate);
                 driveReport.TFCode = getKmRate().Type.TFCode;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;

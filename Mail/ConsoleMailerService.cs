@@ -38,7 +38,7 @@ namespace Mail
         public void RunMailService()
         {
 
-            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), new MailSender(_logger), _logger);
+            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger);
             try
             {
                 logMailer.Send();
@@ -51,8 +51,8 @@ namespace Mail
                 _logger.Error($"{GetType().Name}, RunMailService(), Error when trying to send daily log mail to admin", e);
             }
 
-            var startOfDay = ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00));
-            var endOfDay = ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));
+            var startOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00));
+            var endOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));
         
             var notifications = _repo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay && !r.Notified);
 
@@ -63,7 +63,7 @@ namespace Mail
                 {
                     if (notification.Repeat)
                     {
-                        var newDateTime = ToUnixTime(FromUnixTime(notification.DateTimestamp).AddMonths(1));
+                        var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(notification.DateTimestamp).AddMonths(1));
                         _repo.Insert(new MailNotificationSchedule()
                         {
                             DateTimestamp = newDateTime,
@@ -73,7 +73,7 @@ namespace Mail
                     }
                     notification.Notified = true;
 
-                    AttemptSendMails(_mailService,FromUnixTime(notification.PayRoleTimestamp), 2);
+                    AttemptSendMails(_mailService,Utilities.FromUnixTime(notification.PayRoleTimestamp), 2);
                 }
 
                 _repo.Save();
@@ -119,28 +119,6 @@ namespace Mail
                 Thread.Sleep(3000);
 
             }
-        }
-
-        /// <summary>
-        /// Converts DateTime to timestamp
-        /// </summary>
-        /// <param name="date">DateTime to convert</param>
-        /// <returns>long timestamp</returns>
-        public long ToUnixTime(DateTime date)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date - epoch).TotalSeconds);
-        }
-
-        /// <summary>
-        /// Converts timestamp to datetime
-        /// </summary>
-        /// <param name="unixTime">Timestamp to convert</param>
-        /// <returns>DateTime</returns>
-        public DateTime FromUnixTime(long unixTime)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return epoch.AddSeconds(unixTime);
         }
     }
 }

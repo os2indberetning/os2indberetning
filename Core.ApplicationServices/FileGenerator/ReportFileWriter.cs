@@ -9,7 +9,7 @@ namespace Core.ApplicationServices.FileGenerator
     public class ReportFileWriter : IReportFileWriter
     {
         private readonly string _filePathName = GetSetting("PROTECTED_KMDFilePath") + @"\" + GetSetting("PROTECTED_KMDFileName");
-        private readonly string _backupFilePathName = GetSetting("PROTECTED_KMDBackupFilePath") + @"\" + DateTime.Now.ToString("yyyymmdd-hhmmss");
+        private readonly string _backupFilePathName = GetSetting("PROTECTED_KMDBackupFilePath") + @"\" + DateTime.Now.ToString("yyyyMMdd-hhmmss");
 
         public bool WriteRecordsToFile(ICollection<FileRecord> recordList)
         {

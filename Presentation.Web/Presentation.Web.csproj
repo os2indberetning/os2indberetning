@@ -303,6 +303,12 @@
     <Content Include="App\Admin\HTML\Document\View.html" />
     <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
+    <Content Include="App-icons\os2i-114x114.png" />
+    <Content Include="App-icons\os2i-144x144.png" />
+    <Content Include="App-icons\os2i-57x57.png" />
+    <Content Include="App-icons\os2i-72x72.png" />
+    <Content Include="App\Driving\ConfirmApplySixtyDaysRuleController.js" />
+    <Content Include="App\Driving\ConfirmApplySixtyDaysRuleTemplate.html" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Oblique.ttf" />
@@ -331,6 +337,7 @@
     <Compile Include="Providers\ApplicationOAuthProvider.cs" />
     <Compile Include="Results\ChallengeResult.cs" />
     <Compile Include="Startup.cs" />
+    <Content Include="Views\Shared\_Layout2.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="App\Admin\AdminMenuController.js" />
@@ -2344,7 +2351,6 @@
     <Content Include="Scripts\kendo\kendo.view.min.js.map" />
     <Content Include="Scripts\kendo\kendo.web.min.js.map" />
     <Content Include="Scripts\kendo\kendo.window.min.js.map" />
-    <None Include="Views\Shared\_Layout.cshtml" />
     <Content Include="Scripts\jquery-1.10.2.min.map" />
     <Content Include="Views\Jasmine\SpecRunner.cshtml" />
     <Content Include="Scripts\version.json" />

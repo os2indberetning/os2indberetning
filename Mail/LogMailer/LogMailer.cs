@@ -15,14 +15,14 @@ namespace Mail.LogMailer
     {
         private readonly ILogParser _logParser;
         private readonly ILogReader _logReader;
-        private readonly IMailSender _mailSender;
+        private readonly IMailService _mailService;
         private readonly ILogger _logger;
 
-        public LogMailer(ILogParser logParser, ILogReader logReader, IMailSender mailSender, ILogger logger)
+        public LogMailer(ILogParser logParser, ILogReader logReader, IMailService mailService, ILogger logger)
         {
             _logParser = logParser;
             _logReader = logReader;
-            _mailSender = mailSender;
+            _mailService = mailService;
             _logger = logger;
         }
 
@@ -87,10 +87,8 @@ namespace Mail.LogMailer
 
             foreach (var receiver in receivers)
             {
-                _mailSender.SendMail(receiver, "Log", result);
+                _mailService.SendMail(receiver, "Log", result);
             }
-            
         }
-
     }
 }

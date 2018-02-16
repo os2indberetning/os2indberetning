@@ -42,7 +42,7 @@ namespace DBUpdater
                 ninjectKernel.Get<IGenericRepository<PersonalAddress>>(),
                 ninjectKernel.Get<IAddressLaunderer>(),
                 ninjectKernel.Get<IAddressCoordinates>(), new DataProvider(),
-                ninjectKernel.Get<IMailSender>(),
+                ninjectKernel.Get<IMailService>(),
                 historyService,
                 ninjectKernel.Get<IGenericRepository<DriveReport>>(),
                 ninjectKernel.Get<IDriveReportService>(),

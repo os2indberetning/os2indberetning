@@ -20,7 +20,6 @@ using Ninject.Web.Common;
 using OS2Indberetning;
 using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.FileGenerator;
-using Core.DomainServices.Interfaces;
 using Core.ApplicationServices.SilkeborgData;
 
 namespace Core.ApplicationServices

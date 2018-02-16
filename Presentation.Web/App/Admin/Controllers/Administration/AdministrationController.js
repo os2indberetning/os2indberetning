@@ -85,9 +85,37 @@
                    template: function (data) {
                        return "<a ng-click='removeAdmin(" + data.Id + ",\"" + data.FullName + "\")'>Slet</a>";
                    }
+               }, {
+                   field: "AdminReceiveMail",
+                   title: "Modtag emails",
+                   template: function (data) {
+                       if (data.AdminRecieveMail) {
+                           return "<input type='checkbox' ng-click='adminRecieveMailChecked(" + data.Id + ", false)' checked></input>";
+                       } else {
+                           return "<input type='checkbox' ng-click='adminRecieveMailChecked(" + data.Id + ", true)'></input>";
+                       }
+                   }
                }
            ],
        };
+
+       $scope.adminRecieveMailChecked = function (id, newValue) {
+        /// <summary>
+        /// Is called when the user checks an orgunit in the grid.
+        /// Patches HasAccessToFourKmRule on the backend.
+        /// </summary>
+        /// <param name="id"></param>
+
+            Person.patch({ id: id }, { "AdminRecieveMail": newValue }).$promise.then(function () {
+                    if (newValue) {
+                        NotificationService.AutoFadeNotification("success", "", "Admin modtager nu emails");
+                    } else {
+                        NotificationService.AutoFadeNotification("success", "", "Admin modtager ikke længere emails");
+                    }
+
+                    $scope.gridContainer.grid.dataSource.read();
+            });
+        }
 
        $scope.removeAdmin = function (Id, FullName) {
            /// <summary>

@@ -42,7 +42,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         private IGenericRepository<RateType> _rateTypeMock;
         private IRoute<RouteInformation> _routeMock;
         private IAddressCoordinates _coordinatesMock;
-        private IMailSender _mailMock;
+        private IMailService _mailServiceMock;
         private IGenericRepository<Person> _personMock;
         private List<DriveReport> repoList;
         private Core.ApplicationServices.Logger.ILogger _logger;
@@ -60,7 +60,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _routeMock = Substitute.For<IRoute<RouteInformation>>();
             _coordinatesMock = Substitute.For<IAddressCoordinates>();
             _subMock = Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
-            _mailMock = Substitute.For<IMailSender>();
+            _mailServiceMock = Substitute.For<IMailService>();
             _reportRepoMock = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
             _personMock = Substitute.For<IGenericRepository<Person>>();
             _logger = new Core.ApplicationServices.Logger.Logger();
@@ -95,7 +95,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Length = 2000
             });
 
-            _uut = new DriveReportService(_mailMock, _reportRepoMock, _calculatorMock, _orgUnitMock, _emplMock, _subMock, _coordinatesMock, _routeMock, _rateTypeMock, _personMock, _logger);
+            _uut = new DriveReportService(_mailServiceMock, _reportRepoMock, _calculatorMock, _orgUnitMock, _emplMock, _subMock, _coordinatesMock, _routeMock, _rateTypeMock, _personMock, _logger);
 
         }
 
@@ -752,7 +752,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             });
 
             _uut.SendMailForRejectedReport(1, delta);
-            _mailMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
+            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
         }
 
         [Test]
@@ -781,8 +781,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void ReCalculateFourKmRuleForOtherReports_WhenDeletingFirstReportOfTheDay()
         {
-            var driveDateTimestampToday = ToUnixTime(DateTime.Now);
-            var driveDateTimestampYesterday = ToUnixTime(DateTime.Now.AddDays(-1));
+            var driveDateTimestampToday = Utilities.ToUnixTime(DateTime.Now);
+            var driveDateTimestampYesterday = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
 
             var drivereportToCalculate1 = new DriveReport()
             {
@@ -826,8 +826,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void ReCalculateFourKmRuleForOtherReports_WhenReportIsRejected()
         {
-            var driveDateTimestampToday = ToUnixTime(DateTime.Now);
-            var driveDateTimestampYesterday = ToUnixTime(DateTime.Now.AddDays(-1));
+            var driveDateTimestampToday = Utilities.ToUnixTime(DateTime.Now);
+            var driveDateTimestampYesterday = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
 
             var drivereportToCalculate1 = new DriveReport()
             {
@@ -875,29 +875,73 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void CreateDriveReportWithSixtyDaysRule_ShouldSendEmail()
         {
-            var driveReport = new DriveReport()
+            var empl = new Employment
             {
-                PersonId = 1,
-                KilometerAllowance = KilometerAllowance.Calculated,
-                Distance = 42,
-                SixtyDaysRule = true
+                Id = 4,
+                EmploymentId = "123",
+                OrgUnitId = 2,
+                OrgUnit = new OrgUnit(),
+                Person = new Person() { Id = 1, FullName = "Person" },
+                PersonId = 12,
+                IsLeader = false
             };
-            _uut.Create(driveReport);
 
-            _mailMock.ReceivedWithAnyArgs().SendMail("","","");            
+            var leaderEmpl = new Employment
+            {
+                Id = 1,
+                OrgUnitId = 2,
+                OrgUnit = new OrgUnit()
+                {
+                    Id = 2
+                },
+                Person = new Person() { Id = 13, FullName = "Leader" },
+                PersonId = 13,
+                IsLeader = true
+            };
+
+            _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
+            {
+                new OrgUnit()
+                {
+                    Id = 2
+                }
+            }.AsQueryable());
+
+            _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>().AsQueryable());
+
+            _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
+            {
+             empl, leaderEmpl
+            }.AsQueryable());
+
+            _routeMock.GetRoute(DriveReportTransportType.Car, new List<Address>()).ReturnsForAnyArgs(new RouteInformation()
+            {
+                Length = -10
+            });
+
+            var report = new DriveReport
+            {
+                KilometerAllowance = KilometerAllowance.Calculated,
+                DriveReportPoints = new List<DriveReportPoint>
+                {
+                    new DriveReportPoint(),
+                    new DriveReportPoint(),
+                    new DriveReportPoint()
+                },
+                Distance = 42,
+                SixtyDaysRule = true,
+                PersonId = 12,
+                EmploymentId = 4,
+                Purpose = "Test",
+                TFCode = "1234",
+                Employment = empl,
+                ResponsibleLeader = new Person {Mail = "leadermail@test.test" },
+                Person = new Person() { Id = 1, FirstName = "Person", LastName = "Person", FullName = "Person Person" },
+            };
+
+            _uut.Create(report);
+
+            _mailServiceMock.ReceivedWithAnyArgs().SendMail("","","");            
         }
-
-        [Test]
-        public void CreateDriveReportWithoutSixtyDaysRule_ShouldNotSendEmail()
-        {
-
-        }
-
-        private long ToUnixTime(DateTime date)
-        {
-            var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-            return Convert.ToInt64((date - epoch).TotalSeconds);
-        }
-
     }
 }

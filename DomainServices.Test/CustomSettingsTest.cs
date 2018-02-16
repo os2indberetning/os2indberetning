@@ -1,5 +1,6 @@
-﻿using Core.DomainServices;
-using Core.DomainServices.Interfaces;
+﻿using Core.ApplicationServices;
+using Core.ApplicationServices.Interfaces;
+using Core.DomainServices;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;

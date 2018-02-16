@@ -27,7 +27,7 @@ namespace DBUpdater
         private readonly IAddressLaunderer _actualLaunderer;
         private readonly IAddressCoordinates _coordinates;
         private readonly IDbUpdaterDataProvider _dataProvider;
-        private readonly IMailSender _mailSender;
+        private readonly IMailService _mailService;
         private readonly IAddressHistoryService _historyService;
         private readonly IGenericRepository<DriveReport> _reportRepo;
         private readonly IDriveReportService _driveService;
@@ -42,7 +42,7 @@ namespace DBUpdater
             IAddressLaunderer actualLaunderer,
             IAddressCoordinates coordinates,
             IDbUpdaterDataProvider dataProvider,
-            IMailSender mailSender,
+            IMailService mailService,
             IAddressHistoryService historyService,
             IGenericRepository<DriveReport> reportRepo,
             IDriveReportService driveService,
@@ -57,7 +57,7 @@ namespace DBUpdater
             _actualLaunderer = actualLaunderer;
             _coordinates = coordinates;
             _dataProvider = dataProvider;
-            _mailSender = mailSender;
+            _mailService = mailService;
             _historyService = historyService;
             _reportRepo = reportRepo;
             _driveService = driveService;
@@ -280,10 +280,7 @@ namespace DBUpdater
             if (dirtyAddressCount > 0)
             {
                 _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), There are {dirtyAddressCount} dirty address(es).");
-                foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
-                {
-                    _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
-                }
+                _mailService.SendMailToAdmins("Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
             }
             Console.WriteLine("Done migrating employees");
         }
@@ -803,10 +800,7 @@ namespace DBUpdater
             var dirtyAddressCount = _cachedRepo.AsQueryable().Count(x => x.IsDirty);
             if (dirtyAddressCount > 0)
             {
-                foreach (var admin in _personRepo.AsQueryable().Where(x => x.IsAdmin && x.IsActive))
-                {
-                    _mailSender.SendMail(admin.Mail, "Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
-                }
+                _mailService.SendMailToAdmins("Der er adresser der mangler at blive vasket", "Der mangler at blive vasket " + dirtyAddressCount + "adresser");
             }
             _logger.Debug($"{this.GetType().Name}, MigrateEmployeesIDM() Done");
         }

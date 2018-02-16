@@ -16,16 +16,16 @@ namespace Core.ApplicationServices.MailerService.Impl
     {
         private readonly IGenericRepository<DriveReport> _driveRepo;
         private readonly IGenericRepository<Substitute> _subRepo;
+        private readonly IGenericRepository<Person> _personRepo;
         private readonly IMailSender _mailSender;
-        private readonly IDriveReportService _driveReportService;
         private readonly ILogger _logger;
 
-        public MailService(IGenericRepository<DriveReport> driveRepo, IGenericRepository<Substitute> subRepo, IMailSender mailSender, IDriveReportService driveReportService, ILogger logger)
+        public MailService(IGenericRepository<DriveReport> driveRepo, IGenericRepository<Substitute> subRepo, IGenericRepository<Person> personRepo, IMailSender mailSender, ILogger logger)
         {
             _driveRepo = driveRepo;
             _subRepo = subRepo;
+            _personRepo = personRepo;
             _mailSender = mailSender;
-            _driveReportService = driveReportService;
             _logger = logger;
         }
 
@@ -79,6 +79,28 @@ namespace Core.ApplicationServices.MailerService.Impl
             }
 
             return approverEmails;
+        }
+
+        public void SendMailToAdmins(string subject, string text)
+        {
+            var adminEmailAdresses = _personRepo.AsQueryable().Where(p => p.IsActive && p.IsAdmin && p.AdminRecieveMail && !string.IsNullOrEmpty(p.Mail)).Select(p => p.Mail);
+
+            foreach (var emailAddress in adminEmailAdresses)
+            {
+                _mailSender.SendMail(emailAddress, subject, text);
+            } 
+        }
+
+        public void SendMail(string toAddress, string subject, string text)
+        {
+            if (!string.IsNullOrEmpty(toAddress))
+            {
+                _mailSender.SendMail(toAddress, subject, text); 
+            }
+            else
+            {
+                throw new ArgumentException("Receiving emailaddress can not be null or empty", "toAddress");
+            }
         }
     }
 }

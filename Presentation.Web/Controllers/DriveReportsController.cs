@@ -378,9 +378,7 @@ namespace OS2Indberetning.Controllers
                 return NotFound();
             }
 
-            var leader = report.ResponsibleLeader;
-
-            if (leader == null)
+            if (report.ResponsibleLeaders.Count == 0)
             {
                 return StatusCode(HttpStatusCode.Forbidden);
             }
@@ -416,11 +414,10 @@ namespace OS2Indberetning.Controllers
             }
 
             // Cannot approve reports where you are not responsible leader
-            if (!CurrentUser.Id.Equals(leader.Id))
+            if (!report.IsPersonResponsible(CurrentUser.Id))
             {
                 return StatusCode(HttpStatusCode.Forbidden);
             }
-
 
             // Return Unauthorized if the status is not pending when trying to patch.
             // User should not be allowed to change a Report which has been accepted or rejected.

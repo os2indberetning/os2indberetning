@@ -1,5 +1,7 @@
 ﻿
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Core.DomainModel
 {
@@ -29,7 +31,18 @@ namespace Core.DomainModel
         public virtual Employment Employment { get; set; }
         public int? ResponsibleLeaderId { get; set; }
         public virtual Person ResponsibleLeader { get; set; }
+        public virtual IList<Person> ResponsibleLeaders { get; set; }
         public int? ActualLeaderId { get; set; }
         public virtual Person ActualLeader { get; set; }
+
+        public bool IsPersonResponsible(Person person)
+        {
+            return ResponsibleLeaders.Contains(person);
+        }
+
+        public bool IsPersonResponsible(int personId)
+        {
+            return ResponsibleLeaders.Select(p => p.Id).Contains(personId);
+        }
     }
 }

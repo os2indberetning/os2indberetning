@@ -935,7 +935,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Purpose = "Test",
                 TFCode = "1234",
                 Employment = empl,
-                ResponsibleLeader = new Person {Mail = "leadermail@test.test" },
+                ResponsibleLeaders = new List<Person> { new Person { Mail = "leadermail@test.test" } },
                 Person = new Person() { Id = 1, FirstName = "Person", LastName = "Person", FullName = "Person Person" },
             };
 

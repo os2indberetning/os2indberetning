@@ -125,7 +125,7 @@ namespace Core.ApplicationServices
             report.AmountToReimburse = Convert.ToDouble(report.AmountToReimburse.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
 
             var createdReport = _driveReportRepository.Insert(report);
-            createdReport.ResponsibleLeaderId = GetResponsibleLeaderForReport(report).Id;
+            createdReport.ResponsibleLeaders.Add(GetResponsibleLeaderForReport(report));
             createdReport.ActualLeaderId = GetActualLeaderForReport(report).Id;
 
             if (report.Status == ReportStatus.Rejected)
@@ -271,7 +271,13 @@ namespace Core.ApplicationServices
             _mailService.SendMailToAdmins($"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
 
             // Send mail to leader.
-            _mailService.SendMail(report.ResponsibleLeader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
+            foreach(var leader in report.ResponsibleLeaders)
+            {
+                if (leader.RecieveMail && !string.IsNullOrEmpty(leader.Mail))
+                {
+                    _mailService.SendMail(leader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");  
+                }
+            }
         }
 
         /// <summary>
@@ -288,11 +294,10 @@ namespace Core.ApplicationServices
         /// <returns>DriveReport with ResponsibleLeader attached</returns>
         public Person GetResponsibleLeaderForReport(DriveReport driveReport)
         {
-            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Now);
           
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var person = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).Person;
-
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var empl = _employmentRepository.AsQueryable().First(x => x.Id == driveReport.EmploymentId);

@@ -39,7 +39,7 @@
        }
 
        var getDataUrl = function (from, to, fullName, longDescription) {
-           var url = "/odata/DriveReports?status=Pending &getReportsWhereSubExists=true &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit)";
+           var url = "/odata/DriveReports?status=Pending &getReportsWhereSubExists=true &$expand=DriveReportPoints,ResponsibleLeaders,Employment($expand=OrgUnit)";
            var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            if (fullName != undefined && fullName != "") {
                filters += " and PersonId eq " + $scope.person.chosenId;
@@ -105,7 +105,7 @@
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
 
-                       url: "/odata/DriveReports?status=Pending &getReportsWhereSubExists=true &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit) &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
+                       url: "/odata/DriveReports?status=Pending &getReportsWhereSubExists=true &$expand=DriveReportPoints,ResponsibleLeaders,Employment($expand=OrgUnit) &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
                        dataType: "json",
                        cache: false
                    },
@@ -240,13 +240,16 @@
                            m._d.getFullYear();
                    },
                }, {
-                   title: "Godkender",
-                   field: "ResponsibleLeader.FullName",
+                   title: "Godkendere",
+                   field: "ResponsibleLeaders",
                    template: function(data) {
-                       if (data.ResponsibleLeader != 0 && data.ResponsibleLeader != null && data.ResponsibleLeader != undefined) {
-                            return data.ResponsibleLeader.FullName;
-                       }
-                       return "";
+                    result = "";   
+                        angular.foreach(data, function(leader){
+                            if (data.ResponsibleLeader != 0 && data.ResponsibleLeader != null && data.ResponsibleLeader != undefined) {
+                                result += data.ResponsibleLeader.FullName;
+                           }        
+                        })
+                    return result;
                    }
                }
            ],

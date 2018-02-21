@@ -36,6 +36,7 @@ namespace Core.DomainServices.Interfaces
         string MapStartZipCode { get; }
         string MapStartTown { get; }
         string SeptimaApiKey { get; }
+        string Version { get; }
 
         string AdDomain { get; }
         string DailyErrorLogMail { get; }

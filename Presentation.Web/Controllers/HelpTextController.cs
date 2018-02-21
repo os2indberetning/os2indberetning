@@ -22,6 +22,8 @@ namespace OS2Indberetning.Controllers
         protected override void Initialize(HttpControllerContext controllerContext)
         {
             _customSettings = NinjectWebKernel.GetKernel().Get<ICustomSettings>();
+
+            base.Initialize(controllerContext);
         }
         // GET api/<controller>/5
         /// <summary>

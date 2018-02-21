@@ -243,6 +243,13 @@ namespace Core.DomainServices
                 return GetValue("SEPTIMA_API_KEY");
             }
         }
+        public string Version
+        {
+            get
+            {
+                return GetValue("Version");
+            }
+        }
 
         private string GetProtectedValue(string key)
         {

@@ -1,26 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Data.Entity;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Text.RegularExpressions;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.OData;
 using System.Web.OData.Query;
-using System.Web.Routing;
-using Core.ApplicationServices;
 using Core.ApplicationServices.Logger;
 using Core.DomainModel;
-using Core.DomainModel.Example;
 using Core.DomainServices;
-using Ninject;
+using Core.DomainServices.Interfaces;
 using Expression = System.Linq.Expressions.Expression;
 using OS2Indberetning.Filters;
+using Core.ApplicationServices;
+using Ninject;
 
 namespace OS2Indberetning.Controllers
 {
@@ -32,7 +27,8 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<Person> _personRepo;
         private readonly PropertyInfo _primaryKeyProp;
 
-        private readonly ILogger _logger;
+        protected readonly ILogger _logger;
+        protected readonly ICustomSettings _customSettings;
 
         protected Person CurrentUser;
 
@@ -43,7 +39,7 @@ namespace OS2Indberetning.Controllers
             string[] httpUser = User.Identity.Name.Split('\\');
             //httpUser[1] = "smb";
 
-            if (httpUser.Length == 2 && String.Equals(httpUser[0], ConfigurationManager.AppSettings["PROTECTED_AD_DOMAIN"], StringComparison.CurrentCultureIgnoreCase))
+            if (httpUser.Length == 2 && String.Equals(httpUser[0], _customSettings.AdDomain, StringComparison.CurrentCultureIgnoreCase))
             {
                 var initials = httpUser[1].ToLower();
 
@@ -78,7 +74,9 @@ namespace OS2Indberetning.Controllers
             ValidationSettings.MaxExpansionDepth = 4;
             Repo = repository;
             _primaryKeyProp = Repo.GetPrimaryKeyProperty();
-            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+
+            _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
+            _customSettings = NinjectWebKernel.GetKernel().Get<ICustomSettings>(); ;
         }
 
         protected IQueryable<T> GetQueryable(ODataQueryOptions<T> queryOptions)

@@ -9,10 +9,10 @@ using DBUpdater.Models;
 using Infrastructure.AddressServices.Interfaces;
 using MoreLinq;
 using Ninject;
-using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
 using Core.ApplicationServices;
+using Core.DomainServices.Interfaces;
 
 namespace DBUpdater
 {
@@ -64,7 +64,7 @@ namespace DBUpdater
             _subService = subService;
             _subRepo = subRepo;
             _driveService = driveService;
-            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+            _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
         }
 
         /// <summary>

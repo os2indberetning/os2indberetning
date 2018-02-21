@@ -16,7 +16,7 @@ using Infrastructure.AddressServices.Routing;
 using Infrastructure.DataAccess;
 using Ninject;
 using OS2Indberetning;
-
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
 {

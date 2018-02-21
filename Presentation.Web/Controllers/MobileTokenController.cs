@@ -8,6 +8,8 @@ using System.Web.OData.Query;
 using Core.ApplicationServices.Interfaces;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
+
 namespace OS2Indberetning.Controllers
 {
     public class MobileTokenController : BaseController<MobileToken>

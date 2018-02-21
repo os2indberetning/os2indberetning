@@ -9,6 +9,7 @@ using Core.DomainServices.RoutingClasses;
 using NSubstitute;
 using NUnit.Framework;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace ApplicationServices.Test.PersonService
 {

@@ -12,7 +12,7 @@ namespace Mail.LogMailer
 {
     public class LogParser : ILogParser
     {
-        private ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+        private ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
 
         public List<string> Messages(List<string> log, DateTime fromDate)
         {

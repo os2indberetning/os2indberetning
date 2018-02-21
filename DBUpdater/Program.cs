@@ -15,10 +15,10 @@ using Infrastructure.AddressServices;
 using Infrastructure.AddressServices.Interfaces;
 using Infrastructure.DataAccess;
 using Ninject;
-using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
 using System.Configuration;
+using Core.DomainServices.Interfaces;
 
 namespace DBUpdater
 {
@@ -27,9 +27,9 @@ namespace DBUpdater
         static void Main(string[] args)
         {
 
-            var ninjectKernel = NinjectWebKernel.CreateKernel();
+            var ninjectKernel = NinjectWebKernel.GetKernel();
 
-            ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+            ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
 
             _logger.Debug($"-------- DBUPDATER STARTED --------");
 

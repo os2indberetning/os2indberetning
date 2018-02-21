@@ -19,7 +19,7 @@ namespace DBUpdater
     {
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["DBUpdaterConnection"].ConnectionString;
 
-        private ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+        private ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
 
         /// <summary>
         /// Reads employees from Kommune database and returns them asqueryable.

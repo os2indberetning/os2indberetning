@@ -5,6 +5,7 @@ using System.Web.OData;
 using System.Web.OData.Query;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 
 namespace OS2Indberetning.Controllers
 {

@@ -1,4 +1,4 @@
-﻿using Core.ApplicationServices.Interfaces;
+﻿using Core.DomainServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Core.ApplicationServices
+namespace Core.DomainServices
 {
     public class CustomSettings : ICustomSettings
     {
@@ -122,28 +122,28 @@ namespace Core.ApplicationServices
         {
             get
             {
-                return GetValue(_protected + "muniplicity");
+                return GetProtectedValue("muniplicity");
             }
         }
         public string SdInstitutionNumber
         {
             get
             {
-                return GetValue(_protected + "institutionNumber");
+                return GetProtectedValue("institutionNumber");
             }
         }
         public string SdPassword
         {
             get
             {
-                return GetValue(_protected + "SDUserPassword");
+                return GetProtectedValue("SDUserPassword");
             }
         }
         public string SdUsername
         {
             get
             {
-                return GetValue(_protected + "SDUserName");
+                return GetProtectedValue("SDUserName");
             }
         }
         public bool SdIsEnabled
@@ -201,18 +201,26 @@ namespace Core.ApplicationServices
         }
         public string DailyErrorLogMail
         {
-            get {
+            get
+            {
                 return GetProtectedValue("PROTECTED_DailyErrorLogMail");
+            }
+        }
+        public string AlternativeCalculationMethod
+        {
+            get
+            {
+                return GetValue("AlternativeCalculationMethod");
             }
         }
 
         public string DbViewMedarbejder
         {
-            get {
+            get
+            {
                 return GetProtectedValue("PROTECTED_DATABASE_VIEW_MEDARBEJDER");
             }
         }
-
         public string DbViewOrganisation
         {
             get
@@ -220,12 +228,19 @@ namespace Core.ApplicationServices
                 return GetProtectedValue("PROTECTED_DATABASE_VIEW_ORGANISATION");
             }
         }
-
         public string DbIntegration
         {
             get
             {
                 return GetProtectedValue("DATABASE_INTEGRATION");
+            }
+        }
+
+        public string SeptimaApiKey
+        {
+            get
+            {
+                return GetValue("SEPTIMA_API_KEY");
             }
         }
 

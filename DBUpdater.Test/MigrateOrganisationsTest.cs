@@ -13,8 +13,8 @@ using Infrastructure.AddressServices.Interfaces;
 using Infrastructure.DataAccess;
 using NSubstitute;
 using NUnit.Framework;
-using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Interfaces;
+using Core.DomainServices.Interfaces;
 
 namespace DBUpdater.Test
 {

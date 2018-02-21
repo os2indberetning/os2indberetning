@@ -11,7 +11,7 @@ using Infrastructure.AddressServices;
 using Infrastructure.AddressServices.Interfaces;
 using NSubstitute;
 using NUnit.Framework;
-using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
+using Core.DomainServices.Interfaces;
 
 namespace DomainServices.Test
 {

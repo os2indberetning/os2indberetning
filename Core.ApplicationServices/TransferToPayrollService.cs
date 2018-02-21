@@ -4,6 +4,7 @@ using Core.ApplicationServices.Logger;
 using Core.ApplicationServices.SilkeborgData;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;

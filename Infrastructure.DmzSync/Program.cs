@@ -19,7 +19,7 @@ using Infrastructure.DmzSync.Services.Impl;
 using Ninject;
 using DriveReport = Core.DmzModel.DriveReport;
 using Rate = Core.DomainModel.Rate;
-
+using Core.DomainServices.Interfaces;
 
 namespace Infrastructure.DmzSync
 {
@@ -28,7 +28,7 @@ namespace Infrastructure.DmzSync
         static void Main(string[] args)
         {
            
-            var logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+            var logger = NinjectWebKernel.GetKernel().Get<ILogger>();
        
             // hacks because of error with Entity Framework.
             // This forces the dmzconnection to use MySql.
@@ -36,10 +36,10 @@ namespace Infrastructure.DmzSync
 
             var personSync = new PersonSyncService(new GenericDmzRepository<Profile>(new DmzContext()),
                 new GenericRepository<Person>(new DataContext()), new GenericDmzRepository<Core.DmzModel.Employment>(new DmzContext()),
-                NinjectWebKernel.CreateKernel().Get<IPersonService>(), logger);
+                NinjectWebKernel.GetKernel().Get<IPersonService>(), logger);
 
             var driveSync = new DriveReportSyncService(new GenericDmzRepository<DriveReport>(new DmzContext()),
-               new GenericRepository<Core.DomainModel.DriveReport>(new DataContext()), new GenericRepository<Rate>(new DataContext()), new GenericRepository<LicensePlate>(new DataContext()), NinjectWebKernel.CreateKernel().Get<IDriveReportService>(), NinjectWebKernel.CreateKernel().Get<IRoute<RouteInformation>>(), NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>(), NinjectWebKernel.CreateKernel().Get<IGenericRepository<Core.DomainModel.Employment>>(), logger);
+               new GenericRepository<Core.DomainModel.DriveReport>(new DataContext()), new GenericRepository<Rate>(new DataContext()), new GenericRepository<LicensePlate>(new DataContext()), NinjectWebKernel.GetKernel().Get<IDriveReportService>(), NinjectWebKernel.GetKernel().Get<IRoute<RouteInformation>>(), NinjectWebKernel.GetKernel().Get<IAddressCoordinates>(), NinjectWebKernel.GetKernel().Get<IGenericRepository<Core.DomainModel.Employment>>(), logger);
 
             var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
                 new GenericRepository<Rate>(new DataContext()),logger);

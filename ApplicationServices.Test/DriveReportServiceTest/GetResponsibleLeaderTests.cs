@@ -19,6 +19,7 @@ using Owin;
 using NSubstitute;
 using Presentation.Web.Test;
 using Substitute = NSubstitute.Substitute;
+using Core.DomainServices.Interfaces;
 
 namespace ApplicationServices.Test.DriveReportServiceTest
 {

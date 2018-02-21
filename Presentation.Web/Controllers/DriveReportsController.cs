@@ -26,7 +26,6 @@ namespace OS2Indberetning.Controllers
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<Employment> _employmentRepo;
         private readonly IGenericRepository<Person> _personRepo;
-        private readonly ILogger _logger;
         private readonly IGenericRepository<OrgUnit> _orgrepo;
         private readonly IGenericRepository<BankAccount> _Bankrepo;
         private readonly IGenericRepository<LicensePlate> _LicensePlateRepo;
@@ -34,12 +33,11 @@ namespace OS2Indberetning.Controllers
 
 
 
-        public DriveReportsController(IGenericRepository<BankAccount> Bankrepo, IGenericRepository<OrgUnit> orgrepo, IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, ILogger logger)
+        public DriveReportsController(IGenericRepository<BankAccount> Bankrepo, IGenericRepository<OrgUnit> orgrepo, IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo)
             : base(repo, personRepo)
         {
             _driveService = driveService;
             _employmentRepo = employmentRepo;
-            _logger = logger;
             _personRepo = personRepo;
             _orgrepo = orgrepo;
             _Bankrepo = Bankrepo;
@@ -136,7 +134,7 @@ namespace OS2Indberetning.Controllers
         public IHttpActionResult GetCalculationMethod()
         {
             bool isAltCalc;
-            bool parseSucces = bool.TryParse(ConfigurationManager.AppSettings["AlternativeCalculationMethod"], out isAltCalc);
+            bool parseSucces = bool.TryParse(_customSettings.AlternativeCalculationMethod, out isAltCalc);
             _logger.Debug($"{GetType().Name}, GetCalculationMethod(), isAltCalc={isAltCalc}");
 
             if (parseSucces)
@@ -218,7 +216,7 @@ namespace OS2Indberetning.Controllers
                 result.OrgUnit = (parsedOrgunitId < 0) ? "Ikke angivet" : _orgrepo.AsQueryable().Where(x => x.Id == parsedOrgunitId).FirstOrDefault().LongDescription;
                 result.Name = person.FullName;
                 result.AdminName = _personRepo.AsQueryable().Where(x => x.Initials == adminInitials).First().FullName;
-                result.Municipality = ConfigurationManager.AppSettings["PROTECTED_muniplicity"] ?? "Ikke angivet";
+                result.Municipality = _customSettings.Municipality ?? "Ikke angivet";
                 result.LicensePlates = string.Join(", ", _LicensePlateRepo.AsQueryable().Where(x => x.PersonId == person.Id).Select(y => y.Plate).ToArray()); // Combine all the users license plates into comma seperated string.
 
                 // Get alternative home adress if user has one, otherwise get home address

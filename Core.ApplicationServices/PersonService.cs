@@ -11,6 +11,7 @@ using Core.DomainServices.RoutingClasses;
 using Microsoft.Ajax.Utilities;
 using Ninject;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
 {

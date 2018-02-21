@@ -8,6 +8,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using NSubstitute;
 using NUnit.Framework;
+using Core.DomainServices.Interfaces;
 
 namespace ApplicationServices.Test.PersonalRouteServiceTest
 {

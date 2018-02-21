@@ -20,6 +20,7 @@ using Ninject;
 using OS2Indberetning;
 using Core.ApplicationServices.Logger;
 using System.Threading.Tasks;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
 {

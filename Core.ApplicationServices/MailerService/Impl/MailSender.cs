@@ -5,6 +5,7 @@ using System.Net.Mail;
 using Core.ApplicationServices.MailerService.Interface;
 using Ninject;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices.MailerService.Impl
 {
@@ -12,15 +13,17 @@ namespace Core.ApplicationServices.MailerService.Impl
     {
         private readonly SmtpClient _smtpClient;
         private readonly ILogger _logger;
+        private readonly ICustomSettings _customSettings;
 
-        public MailSender(ILogger logger)
+        public MailSender(ILogger logger, ICustomSettings customSettings)
         {
             _logger = logger;
+            _customSettings = customSettings;
           
             try
             {
                 int port;
-                bool hasPortValue = int.TryParse(ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST_PORT"], out port);
+                bool hasPortValue = int.TryParse(_customSettings.SMTPHostPort, out port);
 
                 _smtpClient = new SmtpClient()
                 {
@@ -29,8 +32,8 @@ namespace Core.ApplicationServices.MailerService.Impl
                     EnableSsl = false,
                     Credentials = new NetworkCredential()
                     {
-                        UserName = ConfigurationManager.AppSettings["PROTECTED_SMTP_USER"],
-                        Password = ConfigurationManager.AppSettings["PROTECTED_SMTP_PASSWORD"]
+                        UserName = _customSettings.SMTPUser,
+                        Password = _customSettings.SMTPPassword
                     }
                 };
                
@@ -61,7 +64,7 @@ namespace Core.ApplicationServices.MailerService.Impl
             }
             var msg = new MailMessage();
             msg.To.Add(to);
-            msg.From = new MailAddress(ConfigurationManager.AppSettings["PROTECTED_MAIL_FROM_ADDRESS"]);
+            msg.From = new MailAddress(_customSettings.MailFromAddress);
             msg.Body = body;
             msg.Subject = subject;
             try

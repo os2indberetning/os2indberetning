@@ -14,6 +14,7 @@ namespace Core.DomainServices.Interfaces
         string SMTPHostPort { get; }
         string MailFromAddress { get; }
         string MailSubject { get; }
+        string MailBody { get; }
 
         string KMDFilePath { get; }
         string KMDBackupFilePath { get; }

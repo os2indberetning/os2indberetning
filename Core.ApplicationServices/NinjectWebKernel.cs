@@ -72,29 +72,44 @@ namespace Core.ApplicationServices
         public static void RegisterServices(IKernel kernel)
         {
             kernel.Bind<DataContext>().ToSelf().InRequestScope();
+
+            // Core
+            // DomainServices
             kernel.Bind(typeof (IGenericRepository<>)).To(typeof (GenericRepository<>));
-            kernel.Bind<IPersonService>().To<PersonService>();
-            kernel.Bind<IMobileTokenService>().To<MobileTokenService>();
-            kernel.Bind<IMailSender>().To<MailSender>();
-            kernel.Bind<IMailService>().To<MailService>();
-            kernel.Bind<ISubstituteService>().To<SubstituteService>();
-            kernel.Bind<IDriveReportService>().To<DriveReportService>();
+
             kernel.Bind<IAddressCoordinates>().To<AddressCoordinates>();
             kernel.Bind<IRoute<RouteInformation>>().To<BestRoute>();
-            kernel.Bind<IReimbursementCalculator>().To<ReimbursementCalculator>();
+            kernel.Bind<IAddressLaunderer>().To<AddressLaundering>();
+            kernel.Bind<IUrlDefinitions>().To<UrlDefinitions>();
+
+            kernel.Bind<ICustomSettings>().To<CustomSettings>();
+
+            // ApplicationServices
+            kernel.Bind<IPersonService>().To<PersonService>();
+            kernel.Bind<IMobileTokenService>().To<MobileTokenService>();
+            kernel.Bind<ISubstituteService>().To<SubstituteService>();
+            kernel.Bind<IDriveReportService>().To<DriveReportService>();
             kernel.Bind<ILicensePlateService>().To<LicensePlateService>();
             kernel.Bind<IPersonalRouteService>().To<PersonalRouteService>();
-            kernel.Bind<IAddressLaunderer>().To<AddressLaundering>();
-            kernel.Bind<IOrgUnitService>().To<OrgUnitService>();
-            kernel.Bind<ILogger>().To<Logger.Logger>();
             kernel.Bind<IAppLoginService>().To<AppLoginService>();
+            kernel.Bind<IOrgUnitService>().To<OrgUnitService>();
             kernel.Bind<ITransferToPayrollService>().To<TransferToPayrollService>();
+
+            kernel.Bind<IReimbursementCalculator>().To<ReimbursementCalculator>();
+
+            kernel.Bind<IMailSender>().To<MailSender>();
+            kernel.Bind<IMailService>().To<MailService>();
+
+            kernel.Bind<ISdClient>().To<SdClient>();
             kernel.Bind<IReportGenerator>().To<ReportGenerator>();
             kernel.Bind<IReportFileWriter>().To<ReportFileWriter>();
-            kernel.Bind<ICustomSettings>().To<CustomSettings>();
-            kernel.Bind<ISdClient>().To<SdClient>();
-            kernel.Bind<IUrlDefinitions>().To<UrlDefinitions>();
+
+            kernel.Bind<ILogger>().To<Logger.Logger>();
+
+            // Infrastructure
             kernel.Bind<IRouter>().To<SeptimaRouter>();
+
+            // DBUpdater
         }        
     }
 }

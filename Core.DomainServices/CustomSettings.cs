@@ -40,6 +40,14 @@ namespace Core.DomainServices
                 return GetProtectedValue("SMTP_HOST_PORT");
             }
         }
+        public string MailBody
+        {
+            get
+            {
+                return GetProtectedValue("MAIL_BODY");
+            }
+        }
+
         public string MailFromAddress
         {
             get

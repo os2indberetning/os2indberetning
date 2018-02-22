@@ -9,6 +9,7 @@ using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices.MailerService.Impl
 {
@@ -19,14 +20,16 @@ namespace Core.ApplicationServices.MailerService.Impl
         private readonly IGenericRepository<Person> _personRepo;
         private readonly IMailSender _mailSender;
         private readonly ILogger _logger;
+        private readonly ICustomSettings _customSettings;
 
-        public MailService(IGenericRepository<DriveReport> driveRepo, IGenericRepository<Substitute> subRepo, IGenericRepository<Person> personRepo, IMailSender mailSender, ILogger logger)
+        public MailService(IGenericRepository<DriveReport> driveRepo, IGenericRepository<Substitute> subRepo, IGenericRepository<Person> personRepo, IMailSender mailSender, ILogger logger, ICustomSettings customSettings)
         {
             _driveRepo = driveRepo;
             _subRepo = subRepo;
             _personRepo = personRepo;
             _mailSender = mailSender;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         /// <summary>
@@ -36,14 +39,14 @@ namespace Core.ApplicationServices.MailerService.Impl
         {
             var mailAddresses = GetLeadersWithPendingReportsMails();
 
-            var mailBody = ConfigurationManager.AppSettings["PROTECTED_MAIL_BODY"];
+            var mailBody = _customSettings.MailBody;
             if (string.IsNullOrEmpty(mailBody))
             {
                 _logger.Debug($"{this.GetType().Name}, SendMails(): Mail body is null or empty, check value in CustomSettings.config");
             }
             mailBody = mailBody.Replace("####", payRoleDateTime.ToString("dd-MM-yyyy"));
 
-            var mailSubject = ConfigurationManager.AppSettings["PROTECTED_MAIL_SUBJECT"];
+            var mailSubject = _customSettings.MailSubject;
             if (string.IsNullOrEmpty(mailSubject))
             {
                 _logger.Debug($"{this.GetType().Name}, SendMails(): Mail subject is null or empty, check value in CustomSettings.config");
@@ -51,7 +54,7 @@ namespace Core.ApplicationServices.MailerService.Impl
 
             foreach (var mailAddress in mailAddresses)
             {
-                _mailSender.SendMail(mailAddress, ConfigurationManager.AppSettings["PROTECTED_MAIL_SUBJECT"], mailBody);
+                _mailSender.SendMail(mailAddress, _customSettings.MailSubject, mailBody);
             }
         }
 

@@ -29,9 +29,10 @@ namespace DBUpdater
 
             var ninjectKernel = NinjectWebKernel.GetKernel();
 
-            ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
+            ILogger logger = ninjectKernel.Get<ILogger>();
+            ICustomSettings customSettings = ninjectKernel.Get<ICustomSettings>();
 
-            _logger.Debug($"-------- DBUPDATER STARTED --------");
+            logger.Debug($"-------- DBUPDATER STARTED --------");
 
             IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
 
@@ -41,7 +42,8 @@ namespace DBUpdater
                 ninjectKernel.Get<IGenericRepository<CachedAddress>>(),
                 ninjectKernel.Get<IGenericRepository<PersonalAddress>>(),
                 ninjectKernel.Get<IAddressLaunderer>(),
-                ninjectKernel.Get<IAddressCoordinates>(), new DataProvider(),
+                ninjectKernel.Get<IAddressCoordinates>(), 
+                new DataProvider(ninjectKernel.Get<ILogger>(), ninjectKernel.Get<ICustomSettings>()),
                 ninjectKernel.Get<IMailService>(),
                 historyService,
                 ninjectKernel.Get<IGenericRepository<DriveReport>>(),
@@ -49,8 +51,8 @@ namespace DBUpdater
                 ninjectKernel.Get<ISubstituteService>(),
                 ninjectKernel.Get<IGenericRepository<Substitute>>());
 
-            var dbSync = ConfigurationManager.AppSettings["DATABASE_INTEGRATION"] ?? "SOFD";
-            _logger.Debug($"Database integration = {dbSync}");
+            var dbSync = customSettings.DbIntegration ?? "SOFD";
+            logger.Debug($"Database integration = {dbSync}");
 
             switch (dbSync)
             {
@@ -63,7 +65,7 @@ namespace DBUpdater
                     service.MigrateEmployees();
                     break;
                 default:
-                    _logger.Error("Could not read database integration type, check CustomSettings.config. DBUpdater will NOT run.");
+                    logger.Error("Could not read database integration type, check CustomSettings.config. DBUpdater will NOT run.");
                     return;
             }
 
@@ -71,7 +73,7 @@ namespace DBUpdater
             historyService.CreateNonExistingHistories();
             service.UpdateLeadersOnExpiredOrActivatedSubstitutes();
             service.AddLeadersToReportsThatHaveNone();
-            _logger.Debug($"-------- DBUPDATER FINISHED --------");
+            logger.Debug($"-------- DBUPDATER FINISHED --------");
         }
 
     }

@@ -12,6 +12,7 @@ using Ninject;
 using Core.ApplicationServices.Logger;
 using MySql.Data.MySqlClient;
 using System.IO;
+using Core.DomainServices.Interfaces;
 
 namespace DBUpdater
 {
@@ -20,6 +21,13 @@ namespace DBUpdater
         private readonly string _connectionString = ConfigurationManager.ConnectionStrings["DBUpdaterConnection"].ConnectionString;
 
         private ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
+        private ICustomSettings _customSettings;
+
+        public DataProvider(ILogger logger, ICustomSettings customSettings)
+        {
+            _logger = logger;
+            _customSettings = customSettings;
+        }
 
         /// <summary>
         /// Reads employees from Kommune database and returns them asqueryable.
@@ -33,7 +41,7 @@ namespace DBUpdater
 
             using (var sqlConnection1 = new SqlConnection(_connectionString))
             {
-                string medarbejderView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_MEDARBEJDER"];
+                string medarbejderView = _customSettings.DbViewMedarbejder;
 
                 if(medarbejderView == null)
                 {
@@ -98,7 +106,7 @@ namespace DBUpdater
         /// <returns></returns>
         public IQueryable<Organisation> GetOrganisationsAsQueryable()
         {
-            string organisationView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_ORGANISATION"];
+            string organisationView = _customSettings.DbViewOrganisation;
 
             if (organisationView == null)
             {
@@ -186,7 +194,7 @@ namespace DBUpdater
 
         public IQueryable<IDMOrganisation> GetOrganisationsAsQueryableIDM()
         {
-            string organisationView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_ORGANISATION"];
+            string organisationView = _customSettings.DbViewOrganisation;
 
             if (organisationView == null)
             {
@@ -239,7 +247,7 @@ namespace DBUpdater
 
         public IQueryable<IDMEmployee> GetEmployeesAsQueryableIDM()
         {
-            string medarbejderView = ConfigurationManager.AppSettings["PROTECTED_DATABASE_VIEW_MEDARBEJDER"];
+            string medarbejderView = _customSettings.DbViewMedarbejder;
 
             if (medarbejderView == null)
             {

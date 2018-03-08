@@ -8,6 +8,7 @@ using Mail;
 using NSubstitute;
 using NUnit.Framework;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 
 namespace ConsoleApplications.Test
 {
@@ -16,12 +17,14 @@ namespace ConsoleApplications.Test
     {
         private MailNotificationsRepoMock repoMock;
         private ILogger _logger;
+        private ICustomSettings _customSettings;
 
         [SetUp]
         public void SetUp()
         {
             _logger = NSubstitute.Substitute.For<ILogger>();
             repoMock = new MailNotificationsRepoMock();
+            _customSettings = new CustomSettings();
         }
 
         [Test]
@@ -44,7 +47,7 @@ namespace ConsoleApplications.Test
                 Repeat = false
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock,_logger);
+            var uut = new ConsoleMailerService(mailSub, repoMock,_logger, _customSettings);
             uut.RunMailService();
             mailSub.ReceivedWithAnyArgs().SendMails(new DateTime());
             Assert.AreEqual(preLength,repoMock.AsQueryable().ToList().Count);
@@ -71,7 +74,7 @@ namespace ConsoleApplications.Test
                 Repeat = true
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger);
+            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.ReceivedWithAnyArgs().SendMails(new DateTime());
             Assert.AreEqual(preLength+2,repoMock.AsQueryable().ToList().Count);
@@ -100,7 +103,7 @@ namespace ConsoleApplications.Test
                 Repeat = true
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger);
+            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.ReceivedWithAnyArgs().SendMails(new DateTime());
             Assert.AreEqual(preLength + 1, repoMock.AsQueryable().ToList().Count);
@@ -126,7 +129,7 @@ namespace ConsoleApplications.Test
                 Repeat = true
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger);
+            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.DidNotReceive().SendMails(new DateTime());
         }
@@ -150,7 +153,7 @@ namespace ConsoleApplications.Test
                 Repeat = true
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger);
+            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.DidNotReceive().SendMails(new DateTime());
         }

@@ -16,6 +16,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Mail.LogMailer;
 using Ninject;
+using Core.DomainServices.Interfaces;
 
 namespace Mail
 {
@@ -24,12 +25,14 @@ namespace Mail
         private IMailService _mailService;
         private IGenericRepository<MailNotificationSchedule> _repo;
         private ILogger _logger;
+        private ICustomSettings _customSettings;
 
-        public ConsoleMailerService(IMailService mailService, IGenericRepository<MailNotificationSchedule> repo, ILogger logger)
+        public ConsoleMailerService(IMailService mailService, IGenericRepository<MailNotificationSchedule> repo, ILogger logger, ICustomSettings customSettings)
         {
             _mailService = mailService;
             _repo = repo;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         /// <summary>
@@ -38,7 +41,7 @@ namespace Mail
         public void RunMailService()
         {
 
-            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger);
+            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger, _customSettings);
             try
             {
                 logMailer.Send();
@@ -73,7 +76,7 @@ namespace Mail
                     }
                     notification.Notified = true;
 
-                    AttemptSendMails(_mailService,Utilities.FromUnixTime(notification.PayRoleTimestamp), 2);
+                    AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.PayRoleTimestamp), 2);
                 }
 
                 _repo.Save();

@@ -11,17 +11,13 @@ namespace ConsoleApplications.Test.Mailer
         public MailNotificationSchedule noti1 = new MailNotificationSchedule()
         {
             Id = 1,
-            DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-            Notified = false,
-            Repeat = true
+            DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
         };
 
         public MailNotificationSchedule noti2 = new MailNotificationSchedule()
         {
             Id = 2,
-            DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
-            Notified = false,
-            Repeat = true
+            DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1))
         };
 
         protected override List<MailNotificationSchedule> Seed()

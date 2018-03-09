@@ -59,13 +59,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileGenearationService.cs" />
-    <Compile Include="LogMailer\ILogMailer.cs" />
-    <Compile Include="LogMailer\ILogParser.cs" />
-    <Compile Include="LogMailer\ILogReader.cs" />
-    <Compile Include="LogMailer\LogMailer.cs" />
-    <Compile Include="LogMailer\LogParser.cs" />
-    <Compile Include="LogMailer\LogParserRegex.cs" />
-    <Compile Include="LogMailer\LogReader.cs" />
     <Compile Include="FileGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

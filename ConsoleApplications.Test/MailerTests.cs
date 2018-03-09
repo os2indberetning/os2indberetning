@@ -35,16 +35,12 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = false,
-                Repeat = false
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
-                Notified = false,
-                Repeat = false
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1))
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock,_logger, _customSettings);
@@ -62,16 +58,12 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = false,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = false,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
@@ -91,16 +83,12 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = false,
-                Repeat = false
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = false,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
@@ -117,16 +105,12 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
-                Notified = false,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1))
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(2)),
-                Notified = false,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(2))
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
@@ -141,16 +125,12 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = true,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
-                Notified = true,
-                Repeat = true
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);

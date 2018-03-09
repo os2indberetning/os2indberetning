@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2036
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation.Web", "Presentation.Web\Presentation.Web.csproj", "{2B953FAB-7F22-4884-9325-2A5C53519F3D}"
 EndProject
@@ -62,6 +62,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.AddressServices.Test", "Infrastructure.AddressServices.Test\Infrastructure.AddressServices.Test.csproj", "{5B3D69E4-AACF-42A6-95B1-23484E689346}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DmzSync.Test", "DmzSync.Test\DmzSync.Test.csproj", "{2CA4B8F8-39E7-4286-B5A9-6429D37FDBE0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileGenerationScheduler", "FileGenerationScheduler\FileGenerationScheduler.csproj", "{115AC8B2-E081-4BC8-B1F4-6EFCCC5DC4DB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -137,6 +139,10 @@ Global
 		{2CA4B8F8-39E7-4286-B5A9-6429D37FDBE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CA4B8F8-39E7-4286-B5A9-6429D37FDBE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CA4B8F8-39E7-4286-B5A9-6429D37FDBE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{115AC8B2-E081-4BC8-B1F4-6EFCCC5DC4DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{115AC8B2-E081-4BC8-B1F4-6EFCCC5DC4DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{115AC8B2-E081-4BC8-B1F4-6EFCCC5DC4DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{115AC8B2-E081-4BC8-B1F4-6EFCCC5DC4DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,5 +159,9 @@ Global
 		{90A44ADF-5BCF-47B6-8DD7-F4E069F3942E} = {A9413206-37FE-4261-9223-8E136288075E}
 		{F0C6C478-3A6A-405C-A193-9C498250CF2E} = {38A093DE-ECBD-4C54-9376-E71805D2C06B}
 		{A7C2603A-669B-408D-842F-08DB1E08F166} = {38A093DE-ECBD-4C54-9376-E71805D2C06B}
+		{115AC8B2-E081-4BC8-B1F4-6EFCCC5DC4DB} = {38A093DE-ECBD-4C54-9376-E71805D2C06B}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {04EACBCD-2EFB-4EF2-96FA-9EC1DF2342A5}
 	EndGlobalSection
 EndGlobal

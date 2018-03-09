@@ -57,26 +57,26 @@ namespace Mail
             var startOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00));
             var endOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));
         
-            var notifications = _repo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay && !r.Notified);
+            var notifications = _repo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay);
 
             if (notifications.Any())
             {
                 Console.WriteLine("Forsøger at sende emails.");
                 foreach (var notification in notifications.ToList())
                 {
-                    if (notification.Repeat)
-                    {
-                        var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(notification.DateTimestamp).AddMonths(1));
-                        _repo.Insert(new MailNotificationSchedule()
-                        {
-                            DateTimestamp = newDateTime,
-                            Notified = false,
-                            Repeat = true
-                        });
-                    }
-                    notification.Notified = true;
+                    //if (notification.Repeat)
+                    //{
+                    //    var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(notification.DateTimestamp).AddMonths(1));
+                    //    _repo.Insert(new MailNotificationSchedule()
+                    //    {
+                    //        DateTimestamp = newDateTime,
+                    //        Notified = false,
+                    //        Repeat = true
+                    //    });
+                    //}
+                    //notification.Notified = true;
 
-                    AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.PayRoleTimestamp), 2);
+                    AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.FileGenerationSchedule.DateTimestamp), 2);
                 }
 
                 _repo.Save();

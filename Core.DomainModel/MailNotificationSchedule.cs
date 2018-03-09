@@ -7,8 +7,8 @@ namespace Core.DomainModel
     {
         public int Id { get; set; }
         public long DateTimestamp { get; set; }
-        public long PayRoleTimestamp { get; set; }
-        public bool Notified { get; set; }
-        public bool Repeat { get; set; }
+        public int FileGenerationScheduleId{ get; set; }
+        public virtual FileGenerationSchedule FileGenerationSchedule { get; set; }
+        public string CustomText { get; set; }
     }
 }

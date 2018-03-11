@@ -211,7 +211,7 @@ namespace Core.DomainServices
         {
             get
             {
-                return GetProtectedValue("PROTECTED_DailyErrorLogMail");
+                return GetProtectedValue("DailyErrorLogMail");
             }
         }
         public string AlternativeCalculationMethod
@@ -226,14 +226,14 @@ namespace Core.DomainServices
         {
             get
             {
-                return GetProtectedValue("PROTECTED_DATABASE_VIEW_MEDARBEJDER");
+                return GetProtectedValue("DATABASE_VIEW_MEDARBEJDER");
             }
         }
         public string DbViewOrganisation
         {
             get
             {
-                return GetProtectedValue("PROTECTED_DATABASE_VIEW_ORGANISATION");
+                return GetProtectedValue("DATABASE_VIEW_ORGANISATION");
             }
         }
         public string DbIntegration

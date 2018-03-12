@@ -3,7 +3,7 @@ namespace Infrastructure.DataAccess.Migrations
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class SchedulesChanged : DbMigration
+    public partial class FileSchedulerAutoIncrement : DbMigration
     {
         public override void Up()
         {

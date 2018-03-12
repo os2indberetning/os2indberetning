@@ -7,13 +7,13 @@ namespace Infrastructure.DataAccess.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class SchedulesChanged : IMigrationMetadata
+    public sealed partial class FileSchedulerAutoIncrement : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(SchedulesChanged));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(FileSchedulerAutoIncrement));
         
         string IMigrationMetadata.Id
         {
-            get { return "201803091110126_SchedulesChanged"; }
+            get { return "201803120735067_FileSchedulerAutoIncrement"; }
         }
         
         string IMigrationMetadata.Source

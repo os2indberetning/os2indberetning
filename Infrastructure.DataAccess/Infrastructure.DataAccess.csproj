@@ -417,9 +417,9 @@
     <Compile Include="Migrations\201802141027552_AdminRecieveMailAdded.Designer.cs">
       <DependentUpon>201802141027552_AdminRecieveMailAdded.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201803091110126_SchedulesChanged.cs" />
-    <Compile Include="Migrations\201803091110126_SchedulesChanged.Designer.cs">
-      <DependentUpon>201803091110126_SchedulesChanged.cs</DependentUpon>
+    <Compile Include="Migrations\201803120735067_FileSchedulerAutoIncrement.cs" />
+    <Compile Include="Migrations\201803120735067_FileSchedulerAutoIncrement.Designer.cs">
+      <DependentUpon>201803120735067_FileSchedulerAutoIncrement.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
@@ -708,8 +708,8 @@
     <EmbeddedResource Include="Migrations\201802141027552_AdminRecieveMailAdded.resx">
       <DependentUpon>201802141027552_AdminRecieveMailAdded.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201803091110126_SchedulesChanged.resx">
-      <DependentUpon>201803091110126_SchedulesChanged.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201803120735067_FileSchedulerAutoIncrement.resx">
+      <DependentUpon>201803120735067_FileSchedulerAutoIncrement.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

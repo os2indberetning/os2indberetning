@@ -11,9 +11,9 @@ using Core.DomainServices;
 
 namespace OS2Indberetning.Controllers
 {
-    public class FileGenerationsController : BaseController<FileGenerationSchedule>
+    public class FileGenerationScheduleController : BaseController<FileGenerationSchedule>
     {
-        public FileGenerationsController(IGenericRepository<FileGenerationSchedule> repository, IGenericRepository<Person> personRepo) : base(repository, personRepo)      {}
+        public FileGenerationScheduleController(IGenericRepository<FileGenerationSchedule> repository, IGenericRepository<Person> personRepo) : base(repository, personRepo)      {}
 
         //GET: odata/FileGenerationSchedules
         /// <summary>

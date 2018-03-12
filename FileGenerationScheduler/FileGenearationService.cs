@@ -60,7 +60,7 @@ namespace FileGenerationScheduler
                             });
 
                             // Check all mail notifications
-                            foreach (var mail in file.MailNotificationSchedulers)
+                            foreach (var mail in file.MailNotificationSchedules)
                             {
                                 var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(mail.DateTimestamp).AddMonths(1));
                                 var newNotification = _mailRepo.Insert(new MailNotificationSchedule()

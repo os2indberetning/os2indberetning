@@ -105,7 +105,7 @@ namespace OS2Indberetning
             var eType = builder.EntityType<Employment>();
             eType.HasKey(e => e.Id);
 
-            builder.EntitySet<FileGenerationSchedule>("FileGenerationSchedules");
+            builder.EntitySet<FileGenerationSchedule>("FileGenerationSchedule");
 
             builder.EntitySet<LicensePlate>("LicensePlates");
 

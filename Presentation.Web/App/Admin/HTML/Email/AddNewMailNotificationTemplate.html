@@ -5,28 +5,37 @@
     <div>
         <div class="form-group">
             <div class="row">
-                <label class="col-md-6">Adviseringsdato</label>
-                <div class="col-md-4">
-                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="notificationDate" />
-                </div>
-                
-            </div>
-            <div class="row">
                 <label class="col-md-6">Lønkørselsdato</label>
                 <div class="col-md-4">
-                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="payRoleDate" />
+                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="payrollDate" />
                 </div>
-
             </div>
             <div class="row">
                 <label class="col-md-6">Gentag månedligt</label>
                 <div class="col-md-4">
-                    <select class="form-control margin-5" ng-model="repeatMonthly">
+                    <select class="form-control margin-5" ng-model="Repeat">
                         <option value="true">Ja</option>
                         <option value="false">Nej</option>
                     </select>
                 </div>
-
+            </div>
+            <div ng-repeat="EmailNotificationSchedule in FileGenerationSchedule.MailNotificationSchedules">
+                <div class="row">
+                    <div class="col-md-4">
+                        {{$index}}
+                    </div>
+                    <div class="col-md-4">
+                        <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].DateTimestamp" />
+                    </div>
+                    <div class="col-md-4">
+                            <button class="btn btn-default" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <button class="btn btn-default" ng-enter="" ng-click="AddMailNotificationSchedule()">Tilføj emailadvis</button>
+                </div>
             </div>
             <div class="row">
                 <label class="text-danger col-md-6" ng-bind="dateErrorMessage"></label>

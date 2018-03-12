@@ -1,5 +1,5 @@
-﻿angular.module("application").controller("EmailNotificationController", [
-    "$scope", "$modal", "EmailNotification", "$rootScope", function ($scope, $modal, EmailNotification, $rootScope) {
+﻿angular.module("application").controller("FileGenerationScheduleController", [
+    "$scope", "$modal", "FileGenerationSchedule", "$rootScope", function ($scope, $modal, FileGenerationSchedule, $rootScope) {
 
 
         $scope.$on('emailClicked', function (event, mass) {
@@ -12,7 +12,7 @@
 
 
         /// <summary>
-        /// Loads existing MailNotifications from backend to kendo grid datasource.
+        /// Loads existing FileGenerationSchedules from backend to kendo grid datasource.
         /// </summary>
         $scope.notifications = {
             autoBind : false,
@@ -23,7 +23,7 @@
                         beforeSend: function (req) {
                             req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                         },
-                        url: "/odata/MailNotifications",
+                        url: "/odata/FileGenerationSchedule?$expand=MailNotificationSchedules",
                         dataType: "json",
                         cache: false
                     },
@@ -66,18 +66,9 @@
             columns: [
                 {
                     field: "DateTimestamp",
-                    title: "Adviseringsdato",
+                    title: "Lønkørsel",
                     template: function (data) {
                         var m = moment.unix(data.DateTimestamp);
-                        return m._d.getDate() + "/" +
-                            (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
-                            m._d.getFullYear();
-                    }
-                }, {
-                    field: "PayRoleTimestamp",
-                    title: "Lønkørselsdato",
-                    template: function (data) {
-                        var m = moment.unix(data.PayRoleTimestamp);
                         return m._d.getDate() + "/" +
                             (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                             m._d.getFullYear();
@@ -92,11 +83,24 @@
                         return "Nej";
                     }
                 }, {
-                    field: "Notified",
+                    //field: "Notified",
                     title: "Er kørt",
                     template: function (data) {
-                        if (data.Notified) {
+                        if (data.DateTimestamp < moment().unix()) {
                             return "<i class='fa fa-check'></i>";
+                        }
+                        return "";
+                    }
+                },
+                {
+                    //field: "MailNotificationSchedules",
+                    title: "Emailadvis sendt",
+                    template: function (data) {
+                        if (data.MailNotificationSchedules.length > 0){
+                            console.log(moment().unix());
+                            if(data.MailNotificationSchedules[0].DateTimestamp < moment().unix()) {
+                                return "<i class='fa fa-check'></i>";
+                            }
                         }
                         return "";
                     }
@@ -133,10 +137,9 @@
             });
 
             modalInstance.result.then(function (result) {
-                EmailNotification.patch({ id: id }, {
-                    "DateTimestamp": result.notificationDate,
-                    "Repeat": result.repeatMonthly,
-                    "PayRoleTimestamp": result.payDate,
+                FileGenerationSchedule.patch({ id: id }, {
+                    "DateTimestamp": result.PayrollDate,
+                    "Repeat": result.repeatMonthly
                 }, function () {
                     $scope.updateNotificationGrid();
                 });
@@ -154,7 +157,7 @@
             /// <param name="id">Id of MailNotification to delete</param>
             var modalInstance = $modal.open({
                 templateUrl: '/App/Admin/HTML/Email/ConfirmDeleteMailNotificationTemplate.html',
-                controller: 'DeleteMailNotificationController',
+                controller: 'DeletFileGenerationScheduleController',
                 backdrop: "static",
                 resolve: {
                     itemId: function () {
@@ -164,7 +167,7 @@
             });
 
             modalInstance.result.then(function () {
-                EmailNotification.delete({ id: id }, function () {
+                FileGenerationSchedule.delete({ id: id }, function () {
                     $scope.updateNotificationGrid();
                 });
             });
@@ -181,12 +184,7 @@
             });
 
             modalInstance.result.then(function (result) {
-                EmailNotification.post({
-                    "DateTimestamp": result.notificationDate,
-                    "Repeat": result.repeatMonthly,
-                    "Notified": false,
-                    "PayRoleTimestamp": result.payDate,
-                }, function () {
+                FileGenerationSchedule.post(result, function () {
                     $scope.updateNotificationGrid();
                 });
             });

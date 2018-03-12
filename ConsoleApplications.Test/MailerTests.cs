@@ -32,25 +32,27 @@ namespace ConsoleApplications.Test
         {
             var preLength = repoMock.AsQueryable().ToList().Count;
             var mailSub = NSubstitute.Substitute.For<IMailService>();
-            repoMock.noti1 = new MailNotificationSchedule()
+            var notification1 = repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1))
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock,_logger, _customSettings);
             uut.RunMailService();
-            mailSub.ReceivedWithAnyArgs().SendMails(new DateTime());
+            mailSub.Received().SendMails(, notification1.CustomText);
             Assert.AreEqual(preLength,repoMock.AsQueryable().ToList().Count);
         }
 
         [Test]
-        public void RunMailService_2NotificationsWithRepeat_ShouldCall_SendMails_AndAdd2NewNotifications()
+        public void RunMailService_2NotificationsWithRepeat_ShouldCall_SendMails()
         {
             var preLength = repoMock.AsQueryable().ToList().Count;
 
@@ -58,43 +60,19 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.ReceivedWithAnyArgs().SendMails(new DateTime());
-            Assert.AreEqual(preLength+2,repoMock.AsQueryable().ToList().Count);
-        }
-
-
-
-        [Test]
-        public void RunMailService_NotificationWithRepeat_ShouldCall_SendMails_AndAddNewNotification()
-        {
-            var preLength = repoMock.AsQueryable().ToList().Count;
-
-            var mailSub = NSubstitute.Substitute.For<IMailService>();
-            repoMock.noti1 = new MailNotificationSchedule()
-            {
-                Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
-            };
-            repoMock.noti2 = new MailNotificationSchedule()
-            {
-                Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
-            };
-            repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
-            uut.RunMailService();
-            mailSub.ReceivedWithAnyArgs().SendMails(new DateTime());
-            Assert.AreEqual(preLength + 1, repoMock.AsQueryable().ToList().Count);
         }
 
         [Test]
@@ -105,12 +83,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1))
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(1)),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(2))
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now.AddDays(2)),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
@@ -125,12 +105,14 @@ namespace ConsoleApplications.Test
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.noti2 = new MailNotificationSchedule()
             {
                 Id = 2,
-                DateTimestamp = Utilities.ToUnixTime(DateTime.Now)
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.ReSeed();
             var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);

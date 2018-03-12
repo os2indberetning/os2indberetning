@@ -36,7 +36,7 @@ namespace FileGenerationScheduler
             var endOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));
 
             // Filter the repository with the files that need to be generated today
-            var filesToGenerate = _fileRepo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay);
+            var filesToGenerate = _fileRepo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay).ToList();
 
             if (filesToGenerate.Any())
             {
@@ -58,19 +58,23 @@ namespace FileGenerationScheduler
                                 DateTimestamp = newDate,
                                 Repeat = true
                             });
+                            _fileRepo.Save();
 
                             // Check all mail notifications
-                            foreach (var mail in file.MailNotificationSchedules)
+                            if (file.MailNotificationSchedulers != null && file.MailNotificationSchedulers.Any())
                             {
-                                var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(mail.DateTimestamp).AddMonths(1));
-                                var newNotification = _mailRepo.Insert(new MailNotificationSchedule()
+                                foreach (var mail in file.MailNotificationSchedulers)
                                 {
-                                    FileGenerationScheduleId = newFile.Id, // ?
-                                    DateTimestamp = newDateTime,
-                                    CustomText = mail.CustomText
-                                });
-                            }
-                            _mailRepo.Save();
+                                    var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(mail.DateTimestamp).AddMonths(1));
+                                    var newNotification = _mailRepo.Insert(new MailNotificationSchedule()
+                                    {
+                                        FileGenerationScheduleId = newFile.Id, // ?
+                                        DateTimestamp = newDateTime,
+                                        CustomText = mail.CustomText
+                                    });
+                                }
+                                _mailRepo.Save();
+                            }                            
                         }
                         catch (Exception e)
                         {
@@ -80,7 +84,6 @@ namespace FileGenerationScheduler
                         }                        
                     }
                 }
-                _fileRepo.Save();
                 _logger.Debug($"{this.GetType().Name}, RunFileGenerationService(), File generation finished");
             }
             else
@@ -96,7 +99,7 @@ namespace FileGenerationScheduler
         /// Generated and transfers the files to the payroll system.
         /// Sends notification about the event to the admins
         /// </summary>
-        public void AttemptGenerateFile()
+        private void AttemptGenerateFile()
         {
             try
             {

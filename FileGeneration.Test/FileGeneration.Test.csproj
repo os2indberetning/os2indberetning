@@ -63,9 +63,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="FileGenerationSchedulerRepoMock.cs" />
     <Compile Include="FileGenerationTester.cs" />
-    <Compile Include="MailNotificationRepoMock.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

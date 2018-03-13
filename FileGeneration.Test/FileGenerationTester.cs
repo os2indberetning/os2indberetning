@@ -163,8 +163,8 @@ namespace FileGeneration.Test
                 CustomText = "Custom test4",
             });
 
-            file1.MailNotificationSchedulers = new List<MailNotificationSchedule> { mail1, mail2 };
-            file2.MailNotificationSchedulers = new List<MailNotificationSchedule> { mail3, mail4 };
+            file1.MailNotificationSchedules = new List<MailNotificationSchedule> { mail1, mail2 };
+            file2.MailNotificationSchedules = new List<MailNotificationSchedule> { mail3, mail4 };
 
             var fileRepoEntriesCount = fileRepoList.Count;
             var mailRepoEntriesCount = mailRepoList.Count;
@@ -251,8 +251,8 @@ namespace FileGeneration.Test
                 CustomText = "Custom test4",
             });
 
-            file1.MailNotificationSchedulers = new List<MailNotificationSchedule> { mail1, mail2 };
-            file2.MailNotificationSchedulers = new List<MailNotificationSchedule> { mail3, mail4 };
+            file1.MailNotificationSchedules = new List<MailNotificationSchedule> { mail1, mail2 };
+            file2.MailNotificationSchedules = new List<MailNotificationSchedule> { mail3, mail4 };
 
             var fileRepoEntriesCount = fileRepoList.Count;
             var mailRepoEntriesCount = mailRepoList.Count;

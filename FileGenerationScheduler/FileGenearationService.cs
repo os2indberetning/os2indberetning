@@ -61,9 +61,9 @@ namespace FileGenerationScheduler
                             _fileRepo.Save();
 
                             // Check all mail notifications
-                            if (file.MailNotificationSchedulers != null && file.MailNotificationSchedulers.Any())
+                            if (file.MailNotificationSchedules != null && file.MailNotificationSchedules.Any())
                             {
-                                foreach (var mail in file.MailNotificationSchedulers)
+                                foreach (var mail in file.MailNotificationSchedules)
                                 {
                                     var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(mail.DateTimestamp).AddMonths(1));
                                     var newNotification = _mailRepo.Insert(new MailNotificationSchedule()

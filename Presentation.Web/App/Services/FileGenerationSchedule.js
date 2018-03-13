@@ -21,6 +21,17 @@ angular.module("application").service('FileGenerationSchedule', ["$resource", fu
         "getAll": {
             method: "GET", isArray: false
         },
+        "getWithEmailNotifications":{
+            method: "GET",
+            isArray: false,
+            url: "/odata/FileGenerationSchedule?$filter=Id eq :id &$expand=MailNotificationSchedules",
+            transformResponse: function(data) {
+                var res = angular.fromJson(data);
+                if (res.error == undefined) {
+                    return res.value[0];
+                }
+            }
+        },
         "patch": { method: "PATCH", isArray: false },
         "post": { method: "POST", isArray: false }
     });

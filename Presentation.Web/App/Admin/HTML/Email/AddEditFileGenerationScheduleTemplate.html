@@ -7,13 +7,13 @@
             <div class="row">
                 <label class="col-md-6">Lønkørselsdato</label>
                 <div class="col-md-4">
-                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="payrollDate" />
+                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.DateTimestamp" />
                 </div>
             </div>
             <div class="row">
                 <label class="col-md-6">Gentag månedligt</label>
                 <div class="col-md-4">
-                    <select class="form-control margin-5" ng-model="Repeat">
+                    <select class="form-control margin-5" ng-model="FileGenerationSchedule.Repeat">
                         <option value="true">Ja</option>
                         <option value="false">Nej</option>
                     </select>
@@ -29,6 +29,11 @@
                     </div>
                     <div class="col-md-4">
                             <button class="btn btn-default" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <textarea ng-enter="" type="text" class="form-control min-height-100 max-width-100p" ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].CustomText"></textarea>
                     </div>
                 </div>
             </div>

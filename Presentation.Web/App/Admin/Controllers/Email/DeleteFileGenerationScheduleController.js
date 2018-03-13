@@ -1,4 +1,4 @@
-﻿angular.module("application").controller("DeletFileGenerationScheduleController", [
+﻿angular.module("application").controller("DeleteFileGenerationScheduleController", [
     "$scope", "$modalInstance", "itemId", "NotificationService",
     function ($scope, $modalInstance, itemId, NotificationService) {
 

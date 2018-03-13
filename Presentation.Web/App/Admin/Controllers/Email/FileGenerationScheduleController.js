@@ -126,8 +126,8 @@
             /// </summary>
             /// <param name="id">Id of MailNotification to edit</param>
             var modalInstance = $modal.open({
-                templateUrl: '/App/Admin/HTML/Email/EditMailNotificationTemplate.html',
-                controller: 'EditMailNotificationController',
+                templateUrl: '/App/Admin/HTML/Email/AddEditFileGenerationScheduleTemplate.html',
+                controller: 'AddEditFileGenerationScheduleController',
                 backdrop: "static",
                 resolve: {
                     itemId: function () {
@@ -156,8 +156,8 @@
             /// </summary>
             /// <param name="id">Id of MailNotification to delete</param>
             var modalInstance = $modal.open({
-                templateUrl: '/App/Admin/HTML/Email/ConfirmDeleteMailNotificationTemplate.html',
-                controller: 'DeletFileGenerationScheduleController',
+                templateUrl: '/App/Admin/HTML/Email/ConfirmDeleteFileGenerationScheduleTemplate.html',
+                controller: 'DeleteFileGenerationScheduleController',
                 backdrop: "static",
                 resolve: {
                     itemId: function () {
@@ -178,9 +178,14 @@
             /// Opens add new MailNotification modal
             /// </summary>
             var modalInstance = $modal.open({
-                templateUrl: '/App/Admin/HTML/Email/AddNewMailNotificationTemplate.html',
-                controller: 'AddNewMailNotificationController',
+                templateUrl: '/App/Admin/HTML/Email/AddEditFileGenerationScheduleTemplate.html',
+                controller: 'AddEditFileGenerationScheduleController',
                 backdrop: "static",
+                resolve: {
+                    itemId: function () {
+                        return -1;
+                    }
+                }
             });
 
             modalInstance.result.then(function (result) {

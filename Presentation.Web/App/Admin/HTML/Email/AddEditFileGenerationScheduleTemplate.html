@@ -1,6 +1,16 @@
 ﻿<div class="modal-header">
     <h3 class="modal-title">Tilføj Ny Advisering.</h3>
 </div>
+<style>
+    .color0 {
+        background-color: rgb(160, 209, 186);
+        padding: 2%
+    }
+    .color1 {
+        background-color: rgb(211, 253, 233);
+        padding: 2%
+    }
+</style>
 <div class="modal-body">
     <div>
         <div class="form-group">
@@ -19,30 +29,31 @@
                     </select>
                 </div>
             </div>
-            <div ng-repeat="EmailNotificationSchedule in FileGenerationSchedule.MailNotificationSchedules">
+            <h2>Emailadviser</h2>
+            <div ng-repeat="EmailNotificationSchedule in FileGenerationSchedule.MailNotificationSchedules" ng-class="'color' + ($index % 2)">
                 <div class="row">
                     <div class="col-md-3">
-                        <label>Mailadvis {{$index + 1}}</label>
+                        <label class="margin-5">Mailadvis {{$index + 1}}</label>
                     </div>
                     <div class="col-md-5">
-                        <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].DateTimestamp" />
+                        <input kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].DateTimestamp" />
                     </div>
                     <div class="col-md-2">
-                        <button class="btn btn-default pull-right" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>
+                        <button class="btn btn-default pull-right margin-1" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>
                     </div> 
                     <div class="col-md-2">
-                        <button class="btn btn-default pull-right" ng-enter="" ng-click="EnableTextarea($index)">Tilføj tekst</button>
+                        <button class="btn btn-default pull-right margin-1" ng-enter="" ng-click="EnableTextarea($index)">Tilføj tekst</button>
                     </div>                   
                 </div>
                 <div class="row">
-                    <div class="col-md-12">
-                        <textarea rows="3" cols="40" ng-enter="TextareaEnter($index)" type="text" class="margin-5 form-control min-height-100 max-width-100p" ng-show="ShowTextareaValues[$index]" ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].CustomText"></textarea>
+                    <div class="col-md-12" style="padding-top: 10px">
+                        <textarea ng-enter="TextareaEnter($index)" type="text" class="form-control" ng-show="ShowTextareaValues[$index]" ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].CustomText"></textarea>
                     </div>                    
                 </div>
             </div>
             <div class="row">
-                <div class="col-md-12">
-                    <button class="btn btn-default" ng-enter="" ng-click="AddMailNotificationSchedule()">Tilføj emailadvis</button>
+                <div class="col-md-12" style="padding-top: 10px">
+                    <button class="btn btn-default padding-5" ng-enter="" ng-click="AddMailNotificationSchedule()">Tilføj emailadvis</button>
                 </div>
             </div>
             <div class="row">

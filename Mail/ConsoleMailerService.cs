@@ -76,10 +76,10 @@ namespace Mail
                     //}
                     //notification.Notified = true;
 
-                    AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.FileGenerationSchedule.DateTimestamp), 2);
+                    AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.FileGenerationSchedule.DateTimestamp), notification.CustomText, 2);
                 }
 
-                _repo.Save();
+                //_repo.Save();
                 _logger.Debug($"{this.GetType().Name}, RunMailerService(), Notification mails for leaders sending finished");
             }
             else
@@ -98,20 +98,20 @@ namespace Mail
         /// </summary>
         /// <param name="service">IMailService to use for sending mails.</param>
         /// <param name="timesToAttempt">Number of times to attempt to send emails.</param>
-        public void AttemptSendMails(IMailService service, DateTime payRoleDateTime, int timesToAttempt)
+        public void AttemptSendMails(IMailService service, DateTime payRoleDateTime, String customText, int timesToAttempt)
         {
             if (timesToAttempt > 0)
             {
                 try
                 {
-                    service.SendMails(payRoleDateTime);
+                    service.SendMails(payRoleDateTime, customText);
                 }
                 catch (System.Net.Mail.SmtpException e)
                 {
                     Console.WriteLine("Kunne ikke oprette forbindelse til SMTP-Serveren. Forsøger igen...");
                     _logger.LogForAdmin("Kunne ikke forbinde til SMTP-server. Mails kan ikke sendes.");
                     _logger.Error($"{GetType().Name}, AttemptSendMails(), Could not connect to SMTP server, mails could not be send", e);
-                    AttemptSendMails(service, payRoleDateTime, timesToAttempt - 1);
+                    AttemptSendMails(service, payRoleDateTime, customText, timesToAttempt - 1);
                 }
             }
             else

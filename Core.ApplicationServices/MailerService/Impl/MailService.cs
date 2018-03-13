@@ -35,16 +35,24 @@ namespace Core.ApplicationServices.MailerService.Impl
         /// <summary>
         /// Sends an email to all leaders with pending reports to be approved.
         /// </summary>
-        public void SendMails(DateTime payRoleDateTime)
+        public void SendMails(DateTime payRoleDateTime, string customText)
         {
             var mailAddresses = GetLeadersWithPendingReportsMails();
-
-            var mailBody = _customSettings.MailBody;
-            if (string.IsNullOrEmpty(mailBody))
+            var mailBody = "";
+            if (string.IsNullOrEmpty(customText))
             {
-                _logger.Debug($"{this.GetType().Name}, SendMails(): Mail body is null or empty, check value in CustomSettings.config");
+                mailBody = _customSettings.MailBody;
+                if (string.IsNullOrEmpty(mailBody))
+                {
+                    _logger.Debug($"{this.GetType().Name}, SendMails(): Mail body is null or empty, check value in CustomSettings.config");
+                }
+            }
+            else
+            {
+                mailBody = customText;
             }
             mailBody = mailBody.Replace("####", payRoleDateTime.ToString("dd-MM-yyyy"));
+
 
             var mailSubject = _customSettings.MailSubject;
             if (string.IsNullOrEmpty(mailSubject))

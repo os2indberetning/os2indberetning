@@ -1,11 +1,12 @@
 ﻿angular.module("application").controller("AddEditFileGenerationScheduleController", [
     "$scope", "$modalInstance", "NotificationService", "StandardAddress", "AddressFormatter", "SmartAdresseSource", "FileGenerationSchedule", "itemId",
     function ($scope, $modalInstance, NotificationService, StandardAddress, AddressFormatter, SmartAdresseSource, FileGenerationSchedule, itemId) {
-
+        
         $scope.FileGenerationSchedule = {};
         $scope.FileGenerationSchedule.MailNotificationSchedules = [];
         $scope.FileGenerationSchedule.DateTimestamp = new Date();
         $scope.FileGenerationSchedule.Repeat = "";
+        $scope.ShowTextareaValues = [];
         
         if(itemId > 0){
             // FileGenerationSchedule is being edited
@@ -17,6 +18,7 @@
                 angular.forEach($scope.FileGenerationSchedule.MailNotificationSchedules, function(mailnotif, key){
                     mailnotif.DateTimestamp = moment.unix(mailnotif.DateTimestamp).format("DD/MM/YYYY");
                 })
+                
 
                 if($scope.FileGenerationSchedule == true){
                     $scope.FileGenerationSchedule.Repeat = "true";
@@ -76,13 +78,23 @@
         }
 
         $scope.AddMailNotificationSchedule = function(){
-            $scope.FileGenerationSchedule.MailNotificationSchedules.push({DateTimestamp:"", CustomText:""})
+            $scope.FileGenerationSchedule.MailNotificationSchedules.push({DateTimestamp:"", CustomText:""});
+            $scope.ShowTextareaValues.push(false);         
         }
 
         $scope.RemoveMailNotificationSchedule = function(index){
             if(index > -1){
                 $scope.FileGenerationSchedule.MailNotificationSchedules.splice(index, 1);
+                $scope.ShowTextareaValues.splice(index, 1);
             }
+        }
+
+        $scope.EnableTextarea = function(index){
+            $scope.ShowTextareaValues[index] = !$scope.ShowTextareaValues[index];
+        }
+
+        $scope.TextareaEnter = function(index){
+            $scope.FileGenerationSchedule.MailNotificationSchedules[index].CustomText += "\n";
         }
     }
 ]);

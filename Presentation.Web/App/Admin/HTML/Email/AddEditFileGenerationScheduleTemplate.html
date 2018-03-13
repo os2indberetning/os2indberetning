@@ -21,20 +21,23 @@
             </div>
             <div ng-repeat="EmailNotificationSchedule in FileGenerationSchedule.MailNotificationSchedules">
                 <div class="row">
-                    <div class="col-md-4">
-                        {{$index}}
+                    <div class="col-md-3">
+                        <label>Mailadvis {{$index + 1}}</label>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].DateTimestamp" />
                     </div>
-                    <div class="col-md-4">
-                            <button class="btn btn-default" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>
-                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-default pull-right" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>
+                    </div> 
+                    <div class="col-md-2">
+                        <button class="btn btn-default pull-right" ng-enter="" ng-click="EnableTextarea($index)">Tilføj tekst</button>
+                    </div>                   
                 </div>
                 <div class="row">
                     <div class="col-md-12">
-                        <textarea ng-enter="" type="text" class="form-control min-height-100 max-width-100p" ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].CustomText"></textarea>
-                    </div>
+                        <textarea rows="3" cols="40" ng-enter="TextareaEnter($index)" type="text" class="margin-5 form-control min-height-100 max-width-100p" ng-show="ShowTextareaValues[$index]" ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].CustomText"></textarea>
+                    </div>                    
                 </div>
             </div>
             <div class="row">

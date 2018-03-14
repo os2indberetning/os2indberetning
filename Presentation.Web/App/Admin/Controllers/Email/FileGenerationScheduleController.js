@@ -1,5 +1,5 @@
 ﻿angular.module("application").controller("FileGenerationScheduleController", [
-    "$scope", "$modal", "FileGenerationSchedule", "$rootScope", function ($scope, $modal, FileGenerationSchedule, $rootScope) {
+    "$scope", "$modal", "FileGenerationSchedule", "EmailNotification", "$rootScope", function ($scope, $modal, FileGenerationSchedule, EmailNotification, $rootScope) {
 
 
         $scope.$on('emailClicked', function (event, mass) {
@@ -138,11 +138,20 @@
 
             modalInstance.result.then(function (result) {
                 FileGenerationSchedule.patch({ id: id }, {
-                    "DateTimestamp": result.PayrollDate,
-                    "Repeat": result.repeatMonthly
-                }, function () {
-                    $scope.updateNotificationGrid();
-                });
+                    "DateTimestamp": result.DateTimestamp,
+                    "Repeat": result.Repeat
+                });//, function () {
+                //    $scope.updateNotificationGrid();
+               // });
+
+                angular.forEach(result.MailNotificationSchedules, function(mailnotif){
+                    EmailNotification.patch({Id: mailnotif.Id}), {
+                        "DateTimestamp": mailnotif.DateTimestamp,
+                        "CustomText": mailnotif.CustomText
+                    }, function () {
+                        $scope.updateNotificationGrid();
+                    }
+                })
             });
         }
 

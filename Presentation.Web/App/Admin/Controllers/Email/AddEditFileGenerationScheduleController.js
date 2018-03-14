@@ -20,7 +20,7 @@
                 })
                 
 
-                if($scope.FileGenerationSchedule == true){
+                if($scope.FileGenerationSchedule.Repeat == true){
                     $scope.FileGenerationSchedule.Repeat = "true";
                 } else {
                     $scope.FileGenerationSchedule.Repeat = "false";

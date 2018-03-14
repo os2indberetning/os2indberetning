@@ -137,21 +137,33 @@
             });
 
             modalInstance.result.then(function (result) {
+                //var FileGenerationSchedule = result.FileGenerationSchedule;
+                //var DeletedMailsIds = result.DeletedMailsIds;
                 FileGenerationSchedule.patch({ id: id }, {
-                    "DateTimestamp": result.DateTimestamp,
-                    "Repeat": result.Repeat
-                });//, function () {
-                //    $scope.updateNotificationGrid();
-               // });
+                    "DateTimestamp": result.FileGenerationSchedule.DateTimestamp,
+                    "Repeat": result.FileGenerationSchedule.Repeat
+                });
 
-                angular.forEach(result.MailNotificationSchedules, function(mailnotif){
-                    EmailNotification.patch({id: mailnotif.Id}, {
-                        "DateTimestamp": mailnotif.DateTimestamp,
-                        "CustomText": mailnotif.CustomText
-                    }), function () {
-                        $scope.updateNotificationGrid();
+                angular.forEach(result.DeletedMailsIds, function(deleteId) {
+                    if(deleteId > 0) {
+                        EmailNotification.delete({ id: deleteId} );
                     }
                 })
+
+                angular.forEach(result.FileGenerationSchedule.MailNotificationSchedules, function(mailnotif){
+                    if(mailnotif.Id > 0) {
+                        EmailNotification.patch({id: mailnotif.Id}, {
+                            "DateTimestamp": mailnotif.DateTimestamp,
+                            "CustomText": mailnotif.CustomText
+                        });                        
+                    }
+                    else {
+                        mailnotif.FileGenerationScheduleId = id;
+                        EmailNotification.post(mailnotif);
+                    }                    
+                }), function() {
+                    $scope.updateNotificationGrid();
+                }
             });
         }
 
@@ -198,7 +210,7 @@
             });
 
             modalInstance.result.then(function (result) {
-                FileGenerationSchedule.post(result, function () {
+                FileGenerationSchedule.post(result.FileGenerationSchedule, function () {
                     $scope.updateNotificationGrid();
                 });
             });

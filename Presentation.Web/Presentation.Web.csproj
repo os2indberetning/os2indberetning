@@ -302,8 +302,13 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
+    <Content Include="App\Admin\Controllers\Email\AddEditFileGenerationScheduleController.js" />
+    <Content Include="App\Admin\Controllers\Email\DeleteFileGenerationScheduleController.js" />
+    <Content Include="App\Admin\Controllers\Email\FileGenerationScheduleController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportController.js" />
     <Content Include="App\Admin\HTML\Document\View.html" />
+    <Content Include="App\Admin\HTML\Email\AddEditFileGenerationScheduleTemplate.html" />
+    <Content Include="App\Admin\HTML\Email\ConfirmDeleteFileGenerationScheduleTemplate.html" />
     <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
     <Content Include="App-icons\os2i-114x114.png" />
@@ -379,20 +384,13 @@
     <Content Include="App\Admin\HTML\Account\ConfirmDeleteAccountTemplate.html" />
     <Content Include="App\Admin\HTML\Account\View.html" />
     <Content Include="App\Admin\HTML\Address\View.html" />
-    <Content Include="App\Admin\HTML\Email\AddNewMailNotificationTemplate.html" />
-    <Content Include="App\Admin\Controllers\Email\AddNewMailNotificationController.js" />
     <Content Include="App\Admin\AdminView.html" />
     <Content Include="App\Admin\Controllers\Address\AddNewAddressController.js" />
-    <Content Include="App\Admin\HTML\Email\ConfirmDeleteMailNotificationTemplate.html" />
-    <Content Include="App\Admin\Controllers\Email\DeleteMailNotificationController.js" />
-    <Content Include="App\Admin\HTML\Email\EditMailNotificationTemplate.html" />
-    <Content Include="App\Admin\Controllers\Email\EditMailNotificationController.js" />
     <Content Include="App\Admin\Controllers\Address\EditAddressController.js" />
     <Content Include="App\Admin\HTML\Address\AddNewAddressTemplate.html" />
     <Content Include="App\Admin\HTML\Address\EditAddressTemplate.html" />
     <Content Include="App\Admin\HTML\Address\ConfirmDeleteAddressTemplate.html" />
     <Content Include="App\Admin\Controllers\Address\DeleteAddressController.js" />
-    <Content Include="App\Admin\Controllers\Email\EmailNotificationController.js" />
     <Content Include="App\Admin\Controllers\Address\StandardAddressController.js" />
     <Content Include="App\Admin\HTML\Email\View.html" />
     <Content Include="App\Admin\HTML\Rate\View.html" />

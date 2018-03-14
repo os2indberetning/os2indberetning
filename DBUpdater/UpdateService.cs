@@ -268,7 +268,7 @@ namespace DBUpdater
             // Makes all employees wihtout employments inactive.
             foreach(var person in _personRepo.AsQueryable().ToList())
             {
-                if (person.Employments == null || !person.Employments.Any())
+                if (!_emplRepo.AsQueryable().Where(x => x.PersonId == person.Id).Any())
                 {
                     person.IsActive = false;
                 }

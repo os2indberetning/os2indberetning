@@ -2,6 +2,7 @@
     "$scope", "$modalInstance", "NotificationService", "StandardAddress", "AddressFormatter", "SmartAdresseSource", "FileGenerationSchedule", "itemId",
     function ($scope, $modalInstance, NotificationService, StandardAddress, AddressFormatter, SmartAdresseSource, FileGenerationSchedule, itemId) {
         
+        $scope.Title = "Tilføj Ny Lønkørsel"
         $scope.FileGenerationSchedule = {};
         $scope.FileGenerationSchedule.MailNotificationSchedules = [];
         $scope.FileGenerationSchedule.DateTimestamp = new Date();
@@ -15,6 +16,7 @@
         
         if(itemId > 0){
             // FileGenerationSchedule is being edited
+            $scope.Title = "Redigér Lønkørsel"
             FileGenerationSchedule.getWithEmailNotifications({ id: itemId }).$promise.then(function (res) {
                 $scope.FileGenerationSchedule = res;
 

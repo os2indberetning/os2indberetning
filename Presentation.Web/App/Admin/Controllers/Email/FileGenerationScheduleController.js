@@ -137,18 +137,18 @@
             });
 
             modalInstance.result.then(function (result) {
-                //var FileGenerationSchedule = result.FileGenerationSchedule;
-                //var DeletedMailsIds = result.DeletedMailsIds;
                 FileGenerationSchedule.patch({ id: id }, {
                     "DateTimestamp": result.FileGenerationSchedule.DateTimestamp,
                     "Repeat": result.FileGenerationSchedule.Repeat
+                }, function() {
+                    $scope.updateNotificationGrid();
                 });
 
                 angular.forEach(result.DeletedMailsIds, function(deleteId) {
                     if(deleteId > 0) {
                         EmailNotification.delete({ id: deleteId} );
                     }
-                })
+                });
 
                 angular.forEach(result.FileGenerationSchedule.MailNotificationSchedules, function(mailnotif){
                     if(mailnotif.Id > 0) {
@@ -161,9 +161,7 @@
                         mailnotif.FileGenerationScheduleId = id;
                         EmailNotification.post(mailnotif);
                     }                    
-                }), function() {
-                    $scope.updateNotificationGrid();
-                }
+                });
             });
         }
 

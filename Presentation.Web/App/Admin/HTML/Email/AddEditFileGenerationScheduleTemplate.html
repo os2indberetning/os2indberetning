@@ -1,13 +1,13 @@
 ﻿<div class="modal-header">
-    <h3 class="modal-title">Tilføj Ny Advisering.</h3>
+    <h3 class="modal-title">{{Title}}</h3>
 </div>
 <style>
     .color0 {
-        background-color: rgb(160, 209, 186);
+        background-color: rgb(228, 228, 228);
         padding: 2%
     }
     .color1 {
-        background-color: rgb(211, 253, 233);
+        background-color: rgb(255, 255, 255);
         padding: 2%
     }
 </style>
@@ -29,11 +29,11 @@
                     </select>
                 </div>
             </div>
-            <h2>Emailadviser</h2>
+            <h4>Emailadviseringer</h4>
             <div ng-repeat="EmailNotificationSchedule in FileGenerationSchedule.MailNotificationSchedules" ng-class="'color' + ($index % 2)">
                 <div class="row">
                     <div class="col-md-3">
-                        <label class="margin-5">Mailadvis {{$index + 1}}</label>
+                        <label class="margin-5">Emailadvis {{$index + 1}}</label>
                     </div>
                     <div class="col-md-5">
                         <input kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].DateTimestamp" />

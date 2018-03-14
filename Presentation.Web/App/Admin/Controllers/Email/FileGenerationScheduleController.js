@@ -145,10 +145,10 @@
                // });
 
                 angular.forEach(result.MailNotificationSchedules, function(mailnotif){
-                    EmailNotification.patch({Id: mailnotif.Id}), {
+                    EmailNotification.patch({id: mailnotif.Id}, {
                         "DateTimestamp": mailnotif.DateTimestamp,
                         "CustomText": mailnotif.CustomText
-                    }, function () {
+                    }), function () {
                         $scope.updateNotificationGrid();
                     }
                 })

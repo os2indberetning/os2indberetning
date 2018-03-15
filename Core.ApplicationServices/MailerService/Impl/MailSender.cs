@@ -27,7 +27,7 @@ namespace Core.ApplicationServices.MailerService.Impl
 
                 _smtpClient = new SmtpClient()
                 {
-                    Host = ConfigurationManager.AppSettings["PROTECTED_SMTP_HOST"],
+                    Host = _customSettings.SMTPHost,
                     
                     EnableSsl = false,
                     Credentials = new NetworkCredential()

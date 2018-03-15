@@ -1,5 +1,8 @@
 ﻿using Core.ApplicationServices.FileGenerator;
 using Core.DomainModel;
+using Core.DomainServices;
+using Core.DomainServices.Interfaces;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace ApplicationServices.Test.FileGenerator
@@ -7,19 +10,7 @@ namespace ApplicationServices.Test.FileGenerator
     [TestFixture]
     public class FileRecordTest
     {
-        /**
-         * These tests assume the dummy data in App.config. 
-         * This is what is assumed is in the settings.
-        
-            <add key="PROTECTED_KMDFilePath" value="/sti/til/kmd/mappe"/>
-            <add key="PROTECTED_KMDFileName" value="kmdFilNavn"/>
-            <add key="PROTECTED_KMDHeader" value="første linje i kmd fil"/>
-            <add key="PROTECTED_KMDStaticNr" value="1111"/>
-            <add key="PROTECTED_CommuneNr" value="2222"/>
-            <add key="PROTECTED_KMDReservedNr" value="3333"/>
-          
-         */
-
+        private ICustomSettings _customSettings;
 
         private static readonly Employment _employment = new Employment
         {
@@ -38,11 +29,23 @@ namespace ApplicationServices.Test.FileGenerator
 
         private const string cpr = "1234567890";
 
+        [SetUp]
+        public void Setup()
+        {
+            _customSettings = NSubstitute.Substitute.For<ICustomSettings>();
+            _customSettings.KMDBackupFilePath.Returns("/sti/til/kmd/mappe");
+            _customSettings.KMDFileName.Returns("kmdFilNavn");
+            _customSettings.KMDHeader.Returns("første linje i kmd fil");
+            _customSettings.KMDStaticNumber.Returns("DA6");
+            _customSettings.KMDMunicipalityNumber.Returns("2222");
+            _customSettings.KMDReservedNumber.Returns("000000");
+        }
+
         [Test]
         public void DistanceWithoutDecimalsShouldHave00Appended()
         {
             _report.Distance = 3999;
-            var record = new FileRecord(_report, cpr);
+            var record = new FileRecord(_report, cpr, _customSettings);
             var recordString = record.ToString();
             Assert.AreEqual("399900", getDistanceFromRecordString(recordString));
         }
@@ -51,7 +54,7 @@ namespace ApplicationServices.Test.FileGenerator
         public void DistanceShouldBePaddedToFourDigitsBeforeDecimal()
         {
             _report.Distance = 39.99;
-            var record = new FileRecord(_report, cpr);
+            var record = new FileRecord(_report, cpr, _customSettings);
             var recordString = record.ToString();
             Assert.AreEqual("003999", getDistanceFromRecordString(recordString));
         }
@@ -60,7 +63,7 @@ namespace ApplicationServices.Test.FileGenerator
         public void DistanceShouldBePaddedToTwoDigitsAfterDecimal()
         {
             _report.Distance = 3999.9;
-            var record = new FileRecord(_report, cpr);
+            var record = new FileRecord(_report, cpr, _customSettings);
             var recordString = record.ToString();
             Assert.AreEqual("399990", getDistanceFromRecordString(recordString));
         }

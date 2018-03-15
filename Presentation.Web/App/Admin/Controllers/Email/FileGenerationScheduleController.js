@@ -44,7 +44,7 @@
                 },
                 pageSize: 20,
                 serverPaging: false,
-                serverSorting: true,
+                serverSorting: true
             },
             sortable: true,
             pageable: {
@@ -108,9 +108,9 @@
                 {
                     field: "Id",
                     template: "<a ng-click=editClick(${Id})>Redigér</a> | <a ng-click=deleteClick(${Id})>Slet</a>",
-                    title: "Muligheder",
+                    title: "Muligheder"
                 }
-            ],
+            ]
         };
 
         $scope.updateNotificationGrid = function () {

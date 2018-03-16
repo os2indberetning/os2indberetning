@@ -97,7 +97,6 @@
                     title: "Emailadvis sendt",
                     template: function (data) {
                         if (data.MailNotificationSchedules.length > 0){
-                            console.log(moment().unix());
                             if(data.MailNotificationSchedules[0].DateTimestamp < moment().unix()) {
                                 return "<i class='fa fa-check'></i>";
                             }

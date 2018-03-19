@@ -18,6 +18,7 @@
         var startDate = getParameterByName('from');
         var endDate = getParameterByName('to');
         var orgUnit = getParameterByName('orgUnit');
+        var reportType = getParameterByName('reportType');
 
 
         var today = new Date();
@@ -43,7 +44,7 @@
 
         $.ajax({
             type: "GET",
-            url: "odata/DriveReports/Service.Eksport?start=" + startDate + "&end=" + endDate + "&personId=" + employee + "&orgunitId=" + orgUnit,
+            url: "odata/DriveReports/Service.Eksport?start=" + startDate + "&end=" + endDate + "&personId=" + employee + "&orgunitId=" + orgUnit + "&reportType=" + reportType,
             contentType: "application/json;charset=utf-8",
             dataType: "json",
             success: function (result) {
@@ -223,6 +224,11 @@
                         function (data) {
                             return data.Rate.toFixed(2).toString().replace('.', ',') + " øre/km ";
                         },
+                    width: 100
+                },
+                {
+                    field: "Status",
+                    title: "Status",
                     width: 100
                 },
                 { 

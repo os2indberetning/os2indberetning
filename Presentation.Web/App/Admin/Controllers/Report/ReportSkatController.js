@@ -1,4 +1,4 @@
-﻿angular.module('application').controller('ReportController', [
+﻿angular.module('application').controller('ReportSkatController', [
     "$scope", "$rootScope", "$window", "$state", "Person", "Autocomplete", "OrgUnit",
     function ($scope, $rootScope, $window, $state, Person, Autocomplete, OrgUnit) {
 
@@ -33,7 +33,7 @@
 
             if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
 
-                $window.open(url + '?Employee=' + personId + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString + "&orgUnit=" + orgunitId + "&reportType=1",'_blank');
+                $window.open(url + '?Employee=' + personId + '&from= ' + $scope.container.reportFromDateString + '&to=' + $scope.container.reportToDateString + "&orgUnit=" + orgunitId + "&reportType=0", '_blank');
             } else {
 
                 alert('Du mangler at udfylde et felt med en *');

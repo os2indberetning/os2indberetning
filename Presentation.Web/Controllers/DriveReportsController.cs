@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using OS2Indberetning.Models;
 using OS2Indberetning.Filters;
+using System.Globalization;
 
 namespace OS2Indberetning.Controllers
 {
@@ -155,9 +156,10 @@ namespace OS2Indberetning.Controllers
         /// <param name="end"></param>
         /// <param name="name"></param>
         /// <param name="orgUnit"></param>
+        /// <param name="reportType">The type of the report request. 0: Reports sent to lønkørsel. 1: All types of reports. </param>
         /// <returns></returns>
         [HttpGet]
-        public IHttpActionResult Eksport(string start, string end, string personId, string orgunitId = null)
+        public IHttpActionResult Eksport(string start, string end, string personId, string orgunitId = null, int reportType = 0)
         {
             _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}");
 
@@ -176,8 +178,10 @@ namespace OS2Indberetning.Controllers
             {
                 try
                 {
-                    parsedStartDateUnix = (long)DateTime.Parse(start).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                    parsedEndDateUnix = (long)DateTime.Parse(end).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    var culturalInfo = CultureInfo.CreateSpecificCulture("da-DK");
+                    //string dateFormat = "MM--YYYY";
+                    parsedStartDateUnix = (long)DateTime.Parse(start, culturalInfo).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+                    parsedEndDateUnix = (long)DateTime.Parse(end, culturalInfo).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
                     parsedPersonId = int.Parse(personId);
                 }
                 catch (Exception)
@@ -195,16 +199,32 @@ namespace OS2Indberetning.Controllers
                 _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
             }
 
-            // Get all the persons drivereports that has been invoiced in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
             List<DriveReport> reportsForRequestedTimespan = new List<DriveReport>();
-            if (orgunitId == null || orgunitId.Equals("undefined"))
+            if (reportType == 0)
             {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
+                // Get all the persons drivereports that has been INVOICED in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
+                if (orgunitId == null || orgunitId.Equals("undefined"))
+                {
+                    reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
+                }
+                else
+                {
+                    parsedOrgunitId = int.Parse(orgunitId);
+                    reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.Id.Equals(parsedOrgunitId) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
+                }
             }
             else
             {
-                parsedOrgunitId = int.Parse(orgunitId);
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.Id.Equals(parsedOrgunitId) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
+                // Get all the persons drivereports that has been CREATED in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
+                if (orgunitId == null || orgunitId.Equals("undefined"))
+                {
+                    reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.DriveDateTimestamp >= parsedStartDateUnix && r.DriveDateTimestamp <= parsedEndDateUnix));
+                }
+                else
+                {
+                    parsedOrgunitId = int.Parse(orgunitId);
+                    reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.Id.Equals(parsedOrgunitId) && r.DriveDateTimestamp >= parsedStartDateUnix && r.DriveDateTimestamp <= parsedEndDateUnix));
+                }
             }
 
             // Initialize EksportModel
@@ -244,8 +264,8 @@ namespace OS2Indberetning.Controllers
 
                     var reportToBeAdded = new ExportDriveReport
                     {
-                        DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
-                        CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
+                        DriveDateTimestamp = driveDate.ToString("dd-MM-yyyy"),
+                        CreatedDateTimestamp = createdDate.ToString("dd-MM-yyyy"),
                         OrgUnit = currentReport.Employment.OrgUnit.ShortDescription,
                         Purpose = currentReport.Purpose,
                         IsExtraDistance = currentReport.IsExtraDistance,
@@ -254,16 +274,17 @@ namespace OS2Indberetning.Controllers
                         SixtyDaysRule = currentReport.SixtyDaysRule,
                         DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
                         AmountToReimburse = currentReport.AmountToReimburse,
-                        ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced
-                        ProcessedDate = unixDateTime.AddSeconds(currentReport.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10),
-                        ApprovedBy = currentReport.ApprovedBy.FullName,
+                        ApprovedDate = currentReport.ClosedDateTimestamp > 0 ? unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString("dd-MM-yyyy") : "", // currentReport will always be accepted, since it has been invoiced
+                        ProcessedDate = currentReport.ProcessedDateTimestamp > 0 ? unixDateTime.AddSeconds(currentReport.ProcessedDateTimestamp).ToLocalTime().ToString("dd-MM-yyyy") : "",
+                        ApprovedBy = currentReport.ApprovedBy != null ? currentReport.ApprovedBy.FullName : "",
                         Route = "",
                         Distance = currentReport.Distance,
                         IsRoundTrip = currentReport.IsRoundTrip,
                         LicensePlate = currentReport.LicensePlate,
                         Rate = currentReport.KmRate,
                         HomeAddress = currentReport.Person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).First().Description,
-                        UserComment = ""
+                        UserComment = "",
+                        Status = GetStatusString(currentReport.Status)
                     };
 
                     bool firstPoint = true;
@@ -299,6 +320,27 @@ namespace OS2Indberetning.Controllers
             result.DriveReports = drivereports.ToArray();
 
             return Json(result);
+        }
+
+        private string GetStatusString(ReportStatus status)
+        {
+            string toReturn = "";
+            switch(status)
+            {
+                case ReportStatus.Accepted:
+                    toReturn = "Godkendt";
+                    break;
+                case ReportStatus.Invoiced:
+                    toReturn = "Overført til løn";
+                    break;
+                case ReportStatus.Pending:
+                    toReturn = "Afventer";
+                    break;
+                case ReportStatus.Rejected:
+                    toReturn = "Afvist";
+                    break;
+            }
+            return toReturn;
         }
 
         //GET: odata/DriveReports(5)

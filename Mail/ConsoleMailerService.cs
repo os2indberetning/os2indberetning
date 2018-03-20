@@ -68,7 +68,8 @@ namespace Mail
                         {
                             DateTimestamp = newDateTime,
                             Notified = false,
-                            Repeat = true
+                            Repeat = true,
+                            PayRoleTimestamp = ToUnixTime(FromUnixTime(notification.PayRoleTimestamp).AddMonths(1))
                         });
                     }
                     notification.Notified = true;

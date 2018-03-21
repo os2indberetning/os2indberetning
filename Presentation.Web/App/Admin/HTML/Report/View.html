@@ -1,4 +1,7 @@
-﻿<div class="panel panel-default">
+﻿<script src="/Scripts/kendo/jszip.min.js"></script>
+<script src="/Scripts/kendo/kendo.all.min.js"></script>
+
+<div class="panel panel-default">
 
 
 
@@ -60,8 +63,8 @@
                             </div>
                             <div style="float:left; padding-left:10px" >
                             </div>
-                            <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>Pdf</a>
-                            <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>xlsx</a>
+                            <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>xlsx</a>
+                            <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>pdf</a>
                         </div>
                     </div> 
                 </div>
@@ -76,3 +79,19 @@
 
 
 </div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.reallinks').hide();
+
+        $('#btnPDF').click(function () {
+            $('#reallinkPDF').click();
+        });
+
+       $('#btnExcel').click(function () {
+            $('#reallinkExcel').click();
+        });
+    });
+
+</script>

@@ -63,20 +63,6 @@
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
                 $scope.gridContainer.reportsGrid.dataSource.read();                
                 $scope.showReport = true;
-
-                // if(result != null && result != undefined) {
-                //     $scope.Name = result.Name;
-                //     $scope.LicensePlates = result.LicensePlates;
-                //     $scope.OrgUnit = result.OrgUnit;
-                //     $scope.Municipality = result.Municipality;
-                //     $scope.DateInterval = result.DateInterval;
-                //     $scope.AdminName = result.AdminName;
-                //     $scope.HomeAddressStreet = result.HomeAddressStreetAndNumber;
-                //     $scope.HomeAddressTown = result.HomeAddressZipCodeAndTown;
-        
-                //     reports = result.DriveReports;               
-                // }
-
             }else {
                 alert('Du mangler at udfylde et felt med en *');
             }       
@@ -151,7 +137,8 @@
                 fileName: "Rapport-" + today + ".xlsx",
                 proxyURL: "//demos.telerik.com/kendo-ui/service/export",
                 filterable: false
-            }, pdf: {
+            },
+            pdf: {
                 margin: { top: "1cm", left: "1cm", right: "1cm", bottom: "1cm" },
                 landscape: true,
                 allPages: true,
@@ -164,7 +151,6 @@
                 
                 fileName: "Rapport-" + today + ".Pdf"
             },
-            autoBind: false,
             dataSource: {
                 type: "odata-v4",
                 transport: {
@@ -173,7 +159,7 @@
                             req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                         },
 
-                        url: "/odata/DriveReports?status=Pending &getReportsWhereSubExists=true &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit)",
+                        url: "",
                         dataType: "json",
                         cache: false
                     },
@@ -188,45 +174,29 @@
                     }
                 },
                 schema: {
+                    model: {
+                        fields: {
+                            AmountToReimburse: { type: "number" }
+                        }
+                    },
                     data: function (data) {
-                        var tmp = data;
                         $scope.updateData(data);
                         return data.value; // <-- The result is just the data, it doesn't need to be unpacked.
-                    },
-                    total: function (data) {
-                        return data['@odata.count']; // <-- The total items count is the data length, there is no .Count to unpack.
                     }
                 },
-                pageSize: 20,
-                serverPaging: true,
-                serverAggregates: false,
-                serverSorting: true,
-                serverFiltering: true,
+                pageSize: 7,                
                 sort: { field: "DriveDateTimestamp", dir: "desc" },
                 aggregate: [
                     { field: "Distance", aggregate: "sum" },
                     { field: "AmountToReimburse", aggregate: "sum" },
-                ]
+                ],
             },
             sortable: true,
-            pageable: {
-                messages: {
-                    display: "{0} - {1} af {2} indberetninger", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
-                    empty: "Ingen indberetninger at vise",
-                    page: "Side",
-                    of: "af {0}", //{0} is total amount of pages
-                    itemsPerPage: "indberetninger pr. side",
-                    first: "Gå til første side",
-                    previous: "Gå til forrige side",
-                    next: "Gå til næste side",
-                    last: "Gå til sidste side",
-                    refresh: "Genopfrisk"
-                },
-                pageSizes: [5, 10, 20, 30, 40, 50, 100, 150, 200],
-            },
-            dataBound: function () {
-                this.expandRow(this.tbody.find("tr.k-master-row").first());
-            },
+            pageable: true,
+            groupable: false,
+            filterable: true,
+            columnMenu: true,
+            reorderable: true,
             resizable: true,
             columns: [
                 {
@@ -278,7 +248,7 @@
                         var routeText = ""
                         angular.forEach(data.DriveReportPoints, function (point, key) {
                             if (key != data.DriveReportPoints.length - 1) {
-                                routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + " - <br/>";
+                                routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + " - ";
                             } else {
                                 routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
                             }
@@ -447,7 +417,7 @@
                     width: 100 
                 }
 
-            ],
+            ],            
             excelExport: function (e) {
                 // e.workbook.sheets[1] will contain employee data from grid header.
                 e.workbook.sheets[1] = {
@@ -488,12 +458,12 @@
                                 { value: $scope.DateInterval}
                             ]
                         },
-                        {
-                            cells: [
-                                { value: "Admin" }, 
-                                { value: $scope.AdminName} 
-                            ]
-                        },
+                        // {
+                        //     cells: [
+                        //         { value: "Admin" }, 
+                        //         { value: $scope.AdminName} 
+                        //     ]
+                        // },
                         {
                             cells: [
                                 { value: "Dato for rapportdannelse" },
@@ -507,14 +477,35 @@
                 var sheet0 = e.workbook.sheets[0];
                 
                 // Add roundtrip, extra distance and fourkmrule templates to the excel cheet columns.
+                var DriveDateTemplate = kendo.template(this.columns[0].template);
+                var CreatedDateTemplate = kendo.template(this.columns[1].template);
+                var RuteTemplate = kendo.template(this.columns[4].template);                
                 var IsRoundTripTemplate = kendo.template(this.columns[5].template);
                 var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
                 var FourKmRuleTemplate = kendo.template(this.columns[7].template);
+                var DistanceFromBordersTemplate = kendo.template(this.columns[9].template);                
                 var SixtyDaysRuleTemplate = kendo.template(this.columns[10].template);
+                var DistanceTemplate = kendo.template(this.columns[11].template);
+                var AmountTemplate = kendo.template(this.columns[12].template);
+                var KmRateTemplate = kendo.template(this.columns[13].template);
+                var StatusTemplate = kendo.template(this.columns[14].template);                
+                var ClosedDateTemplate = kendo.template(this.columns[15].template);
+                var ProcessedDateTemplate = kendo.template(this.columns[16].template);
+                var ApprovedByTemplate = kendo.template(this.columns[17].template);
+
+
 
                 for (var i = 1; i < sheet0.rows.length-1; i++) {
                     var row = sheet0.rows[i];
-
+                    var IsDriveDatedataItem = {
+                        DriveDateTimestamp: row.cells[0].value
+                    };
+                    var IsCreatedDatedataItem = {
+                        CreatedDateTimestamp: row.cells[1].value
+                    };
+                    var IsRutedataItem = {
+                        DriveReportPoints: row.cells[4].value
+                    };
                     var IsRoundTripdataItem = {
                         IsRoundTrip: row.cells[5].value
                     };
@@ -524,13 +515,52 @@
                     var FourKmRuledataItem = {
                         FourKmRule: row.cells[7].value
                     };
+                    var IsDistanceFromBordersdataItem = {
+                        DistanceFromHomeToBorder: row.cells[9].value
+                    };
                     var SixtyDaysRuledataItem = {
                         SixtyDaysRule: row.cells[10].value
                     };
+                    var DistancedataItem = {
+                        Distance: row.cells[11].value
+                    };
+                    var AmountdataItem = {
+                        AmountToReimburse: row.cells[12].value
+                    };
+                    var KmRatedataItem = {
+                        KmRate: row.cells[13].value
+                    };
+                    var StatusdataItem = {
+                        Status: row.cells[14].value
+                    };
+                    var ClosedDatedataItem = {
+                        ClosedDateTimestamp: row.cells[15].value
+                    };
+                    var ProcessedDatedataItem = {
+                        ProcessedDateTimestamp: row.cells[16].value
+                    };
+                    var ApprovedBydataItem = {
+                        ApprovedBy: {
+                            FullName: row.cells[17].value
+                        }
+                            
+                    };
+
+                    row.cells[0].value = DriveDateTemplate(IsDriveDatedataItem);
+                    row.cells[1].value = CreatedDateTemplate(IsCreatedDatedataItem);
+                    row.cells[4].value = RuteTemplate(IsRutedataItem);
                     row.cells[5].value = IsRoundTripTemplate(IsRoundTripdataItem);
                     row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
                     row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
+                    row.cells[9].value = DistanceFromBordersTemplate(IsDistanceFromBordersdataItem);
                     row.cells[10].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
+                    row.cells[11].value = DistanceTemplate(DistancedataItem);
+                    row.cells[12].value = AmountTemplate(AmountdataItem);
+                    row.cells[13].value = KmRateTemplate(KmRatedataItem);
+                    row.cells[14].value = StatusTemplate(StatusdataItem);
+                    row.cells[15].value = ClosedDateTemplate(ClosedDatedataItem);
+                    row.cells[16].value = ProcessedDateTemplate(ProcessedDatedataItem);
+                    row.cells[17].value = ApprovedByTemplate(ApprovedBydataItem);                    
                 }
             }
         }

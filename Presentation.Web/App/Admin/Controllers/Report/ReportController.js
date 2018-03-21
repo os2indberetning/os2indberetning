@@ -8,8 +8,8 @@
         $scope.container = {};
         $scope.persons = Autocomplete.allUsers();
         $scope.orgUnits = Autocomplete.orgUnits();
-        $scope.gridContainer.TESTING = "TESTING";
         $scope.showReport = false;
+        
 
         $scope.dateOptions = {
             format: "dd/MM/yyyy",
@@ -17,7 +17,6 @@
         };
 
         $scope.container = {};
-
 
         var today = new Date();
         var dd = today.getDate();
@@ -62,7 +61,6 @@
              if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
                 $scope.gridContainer.reportsGrid.dataSource.read();                
-                $scope.showReport = true;
             }else {
                 alert('Du mangler at udfylde et felt med en *');
             }       
@@ -80,6 +78,7 @@
 
         $scope.updateData = function (data) {
             if(data.value[0] != undefined && data.value[0] != null) {
+                $scope.showReport = true;                
                 result = data.value[0];
                 $scope.Name = result.Person.FullName;
                 $scope.LicensePlates = result.LicensePlate;
@@ -88,7 +87,7 @@
                 else 
                     $scope.OrgUnit = "Ikke angivet";
                 
-                $scope.Municipality = ""; //result.Municipality; from customSettings???
+                $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
                 $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;
                 var homeAddress = $scope.findHomeAddress(result.Person.PersonalAddresses);
                 //$scope.AdminName = result.AdminName;
@@ -103,7 +102,10 @@
             }
             else {
                 // Report that the search returns no values
+                $scope.showReport = false;                
+                alert('Kunne ikke finde det du forespurgte');
             }
+            reports = data;
         }
 
         $scope.findHomeAddress = function(addresses) {
@@ -136,7 +138,8 @@
             excel: {
                 fileName: "Rapport-" + today + ".xlsx",
                 proxyURL: "//demos.telerik.com/kendo-ui/service/export",
-                filterable: false
+                filterable: false,
+                allPages: true
             },
             pdf: {
                 margin: { top: "1cm", left: "1cm", right: "1cm", bottom: "1cm" },
@@ -184,7 +187,7 @@
                         return data.value; // <-- The result is just the data, it doesn't need to be unpacked.
                     }
                 },
-                pageSize: 7,                
+                pageSize: 20,        
                 sort: { field: "DriveDateTimestamp", dir: "desc" },
                 aggregate: [
                     { field: "Distance", aggregate: "sum" },
@@ -192,7 +195,21 @@
                 ],
             },
             sortable: true,
-            pageable: true,
+            pageable: {
+                messages: {
+                    display: "{0} - {1} af {2} indberetninger", //{0} is the index of the first record on the page, {1} - index of the last record on the page, {2} is the total amount of records
+                    empty: "Ingen indberetninger at vise",
+                    page: "Side",
+                    of: "af {0}", //{0} is total amount of pages
+                    itemsPerPage: "indberetninger pr. side",
+                    first: "Gå til første side",
+                    previous: "Gå til forrige side",
+                    next: "Gå til næste side",
+                    last: "Gå til sidste side",
+                    refresh: "Genopfrisk"
+                },
+                pageSizes: [5, 10, 20, 30, 40, 50, 100, 150, 200]
+            },
             groupable: false,
             filterable: true,
             columnMenu: true,

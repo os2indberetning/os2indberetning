@@ -90,6 +90,38 @@ namespace OS2Indberetning.Controllers
             return Ok(queryable);
         }
 
+        [EnableQuery]
+        public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string queryType)
+        {
+            IQueryable<DriveReport> queryable = null;
+            switch (queryType)
+            {
+                case "admin":
+                    {
+                        if (CurrentUser.IsAdmin)
+                        {
+                            queryable = GetQueryable(queryOptions);
+                        }
+                        else
+                        {
+                            return Unauthorized();
+                        }
+                    }
+                    break;
+                case "godkender":
+                    {
+
+                    }
+                    break;
+                case "mine":
+                    {
+                        queryable = GetQueryable(queryOptions).Where(dr => dr.PersonId == CurrentUser.Id);                        
+                    }
+                    break;
+            }
+            return Ok(queryable);
+        }
+
         /// <summary>
         /// Returns the latest drivereport for a given user.
         /// Used for setting the option fields in DrivingView to the same as the latest report by the user.

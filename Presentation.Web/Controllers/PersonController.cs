@@ -25,10 +25,11 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<LicensePlate> _licensePlateRepo = new GenericRepository<LicensePlate>(new DataContext());
         private readonly IGenericRepository<Substitute> _substituteRepo;
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
+        private readonly IGenericRepository<OrgUnit> _orgUnitsRepo;
         private readonly ILogger _logger;
 
        
-        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, ILogger log)
+        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, IGenericRepository<OrgUnit> orgUnitRepo, ILogger log)
             : base(repo, repo)
         {
             _person = personService;
@@ -36,6 +37,7 @@ namespace OS2Indberetning.Controllers
             _licensePlateRepo = licensePlateRepo;
             _substituteRepo = substituteRepo;
             _appLoginRepo = appLoginRepo;
+            _orgUnitsRepo = orgUnitRepo;
             _logger = log;
         }
 
@@ -242,6 +244,56 @@ namespace OS2Indberetning.Controllers
         public IHttpActionResult HasLicensePlate([FromODataUri] int key, ODataActionParameters parameters)
         {
             return Ok(_licensePlateRepo.AsQueryable().Any(x => x.PersonId == key));
+        }
+
+        [System.Web.Http.HttpGet]
+        public IHttpActionResult GetEmployeesOfLeader()
+        {
+            List<OrgUnit> orgUnits = new List<OrgUnit>();
+            List<Person> employees = new List<Person>();
+            if(CurrentUser.Employments.Where(e => e.IsLeader).Any())
+            {   
+                var withDupes = new List<OrgUnit>();
+                foreach (Employment e in CurrentUser.Employments.Where(e => e.IsLeader))
+                {
+                    OrgUnit org = e.OrgUnit;
+                    withDupes.Add(org);
+                    withDupes.AddRange(recursiveMagic(org.Id));
+                }
+
+                orgUnits = withDupes.Distinct().ToList();
+                var empDupes = new List<Person>();
+                foreach (var orgUni in orgUnits)
+                {
+                    var employments = _employmentRepo.AsQueryable().Where(e => e.OrgUnitId == orgUni.Id).ToList();
+                    foreach(var employment in employments)
+                    {
+                        empDupes.Add(employment.Person);
+                    }
+                }
+
+                employees = empDupes.Distinct().ToList();
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            return Ok(employees);
+        }
+
+        private List<OrgUnit> recursiveMagic(int orgUnitId)
+        {
+            List<OrgUnit> unitsToReturn = new List<OrgUnit>();
+            List<OrgUnit> childrenFound = _orgUnitsRepo.AsQueryable().Where(org => org.ParentId == orgUnitId).ToList();
+            if(childrenFound != null && childrenFound.Count > 0)
+            {
+                foreach(var unit in childrenFound)
+                {
+                    unitsToReturn.Add(unit);
+                    unitsToReturn.AddRange(recursiveMagic(unit.Id));
+                }
+            }
+            return unitsToReturn;
         }
     }
 }

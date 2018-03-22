@@ -60,9 +60,7 @@ namespace OS2Indberetning.Controllers
                 string username;
                 try
                 {
-                    var attributeName = ConfigurationManager.AppSettings["AUTHENTICATION_ATTRIBUTENAME"];
-                    username = Saml20Identity.Current[attributeName].First().AttributeValue.First();
-                    _logger.Debug($"{GetType().Name}, USERNAME = {username}");
+                    username = Saml20Identity.Current["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/samaccountname"].First().AttributeValue.First();
                 }
                 catch (Exception e)
                 {

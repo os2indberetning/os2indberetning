@@ -50,6 +50,10 @@
       <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="dk.nita.saml20, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\dk.nita.saml20.2.0.0\lib\net45\dk.nita.saml20.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
       <HintPath>..\packages\EntityFramework.6.1.3\lib\net45\EntityFramework.dll</HintPath>
       <Private>True</Private>
@@ -322,10 +326,15 @@
     <Content Include="Content\fonts\DejaVu\LICENSE" />
     <Content Include="..\connections.config">
       <Link>connections.config</Link>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="..\CustomSettings.config">
       <Link>CustomSettings.config</Link>
+      <SubType>Designer</SubType>
     </Content>
+    <Content Include="login.ashx" />
+    <Content Include="logout.ashx" />
+    <Content Include="metadata.ashx" />
     <None Include="manifest.appCache" />
     <Compile Include="Models\AccountBindingModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
@@ -2356,6 +2365,8 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="Handlers\" />
+    <Folder Include="idp-metadata\" />
     <Folder Include="Views\Configurations\" />
     <Folder Include="Views\Configuration\" />
     <Folder Include="Views\Manifest\" />
@@ -2434,11 +2445,11 @@
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
-          <DevelopmentServerPort>1983</DevelopmentServerPort>
+          <DevelopmentServerPort>44300</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:3333/</IISUrl>
+          <IISUrl>https://localhost:44300</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

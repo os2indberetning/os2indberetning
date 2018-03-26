@@ -301,13 +301,10 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportSkatController.js" />
     <Content Include="App\Admin\HTML\Document\View.html" />
-    <Content Include="App\Admin\HTML\ReportSkat\DocumentView.html" />
     <Content Include="App\Admin\HTML\ReportSkat\View.html" />
-    <Content Include="App\Admin\HTML\Report\DocumentView.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
     <Content Include="App-icons\os2i-114x114.png" />
     <Content Include="App-icons\os2i-144x144.png" />

@@ -125,6 +125,18 @@ namespace OS2Indberetning.Controllers
                         queryable = GetQueryable(queryOptions).Where(dr => dr.PersonId == CurrentUser.Id);                        
                     }
                     break;
+                case "skat":
+                    {
+                        if(CurrentUser.IsAdmin)
+                        {
+                            queryable = GetQueryable(queryOptions);
+                        }
+                        else
+                        {
+                            return Unauthorized();
+                        }
+                    }
+                    break;
             }
             return Ok(queryable);
         }

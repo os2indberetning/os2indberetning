@@ -8,6 +8,7 @@ using Core.ApplicationServices.Interfaces;
 using Core.DomainModel;
 using Core.DomainServices;
 using Microsoft.Ajax.Utilities;
+using Core.DomainServices.Interfaces;
 
 namespace OS2Indberetning.Controllers
 {

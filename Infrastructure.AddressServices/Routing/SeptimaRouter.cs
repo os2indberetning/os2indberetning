@@ -9,14 +9,19 @@ using Newtonsoft.Json.Linq;
 
 namespace Infrastructure.AddressServices.Routing
 {
-    public class SeptimaRouter
+    public class SeptimaRouter : IRouter
     {
         #region Public methods
 
         private const string CarFerryMode = "2";
         private const string BicycleFerryMode = "3";
 
-       
+        private IUrlDefinitions _urlDefinitions;
+
+        public SeptimaRouter(IUrlDefinitions urlDefinitions)
+        {
+            _urlDefinitions = urlDefinitions;
+        }
 
         /// <summary>
         /// Get routes and alternative routes for the given set of coordinates.
@@ -122,9 +127,9 @@ namespace Infrastructure.AddressServices.Routing
             switch (transportType)
             {
                 case DriveReportTransportType.Car:
-                    return (HttpWebRequest)WebRequest.Create(UrlDefinitions.RoutingUrl + query);
+                    return (HttpWebRequest)WebRequest.Create(_urlDefinitions.RoutingUrl + query);
                 case DriveReportTransportType.Bike:
-                    return (HttpWebRequest)WebRequest.Create(UrlDefinitions.BikeRoutingUrl + query);
+                    return (HttpWebRequest)WebRequest.Create(_urlDefinitions.BikeRoutingUrl + query);
             }
 
             // Should never be reached

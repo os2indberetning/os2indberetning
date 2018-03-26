@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.1.8\tools\Microsoft.TypeScript.Default.props" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.1.8\tools\Microsoft.TypeScript.Default.props')" />
+  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.1.8\tools\Microsoft.TypeScript.NuGet.props" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.1.8\tools\Microsoft.TypeScript.NuGet.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -26,6 +27,7 @@
     <RestorePackages>true</RestorePackages>
     <NuGetPackageImportStamp>bb2330ea</NuGetPackageImportStamp>
     <UseGlobalApplicationHostFile />
+    <Use64BitIISExpress />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -274,6 +276,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\BaseController.cs" />
     <Compile Include="Controllers\CoordinateController.cs" />
+    <Compile Include="Controllers\FileGenerationScheduleController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\MailNotificationsController.cs" />
     <Compile Include="Controllers\FileController.cs" />
@@ -298,17 +301,27 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Content Include="App\Admin\Controllers\Document\DocumentController.js" />
+    <Content Include="App\Admin\Controllers\Email\AddEditFileGenerationScheduleController.js" />
+    <Content Include="App\Admin\Controllers\Email\DeleteFileGenerationScheduleController.js" />
+    <Content Include="App\Admin\Controllers\Email\FileGenerationScheduleController.js" />
     <Content Include="App\Admin\Controllers\Report\ReportController.js" />
+    <Content Include="App\Admin\Controllers\Report\ReportSkatController.js" />
     <Content Include="App\Admin\HTML\Document\View.html" />
-    <Content Include="App\Admin\HTML\Report\DocumentView.html" />
+    <Content Include="App\Admin\HTML\ReportSkat\View.html" />
+    <Content Include="App\Admin\HTML\Email\AddEditFileGenerationScheduleTemplate.html" />
+    <Content Include="App\Admin\HTML\Email\ConfirmDeleteFileGenerationScheduleTemplate.html" />
     <Content Include="App\Admin\HTML\Report\View.html" />
     <Content Include="App-icons\os2i-114x114.png" />
     <Content Include="App-icons\os2i-144x144.png" />
     <Content Include="App-icons\os2i-57x57.png" />
     <Content Include="App-icons\os2i-72x72.png" />
+    <Content Include="App\ApproveReports\ApproveReportsReportController.js" />
+    <Content Include="App\ApproveReports\ReportView.html" />
     <Content Include="App\Driving\ConfirmApplySixtyDaysRuleController.js" />
     <Content Include="App\Driving\ConfirmApplySixtyDaysRuleTemplate.html" />
+    <Content Include="App\MyReports\MyReportsReportController.js" />
+    <Content Include="App\Services\FileGenerationSchedule.js" />
+    <Content Include="App\MyReports\MyReportsReportView.html" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Bold.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-BoldOblique.ttf" />
     <Content Include="Content\fonts\DejaVu\DejaVuSans-Oblique.ttf" />
@@ -324,6 +337,7 @@
     <Content Include="Content\fonts\DejaVu\LICENSE" />
     <Content Include="..\connections.config">
       <Link>connections.config</Link>
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="..\CustomSettings.config">
       <Link>CustomSettings.config</Link>
@@ -375,20 +389,13 @@
     <Content Include="App\Admin\HTML\Account\ConfirmDeleteAccountTemplate.html" />
     <Content Include="App\Admin\HTML\Account\View.html" />
     <Content Include="App\Admin\HTML\Address\View.html" />
-    <Content Include="App\Admin\HTML\Email\AddNewMailNotificationTemplate.html" />
-    <Content Include="App\Admin\Controllers\Email\AddNewMailNotificationController.js" />
     <Content Include="App\Admin\AdminView.html" />
     <Content Include="App\Admin\Controllers\Address\AddNewAddressController.js" />
-    <Content Include="App\Admin\HTML\Email\ConfirmDeleteMailNotificationTemplate.html" />
-    <Content Include="App\Admin\Controllers\Email\DeleteMailNotificationController.js" />
-    <Content Include="App\Admin\HTML\Email\EditMailNotificationTemplate.html" />
-    <Content Include="App\Admin\Controllers\Email\EditMailNotificationController.js" />
     <Content Include="App\Admin\Controllers\Address\EditAddressController.js" />
     <Content Include="App\Admin\HTML\Address\AddNewAddressTemplate.html" />
     <Content Include="App\Admin\HTML\Address\EditAddressTemplate.html" />
     <Content Include="App\Admin\HTML\Address\ConfirmDeleteAddressTemplate.html" />
     <Content Include="App\Admin\Controllers\Address\DeleteAddressController.js" />
-    <Content Include="App\Admin\Controllers\Email\EmailNotificationController.js" />
     <Content Include="App\Admin\Controllers\Address\StandardAddressController.js" />
     <Content Include="App\Admin\HTML\Email\View.html" />
     <Content Include="App\Admin\HTML\Rate\View.html" />
@@ -2426,7 +2433,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <Import Project="..\packages\Microsoft.TypeScript.MSBuild.1.8\tools\Microsoft.TypeScript.targets" Condition="Exists('..\packages\Microsoft.TypeScript.MSBuild.1.8\tools\Microsoft.TypeScript.targets')" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">

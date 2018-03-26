@@ -20,6 +20,7 @@ using Ninject;
 using OS2Indberetning;
 using Core.ApplicationServices.Logger;
 using System.Threading.Tasks;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
 {
@@ -37,8 +38,9 @@ namespace Core.ApplicationServices
         private readonly IMailService _mailService;
 
         private readonly ILogger _logger;
+        private readonly ICustomSettings _customSettings;
 
-        public DriveReportService(IMailService mailService, IGenericRepository<DriveReport> driveReportRepository, IReimbursementCalculator calculator, IGenericRepository<OrgUnit> orgUnitRepository, IGenericRepository<Employment> employmentRepository, IGenericRepository<Substitute> substituteRepository, IAddressCoordinates coordinates, IRoute<RouteInformation> route, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<Person> personRepo, ILogger logger)
+        public DriveReportService(IMailService mailService, IGenericRepository<DriveReport> driveReportRepository, IReimbursementCalculator calculator, IGenericRepository<OrgUnit> orgUnitRepository, IGenericRepository<Employment> employmentRepository, IGenericRepository<Substitute> substituteRepository, IAddressCoordinates coordinates, IRoute<RouteInformation> route, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<Person> personRepo, ILogger logger, ICustomSettings customSettings)
         {
             _route = route;
             _rateTypeRepo = rateTypeRepo;
@@ -51,6 +53,7 @@ namespace Core.ApplicationServices
             _driveReportRepository = driveReportRepository;
             _personRepository = personRepo;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         /// <summary>
@@ -327,9 +330,7 @@ namespace Core.ApplicationServices
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
-            bool parseValue;
-            var parseresult = bool.TryParse(ConfigurationManager.AppSettings["UseSd"], out parseValue);
-            if (parseresult && parseValue)
+            if (_customSettings.SdIsEnabled)
             {
                 while ((leaderOfOrgUnit == null && orgUnit.Parent != null) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
@@ -417,9 +418,7 @@ namespace Core.ApplicationServices
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
-            bool parseValue;
-            var parseresult = bool.TryParse(ConfigurationManager.AppSettings["usesd"], out parseValue);
-            if (parseresult && parseValue)
+            if (_customSettings.SdIsEnabled)
             {
                 while ((leaderOfOrgUnit == null && orgUnit.Parent != null) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {

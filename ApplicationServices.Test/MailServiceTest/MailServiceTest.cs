@@ -4,6 +4,7 @@ using Core.ApplicationServices.MailerService.Impl;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using NSubstitute;
 using NUnit.Framework;
 using System;
@@ -24,6 +25,7 @@ namespace ApplicationServices.Test.MailServiceTest
         private List<Person> _personList;
         private IMailSender _mailSenderMock;
         private ILogger _loggerMock;
+        private ICustomSettings _customSettings;
 
         [SetUp]
         public void Setup()
@@ -39,8 +41,9 @@ namespace ApplicationServices.Test.MailServiceTest
 
             _mailSenderMock = NSubstitute.Substitute.For<IMailSender>();
             _loggerMock = NSubstitute.Substitute.For<ILogger>();
+            _customSettings = new CustomSettings();
 
-            _mailService = new MailService(_reportRepoMock, _substitueRepoMock, _personRepoMock, _mailSenderMock, _loggerMock);
+            _mailService = new MailService(_reportRepoMock, _substitueRepoMock, _personRepoMock, _mailSenderMock, _loggerMock, _customSettings);
         }
 
         [Test]

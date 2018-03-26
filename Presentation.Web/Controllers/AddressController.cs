@@ -11,8 +11,8 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Infrastructure.AddressServices.Interfaces;
 using Ninject;
-using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace OS2Indberetning.Controllers
 {
@@ -60,13 +60,13 @@ namespace OS2Indberetning.Controllers
         {
             if (MapStartAddress == null)
             {
-                var coordinates = NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>();
+                var coordinates = NinjectWebKernel.GetKernel().Get<IAddressCoordinates>();
                 MapStartAddress = new Address
                 {
-                    StreetName = ConfigurationManager.AppSettings["MapStartStreetName"],
-                    StreetNumber = ConfigurationManager.AppSettings["MapStartStreetNumber"],
-                    ZipCode = int.Parse(ConfigurationManager.AppSettings["MapStartZipCode"]),
-                    Town = ConfigurationManager.AppSettings["MapStartTown"],
+                    StreetName = _customSettings.MapStartStreetName,
+                    StreetNumber = _customSettings.MapStartStreetNumber,
+                    ZipCode = int.Parse(_customSettings.MapStartZipCode),
+                    Town = _customSettings.MapStartTown,
                 };
 
                 MapStartAddress = coordinates.GetAddressCoordinates(MapStartAddress);
@@ -195,7 +195,7 @@ namespace OS2Indberetning.Controllers
         {
             if (CurrentUser.IsAdmin)
             {
-                var repo = NinjectWebKernel.CreateKernel().Get<IGenericRepository<CachedAddress>>();
+                var repo = NinjectWebKernel.GetKernel().Get<IGenericRepository<CachedAddress>>();
                 if (!includeCleanAddresses)
                 {
                     var res = repo.AsQueryable().Where(x => x.IsDirty);

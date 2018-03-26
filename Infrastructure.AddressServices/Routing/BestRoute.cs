@@ -7,13 +7,20 @@ using Infrastructure.AddressServices.Interfaces;
 using Address = Core.DomainModel.Address;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 
 namespace Infrastructure.AddressServices.Routing
 {
     public class BestRoute : IRoute<RouteInformation>
     {
+        private IAddressCoordinates _addressCoordinates;
+        private IRouter _router;
 
-       
+        public BestRoute(IAddressCoordinates addressCoordinates, IRouter router)
+        {
+            _addressCoordinates = addressCoordinates;
+            _router = router;
+        }
 
         /// <summary>
         /// Returns the shortest route within the time limit. (Duration <= 300s , Length difference > 3000m)
@@ -33,8 +40,6 @@ namespace Infrastructure.AddressServices.Routing
             var addressesList = addresses.ToList();
 
             List<Coordinates> routeCoordinates = new List<Coordinates>();
-            AddressCoordinates coordService = new AddressCoordinates();
-            SeptimaRouter septimaService = new SeptimaRouter();
             
             var origin = addressesList[0];
             var destination = addressesList[addressesList.Count - 1];
@@ -44,7 +49,7 @@ namespace Infrastructure.AddressServices.Routing
 
             if (String.IsNullOrEmpty(origin.Longitude))
             {
-                routeCoordinates.Add(coordService.GetCoordinates(origin, Coordinates.CoordinatesType.Origin));
+                routeCoordinates.Add(_addressCoordinates.GetCoordinates(origin, Coordinates.CoordinatesType.Origin));
             }
             else
             {
@@ -60,7 +65,7 @@ namespace Infrastructure.AddressServices.Routing
             {
                 if (String.IsNullOrEmpty(address.Longitude))
                 {
-                    routeCoordinates.Add(coordService.GetCoordinates(address,
+                    routeCoordinates.Add(_addressCoordinates.GetCoordinates(address,
                         Coordinates.CoordinatesType.Via));
                 }
                 else
@@ -76,7 +81,7 @@ namespace Infrastructure.AddressServices.Routing
 
             if (String.IsNullOrEmpty(destination.Longitude))
             {
-                routeCoordinates.Add(coordService.GetCoordinates(destination, Coordinates.CoordinatesType.Destination));
+                routeCoordinates.Add(_addressCoordinates.GetCoordinates(destination, Coordinates.CoordinatesType.Destination));
             }
             else
             {
@@ -91,7 +96,7 @@ namespace Infrastructure.AddressServices.Routing
             try
             {
                 List<RouteInformation> routes =
-                    septimaService.GetRoute(transportType, routeCoordinates).OrderBy(x => x.Duration).ToList();
+                    _router.GetRoute(transportType, routeCoordinates).OrderBy(x => x.Duration).ToList();
 
                 // Sort routes by duration and pick the one with the shortest duration.
                 // OS2RouteMap.js in the frontend picks the route with the shortest duration

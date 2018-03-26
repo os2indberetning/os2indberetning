@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace Mail.LogMailer
 {
@@ -17,19 +18,21 @@ namespace Mail.LogMailer
         private readonly ILogReader _logReader;
         private readonly IMailService _mailService;
         private readonly ILogger _logger;
+        private readonly ICustomSettings _customSettings;
 
-        public LogMailer(ILogParser logParser, ILogReader logReader, IMailService mailService, ILogger logger)
+        public LogMailer(ILogParser logParser, ILogReader logReader, IMailService mailService, ILogger logger, ICustomSettings customSettings)
         {
             _logParser = logParser;
             _logReader = logReader;
             _mailService = mailService;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         public void Send()
         {
 
-            var configvalue = ConfigurationManager.AppSettings["PROTECTED_DailyErrorLogMail"];
+            var configvalue = _customSettings.DailyErrorLogMail;
 
             configvalue = Regex.Replace(configvalue, @"\s+", "");
 

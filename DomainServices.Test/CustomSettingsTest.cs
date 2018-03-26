@@ -1,12 +1,6 @@
-﻿using Core.ApplicationServices;
-using Core.ApplicationServices.Interfaces;
-using Core.DomainServices;
+﻿using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DomainServices.Test
 {

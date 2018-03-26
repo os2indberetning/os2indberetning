@@ -11,27 +11,38 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
 using Infrastructure.AddressServices;
-using Infrastructure.AddressServices.Interfaces;
 using Infrastructure.AddressServices.Routing;
 using Infrastructure.DataAccess;
 using Infrastructure.DmzDataAccess;
 using Ninject;
 using Ninject.Web.Common;
 using OS2Indberetning;
-using IAddressCoordinates = Core.DomainServices.IAddressCoordinates;
 using Core.ApplicationServices.FileGenerator;
 using Core.ApplicationServices.SilkeborgData;
+using Core.DomainServices.Interfaces;
+using Infrastructure.AddressServices.Interfaces;
 
 namespace Core.ApplicationServices
 {
     public static class NinjectWebKernel 
     {
+        private static IKernel _currentInstance;
+
+        public static IKernel GetKernel()
+        {
+            if(_currentInstance == null)
+            {
+                CreateKernel();
+            }
+            return _currentInstance;
+        }
+
         /// <summary>
         /// Creates the kernel that will manage your application.
         /// </summary>
         /// <param name="getInjections"></param>
         /// <returns>The created kernel.</returns>
-        public static IKernel CreateKernel()
+        private static void CreateKernel()
         {
             var kernel = new StandardKernel();
             kernel.Load(Assembly.GetExecutingAssembly());
@@ -45,7 +56,7 @@ namespace Core.ApplicationServices
                 // Install our Ninject-based IDependencyResolver into the Web API config
                 GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
 
-                return kernel;
+                _currentInstance = kernel;
             }
             catch
             {
@@ -61,27 +72,44 @@ namespace Core.ApplicationServices
         public static void RegisterServices(IKernel kernel)
         {
             kernel.Bind<DataContext>().ToSelf().InRequestScope();
+
+            // Core
+            // DomainServices
             kernel.Bind(typeof (IGenericRepository<>)).To(typeof (GenericRepository<>));
-            kernel.Bind<IPersonService>().To<PersonService>();
-            kernel.Bind<IMobileTokenService>().To<MobileTokenService>();
-            kernel.Bind<IMailSender>().To<MailSender>();
-            kernel.Bind<IMailService>().To<MailService>();
-            kernel.Bind<ISubstituteService>().To<SubstituteService>();
-            kernel.Bind<IDriveReportService>().To<DriveReportService>();
+
             kernel.Bind<IAddressCoordinates>().To<AddressCoordinates>();
             kernel.Bind<IRoute<RouteInformation>>().To<BestRoute>();
-            kernel.Bind<IReimbursementCalculator>().To<ReimbursementCalculator>();
+            kernel.Bind<IAddressLaunderer>().To<AddressLaundering>();
+            kernel.Bind<IUrlDefinitions>().To<UrlDefinitions>();
+
+            kernel.Bind<ICustomSettings>().To<CustomSettings>();
+
+            // ApplicationServices
+            kernel.Bind<IPersonService>().To<PersonService>();
+            kernel.Bind<IMobileTokenService>().To<MobileTokenService>();
+            kernel.Bind<ISubstituteService>().To<SubstituteService>();
+            kernel.Bind<IDriveReportService>().To<DriveReportService>();
             kernel.Bind<ILicensePlateService>().To<LicensePlateService>();
             kernel.Bind<IPersonalRouteService>().To<PersonalRouteService>();
-            kernel.Bind<IAddressLaunderer>().To<AddressLaundering>();
-            kernel.Bind<IOrgUnitService>().To<OrgUnitService>();
-            kernel.Bind<ILogger>().To<Logger.Logger>();
             kernel.Bind<IAppLoginService>().To<AppLoginService>();
+            kernel.Bind<IOrgUnitService>().To<OrgUnitService>();
             kernel.Bind<ITransferToPayrollService>().To<TransferToPayrollService>();
+
+            kernel.Bind<IReimbursementCalculator>().To<ReimbursementCalculator>();
+
+            kernel.Bind<IMailSender>().To<MailSender>();
+            kernel.Bind<IMailService>().To<MailService>();
+
+            kernel.Bind<ISdClient>().To<SdClient>();
             kernel.Bind<IReportGenerator>().To<ReportGenerator>();
             kernel.Bind<IReportFileWriter>().To<ReportFileWriter>();
-            kernel.Bind<ICustomSettings>().To<CustomSettings>();
-            kernel.Bind<ISdClient>().To<SdClient>();
+
+            kernel.Bind<ILogger>().To<Logger.Logger>();
+
+            // Infrastructure
+            kernel.Bind<IRouter>().To<SeptimaRouter>();
+
+            // DBUpdater
         }        
     }
 }

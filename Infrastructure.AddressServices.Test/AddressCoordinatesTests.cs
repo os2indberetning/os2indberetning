@@ -1,20 +1,33 @@
 ﻿using Core.DomainServices.RoutingClasses;
 using NUnit.Framework;
 using Core.DomainModel;
+using Core.DomainServices;
+using Core.DomainServices.Interfaces;
+using Infrastructure.AddressServices.Interfaces;
+using Core.ApplicationServices;
 
 namespace Infrastructure.AddressServices.Tests
 {
     [TestFixture]
     public class AddressCoordinatesTests
     {
+        private AddressCoordinates uut;
+
         #region Coordinate tests
+        [SetUp]
+        public void Setup()
+        {
+            ICustomSettings customSettings = new CustomSettings();
+            IUrlDefinitions urlDefinitions = new UrlDefinitions(customSettings);
+            IAddressLaunderer addressLaunderer = new AddressLaundering(urlDefinitions);
+            uut = new AddressCoordinates(addressLaunderer, urlDefinitions);
+        }
 
         [Test]
         public void GetCoordinates_GoodCoordinates()
         {
             //Arrange
             Address address = new Address { StreetName = "Katrinebjergvej", StreetNumber = "90", ZipCode = 8200 };
-            AddressCoordinates uut = new AddressCoordinates();
             Coordinates correctCoord = new Coordinates
             {
                 Longitude = "10.19069648",
@@ -34,7 +47,6 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { StreetName = "Katrinebjergvej", StreetNumber = "90", ZipCode = 8200 };
-            AddressCoordinates uut = new AddressCoordinates();
             Address correctCoord = new Address
             {
                 StreetName = "Katrinebjergvej",
@@ -57,7 +69,6 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { Longitude = "12.58514", Latitude = "55.68323" };
-            AddressCoordinates uut = new AddressCoordinates();
             Address correctAddress = new Address
             {
                 StreetName = "Landgreven",
@@ -88,7 +99,6 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { StreetName = "Bjergvej Alle Troll", StreetNumber = "90", ZipCode = 8200 };
-            AddressCoordinates uut = new AddressCoordinates();
             //Act
 
             //Assert
@@ -101,7 +111,6 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { Longitude = "999.00", Latitude = "999.00" };
-            AddressCoordinates uut = new AddressCoordinates();
             
             //Act
 

@@ -1,0 +1,106 @@
+﻿<script src="/Scripts/kendo/jszip.min.js"></script>
+<script src="/Scripts/kendo/kendo.all.min.js"></script>
+
+<style>
+    .k-grid .k-grid-header .k-header .k-link {
+    height: auto;
+    }
+    .k-grid  .k-grid-header  .k-header {
+        white-space: normal;
+    }
+</style>
+
+<div class="panel panel-default">
+
+
+
+
+    <div class="panel-body">
+
+
+        <div class="col-xs-12 col-lg-12">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <h2 class="pull-left">Rapportering</h2>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-xs-6 col-lg-6">
+                    <label class="pull-left">Medarbejder navn</label><span style="color:red;">*</span>
+                    <div class="fill-width">
+                        <input id="employeeTextBox" ng-required="string" ng-disabled="true" ng-model="container.employeeFilter" type="text"  k-options="personAutoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" k-data-value-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
+                    </div>
+                </div>               
+                <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
+                    <label>Kørselsdato start</label><span style="color:red;">*</span>
+                    <div class="fill-width">
+                        <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportFromDateString" k-ng-model="dateContainer.fromDate"/>
+                    </div>
+                </div>
+                <div class="col-xs-6 col-lg-6">
+                        <label for="">Ansættelsested</label>
+                        <select class="fill-width" kendo-drop-down-list="container.PositionDropDown" ng-model="container.SelectedEmployment" id="" ng-change="onSelect()" k-data-source="Employments" k-data-text-field="'PresentationString'" k-data-value-field="'Id'"><option>' '</option></select>
+                </div>
+                <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
+                    <label>Kørselsdato slut</label><span style="color:red;">*</span>
+                    <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportToDateString" k-ng-model="dateContainer.toDate"/>
+                </div>
+                <div class="col-sm-12">
+                    <div class="col-sm-4 pull-right">
+                        <button class="btn btn-primary fill-width" ng-click="createReportClick()">Dan Rapport</button>
+                    </div>
+                </div>                
+            </div>
+            <div id="printThis" ng-show="showReport">
+                    <button class="k-button k-button-icontext k-grid-pdf" id="btnPDF"><span class="k-icon k-i-pdf"></span>Export Pdf</button>
+                    <button class="k-button k-button-icontext k-grid-excel" id="btnExcel"><span class="k-icon k-i-excel"></span>Export excel</button>                
+                    <div kendo-grid="gridContainer.reportsGrid" id="grid_id" class="margin-top-10 scrollable" options="reports">                 
+                        <div class="k-header k-grid-toolbar ng-scope">
+                            <div id="textwrapper" style="width:450px; float: left;" >
+                                Medarbejdernavn: <span id="MaNavn" style="float:right;">{{Name}}</span><br />
+                                Nummerplade(r): <text style="float:right;">{{LicensePlates}}</text><br />  
+                                Adresse:
+                                <text style="float:right;">{{HomeAddressStreet}}</text><br />
+                                <text style="float:right;">{{HomeAddressTown}}</text><br />
+                                Organisationsenhed: <text id="Organisationsenhed"style="float:right;">{{OrgUnit}}</text><br />  
+                                Kommune: <text  style="float:right;" id="Kommune">{{Municipality}}</text><br />  
+                                Datointerval for udbetaling:<div style="float:right;">{{DateInterval}}</div><br />
+                                Dato for rapportdannelse: <text style="float:right;" id="dateCreated">{{Today}}</text><br />
+                            </div>
+                            <div style="float:left; padding-left:10px" >
+                            </div>
+                            <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>xlsx</a>
+                            <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>pdf</a>
+                        </div>
+                    </div> 
+                </div>
+
+            <label class="text-danger" ng-bind="newRateYearError"></label><br />
+            <label class="text-danger" ng-bind="newRateRateError"></label><br />
+            <label class="text-danger" ng-bind="newRateRateTypeError"></label>
+
+        </div>
+
+    </div>
+
+
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('.reallinks').hide();
+
+        $('#btnPDF').click(function () {
+            $('#reallinkPDF').click();
+        });
+
+       $('#btnExcel').click(function () {
+            $('#reallinkExcel').click();
+        });
+    });
+
+</script>

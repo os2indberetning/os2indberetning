@@ -28,5 +28,6 @@ namespace Core.DomainModel
         public double Rate { get; set; }
         public string HomeAddress { get; set; }
         public string UserComment { get; set; }
+        public string Status{ get; set; }
     }
 }

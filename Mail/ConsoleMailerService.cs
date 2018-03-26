@@ -16,6 +16,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Mail.LogMailer;
 using Ninject;
+using Core.DomainServices.Interfaces;
 
 namespace Mail
 {
@@ -24,12 +25,14 @@ namespace Mail
         private IMailService _mailService;
         private IGenericRepository<MailNotificationSchedule> _repo;
         private ILogger _logger;
+        private ICustomSettings _customSettings;
 
-        public ConsoleMailerService(IMailService mailService, IGenericRepository<MailNotificationSchedule> repo, ILogger logger)
+        public ConsoleMailerService(IMailService mailService, IGenericRepository<MailNotificationSchedule> repo, ILogger logger, ICustomSettings customSettings)
         {
             _mailService = mailService;
             _repo = repo;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         /// <summary>
@@ -38,7 +41,7 @@ namespace Mail
         public void RunMailService()
         {
 
-            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger);
+            var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger, _customSettings);
             try
             {
                 logMailer.Send();
@@ -54,29 +57,29 @@ namespace Mail
             var startOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 00, 00, 00));
             var endOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));
         
-            var notifications = _repo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay && !r.Notified);
+            var notifications = _repo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay);
 
             if (notifications.Any())
             {
                 Console.WriteLine("Forsøger at sende emails.");
                 foreach (var notification in notifications.ToList())
                 {
-                    if (notification.Repeat)
-                    {
-                        var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(notification.DateTimestamp).AddMonths(1));
-                        _repo.Insert(new MailNotificationSchedule()
-                        {
-                            DateTimestamp = newDateTime,
-                            Notified = false,
-                            Repeat = true
-                        });
-                    }
-                    notification.Notified = true;
+                    //if (notification.Repeat)
+                    //{
+                    //    var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(notification.DateTimestamp).AddMonths(1));
+                    //    _repo.Insert(new MailNotificationSchedule()
+                    //    {
+                    //        DateTimestamp = newDateTime,
+                    //        Notified = false,
+                    //        Repeat = true
+                    //    });
+                    //}
+                    //notification.Notified = true;
 
-                    AttemptSendMails(_mailService,Utilities.FromUnixTime(notification.PayRoleTimestamp), 2);
+                    AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.FileGenerationSchedule.DateTimestamp), notification.CustomText, 2);
                 }
 
-                _repo.Save();
+                //_repo.Save();
                 _logger.Debug($"{this.GetType().Name}, RunMailerService(), Notification mails for leaders sending finished");
             }
             else
@@ -95,20 +98,20 @@ namespace Mail
         /// </summary>
         /// <param name="service">IMailService to use for sending mails.</param>
         /// <param name="timesToAttempt">Number of times to attempt to send emails.</param>
-        public void AttemptSendMails(IMailService service, DateTime payRoleDateTime, int timesToAttempt)
+        public void AttemptSendMails(IMailService service, DateTime payRoleDateTime, String customText, int timesToAttempt)
         {
             if (timesToAttempt > 0)
             {
                 try
                 {
-                    service.SendMails(payRoleDateTime);
+                    service.SendMails(payRoleDateTime, customText);
                 }
                 catch (System.Net.Mail.SmtpException e)
                 {
                     Console.WriteLine("Kunne ikke oprette forbindelse til SMTP-Serveren. Forsøger igen...");
                     _logger.LogForAdmin("Kunne ikke forbinde til SMTP-server. Mails kan ikke sendes.");
                     _logger.Error($"{GetType().Name}, AttemptSendMails(), Could not connect to SMTP server, mails could not be send", e);
-                    AttemptSendMails(service, payRoleDateTime, timesToAttempt - 1);
+                    AttemptSendMails(service, payRoleDateTime, customText, timesToAttempt - 1);
                 }
             }
             else

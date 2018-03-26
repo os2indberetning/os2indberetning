@@ -55,16 +55,18 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedAddressLaunderer.cs" />
+    <Compile Include="CustomSettings.cs" />
     <Compile Include="Encryption\Encryptor.cs" />
     <Compile Include="Encryption\StringCipher.cs" />
     <Compile Include="Example\IExample.cs" />
-    <Compile Include="IAddressCoordinates.cs" />
     <Compile Include="IGenericRepository.cs" />
     <Compile Include="Interfaces\IAddressLaunderer.cs" />
+    <Compile Include="Interfaces\ICustomSettings.cs" />
     <Compile Include="IRoute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RoutingClasses\Coordinates.cs" />
     <Compile Include="RoutingClasses\Exceptions.cs" />
+    <Compile Include="Interfaces\IUrlDefinitions.cs" />
     <Compile Include="RoutingClasses\JsonObjects.cs" />
     <Compile Include="RoutingClasses\RouteInformation.cs" />
     <Compile Include="RoutingClasses\URLDefinitions.cs" />

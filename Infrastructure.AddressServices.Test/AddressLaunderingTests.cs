@@ -1,12 +1,25 @@
 ﻿using Core.DomainServices.RoutingClasses;
 using NUnit.Framework;
 using Core.DomainModel;
+using Infrastructure.AddressServices.Interfaces;
+using Core.DomainServices.Interfaces;
+using Core.DomainServices;
 
 namespace Infrastructure.AddressServices.Tests
 {
     [TestFixture]
     public class AddressLaunderingTests
     {
+        private IAddressLaunderer uut;
+
+        [SetUp]
+        public void Setup()
+        {
+            ICustomSettings customSettings = new CustomSettings();
+            IUrlDefinitions urlDefinitions = new UrlDefinitions(customSettings);
+            uut = new AddressLaundering(urlDefinitions);
+        }
+
         #region Laundering tests
 
         [Test]
@@ -14,9 +27,8 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { StreetName = "Ny Adelgade", StreetNumber = "10", ZipCode = 1104 };
-            AddressLaundering uut = new AddressLaundering();
             //Act
-            Address result = uut.LaunderAddress(address);
+            Address result = uut.Launder(address);
             //Assert
             Assert.AreEqual(address, result);
         }
@@ -30,12 +42,11 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { StreetName = "Ny Adelgade", StreetNumber = "999999", ZipCode = 1104 };
-            AddressLaundering uut = new AddressLaundering();
             //Act
 
             //Assert
             Assert.Throws(typeof(AddressLaunderingException),
-                () => uut.LaunderAddress(address), "Husnummer eksisterer ikke på vejen");
+                () => uut.Launder(address), "Husnummer eksisterer ikke på vejen");
         }
 
         [Test]
@@ -43,12 +54,11 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { StreetName = "Ny VejNavn Test Hans", StreetNumber = "10", ZipCode = 1104 };
-            AddressLaundering uut = new AddressLaundering();
             //Act
 
             //Assert
             Assert.Throws(typeof(AddressLaunderingException),
-                () => uut.LaunderAddress(address), "Vejnavn findes ikke indenfor postdistriktet");
+                () => uut.Launder(address), "Vejnavn findes ikke indenfor postdistriktet");
         }
 
         [Test]
@@ -56,12 +66,11 @@ namespace Infrastructure.AddressServices.Tests
         {
             //Arrange
             Address address = new Address { StreetName = "Ny Adelgade", StreetNumber = "10", ZipCode = 99999 };
-            AddressLaundering uut = new AddressLaundering();
             //Act
 
             //Assert
             Assert.Throws(typeof(AddressLaunderingException),
-                () => uut.LaunderAddress(address), "Postnummer eksisterer ikke");
+                () => uut.Launder(address), "Postnummer eksisterer ikke");
         }
 
         #endregion

@@ -1,4 +1,8 @@
-﻿using OS2Indberetning.Filters;
+﻿using Core.ApplicationServices;
+using Core.ApplicationServices.Interfaces;
+using Core.DomainServices.Interfaces;
+using Ninject;
+using OS2Indberetning.Filters;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,12 +10,21 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.Controllers;
 
 namespace OS2Indberetning.Controllers
 {
     [AuditlogFilter]
     public class HelpTextController : ApiController
     {
+        private ICustomSettings _customSettings;
+
+        protected override void Initialize(HttpControllerContext controllerContext)
+        {
+            _customSettings = NinjectWebKernel.GetKernel().Get<ICustomSettings>();
+
+            base.Initialize(controllerContext);
+        }
         // GET api/<controller>/5
         /// <summary>
         /// API Endpoint for getting help texts to be displayed in the frontend.

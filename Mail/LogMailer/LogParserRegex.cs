@@ -13,7 +13,7 @@ namespace Mail.LogMailer
 {
     public class LogParserRegex : ILogParser
     {
-        private ILogger _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+        private ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
         public List<string> Messages(List<string> log, DateTime fromDate)
         {
             var messages = new List<string>();

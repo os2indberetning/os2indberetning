@@ -20,9 +20,11 @@ namespace DomainServices.Test
 
             // Act
             var result = Utilities.ToUnixTime(datetime);
+            var result2 = Utilities.FromUnixTime(result);
 
             // Assert
             Assert.AreEqual(expectedUnixTimestamp, result);
+            Assert.AreEqual(datetime, result2);
         }
 
         [Test]
@@ -65,6 +67,20 @@ namespace DomainServices.Test
 
             // Assert
             Assert.AreEqual(expectedDatetime, result);
+        }
+
+        [Test]
+        public void TestToUnix_FromUnix_DateTimeNow()
+        {
+            // Arranage
+            var dateTimeNow = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second, 0);           
+
+            // Act
+            var resultUnix = Utilities.ToUnixTime(dateTimeNow);
+            var resultDate = Utilities.FromUnixTime(resultUnix);
+
+            // Assert
+            Assert.AreEqual(dateTimeNow, resultDate);
         }
     }
 }

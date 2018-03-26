@@ -15,6 +15,7 @@ using NUnit.Framework;
 using DriveReport = Core.DmzModel.DriveReport;
 using Employment = Core.DomainModel.Employment;
 using Rate = Core.DomainModel.Rate;
+using Core.DomainServices.Interfaces;
 
 namespace DmzSync.Test
 {

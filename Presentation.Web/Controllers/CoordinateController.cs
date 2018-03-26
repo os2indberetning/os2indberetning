@@ -2,9 +2,9 @@
 using System.Linq;
 using System.Web.Http;
 using Core.DomainModel;
-using Core.DomainServices;
 using Core.ApplicationServices.Logger;
 using OS2Indberetning.Filters;
+using Core.DomainServices.Interfaces;
 
 namespace OS2Indberetning.Controllers
 {

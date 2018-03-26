@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Core.DomainModel;
 using Core.DomainServices.RoutingClasses;
 using Infrastructure.AddressServices.Interfaces;
+using Core.DomainServices.Interfaces;
 
 namespace Core.DomainServices
 {

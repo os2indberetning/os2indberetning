@@ -162,15 +162,15 @@ namespace Infrastructure.DataAccess
         private void ConfigurePropertiesForMailNoficationSchedule(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.DateTimestamp).IsRequired();
-            modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.Notified).IsRequired();
-            modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.Repeat).IsRequired();
+            //modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.Notified).IsRequired();
+            //modelBuilder.Entity<MailNotificationSchedule>().Property(p => p.Repeat).IsRequired();
             
         }
 
         private void ConfigurePropertiesForFileGenerationSchedule(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<FileGenerationSchedule>().Property(p => p.DateTimestamp).IsRequired();
-            modelBuilder.Entity<FileGenerationSchedule>().Property(p => p.Generated).IsRequired();
+            //modelBuilder.Entity<FileGenerationSchedule>().Property(p => p.Generated).IsRequired();
         }
 
         private void ConfigurePropertiesForDriveReportPoint(DbModelBuilder modelBuilder)

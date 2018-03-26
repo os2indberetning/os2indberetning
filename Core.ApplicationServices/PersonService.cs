@@ -11,22 +11,28 @@ using Core.DomainServices.RoutingClasses;
 using Microsoft.Ajax.Utilities;
 using Ninject;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
 {
     public class PersonService : IPersonService
     {
         private readonly IGenericRepository<PersonalAddress> _addressRepo;
+        private readonly IGenericRepository<Employment> _employmentRepo;
+        private readonly IGenericRepository<OrgUnit> _orgUnitsRepo;
+
         private readonly IRoute<RouteInformation> _route;
         private readonly IAddressCoordinates _coordinates;
         private readonly ILogger _logger;
 
-        public PersonService(IGenericRepository<PersonalAddress> addressRepo, IRoute<RouteInformation> route, IAddressCoordinates coordinates, ILogger logger)
+        public PersonService(IGenericRepository<PersonalAddress> addressRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<OrgUnit> orgUnitsRepo, IRoute<RouteInformation> route, IAddressCoordinates coordinates, ILogger logger)
         {
             _addressRepo = addressRepo;
             _route = route;
             _coordinates = coordinates;
             _logger = logger;
+            _employmentRepo = employmentRepo;
+            _orgUnitsRepo = orgUnitsRepo;
         }
 
         /// <summary>
@@ -141,6 +147,60 @@ namespace Core.ApplicationServices
             {
                 
             }
+        }       
+
+        public List<Person> GetEmployeesOfLeader(Person currentUser)
+        {
+            List<Person> employees = new List<Person>();
+            if (currentUser.Employments.Where(e => e.IsLeader).Any())
+            {
+                var orgUnitsDupes = new List<OrgUnit>();
+                foreach (Employment e in currentUser.Employments.Where(e => e.IsLeader))
+                {
+                    OrgUnit org = e.OrgUnit;
+                    orgUnitsDupes.Add(org);
+                    orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
+                }
+
+                var orgUnitsIds = orgUnitsDupes.Select(x => x.Id).Distinct();
+                var empDupes = new List<Person>();
+                foreach (var orgUnitId in orgUnitsIds)
+                {
+                    var employments = _employmentRepo.AsQueryable().Where(e => e.OrgUnitId == orgUnitId).ToList();
+                    foreach (var employment in employments)
+                    {
+                        empDupes.Add(employment.Person);
+                    }
+                }
+
+                employees = empDupes.Distinct().ToList();
+            }
+            else
+            {
+                return null;
+            }
+
+            return employees;
+        }
+
+        /// <summary>
+        /// Find the children orgUnits based on the parent id
+        /// </summary>
+        /// <param name="orgUnitId"></param>
+        /// <returns></returns>
+        private List<OrgUnit> getChildrenOrgUnits(int orgUnitId)
+        {
+            List<OrgUnit> unitsToReturn = new List<OrgUnit>();
+            List<OrgUnit> childrenFound = _orgUnitsRepo.AsQueryable().Where(org => org.ParentId == orgUnitId).ToList();
+            if (childrenFound != null && childrenFound.Count > 0)
+            {
+                foreach (var unit in childrenFound)
+                {
+                    unitsToReturn.Add(unit);
+                    unitsToReturn.AddRange(getChildrenOrgUnits(unit.Id));
+                }
+            }
+            return unitsToReturn;
         }
     }
 }

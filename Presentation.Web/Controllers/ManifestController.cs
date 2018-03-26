@@ -42,9 +42,8 @@ CACHE:
 /App/Admin/HTML/Administration/Modal/RemoveAdminModalTemplate.html
 /App/Admin/HTML/Administration/Modal/AddAdminModalTemplate.html
 /App/Admin/HTML/Account/ConfirmDeleteAccountTemplate.html
-/App/Admin/HTML/Email/AddNewMailNotificationTemplate.html
-/App/Admin/HTML/Email/ConfirmDeleteMailNotificationTemplate.html
-/App/Admin/HTML/Email/EditMailNotificationTemplate.html
+/App/Admin/HTML/Email/AddNewFileGenerationScheduleTemplate.html
+/App/Admin/HTML/Email/ConfirmDeleteFileGenerationScheduleTemplate.html
 /App/Admin/HTML/Address/ConfirmDeleteAddressTemplate.html
 /App/Admin/HTML/Address/EditAddressTemplate.html
 /App/Admin/HTML/Address/AddNewAddressTemplate.html

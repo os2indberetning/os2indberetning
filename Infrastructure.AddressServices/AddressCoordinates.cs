@@ -7,11 +7,16 @@ using Core.DomainServices.RoutingClasses;
 using Core.DomainServices;
 using Newtonsoft.Json.Linq;
 using Core.DomainModel;
+using Infrastructure.AddressServices.Interfaces;
+using Core.DomainServices.Interfaces;
 
 namespace Infrastructure.AddressServices
 {
     public class AddressCoordinates : IAddressCoordinates
     {
+        private IAddressLaunderer _addressLaunderer;
+        private IUrlDefinitions _urlDefinitions;
+
         #region Properties
 
         /// <summary>
@@ -28,6 +33,12 @@ namespace Infrastructure.AddressServices
         }
 
         #endregion
+
+        public AddressCoordinates(IAddressLaunderer addressLaunderer, IUrlDefinitions urlDefinitions)
+        {
+            _addressLaunderer = addressLaunderer;
+            _urlDefinitions = urlDefinitions;
+        }
 
         #region Public methods
 
@@ -75,8 +86,7 @@ namespace Infrastructure.AddressServices
                 {
                     return correctedAddress;
                 }
-                AddressLaundering launderer = new AddressLaundering();
-                correctedAddress = launderer.LaunderAddress(address);
+                correctedAddress = _addressLaunderer.Launder(address);
                 return correctedAddress;
             }
             catch (AddressLaunderingException e)
@@ -133,8 +143,7 @@ namespace Infrastructure.AddressServices
             {
                 try
                 {
-                    AddressLaundering launderer = new AddressLaundering();
-                    correctedAddress = launderer.LaunderAddress(address);
+                    correctedAddress = _addressLaunderer.Launder(address);
                 }
                 catch (AddressLaunderingException e)
                 {
@@ -191,7 +200,7 @@ namespace Infrastructure.AddressServices
         {
             var query = streetNr == null ? string.Format("vejnavn={0}&postnr={1}", street, zipCode) : string.Format("vejnavn={0}&husnr={1}&postnr={2}", street, streetNr, zipCode);
 
-            return (HttpWebRequest)WebRequest.Create(UrlDefinitions.CoordinatesUrl + query);
+            return (HttpWebRequest)WebRequest.Create(_urlDefinitions.CoordinatesUrl + query);
         }
 
         /// <summary>
@@ -204,7 +213,7 @@ namespace Infrastructure.AddressServices
         {
             var query = string.Format("x={0}&y={1}", longitude, latitude);
 
-            return (HttpWebRequest)WebRequest.Create(UrlDefinitions.CoordinateToAddressUrl + query);
+            return (HttpWebRequest)WebRequest.Create(_urlDefinitions.CoordinateToAddressUrl + query);
         }
 
         /// <summary>

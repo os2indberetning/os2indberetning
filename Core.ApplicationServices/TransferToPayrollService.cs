@@ -4,6 +4,7 @@ using Core.ApplicationServices.Logger;
 using Core.ApplicationServices.SilkeborgData;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -154,8 +155,8 @@ namespace Core.ApplicationServices
             {
                 operationRequest = new SdWebService.KoerselOpret20120201OperationRequest();
                 portTypeClient = new SdWebService.KoerselOpret20120201PortTypeClient();
-                portTypeClient.ClientCredentials.UserName.UserName = ConfigurationManager.AppSettings["PROTECTED_SDUserName"] ?? "";
-                portTypeClient.ClientCredentials.UserName.Password = ConfigurationManager.AppSettings["PROTECTED_SDUserPassword"] ?? "";
+                portTypeClient.ClientCredentials.UserName.UserName = _customSettings.SdUsername ?? "";
+                portTypeClient.ClientCredentials.UserName.Password = _customSettings.SdPassword ?? "";
 
                 operationRequest.InddataStruktur = new SdWebService.KoerselOpretRequestType();
             }
@@ -178,7 +179,7 @@ namespace Core.ApplicationServices
                 {
                     operationRequest.InddataStruktur.AarsagTekst = report.Purpose;
                     operationRequest.InddataStruktur.AnsaettelseIdentifikator = report.Employment.EmploymentId;
-                    operationRequest.InddataStruktur.InstitutionIdentifikator = ConfigurationManager.AppSettings["PROTECTED_institutionNumber"] ?? "";
+                    operationRequest.InddataStruktur.InstitutionIdentifikator = _customSettings.SdInstitutionNumber ?? "";
                     operationRequest.InddataStruktur.PersonnummerIdentifikator = report.Person.CprNumber;
                     operationRequest.InddataStruktur.RegistreringTypeIdentifikator = report.TFCode;
                     operationRequest.InddataStruktur.KoerselDato = KoerseldateTime.Date;

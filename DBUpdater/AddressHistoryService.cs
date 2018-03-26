@@ -30,7 +30,7 @@ namespace DBUpdater
             _changedHistories = new HashSet<int>();
             _homeAddresses = new List<PersonalAddress>();
             _workAddresses = new List<WorkAddress>();
-            _logger = NinjectWebKernel.CreateKernel().Get<ILogger>();
+            _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
         }
 
         public void CreateNonExistingHistories()

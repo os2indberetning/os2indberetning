@@ -12,6 +12,13 @@ namespace Infrastructure.AddressServices
 {
     public class AddressLaundering : IAddressLaunderer
     {
+        private IUrlDefinitions _urlDefinitions;
+
+        public AddressLaundering(IUrlDefinitions urlDefinitions)
+        {
+            _urlDefinitions = urlDefinitions;
+        }
+
         #region Public methods
 
         /// <summary>
@@ -63,7 +70,7 @@ namespace Infrastructure.AddressServices
             streetNr = streetNr.Replace(" ", "");
             var query = string.Format("vejnavn={0}&husnr={1}&postnr={2}", street, streetNr, zipCode);
 
-            return (HttpWebRequest)WebRequest.Create(UrlDefinitions.LaunderingUrl + query);
+            return (HttpWebRequest)WebRequest.Create(_urlDefinitions.LaunderingUrl + query);
         }
 
         private Adgangsadresse ExecuteAndRead(HttpWebRequest request)

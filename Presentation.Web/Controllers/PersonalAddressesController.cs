@@ -8,6 +8,7 @@ using Core.ApplicationServices;
 using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
+using Core.DomainServices.Interfaces;
 
 namespace OS2Indberetning.Controllers
 {
@@ -69,7 +70,7 @@ namespace OS2Indberetning.Controllers
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 
-            var coordinates = NinjectWebKernel.CreateKernel().Get<IAddressCoordinates>();
+            var coordinates = NinjectWebKernel.GetKernel().Get<IAddressCoordinates>();
             var result = coordinates.GetAddressCoordinates(personalAddress);
             personalAddress.Latitude = result.Latitude;
             personalAddress.Longitude = result.Longitude;

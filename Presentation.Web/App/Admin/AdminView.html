@@ -10,7 +10,7 @@
                     <div ng-include='"App/Admin/HTML/Address/View.html"'></div>
                 </tab>
 
-                <tab heading="Emailadviseringer" ng-controller="EmailNotificationController" ng-click="emailClicked()">
+                <tab heading="Emailadviseringer" ng-controller="FileGenerationScheduleController" ng-click="emailClicked()">
                     <div ng-include='"App/Admin/HTML/Email/View.html"'></div>
                 </tab>
 
@@ -41,8 +41,12 @@
                     <div ng-include="'App/Admin/HTML/AddressLaundry/AddressLaundryView.html'"></div>
                 </tab>
 
+                <tab heading="Rapport til SKAT" ng-controller="ReportSkatController" ng-click="laundryClicked()">
+                    <div ng-include='"App/Admin/HTML/ReportSkat/View.html"'></div>
+                </tab>
+
                 <tab heading="Rapportering" ng-controller="ReportController" ng-click="laundryClicked()">
-                    <div ng-include="'App/Admin/HTML/Report/View.html'"></div>
+                    <div ng-include='"App/Admin/HTML/Report/View.html"'></div>
                 </tab>
 
             </tabset>

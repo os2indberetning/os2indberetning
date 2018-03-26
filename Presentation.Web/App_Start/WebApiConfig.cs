@@ -13,7 +13,7 @@ namespace OS2Indberetning
     {
         public static void Register(HttpConfiguration config)
         {
-            config.DependencyResolver = new NinjectDependencyResolver(NinjectWebKernel.CreateKernel());
+            config.DependencyResolver = new NinjectDependencyResolver(NinjectWebKernel.GetKernel());
 
             config.MapHttpAttributeRoutes();
 
@@ -105,7 +105,7 @@ namespace OS2Indberetning
             var eType = builder.EntityType<Employment>();
             eType.HasKey(e => e.Id);
 
-            builder.EntitySet<FileGenerationSchedule>("FileGenerationSchedules");
+            builder.EntitySet<FileGenerationSchedule>("FileGenerationSchedule");
 
             builder.EntitySet<LicensePlate>("LicensePlates");
 
@@ -138,7 +138,11 @@ namespace OS2Indberetning
             .Function("GetUserAsCurrentUser")
             .ReturnsFromEntitySet<Person>("Person");
 
-            
+            builder.EntityType<Person>().Collection
+            .Function("GetEmployeesOfLeader")
+            .ReturnsFromEntitySet<Person>("Person");
+
+
 
             builder.EntitySet<PersonalAddress>("PersonalAddresses");
 

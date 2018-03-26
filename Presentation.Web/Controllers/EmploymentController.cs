@@ -7,12 +7,14 @@ using System.Web.OData;
 using System.Web.OData.Query;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace OS2Indberetning.Controllers
 {
     public class EmploymentsController : BaseController<Employment>
     {
-        public EmploymentsController(IGenericRepository<Employment> repo, IGenericRepository<Person> personRepo) : base(repo, personRepo){}
+        public EmploymentsController(IGenericRepository<Employment> repo, IGenericRepository<Person> personRepo, ILogger logger) : base(repo, personRepo){}
         
         //GET: odata/Employments
         /// <summary>

@@ -37,7 +37,7 @@ namespace OS2Indberetning.Controllers
             base.Initialize(requestContext);
 
             string[] httpUser = User.Identity.Name.Split('\\');
-            httpUser[1] = "rro";
+            //httpUser[1] = "rro";
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], _customSettings.AdDomain, StringComparison.CurrentCultureIgnoreCase))
             {

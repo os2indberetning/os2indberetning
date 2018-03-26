@@ -2,28 +2,31 @@
     "$scope", "$modalInstance", "NotificationService", "StandardAddress", "AddressFormatter", "SmartAdresseSource", "FileGenerationSchedule", "itemId",
     function ($scope, $modalInstance, NotificationService, StandardAddress, AddressFormatter, SmartAdresseSource, FileGenerationSchedule, itemId) {
         
-        $scope.Title = "Tilføj Ny Lønkørsel"
+        $scope.Title = "Tilføj ny lønkørsel";
         $scope.FileGenerationSchedule = {};
         $scope.FileGenerationSchedule.MailNotificationSchedules = [];
-        $scope.FileGenerationSchedule.DateTimestamp = new Date();
+        //$scope.FileGenerationSchedule.DateTimestamp;
         $scope.FileGenerationSchedule.Repeat = "false";
+        $scope.tempDate = new Date();
         $scope.ShowTextareaValues = [];
         $scope.DeletedMailsIds = [];
+        $scope.MailsDates = [];
         $scope.ModalResult = {
             "FileGenerationSchedule" : {},
             "DeletedMailsIds" : []
         };
+
         
         if(itemId > 0){
             // FileGenerationSchedule is being edited
-            $scope.Title = "Redigér Lønkørsel"
+            $scope.Title = "Redigér lønkørsel";
             FileGenerationSchedule.getWithEmailNotifications({ id: itemId }).$promise.then(function (res) {
                 $scope.FileGenerationSchedule = res;
 
-                $scope.FileGenerationSchedule.DateTimestamp = new Date(moment.unix($scope.FileGenerationSchedule.DateTimestamp).format("YYYY-MM-DD"));
-
+                $tempDate = new Date(moment.unix($scope.FileGenerationSchedule.DateTimestamp).format("YYYY-MM-DD"));
+                
                 angular.forEach($scope.FileGenerationSchedule.MailNotificationSchedules, function(mailnotif, key){
-                    mailnotif.DateTimestamp = new Date(moment.unix(mailnotif.DateTimestamp).format("YYYY-MM-DD"));
+                    $scope.MailsDates.push(new Date(moment.unix(mailnotif.DateTimestamp).format("YYYY-MM-DD")));
                 })
                 
 
@@ -52,7 +55,7 @@
             }
 
             $scope.payDateErrorMessage = "";
-            if ($scope.FileGenerationSchedule.DateTimestamp == undefined) {
+            if ($scope.tempDate == undefined) {
                 error = true;
                 $scope.payDateErrorMessage = "* Du skal vælge en gyldig lønkørselsdato.";
             }
@@ -65,10 +68,10 @@
             }
 
             angular.forEach($scope.FileGenerationSchedule.MailNotificationSchedules, function(mailnotif, key){
-                mailnotif.DateTimestamp = moment(mailnotif.DateTimestamp).unix();
+                mailnotif.DateTimestamp = moment($scope.MailsDates[$scope.FileGenerationSchedule.MailNotificationSchedules.indexOf(mailnotif)]).unix();
             })
 
-            $scope.FileGenerationSchedule.DateTimestamp = moment($scope.FileGenerationSchedule.DateTimestamp).unix();
+            $scope.FileGenerationSchedule.DateTimestamp = moment($scope.tempDate).unix();                    
             if (!error) {
                 $scope.ModalResult.FileGenerationSchedule = $scope.FileGenerationSchedule;
                 $modalInstance.close($scope.ModalResult);
@@ -86,7 +89,8 @@
         }
 
         $scope.AddMailNotificationSchedule = function(){
-            $scope.FileGenerationSchedule.MailNotificationSchedules.push({DateTimestamp: new Date(), CustomText:""});
+            $scope.FileGenerationSchedule.MailNotificationSchedules.push({DateTimestamp: 0 , CustomText:""});
+            $scope.MailsDates.push(new Date());
             $scope.ShowTextareaValues.push(false);         
         }
 

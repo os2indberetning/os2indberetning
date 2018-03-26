@@ -58,7 +58,8 @@
 
              if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
-                $scope.gridContainer.reportsGrid.dataSource.read();                
+                $scope.gridContainer.reportsGrid.dataSource.read(); 
+                $scope.showReport = true;               
             }else {
                 alert('Du mangler at udfylde et felt med en *');
             }       
@@ -76,7 +77,6 @@
 
         $scope.updateData = function (data) {
             if(data.value[0] != undefined && data.value[0] != null) {
-                $scope.showReport = true;                
                 result = data.value[0];
                 $scope.Name = result.Person.FullName;
                 $scope.LicensePlates = result.LicensePlate;
@@ -98,11 +98,7 @@
                     $scope.HomeAddressTown = "N/A"; 
                 }
             }
-            else {
-                // Report that the search returns no values
-                $scope.showReport = false;                
-                alert('Kunne ikke finde det du forespurgte');
-            }
+            
             reports = data;
         }
 

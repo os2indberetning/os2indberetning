@@ -110,7 +110,14 @@ namespace OS2Indberetning.Controllers
                     break;
                 case "godkender":
                     {
-
+                        if(CurrentUser.Employments.Any(em => em.IsLeader))
+                        {
+                            queryable = GetQueryable(queryOptions);
+                        }
+                        else
+                        {
+                            return Unauthorized();
+                        }
                     }
                     break;
                 case "mine":

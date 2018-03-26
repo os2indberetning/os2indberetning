@@ -246,6 +246,10 @@ namespace OS2Indberetning.Controllers
             return Ok(_licensePlateRepo.AsQueryable().Any(x => x.PersonId == key));
         }
 
+        /// <summary>
+        /// Gets all persons that for the logged in leader
+        /// </summary>
+        /// <returns></returns>
         [System.Web.Http.HttpGet]
         public IHttpActionResult GetEmployeesOfLeader()
         {
@@ -253,15 +257,15 @@ namespace OS2Indberetning.Controllers
             List<Person> employees = new List<Person>();
             if(CurrentUser.Employments.Where(e => e.IsLeader).Any())
             {   
-                var withDupes = new List<OrgUnit>();
+                var orgUnitsDupes = new List<OrgUnit>();
                 foreach (Employment e in CurrentUser.Employments.Where(e => e.IsLeader))
                 {
                     OrgUnit org = e.OrgUnit;
-                    withDupes.Add(org);
-                    withDupes.AddRange(recursiveMagic(org.Id));
+                    orgUnitsDupes.Add(org);
+                    orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
                 }
 
-                orgUnits = withDupes.Distinct().ToList();
+                orgUnits = orgUnitsDupes.Distinct().ToList();
                 var empDupes = new List<Person>();
                 foreach (var orgUni in orgUnits)
                 {
@@ -281,7 +285,12 @@ namespace OS2Indberetning.Controllers
             return Ok(employees);
         }
 
-        private List<OrgUnit> recursiveMagic(int orgUnitId)
+        /// <summary>
+        /// Find the children orgUnits based on the parent id
+        /// </summary>
+        /// <param name="orgUnitId"></param>
+        /// <returns></returns>
+        private List<OrgUnit> getChildrenOrgUnits(int orgUnitId)
         {
             List<OrgUnit> unitsToReturn = new List<OrgUnit>();
             List<OrgUnit> childrenFound = _orgUnitsRepo.AsQueryable().Where(org => org.ParentId == orgUnitId).ToList();
@@ -290,7 +299,7 @@ namespace OS2Indberetning.Controllers
                 foreach(var unit in childrenFound)
                 {
                     unitsToReturn.Add(unit);
-                    unitsToReturn.AddRange(recursiveMagic(unit.Id));
+                    unitsToReturn.AddRange(getChildrenOrgUnits(unit.Id));
                 }
             }
             return unitsToReturn;

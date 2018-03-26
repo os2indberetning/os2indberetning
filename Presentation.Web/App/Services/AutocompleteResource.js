@@ -240,7 +240,7 @@
                     read: {
                         url: function () {
 
-                            var req = "odata/Person/GetEmployeesOfLeader?";
+                            var req = "odata/Person/Service.GetEmployeesOfLeader?";
                             return req;
                         },
                         dataType: "json",

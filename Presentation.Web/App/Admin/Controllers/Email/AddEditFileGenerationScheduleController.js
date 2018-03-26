@@ -23,7 +23,7 @@
             FileGenerationSchedule.getWithEmailNotifications({ id: itemId }).$promise.then(function (res) {
                 $scope.FileGenerationSchedule = res;
 
-                $tempDate = new Date(moment.unix($scope.FileGenerationSchedule.DateTimestamp).format("YYYY-MM-DD"));
+                $scope.tempDate = new Date(moment.unix($scope.FileGenerationSchedule.DateTimestamp).format("YYYY-MM-DD"));
                 
                 angular.forEach($scope.FileGenerationSchedule.MailNotificationSchedules, function(mailnotif, key){
                     $scope.MailsDates.push(new Date(moment.unix(mailnotif.DateTimestamp).format("YYYY-MM-DD")));

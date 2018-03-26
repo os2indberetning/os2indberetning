@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Core.DomainModel;
 
 namespace Core.ApplicationServices.Interfaces
@@ -8,5 +9,6 @@ namespace Core.ApplicationServices.Interfaces
         IQueryable<Person> ScrubCprFromPersons(IQueryable<Person> queryable);
         PersonalAddress GetHomeAddress(Person person);
         Person AddHomeWorkDistanceToEmployments(Person person);
+        List<Person> GetEmployeesOfLeader(Person person);
     }
 }

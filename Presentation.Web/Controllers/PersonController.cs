@@ -253,56 +253,16 @@ namespace OS2Indberetning.Controllers
         [System.Web.Http.HttpGet]
         public IHttpActionResult GetEmployeesOfLeader()
         {
-            List<OrgUnit> orgUnits = new List<OrgUnit>();
             List<Person> employees = new List<Person>();
             if(CurrentUser.Employments.Where(e => e.IsLeader).Any())
-            {   
-                var orgUnitsDupes = new List<OrgUnit>();
-                foreach (Employment e in CurrentUser.Employments.Where(e => e.IsLeader))
-                {
-                    OrgUnit org = e.OrgUnit;
-                    orgUnitsDupes.Add(org);
-                    orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
-                }
-
-                orgUnits = orgUnitsDupes.Distinct().ToList();
-                var empDupes = new List<Person>();
-                foreach (var orgUni in orgUnits)
-                {
-                    var employments = _employmentRepo.AsQueryable().Where(e => e.OrgUnitId == orgUni.Id).ToList();
-                    foreach(var employment in employments)
-                    {
-                        empDupes.Add(employment.Person);
-                    }
-                }
-
-                employees = empDupes.Distinct().ToList();
+            {
+                employees = _person.GetEmployeesOfLeader(CurrentUser);               
             }
             else
             {
                 return Unauthorized();
             }
             return Ok(employees);
-        }
-
-        /// <summary>
-        /// Find the children orgUnits based on the parent id
-        /// </summary>
-        /// <param name="orgUnitId"></param>
-        /// <returns></returns>
-        private List<OrgUnit> getChildrenOrgUnits(int orgUnitId)
-        {
-            List<OrgUnit> unitsToReturn = new List<OrgUnit>();
-            List<OrgUnit> childrenFound = _orgUnitsRepo.AsQueryable().Where(org => org.ParentId == orgUnitId).ToList();
-            if(childrenFound != null && childrenFound.Count > 0)
-            {
-                foreach(var unit in childrenFound)
-                {
-                    unitsToReturn.Add(unit);
-                    unitsToReturn.AddRange(getChildrenOrgUnits(unit.Id));
-                }
-            }
-            return unitsToReturn;
-        }
+        }        
     }
 }

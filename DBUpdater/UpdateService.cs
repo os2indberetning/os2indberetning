@@ -503,7 +503,7 @@ namespace DBUpdater
                     Console.WriteLine("Updating leaders on report " + i + " of " + max);
                 }
                 i++;
-                report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                report.ResponsibleLeaders = _driveService.GetResponsibleLeadersForReport(report);
                 report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
                 if (i % 1000 == 0)
                 {
@@ -547,7 +547,7 @@ namespace DBUpdater
                 {
                     i++;
                     Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
-                    report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                    report.ResponsibleLeaders = _driveService.GetResponsibleLeadersForReport(report);
                     report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
                     if (i % 100 == 0)
                     {

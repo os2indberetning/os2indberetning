@@ -120,7 +120,7 @@ namespace Core.ApplicationServices
                     reports.AddRange(reportsForLeadersOfImmediateChildOrgs);
                     foreach (var report in reports)
                     {
-                        report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                        report.ResponsibleLeaders = _driveService.GetResponsibleLeadersForReport(report);
                     }
                     _driveRepo.Save();
                 }
@@ -131,7 +131,7 @@ namespace Core.ApplicationServices
                     var reports2 = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
                     foreach (var report in reports2)
                     {
-                        report.ResponsibleLeaderId = sub.SubId;
+                        report.ResponsibleLeaders.Add(sub.Person);
                     }
                     _driveRepo.Save();
                 }

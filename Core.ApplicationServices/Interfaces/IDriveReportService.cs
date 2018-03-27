@@ -15,7 +15,7 @@ namespace Core.ApplicationServices.Interfaces
 
         void CalculateFourKmRuleForOtherReports(DriveReport report);
 
-        Person GetResponsibleLeaderForReport(DriveReport driveReport);
+        List<Person> GetResponsibleLeadersForReport(DriveReport driveReport);
         Person GetActualLeaderForReport(DriveReport driveReport);
         bool Validate(DriveReport report);
 

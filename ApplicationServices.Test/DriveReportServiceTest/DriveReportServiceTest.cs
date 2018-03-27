@@ -188,8 +188,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             };
 
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("Test Testesen [TT]", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Test Testesen [TT]", res[0].FullName);
         }
 
         [Test]
@@ -283,8 +283,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
            };
 
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("En Substitute [ES]", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("En Substitute [ES]", res[0].FullName);
         }
 
         [Test]
@@ -436,12 +436,12 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             };
 
 
-            var res0 = _uut.GetResponsibleLeaderForReport(report.AsQueryable().ElementAt(0));
-            var res1 = _uut.GetResponsibleLeaderForReport(report.AsQueryable().ElementAt(1));
-            var res2 = _uut.GetResponsibleLeaderForReport(report.AsQueryable().ElementAt(2));
-            Assert.AreEqual("En Substitute [ES]", res0.FullName);
-            Assert.AreEqual("En Substitute [ES]", res1.FullName);
-            Assert.AreEqual("Test Tester [TT]", res2.FullName);
+            var res0 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(0));
+            var res1 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(1));
+            var res2 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(2));
+            Assert.AreEqual("En Substitute [ES]", res0[0].FullName);
+            Assert.AreEqual("En Substitute [ES]", res1[0].FullName);
+            Assert.AreEqual("Test Tester [TT]", res2[0].FullName);
         }
 
         [Test]

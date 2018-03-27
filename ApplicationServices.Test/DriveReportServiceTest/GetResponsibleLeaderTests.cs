@@ -167,8 +167,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 },
             }.AsQueryable());
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("Eva Due", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Eva Due", res[0].FullName);
         }
 
         [Test]
@@ -282,8 +282,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 },
             }.AsQueryable());
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("Heidi Huber", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Heidi Huber", res[0].FullName);
         }
 
         [Test]
@@ -392,8 +392,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 },
             }.AsQueryable());
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("Heidi Huber Approves", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Heidi Huber Approves", res[0].FullName);
         }
 
         [Test]
@@ -528,8 +528,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 },
             }.AsQueryable());
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("Heidi Huber Approves", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Heidi Huber Approves", res[0].FullName);
         }
 
 

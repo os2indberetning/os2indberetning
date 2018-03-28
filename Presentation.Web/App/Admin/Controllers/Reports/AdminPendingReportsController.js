@@ -244,9 +244,14 @@
                    field: "ResponsibleLeaders",
                    template: function(data) {
                     result = "";   
-                        angular.forEach(data, function(leader){
-                            if (data.ResponsibleLeader != 0 && data.ResponsibleLeader != null && data.ResponsibleLeader != undefined) {
-                                result += data.ResponsibleLeader.FullName + ", ";
+                        angular.forEach(data.ResponsibleLeaders, function(leader, key){
+                            if (leader != 0 && leader != null && leader != undefined) {
+                                if (key != data.ResponsibleLeaders.length - 1) {
+                                    result += leader.FullName + ", <br> ";
+                                } else {
+                                    result += leader.FullName;
+                                }
+                                
                            }        
                         })
                     return result;

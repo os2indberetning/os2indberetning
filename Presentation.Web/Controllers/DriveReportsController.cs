@@ -32,8 +32,6 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<LicensePlate> _LicensePlateRepo;
 
 
-
-
         public DriveReportsController(IGenericRepository<BankAccount> Bankrepo, IGenericRepository<OrgUnit> orgrepo, IGenericRepository<DriveReport> repo, IDriveReportService driveService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo)
             : base(repo, personRepo)
         {
@@ -58,7 +56,7 @@ namespace OS2Indberetning.Controllers
         /// <param name="getReportsWhereSubExists"></param>
         /// <returns>DriveReports</returns>
         [EnableQuery]
-        public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
+        public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string from = "", string status = "", int leaderId = 0, bool getReportsWhereSubExists = false)
         {
             IQueryable<DriveReport> queryable = null;
             try
@@ -81,6 +79,14 @@ namespace OS2Indberetning.Controllers
                         queryable = queryable.Where(dr => dr.Status == reportStatus);
                     }
 
+                    switch (from)
+                    {
+                        case "approve":
+                                queryable = queryable.Where(dr => dr.ResponsibleLeaders.Any(p => p.Id == CurrentUser.Id));
+                            break;
+                        default:
+                            break;
+                    }
                 }
             }
             catch (Exception ex)

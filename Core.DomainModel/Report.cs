@@ -29,7 +29,12 @@ namespace Core.DomainModel
         public virtual Person Person { get; set; }
         public int EmploymentId { get; set; }
         public virtual Employment Employment { get; set; }
-        public virtual ICollection<Person> ResponsibleLeaders { get; set; }
+
+        public virtual ICollection<Person> ResponsibleLeaders
+        {
+            get;
+            set;
+        }
         public int? ActualLeaderId { get; set; }
         public virtual Person ActualLeader { get; set; }
 
@@ -41,6 +46,25 @@ namespace Core.DomainModel
         public bool IsPersonResponsible(int personId)
         {
             return ResponsibleLeaders.Select(p => p.Id).Contains(personId);
+        }
+
+        public void UpdateResponsibleLeaders(ICollection<Person> newlist)
+        {
+            foreach (var person in ResponsibleLeaders.ToList())
+            {
+                if (!newlist.Any(p => p.Id == person.Id))
+                {
+                    ResponsibleLeaders.Remove(person);
+                }
+            }
+
+            foreach (var person in newlist)
+            {
+                if (!ResponsibleLeaders.Any(p => p.Id == person.Id))
+                {
+                    ResponsibleLeaders.Add(person);
+                }
+            }
         }
     }
 }

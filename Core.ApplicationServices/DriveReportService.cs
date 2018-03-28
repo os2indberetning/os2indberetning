@@ -128,7 +128,7 @@ namespace Core.ApplicationServices
             report.AmountToReimburse = Convert.ToDouble(report.AmountToReimburse.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
 
             var createdReport = _driveReportRepository.Insert(report);
-            createdReport.ResponsibleLeaders = GetResponsibleLeadersForReport(report);
+            createdReport.UpdateResponsibleLeaders(GetResponsibleLeadersForReport(report));
             createdReport.ActualLeaderId = GetActualLeaderForReport(report).Id;
 
             if (report.Status == ReportStatus.Rejected)
@@ -354,7 +354,8 @@ namespace Core.ApplicationServices
             }
 
             var leader = leaderOfOrgUnit.Person;
-            responsibleLeaders.Add(leaderOfOrgUnit.Person);
+            if(!responsibleLeaders.Contains(leader))
+                responsibleLeaders.Add(leaderOfOrgUnit.Person);
 
             // Recursively look for substitutes in child orgs, up to the org of the actual leader.
             // Say the actual leader is leader of orgunit 1 with children 2 and 3. Child 2 has another child 4.
@@ -376,7 +377,8 @@ namespace Core.ApplicationServices
                             // This is a hack fix for a weird bug that happens, where sometimes the Sub navigation property on a Substitute is null, even though the SubId is not.
                             sub.Sub = _employmentRepository.AsQueryable().FirstOrDefault(x => x.PersonId == sub.SubId).Person;
                         }
-                        responsibleLeaders.Add(sub.Sub);
+                        if (!responsibleLeaders.Contains(sub.Sub))
+                            responsibleLeaders.Add(sub.Sub);
                     }                    
                     loopHasFinished = true;
                 }
@@ -447,7 +449,11 @@ namespace Core.ApplicationServices
                 // This statement will be hit when all orgunits up to (not including) level 0 have been checked for a leader. 
                 // If no actual leader has been found then return the reponsibleleader.
                 // This will happen when members of orgunit 0 try to create a report, as orgunit 0 has no leaders and they are all handled by a substitute.
-                return GetResponsibleLeaderForReport(driveReport);
+                var leaders = GetResponsibleLeadersForReport(driveReport);
+                if (leaders != null && leaders.Count > 0)
+                    return GetResponsibleLeadersForReport(driveReport).FirstOrDefault();
+                else
+                    return null;
             }
 
             return leaderOfOrgUnit.Person;

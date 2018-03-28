@@ -8,19 +8,20 @@ namespace Infrastructure.DataAccess.Migrations
         public override void Up()
         {
             DropForeignKey("Reports", "ResponsibleLeaderId", "People");
-            DropForeignKey("Reports", "Person_Id", "People");
-            DropIndex("Reports", new[] { "Person_Id" });
+            //DropForeignKey("Reports", "Person_Id", "People");
+            //DropIndex("Reports", new[] { "Person_Id" });
             DropIndex("Reports", new[] { "ResponsibleLeaderId" });
-            DropColumn("Reports", "Person_Id");
+            //DropColumn("Reports", "Person_Id");
 
             CreateTable(
                 "ReportPersonMapping",
                 c => new
                     {
+                        Id = c.Int(identity: true),
                         ReportId = c.Int(nullable: false),
                         PersonId = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => new { t.ReportId, t.PersonId })                
+                .PrimaryKey(t => new { t.Id, t.ReportId, t.PersonId })                
                 .ForeignKey("Reports", t => t.ReportId, cascadeDelete: true)
                 .ForeignKey("People", t => t.PersonId, cascadeDelete: true)
                 .Index(t => t.ReportId)

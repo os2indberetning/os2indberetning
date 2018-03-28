@@ -38,7 +38,7 @@
                        beforeSend: function (req) {
                            req.setRequestHeader('Accept', 'application/json;odata=fullmetadata');
                        },
-                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit) &$filter=PersonId eq " + personId,
+                       url: "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeaders,Employment($expand=OrgUnit) &$filter=PersonId eq " + personId,
                        dataType: "json",
                        cache: false
                    },
@@ -182,12 +182,20 @@
                    title: "Indberettet"
                }, {
                    title: "Godkender",
-                   field: "ResponsibleLeader.FullName",
+                   field: "ResponsibleLeaders",
                    template: function(data) {
-                       if (data.ResponsibleLeader != 0 && data.ResponsibleLeader != null && data.ResponsibleLeader != undefined) {
-                            return data.ResponsibleLeader.FullName;
-                       }
-                       return "";
+                    result = "";   
+                        angular.forEach(data.ResponsibleLeaders, function(leader, key){
+                            if (leader != 0 && leader != null && leader != undefined) {
+                                if (key != data.ResponsibleLeaders.length - 1) {
+                                    result += leader.FullName + ", <br> ";
+                                } else {
+                                    result += leader.FullName;
+                                }
+                                
+                           }        
+                        })
+                    return result;
                    }
                }, {
                    field: "Id",
@@ -279,7 +287,7 @@
        }
 
        var getDataUrl = function (from, to) {
-           var url = "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit)";
+           var url = "/odata/DriveReports?status=Pending &$expand=DriveReportPoints,ResponsibleLeaders,Employment($expand=OrgUnit)";
            var filters = "&$filter=PersonId eq " + personId + " and DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            var result = url + filters;
            return result;

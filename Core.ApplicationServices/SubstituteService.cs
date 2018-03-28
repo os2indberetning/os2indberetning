@@ -7,6 +7,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using System.Threading;
 using Ninject;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
 {
@@ -16,6 +17,7 @@ namespace Core.ApplicationServices
         private readonly IOrgUnitService _orgService;
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<DriveReport> _driveRepo;
+
 
         public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService, IDriveReportService driveService, IGenericRepository<DriveReport> driveRepo)
         {
@@ -120,7 +122,7 @@ namespace Core.ApplicationServices
                     reports.AddRange(reportsForLeadersOfImmediateChildOrgs);
                     foreach (var report in reports)
                     {
-                        report.ResponsibleLeaders = _driveService.GetResponsibleLeadersForReport(report);
+                        report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
                     }
                     _driveRepo.Save();
                 }
@@ -135,6 +137,6 @@ namespace Core.ApplicationServices
                     }
                     _driveRepo.Save();
                 }
-        }
+        }        
     }
 }

@@ -13,7 +13,7 @@ namespace Infrastructure.DataAccess.Migrations
         
         string IMigrationMetadata.Id
         {
-            get { return "201803271208145_MultipleResponsibleLeadersForReport"; }
+            get { return "201803280639268_MultipleResponsibleLeadersForReport"; }
         }
         
         string IMigrationMetadata.Source

@@ -14,5 +14,6 @@ namespace Core.ApplicationServices.Interfaces
         long GetStartOfDayTimestamp(long timestamp);
         bool CheckIfNewSubIsAllowed(Substitute newSub);
         void UpdateReportsAffectedBySubstitute(Substitute sub);
+        void UpdateResponsibleLeadersDaily();
     }
 }

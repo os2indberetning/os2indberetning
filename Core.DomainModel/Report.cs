@@ -50,6 +50,9 @@ namespace Core.DomainModel
 
         public void UpdateResponsibleLeaders(ICollection<Person> newlist)
         {
+            if (ResponsibleLeaders == null)
+                ResponsibleLeaders = new List<Person>();
+
             foreach (var person in ResponsibleLeaders.ToList())
             {
                 if (!newlist.Any(p => p.Id == person.Id))
@@ -62,6 +65,18 @@ namespace Core.DomainModel
             {
                 if (!ResponsibleLeaders.Any(p => p.Id == person.Id))
                 {
+                    //var personToAdd = new Person
+                    //{
+                    //    Id = person.Id,                  
+                    //    FirstName = person.FirstName,
+                    //    LastName = person.LastName,
+                    //    CprNumber = person.CprNumber,
+                    //    IsActive = person.IsActive,
+                    //    FullName = person.FullName,
+                    //    Mail = person.Mail,
+                    //    RecieveMail = person.RecieveMail,
+                    //    Initials = person.Initials
+                    //};
                     ResponsibleLeaders.Add(person);
                 }
             }

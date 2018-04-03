@@ -8,6 +8,7 @@ using Core.DomainServices;
 using System.Threading;
 using Ninject;
 using Core.DomainServices.Interfaces;
+using Core.ApplicationServices.Logger;
 
 namespace Core.ApplicationServices
 {
@@ -17,14 +18,16 @@ namespace Core.ApplicationServices
         private readonly IOrgUnitService _orgService;
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<DriveReport> _driveRepo;
+        private readonly ILogger _logger;
 
 
-        public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService, IDriveReportService driveService, IGenericRepository<DriveReport> driveRepo)
+        public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService, IDriveReportService driveService, IGenericRepository<DriveReport> driveRepo, ILogger logger)
         {
             _subRepo = subRepo;
             _orgService = orgService;
             _driveService = driveService;
             _driveRepo = driveRepo;
+            _logger = logger;
         }
 
         /// <summary>
@@ -80,15 +83,15 @@ namespace Core.ApplicationServices
             // newSub is a substitute
             if (newSub.PersonId.Equals(newSub.LeaderId))
             {
-                //if (_subRepo.AsQueryable().Any(x => x.OrgUnitId.Equals(newSub.OrgUnitId) &&
-                //    // Id has to be different. Otherwise it will return true when trying to patch a sub
-                //    // Because a substitute already exists in the period, however that is the same sub we are trying to change.
-                //    x.Id != newSub.Id &&
-                //    ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
-                //    (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
-                //{
-                //    return false;
-                //}
+                if (_subRepo.AsQueryable().Any(x => x.OrgUnitId.Equals(newSub.OrgUnitId) &&
+                    // Id has to be different. Otherwise it will return true when trying to patch a sub
+                    // Because a substitute already exists in the period, however that is the same sub we are trying to change.
+                    x.PersonId == newSub.PersonId && x.SubId == newSub.SubId &&
+                    ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
+                    (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
+                {
+                    return false;
+                }
                 return true;
             }
             // newSub is a personal approver
@@ -137,6 +140,25 @@ namespace Core.ApplicationServices
                     }
                     _driveRepo.Save();
                 }
-        }        
+        }    
+        
+        public void UpdateResponsibleLeadersDaily()
+        {
+            try
+            {
+                var reports = _driveRepo.AsQueryable().Where(dr => dr.Status == ReportStatus.Pending).ToList();
+                foreach (var report in reports)
+                {
+                    report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
+                }
+                _driveRepo.Save();
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{this.GetType().Name}, Error updating the responsible leaders for all pending drive reports", e);
+                throw;
+            }
+            
+        }
     }
 }

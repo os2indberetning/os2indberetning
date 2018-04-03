@@ -283,7 +283,9 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             }.AsQueryable());
 
             var res = _uut.GetResponsibleLeadersForReport(report);
-            Assert.AreEqual("Heidi Huber", res[0].FullName);
+            Assert.AreEqual("Eva Due", res[0].FullName);
+            Assert.AreEqual("Heidi Huber", res[1].FullName);
+
         }
 
         [Test]
@@ -302,6 +304,11 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                     {
                         Id = 1,
                     },
+                    OrgUnit = new OrgUnit()
+                    {
+                        Id = 1,
+                    },
+                    OrgUnitId = 1,
                     PersonId = 1,
                     LeaderId = 2,
                     Leader = new Person()

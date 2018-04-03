@@ -310,7 +310,10 @@ namespace Core.ApplicationServices
             {
                 foreach (var substitute in personalApprovers)
                 {
-                    responsibleLeaders.Add(substitute.Person);
+                    // There must be only one responsible leaders
+                    // Add the personal approver to the list and return the collection
+                    responsibleLeaders.Add(substitute.Sub);
+                    return responsibleLeaders;
                 }
             }
 

@@ -9,6 +9,8 @@ using NSubstitute;
 using NUnit.Framework;
 using Core.DomainServices;
 using Core.DomainServices.Interfaces;
+using Core.ApplicationServices.Interfaces;
+
 using System.Collections.Generic;
 
 namespace ConsoleApplications.Test
@@ -36,6 +38,7 @@ namespace ConsoleApplications.Test
             var customText2 = "";
             var datetimeNoMilisec = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
             var mailSub = NSubstitute.Substitute.For<IMailService>();
+            var substituteSub = NSubstitute.Substitute.For<ISubstituteService>();
             var notification1 = repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
@@ -51,7 +54,7 @@ namespace ConsoleApplications.Test
                 CustomText = customText2
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock,_logger, _customSettings);
+            var uut = new ConsoleMailerService(mailSub, substituteSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.Received().SendMails(datetimeNoMilisec, customText1);
             mailSub.DidNotReceive().SendMails(datetimeNoMilisec, customText2);
@@ -66,6 +69,7 @@ namespace ConsoleApplications.Test
             var customText2 = "";
             var datetimeNoMilisec = new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, DateTime.Now.Hour, DateTime.Now.Minute, DateTime.Now.Second);
             var mailSub = NSubstitute.Substitute.For<IMailService>();
+            var substituteSub = NSubstitute.Substitute.For<ISubstituteService>();
 
             repoMock.noti1 = new MailNotificationSchedule()
             {
@@ -82,7 +86,7 @@ namespace ConsoleApplications.Test
                 CustomText = customText2
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
+            var uut = new ConsoleMailerService(mailSub, substituteSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.Received().SendMails(datetimeNoMilisec, customText1);
             mailSub.Received().SendMails(datetimeNoMilisec, customText2);
@@ -92,6 +96,8 @@ namespace ConsoleApplications.Test
         public void RunMailService_NoNotificationsForToday_ShouldNotCall_SendMails()
         {
             var mailSub = NSubstitute.Substitute.For<IMailService>();
+            var substituteSub = NSubstitute.Substitute.For<ISubstituteService>();
+
             repoMock.noti1 = new MailNotificationSchedule()
             {
                 Id = 1,
@@ -105,7 +111,7 @@ namespace ConsoleApplications.Test
                 FileGenerationSchedule = new FileGenerationSchedule { DateTimestamp = Utilities.ToUnixTime(DateTime.Now) }
             };
             repoMock.ReSeed();
-            var uut = new ConsoleMailerService(mailSub, repoMock, _logger, _customSettings);
+            var uut = new ConsoleMailerService(mailSub, substituteSub, repoMock, _logger, _customSettings);
             uut.RunMailService();
             mailSub.DidNotReceive().SendMails(new DateTime(), "");
         }

@@ -44,7 +44,7 @@
 
             var commentToolTip = "";
             if(comment != "Ingen kommentar angivet" && comment != "Ingen kommentar indtastet"){
-                commentToolTip =  "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'" + comment + "'\"><i class=\"fa fa-2x fa-comment-o\"></i></div>";
+                commentToolTip =  "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'" + kendo.htmlEncode(comment.replace(/(?:\r\n|\r|\n)/g, '<br />')) + "'\"><i class=\"fa fa-2x fa-comment-o\"></i></div>";
             }
 
             if (data.IsFromApp) {

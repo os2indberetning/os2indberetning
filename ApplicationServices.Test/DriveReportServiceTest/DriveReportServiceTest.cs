@@ -937,11 +937,13 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             var delta = new Delta<DriveReport>(typeof(DriveReport));
             delta.TrySetPropertyValue("Status", ReportStatus.Rejected);
             delta.TrySetPropertyValue("Comment", comment);
+            var datetimestampNow = Utilities.ToUnixTime(DateTime.Now);
 
             repoList.Add(new DriveReport
             {
                 Id = 1,
                 Status = ReportStatus.Pending,
+                CreatedDateTimestamp = datetimestampNow,
                 Person = new Person
                 {
                     Mail = "test@mail.dk",
@@ -950,7 +952,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             });
 
             _uut.SendMailForRejectedReport(1, delta);
-            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning, oprettet den 01-01-1970 01:00:00, er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
+            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning, oprettet den "+ Utilities.FromUnixTime(datetimestampNow) +", er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
         }
 
         [Test]

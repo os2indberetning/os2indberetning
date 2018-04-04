@@ -2,6 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>DBUpdater</id>
+    <authors>Miracle A/S</authors>
     <title>OS2 Indberetning - DBUpdater</title>
     <version>$version$</version>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

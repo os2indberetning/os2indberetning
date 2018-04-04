@@ -2,6 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>FileGenerationScheduler</id>
+    <authors>Miracle A/S</authors>
     <title>OS2 Indberetning - FileGenerationScheduler</title>
     <version>$version$</version>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>

@@ -950,7 +950,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             });
 
             _uut.SendMailForRejectedReport(1, delta);
-            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
+            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning, oprettet den 01-01-1970 01:00:00, er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
         }
 
         [Test]

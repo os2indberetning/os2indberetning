@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Core.DomainServices.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
@@ -10,6 +11,12 @@ namespace Core.ApplicationServices.FileGenerator
     {
         private readonly string _filePathName = GetSetting("PROTECTED_KMDFilePath") + @"\" + GetSetting("PROTECTED_KMDFileName");
         private readonly string _backupFilePathName = GetSetting("PROTECTED_KMDBackupFilePath") + @"\" + DateTime.Now.ToString("yyyyMMdd-hhmmss");
+        private ICustomSettings _customSettings;
+
+        public ReportFileWriter(ICustomSettings customSettings)
+        {
+            _customSettings = customSettings;
+        }
 
         public bool WriteRecordsToFile(ICollection<FileRecord> recordList)
         {

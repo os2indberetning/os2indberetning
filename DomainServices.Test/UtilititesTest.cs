@@ -15,7 +15,7 @@ namespace DomainServices.Test
         public void TestToUnixTime_NoDaylightSavings()
         {
             // Arrange
-            var datetime = new DateTime(2018, 2, 15, 12, 00, 00);
+            var datetime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(2018, 2, 15, 11, 00, 00), TimeZoneInfo.Local);
             var expectedUnixTimestamp = 1518692400;
 
             // Act
@@ -31,7 +31,7 @@ namespace DomainServices.Test
         public void TestToUnixTime_DaylightSavings()
         {
             // Arrange
-            var datetime = new DateTime(2018, 7, 15, 12, 00, 00);
+            var datetime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(2018, 7, 15, 10, 00, 00), TimeZoneInfo.Local);
             var expectedUnixTimestamp = 1531648800;
 
             // Act
@@ -46,7 +46,7 @@ namespace DomainServices.Test
         {
             // Arrange
             var unixTimestamp = 1518692400;
-            var expectedDatetime = new DateTime(2018, 2, 15, 12, 00, 00);
+            var expectedDatetime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(2018, 2, 15, 11, 00, 00), TimeZoneInfo.Local);
 
             // Act
             var result = Utilities.FromUnixTime(unixTimestamp);
@@ -60,7 +60,7 @@ namespace DomainServices.Test
         {
             // Arrange
             var unixTimestamp = 1531648800;
-            var expectedDatetime = new DateTime(2018, 7, 15, 12, 00, 00);
+            var expectedDatetime = TimeZoneInfo.ConvertTimeFromUtc(new DateTime(2018, 7, 15, 10, 00, 00), TimeZoneInfo.Local);
 
             // Act
             var result = Utilities.FromUnixTime(unixTimestamp);

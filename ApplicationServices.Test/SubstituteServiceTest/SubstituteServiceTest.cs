@@ -39,7 +39,6 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             _orgUnitMock = NSubstitute.Substitute.For<IGenericRepository<OrgUnit>>();
             _driveService = NSubstitute.Substitute.For<IDriveReportService>();
 
-
             _repo = new List<Substitute>
             {
                 new Substitute()
@@ -226,13 +225,26 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                     EmploymentId = userEmpl2.Id,
                     PersonId = user2.Id,
                     Person = user2,
+                },
+                new DriveReport()
+                {
+                    Id = 5,
+                    Employment = leaderEmpl1,
+                    EmploymentId = leaderEmpl1.Id,
+                    PersonId = 1
+                },
+                new DriveReport()
+                {
+                    Id = 6,
+                    Employment = leaderEmpl2,
+                    EmploymentId = leaderEmpl2.Id,
+                    PersonId = 3
                 }
             };
 
             _driveRepo.AsQueryable().ReturnsForAnyArgs(reports.AsQueryable());
 
             _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
-
         }
 
         [Test]
@@ -840,39 +852,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
-
-        [Test]
-        public void UpdateResponsibleLeadersDaily_CalledForAllSubs()
-        {
-            _repo = new List<Substitute>()
-            {
-                new Substitute()
-                {
-                    StartDateTimestamp = 1432166400,
-                    EndDateTimestamp = 1432339200,
-                    PersonId = 1,
-                    LeaderId = 3,
-                    SubId = 2,
-                    Sub = new Person{ Id = 2},
-                    OrgUnitId = 12
-                },
-
-                new Substitute()
-                {
-                    StartDateTimestamp = 1432166400,
-                    EndDateTimestamp = 1432339200,
-                    PersonId = 1,
-                    OrgUnitId = 12,
-                    LeaderId = 1,
-                    SubId = 2,
-                    Sub = new Person{ Id = 2},
-                }
-            };
-            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-
-            _uut.UpdateResponsibleLeadersDaily();
-        }
-
+        
         [Test]
         public void UpdateReportsAffectedBySubstitute_PersonalApproverUser1()
         {
@@ -897,45 +877,14 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
 
             _uut.UpdateReportsAffectedBySubstitute(_repoMock.AsQueryable().ToList()[0]);
-            _driveService.DidNotReceiveWithAnyArgs().GetResponsibleLeadersForReport(null);
-            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders.Count);
-            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders.Count);
-            Assert.AreEqual(4, _driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders.ToList()[0].Id);
-            Assert.AreEqual(4, _driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders.ToList()[0].Id);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders);
-        }
 
-        [Test]
-        public void UpdateReportsAffectedBySubstitute_PersonalApproverExpired()
-        {
-            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
-            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
-            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
-            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
-
-            _repo = new List<Substitute>()
-            {
-                new Substitute()
-                {
-                    StartDateTimestamp = weekAgoUnix,
-                    EndDateTimestamp = yesterdayUnix,
-                    PersonId = 2,
-                    LeaderId = 1,
-                    SubId = 4,
-                    Sub = new Person{ Id = 4},
-                    OrgUnitId = 1
-                }
-            };
-            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-
-            _uut.UpdateReportsAffectedBySubstitute(_repoMock.AsQueryable().ToList()[0]);
-
-            _driveService.DidNotReceiveWithAnyArgs().GetResponsibleLeadersForReport(null);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders);
+            // Asserts
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[4]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[5]);
         }
 
         [Test]
@@ -966,8 +915,10 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             // Asserts
             _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
             _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[5]);
             _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
             _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[4]);
         }
 
         [Test]
@@ -998,8 +949,10 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             // Asserts
             _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
             _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[4]);
             _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
             _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[5]);
         }
 
         [Test]
@@ -1030,7 +983,6 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                     LeaderId = 3,
                     SubId = 2,
                     Sub = new Person{ Id = 2},
-                    OrgUnitId = 2
                 }
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
@@ -1040,15 +992,10 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             // Asserts
             _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
             _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
-            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
-            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
-
-            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders.Count);
-            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders.Count);
-            Assert.AreEqual(2, _driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders.ToList()[0].Id);
-            Assert.AreEqual(2, _driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders.ToList()[0].Id);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders);
-            Assert.IsNull(_driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[4]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[5]);
         }
     }
 }

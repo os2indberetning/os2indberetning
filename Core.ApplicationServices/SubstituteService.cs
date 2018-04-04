@@ -135,11 +135,9 @@ namespace Core.ApplicationServices
                     // Substitute is a personal approver
                     // Select reports to be updated based on PersonId on report
                     var reports = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
-                    var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Today);
                     foreach (var report in reports)
                     {
-                        if(sub.StartDateTimestamp < currentDateTimestamp && currentDateTimestamp < sub.EndDateTimestamp)
-                            report.UpdateResponsibleLeaders(new List<Person>{ sub.Sub });
+                        report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
                     }
                     _driveRepo.Save();
                 }

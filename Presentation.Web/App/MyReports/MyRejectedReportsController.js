@@ -187,7 +187,7 @@ angular.module("application").controller("MyRejectedReportsController", [
                   field: "ApprovedBy.FullName",
                   title: "Afvist af",
                   template: function (data) {
-                      return data.ApprovedBy.FullName + "<div kendo-tooltip k-content=\"'" + data.Comment + "'\"><i class='fa fa-comment-o'></i></div>";
+                      return data.ApprovedBy.FullName + "<div kendo-tooltip k-content=\"'" + kendo.htmlEncode(data.Comment.replace(/(?:\r\n|\r|\n)/g, '<br />')) + "'\"><i class='fa fa-comment-o'></i></div>";
                   }
               }, {
                    field: "Id",

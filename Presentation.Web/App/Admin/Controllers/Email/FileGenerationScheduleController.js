@@ -44,7 +44,7 @@
                 },
                 pageSize: 20,
                 serverPaging: false,
-                serverSorting: true,
+                serverSorting: true
             },
             sortable: true,
             pageable: {
@@ -97,7 +97,6 @@
                     title: "Emailadvis sendt",
                     template: function (data) {
                         if (data.MailNotificationSchedules.length > 0){
-                            console.log(moment().unix());
                             if(data.MailNotificationSchedules[0].DateTimestamp < moment().unix()) {
                                 return "<i class='fa fa-check'></i>";
                             }
@@ -108,9 +107,9 @@
                 {
                     field: "Id",
                     template: "<a ng-click=editClick(${Id})>Redigér</a> | <a ng-click=deleteClick(${Id})>Slet</a>",
-                    title: "Muligheder",
+                    title: "Muligheder"
                 }
-            ],
+            ]
         };
 
         $scope.updateNotificationGrid = function () {

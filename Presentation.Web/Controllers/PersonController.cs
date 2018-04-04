@@ -25,10 +25,11 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<LicensePlate> _licensePlateRepo = new GenericRepository<LicensePlate>(new DataContext());
         private readonly IGenericRepository<Substitute> _substituteRepo;
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
+        private readonly IGenericRepository<OrgUnit> _orgUnitsRepo;
         private readonly ILogger _logger;
 
        
-        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, ILogger log)
+        public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, IGenericRepository<OrgUnit> orgUnitRepo, ILogger log)
             : base(repo, repo)
         {
             _person = personService;
@@ -36,6 +37,7 @@ namespace OS2Indberetning.Controllers
             _licensePlateRepo = licensePlateRepo;
             _substituteRepo = substituteRepo;
             _appLoginRepo = appLoginRepo;
+            _orgUnitsRepo = orgUnitRepo;
             _logger = log;
         }
 
@@ -243,5 +245,24 @@ namespace OS2Indberetning.Controllers
         {
             return Ok(_licensePlateRepo.AsQueryable().Any(x => x.PersonId == key));
         }
+
+        /// <summary>
+        /// Gets all persons that for the logged in leader
+        /// </summary>
+        /// <returns></returns>
+        [System.Web.Http.HttpGet]
+        public IHttpActionResult GetEmployeesOfLeader()
+        {
+            List<Person> employees = new List<Person>();
+            if(CurrentUser.Employments.Where(e => e.IsLeader).Any())
+            {
+                employees = _person.GetEmployeesOfLeader(CurrentUser);               
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            return Ok(employees);
+        }        
     }
 }

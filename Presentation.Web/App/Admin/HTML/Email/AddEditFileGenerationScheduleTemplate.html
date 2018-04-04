@@ -17,7 +17,7 @@
             <div class="row">
                 <label class="col-md-6">Lønkørselsdato</label>
                 <div class="col-md-4">
-                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.DateTimestamp" />
+                    <input class="margin-5" kendo-datepicker k-options="dateOptions" k-ng-model="tempDate" />
                 </div>
             </div>
             <div class="row">
@@ -36,7 +36,7 @@
                         <label class="margin-5">Emailadvis {{$index + 1}}</label>
                     </div>
                     <div class="col-md-5">
-                        <input kendo-datepicker k-options="dateOptions" k-ng-model="FileGenerationSchedule.MailNotificationSchedules[$index].DateTimestamp" />
+                        <input kendo-datepicker k-options="dateOptions" k-ng-model="MailsDates[$index]" />
                     </div>
                     <div class="col-md-2">
                         <button class="btn btn-default pull-right margin-1" ng-enter="" ng-click="RemoveMailNotificationSchedule($index)">Slet</button>

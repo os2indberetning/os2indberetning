@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using OS2Indberetning.Models;
 using OS2Indberetning.Filters;
+using System.Globalization;
 
 namespace OS2Indberetning.Controllers
 {
@@ -89,6 +90,45 @@ namespace OS2Indberetning.Controllers
             return Ok(queryable);
         }
 
+        [EnableQuery]
+        public IHttpActionResult Get(ODataQueryOptions<DriveReport> queryOptions, string queryType)
+        {
+            IQueryable<DriveReport> queryable = null;
+            switch (queryType)
+            {
+                case "admin":
+                    {
+                        if (CurrentUser.IsAdmin)
+                        {
+                            queryable = GetQueryable(queryOptions);
+                        }
+                        else
+                        {
+                            return Unauthorized();
+                        }
+                    }
+                    break;
+                case "godkender":
+                    {
+                        if(CurrentUser.Employments.Any(em => em.IsLeader))
+                        {
+                            queryable = GetQueryable(queryOptions);
+                        }
+                        else
+                        {
+                            return Unauthorized();
+                        }
+                    }
+                    break;
+                case "mine":
+                    {
+                        queryable = GetQueryable(queryOptions).Where(dr => dr.PersonId == CurrentUser.Id);                        
+                    }
+                    break;
+            }
+            return Ok(queryable);
+        }
+
         /// <summary>
         /// Returns the latest drivereport for a given user.
         /// Used for setting the option fields in DrivingView to the same as the latest report by the user.
@@ -147,158 +187,26 @@ namespace OS2Indberetning.Controllers
             }
 
         }
-
-        /// <summary>
-        /// Used for generating reports for the tax authorities.
-        /// </summary>
-        /// <param name="start"></param>
-        /// <param name="end"></param>
-        /// <param name="name"></param>
-        /// <param name="orgUnit"></param>
-        /// <returns></returns>
-        [HttpGet]
-        public IHttpActionResult Eksport(string start, string end, string personId, string orgunitId = null)
+        
+        private string GetStatusString(ReportStatus status)
         {
-            _logger.Debug($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}");
-
-            // Validate parameters
-            long parsedStartDateUnix;
-            long parsedEndDateUnix;
-            int parsedPersonId;
-            int parsedOrgunitId = -1;
-
-            if (string.IsNullOrEmpty(personId) || string.IsNullOrEmpty(start) || string.IsNullOrEmpty(end))
+            string toReturn = "";
+            switch(status)
             {
-                return StatusCode(HttpStatusCode.NoContent);
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
+                case ReportStatus.Accepted:
+                    toReturn = "Godkendt";
+                    break;
+                case ReportStatus.Invoiced:
+                    toReturn = "Overført til løn";
+                    break;
+                case ReportStatus.Pending:
+                    toReturn = "Afventer";
+                    break;
+                case ReportStatus.Rejected:
+                    toReturn = "Afvist";
+                    break;
             }
-            else
-            {
-                try
-                {
-                    parsedStartDateUnix = (long)DateTime.Parse(start).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                    parsedEndDateUnix = (long)DateTime.Parse(end).Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
-                    parsedPersonId = int.Parse(personId);
-                }
-                catch (Exception)
-                {
-                    return StatusCode(HttpStatusCode.NoContent);
-                    _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
-                }
-            }
-
-            // Get person for which report has been requested
-            var person = _personRepo.AsQueryable().Where(x => x.Id == parsedPersonId).FirstOrDefault();
-            if (person == null)
-            {
-                return StatusCode(HttpStatusCode.NoContent);
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, statusCode=204 No Content");
-            }
-
-            // Get all the persons drivereports that has been invoiced in the requested timespan, and only for the supplied orgunit if orgunit is supplied.
-            List<DriveReport> reportsForRequestedTimespan = new List<DriveReport>();
-            if (orgunitId == null || orgunitId.Equals("undefined"))
-            {
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
-            }
-            else
-            {
-                parsedOrgunitId = int.Parse(orgunitId);
-                reportsForRequestedTimespan.AddRange(Repo.AsQueryable().Where(r => r.PersonId == person.Id && r.Employment.OrgUnit.Id.Equals(parsedOrgunitId) && r.Status == ReportStatus.Invoiced && r.ProcessedDateTimestamp >= parsedStartDateUnix && r.ProcessedDateTimestamp <= parsedEndDateUnix));
-            }
-
-            // Initialize EksportModel
-            ExportModel result = new ExportModel();
-            try
-            {
-                var adminInitials = User.Identity.Name.Split('\\')[1];
-                result.DateInterval = $"{start} - {end}";
-                result.OrgUnit = (parsedOrgunitId < 0) ? "Ikke angivet" : _orgrepo.AsQueryable().Where(x => x.Id == parsedOrgunitId).FirstOrDefault().LongDescription;
-                result.Name = person.FullName;
-                result.AdminName = _personRepo.AsQueryable().Where(x => x.Initials == adminInitials).First().FullName;
-                result.Municipality = _customSettings.Municipality ?? "Ikke angivet";
-                result.LicensePlates = string.Join(", ", _LicensePlateRepo.AsQueryable().Where(x => x.PersonId == person.Id).Select(y => y.Plate).ToArray()); // Combine all the users license plates into comma seperated string.
-
-                // Get alternative home adress if user has one, otherwise get home address
-                var HomeAddress = person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.AlternativeHome).FirstOrDefault() ?? person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).FirstOrDefault();
-                result.HomeAddressStreetAndNumber = $"{HomeAddress.StreetName} {HomeAddress.StreetNumber}";
-                result.HomeAddressZipCodeAndTown = $"{HomeAddress.ZipCode} {HomeAddress.Town}";
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, Error when initializing export model", e);
-            }
-
-            DateTime unixDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-            List<ExportDriveReport> drivereports = new List<ExportDriveReport>();
-
-            try
-            {
-                foreach (var currentReport in reportsForRequestedTimespan)
-                {
-                    result.TotalAmount = result.TotalAmount + currentReport.AmountToReimburse;
-                    result.TotalDistance = result.TotalDistance + currentReport.Distance;
-
-                    var driveDate = unixDateTime.AddSeconds(currentReport.DriveDateTimestamp).ToLocalTime();
-                    var createdDate = unixDateTime.AddSeconds(currentReport.CreatedDateTimestamp).ToLocalTime();
-
-                    var reportToBeAdded = new ExportDriveReport
-                    {
-                        DriveDateTimestamp = driveDate.ToString().Substring(0, 10),
-                        CreatedDateTimestamp = createdDate.ToString().Substring(0, 10),
-                        OrgUnit = currentReport.Employment.OrgUnit.ShortDescription,
-                        Purpose = currentReport.Purpose,
-                        IsExtraDistance = currentReport.IsExtraDistance,
-                        FourKmRule = currentReport.FourKmRule,
-                        FourKmRuleDeducted = currentReport.FourKmRuleDeducted,
-                        SixtyDaysRule = currentReport.SixtyDaysRule,
-                        DistanceFromHomeToBorder = currentReport.FourKmRule ? (currentReport.IsRoundTrip.HasValue && currentReport.IsRoundTrip.Value ? person.DistanceFromHomeToBorder * 2 : person.DistanceFromHomeToBorder) : 0,
-                        AmountToReimburse = currentReport.AmountToReimburse,
-                        ApprovedDate = unixDateTime.AddSeconds(currentReport.ClosedDateTimestamp).ToLocalTime().ToString().Substring(0, 10), // currentReport will always be accepted, since it has been invoiced
-                        ProcessedDate = unixDateTime.AddSeconds(currentReport.ProcessedDateTimestamp).ToLocalTime().ToString().Substring(0, 10),
-                        ApprovedBy = currentReport.ApprovedBy.FullName,
-                        Route = "",
-                        Distance = currentReport.Distance,
-                        IsRoundTrip = currentReport.IsRoundTrip,
-                        LicensePlate = currentReport.LicensePlate,
-                        Rate = currentReport.KmRate,
-                        HomeAddress = currentReport.Person.PersonalAddresses.Where(x => x.Type == PersonalAddressType.Home).First().Description,
-                        UserComment = ""
-                    };
-
-                    bool firstPoint = true;
-                    if (currentReport.KilometerAllowance == KilometerAllowance.Read)
-                    {
-                        reportToBeAdded.Route = "Aflæst";
-                        reportToBeAdded.UserComment = currentReport.UserComment;
-                    }
-                    else
-                    {
-                        foreach (var point in currentReport.DriveReportPoints.AsQueryable().OrderBy(x => x.Id))
-                        {
-                            if (firstPoint)
-                            {
-                                reportToBeAdded.Route = reportToBeAdded.Route + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
-                                firstPoint = false;
-                            }
-                            else
-                            {
-                                reportToBeAdded.Route = reportToBeAdded.Route + " - " + point.StreetName + ", " + point.StreetNumber + ", " + point.ZipCode;
-                            }
-                        }
-                    }
-
-                    drivereports.Add(reportToBeAdded);
-                }
-            }
-            catch (Exception e)
-            {
-                _logger.Error($"{GetType().Name}, Eksport(), start={start}, end={end}, person={personId}, orgUnit={orgunitId}, DriveReports error", e);
-            }
-
-            result.DriveReports = drivereports.ToArray();
-
-            return Json(result);
+            return toReturn;
         }
 
         //GET: odata/DriveReports(5)

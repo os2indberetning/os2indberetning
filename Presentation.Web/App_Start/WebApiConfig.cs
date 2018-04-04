@@ -138,7 +138,11 @@ namespace OS2Indberetning
             .Function("GetUserAsCurrentUser")
             .ReturnsFromEntitySet<Person>("Person");
 
-            
+            builder.EntityType<Person>().Collection
+            .Function("GetEmployeesOfLeader")
+            .ReturnsFromEntitySet<Person>("Person");
+
+
 
             builder.EntitySet<PersonalAddress>("PersonalAddresses");
 

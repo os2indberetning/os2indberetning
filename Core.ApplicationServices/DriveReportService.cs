@@ -224,7 +224,7 @@ namespace Core.ApplicationServices
             if (delta.TryGetPropertyValue("Comment", out comment))
             {
                 _mailService.SendMail(recipient, "Afvist indberetning",
-                    "Din indberetning er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
+                    $"Din indberetning, oprettet den {Utilities.FromUnixTime(report.CreatedDateTimestamp)}, er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
             }
         }
 

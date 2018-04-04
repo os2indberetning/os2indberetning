@@ -1,4 +1,4 @@
-﻿angular.module('application').controller('ReportController', [
+﻿angular.module('application').controller('ApproveReportsReportController', [
     "$scope", "$rootScope", "$window", "$state", "Person", "Autocomplete", "OrgUnit", "MkColumnFormatter", "RouteColumnFormatter",
     function ($scope, $rootScope, $window, $state, Person, Autocomplete, OrgUnit, MkColumnFormatter, RouteColumnFormatter) {
 
@@ -6,7 +6,7 @@
         $scope.dateContainer = {};
 
         $scope.container = {};
-        $scope.persons = Autocomplete.allUsers();
+        $scope.persons = Autocomplete.allEmployeesForLeader();
         $scope.orgUnits = Autocomplete.orgUnits();
         $scope.showReport = false;
         
@@ -58,8 +58,8 @@
 
              if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
-                $scope.gridContainer.reportsGrid.dataSource.read(); 
-                $scope.showReport = true;               
+                $scope.gridContainer.reportsGrid.dataSource.read();          
+                $scope.showReport = true;            
             }else {
                 alert('Du mangler at udfylde et felt med en *');
             }       
@@ -115,7 +115,7 @@
         }
  
         var getDataUrl = function (startDate, endDate, personId, orgUnit) {
-            var url = "/odata/DriveReports?queryType=admin&$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
+            var url = "/odata/DriveReports?queryType=godkender&$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
             var filters = "&$filter=DriveDateTimestamp ge " + startDate + " and DriveDateTimestamp le " + endDate;
             if (personId != undefined && personId > 0) {
                 filters += " and PersonId eq " + personId;

@@ -1,19 +1,23 @@
-﻿angular.module('application').controller('ReportController', [
-    "$scope", "$rootScope", "$window", "$state", "Person", "Autocomplete", "OrgUnit", "MkColumnFormatter", "RouteColumnFormatter",
-    function ($scope, $rootScope, $window, $state, Person, Autocomplete, OrgUnit, MkColumnFormatter, RouteColumnFormatter) {
+﻿angular.module('application').controller('MyReportsReportController', [
+    "$scope", "$rootScope", "$window", "$state", "Person", "Autocomplete", "OrgUnit", "MkColumnFormatter", "RouteColumnFormatter", "PersonEmployments",
+    function ($scope, $rootScope, $window, $state, Person, Autocomplete, OrgUnit, MkColumnFormatter, RouteColumnFormatter, PersonEmployments) {
 
         $scope.gridContainer = {};
         $scope.dateContainer = {};
-
         $scope.container = {};
-        $scope.persons = Autocomplete.allUsers();
-        $scope.orgUnits = Autocomplete.orgUnits();
+
         $scope.showReport = false;
-        
+        $scope.container.chosenPersonId = $rootScope.CurrentUser.Id;
+        $scope.container.employeeFilter = $rootScope.CurrentUser.FullName;
+        $scope.Employments = $rootScope.CurrentUser.Employments;
+
+        angular.forEach($rootScope.CurrentUser.Employments, function (value, key) {
+            value.PresentationString = value.Position + " - " + value.OrgUnit.LongDescription + " (" + value.EmploymentId + ")";
+        });
+            
 
         $scope.dateOptions = {
-            format: "dd/MM/yyyy",
- 
+            format: "dd/MM/yyyy" 
         };
 
         var today = new Date();
@@ -33,12 +37,24 @@
         $('#dateCreated').text(today);
         $scope.Today = today;
 
-        $scope.personAutoCompleteOptions = {
-            filter: "contains",
-            select: function (e) {
-                $scope.container.chosenPersonId = this.dataItem(e.item.index()).Id;
-            }
+        $scope.getSelectedEmployment = function (selectedId) {
+            var result;
+            angular.forEach($scope.Employments, function(value) {
+                if(result == undefined) {
+                    if (value.Id == selectedId) {
+                        result = value;
+                    }
+                }
+            });   
+            return result;   
         };
+
+        // $scope.personAutoCompleteOptions = {
+        //     filter: "contains",
+        //     select: function (e) {
+        //         $scope.container.chosenPersonId = this.dataItem(e.item.index()).Id;
+        //     }
+        // };
 
         $scope.orgunitAutoCompleteOptions = {
             filter: "contains",
@@ -49,17 +65,14 @@
 
         $scope.createReportClick = function () {
             var personId = $scope.container.chosenPersonId;
-            var orgunitId = $scope.container.chosenOrgunitId;
+            var orgunitId = $scope.getSelectedEmployment($scope.container.SelectedEmployment).OrgUnit.Id;
             var fromUnix = $scope.getStartOfDayStamp($scope.dateContainer.fromDate);
             var toUnix = $scope.getEndOfDayStamp($scope.dateContainer.toDate);
-
-            // $scope.container.chosenPersonId = "";
-            // $scope.container.chosenOrgunitId = "";
-
-             if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
+            
+            if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
-                $scope.gridContainer.reportsGrid.dataSource.read(); 
-                $scope.showReport = true;               
+                $scope.gridContainer.reportsGrid.dataSource.read();
+                $scope.showReport = true;                
             }else {
                 alert('Du mangler at udfylde et felt med en *');
             }       
@@ -80,8 +93,9 @@
                 result = data.value[0];
                 $scope.Name = result.Person.FullName;
                 $scope.LicensePlates = result.LicensePlate;
-                if($scope.container.orgUnitFilter != undefined && $scope.container.orgUnitFilter != "") 
-                    $scope.OrgUnit = $scope.container.orgUnitFilter;
+                var selectedEmpl = $scope.getSelectedEmployment($scope.container.SelectedEmployment);
+                if(selectedEmpl != undefined && selectedEmpl != null) 
+                    $scope.OrgUnit = selectedEmpl.OrgUnit.LongDescription;
                 else 
                     $scope.OrgUnit = "Ikke angivet";
                 
@@ -115,11 +129,11 @@
         }
  
         var getDataUrl = function (startDate, endDate, personId, orgUnit) {
-            var url = "/odata/DriveReports?queryType=admin&$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
+            var url = "/odata/DriveReports?queryType=mine&$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
             var filters = "&$filter=DriveDateTimestamp ge " + startDate + " and DriveDateTimestamp le " + endDate;
-            if (personId != undefined && personId > 0) {
-                filters += " and PersonId eq " + personId;
-            }
+            // if (personId != undefined && personId > 0) {
+            //     filters += " and PersonId eq " + personId;
+            // }
             if (orgUnit != undefined && orgUnit != "") {
                 filters += " and Employment/OrgUnitId eq " + orgUnit;
             }

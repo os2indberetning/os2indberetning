@@ -1,4 +1,4 @@
-﻿angular.module('application').controller('ReportController', [
+﻿angular.module('application').controller('ReportSkatController', [
     "$scope", "$rootScope", "$window", "$state", "Person", "Autocomplete", "OrgUnit", "MkColumnFormatter", "RouteColumnFormatter",
     function ($scope, $rootScope, $window, $state, Person, Autocomplete, OrgUnit, MkColumnFormatter, RouteColumnFormatter) {
 
@@ -116,7 +116,7 @@
  
         var getDataUrl = function (startDate, endDate, personId, orgUnit) {
             var url = "/odata/DriveReports?queryType=admin&$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
-            var filters = "&$filter=DriveDateTimestamp ge " + startDate + " and DriveDateTimestamp le " + endDate;
+            var filters = "&$filter=ProcessedDateTimestamp ge " + startDate + " and ProcessedDateTimestamp le " + endDate;
             if (personId != undefined && personId > 0) {
                 filters += " and PersonId eq " + personId;
             }

@@ -35,7 +35,7 @@
                     </div>
                 </div>               
                 <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
-                    <label>Kørselsdato start</label><span style="color:red;">*</span>
+                    <label>Udbetalingsperiode start dato</label><span style="color:red;">*</span>
                     <div class="fill-width">
                         <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportFromDateString" k-ng-model="dateContainer.fromDate"/>
                     </div>
@@ -45,7 +45,7 @@
                     <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="orgunitAutoCompleteOptions"  k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'"  k-data-value-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
                 </div>
                 <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
-                    <label>Kørselsdato slut</label><span style="color:red;">*</span>
+                    <label>Udbetalingsperiode slut dato</label><span style="color:red;">*</span>
                     <input kendo-datepicker class="fill-width" culture="'da-DK'" k-options="dateOptions" ng-required="string" ng-model="container.reportToDateString" k-ng-model="dateContainer.toDate"/>
                 </div>
                 <div class="col-sm-12">

@@ -31,7 +31,7 @@
                 <div class="col-xs-6 col-lg-6">
                     <label class="pull-left">Medarbejder navn</label><span style="color:red;">*</span>
                     <div class="fill-width">
-                        <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text"  k-options="personAutoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" k-data-value-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
+                        <input id="employeeTextBox" ng-required="string" ng-disabled="true" ng-model="container.employeeFilter" type="text"  k-options="personAutoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" k-data-value-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
                     </div>
                 </div>               
                 <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
@@ -41,8 +41,8 @@
                     </div>
                 </div>
                 <div class="col-xs-6 col-lg-6">
-                    <label>Organisationsenhed</label>
-                    <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="orgunitAutoCompleteOptions"  k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'"  k-data-value-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
+                        <label for="">Ansættelsested</label>
+                        <select class="fill-width" kendo-drop-down-list="container.PositionDropDown" ng-model="container.SelectedEmployment" id="" ng-change="onSelect()" k-data-source="Employments" k-data-text-field="'PresentationString'" k-data-value-field="'Id'"><option>' '</option></select>
                 </div>
                 <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
                     <label>Kørselsdato slut</label><span style="color:red;">*</span>

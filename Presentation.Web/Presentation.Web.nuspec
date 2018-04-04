@@ -1,0 +1,11 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Presentation.Web</id>
+    <title>OS2 Indberetning</title>
+    <version>$version$</version>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>OS2 Indberetning</description>
+    <releaseNotes/>
+  </metadata>
+</package>

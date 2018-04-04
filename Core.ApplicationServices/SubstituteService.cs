@@ -41,7 +41,6 @@ namespace Core.ApplicationServices
                 sub.Sub.CprNumber = "";
                 sub.Leader.CprNumber = "";
                 sub.Person.CprNumber = "";
-
             }
         }
 
@@ -86,7 +85,7 @@ namespace Core.ApplicationServices
                 if (_subRepo.AsQueryable().Any(x => x.OrgUnitId.Equals(newSub.OrgUnitId) &&
                     // Id has to be different. Otherwise it will return true when trying to patch a sub
                     // Because a substitute already exists in the period, however that is the same sub we are trying to change.
-                    x.PersonId == newSub.PersonId && x.SubId == newSub.SubId &&
+                    x.PersonId == newSub.PersonId && x.SubId == newSub.SubId && x.Id != newSub.Id &&
                     ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
                     (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
                 {
@@ -112,6 +111,8 @@ namespace Core.ApplicationServices
 
         public void UpdateReportsAffectedBySubstitute(Substitute sub)
         {
+            try
+            {
                 if (sub.LeaderId == sub.PersonId)
                 {
                     // Substitute is a substitute - Not a Personal Approver.
@@ -133,32 +134,37 @@ namespace Core.ApplicationServices
                 {
                     // Substitute is a personal approver
                     // Select reports to be updated based on PersonId on report
-                    var reports2 = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
-                    foreach (var report in reports2)
+                    var reports = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
+                    var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Today);
+                    foreach (var report in reports)
                     {
-                        report.ResponsibleLeaders.Add(sub.Person);
+                        if(sub.StartDateTimestamp < currentDateTimestamp && currentDateTimestamp < sub.EndDateTimestamp)
+                            report.UpdateResponsibleLeaders(new List<Person>{ sub.Sub });
                     }
                     _driveRepo.Save();
                 }
-        }    
-        
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{this.GetType().Name}, Error updating reports for substitute ", e);
+            }
+            
+        }
+
         public void UpdateResponsibleLeadersDaily()
         {
             try
             {
-                var reports = _driveRepo.AsQueryable().Where(dr => dr.Status == ReportStatus.Pending).ToList();
-                foreach (var report in reports)
+                var substitutes = _subRepo.AsQueryable().ToList();
+                foreach (var sub in substitutes)
                 {
-                    report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
+                    UpdateReportsAffectedBySubstitute(sub);
                 }
-                _driveRepo.Save();
             }
             catch (Exception e)
             {
                 _logger.Error($"{this.GetType().Name}, Error updating the responsible leaders for all pending drive reports", e);
-                throw;
             }
-            
         }
     }
 }

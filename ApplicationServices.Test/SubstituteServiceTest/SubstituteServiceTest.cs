@@ -21,6 +21,9 @@ namespace ApplicationServices.Test.SubstituteServiceTest
         private SubstituteService _uut;
         private List<Substitute> _repo;
         private IGenericRepository<Substitute> _repoMock;
+        private IGenericRepository<OrgUnit> _orgUnitMock;
+        private IGenericRepository<Employment> _emplMock;
+
         private IOrgUnitService _orgService;
         private IDriveReportService _driveService;
         private IGenericRepository<DriveReport> _driveRepo;
@@ -32,6 +35,8 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             _orgService = NSubstitute.Substitute.For<IOrgUnitService>();
             _repoMock = NSubstitute.Substitute.For<IGenericRepository<Substitute>>();
             _driveRepo = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
+            _emplMock = NSubstitute.Substitute.For<IGenericRepository<Employment>>();
+            _orgUnitMock = NSubstitute.Substitute.For<IGenericRepository<OrgUnit>>();
             _driveService = NSubstitute.Substitute.For<IDriveReportService>();
 
 
@@ -48,20 +53,19 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                     },
                     Leader = new Person()
                     {
-                       CprNumber = "123123",
-                       FirstName = "Morten",
-                       LastName = "Rasmussen",
-                       Initials = "MR"
+                        CprNumber = "123123",
+                        FirstName = "Morten",
+                        LastName = "Rasmussen",
+                        Initials = "MR"
                     },
-                    Person =
-                        new Person()
-                        {
-                            CprNumber = "123123",
-                            FirstName = "Morten",
-                            LastName = "Rasmussen",
-                            Initials = "MR"
-                            
-                        },
+                    Person = new Person()
+                    {
+                        CprNumber = "123123",
+                        FirstName = "Morten",
+                        LastName = "Rasmussen",
+                        Initials = "MR"
+
+                    },
                 },
                 new Substitute()
                 {
@@ -74,22 +78,160 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                     },
                     Leader = new Person()
                     {
-                       CprNumber = "123123",
-                       FirstName = "Morten",
-                       LastName = "Rasmussen",
-                       Initials = "MR"
+                        CprNumber = "123123",
+                        FirstName = "Morten",
+                        LastName = "Rasmussen",
+                        Initials = "MR"
                     },
                     Person = new Person()
-                        {
-                            CprNumber = "123123",
-                            FirstName = "Jacob",
-                            LastName = "Jensen",
-                            Initials = "JOJ"
-                        },
+                    {
+                        CprNumber = "123123",
+                        FirstName = "Jacob",
+                        LastName = "Jensen",
+                        Initials = "JOJ"
+                    },
                 }
             };
 
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            var leader1 = new Person()
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testesen",
+                Initials = "TT",
+                FullName = "Test Testesen [TT]"
+            };
+
+            var leader2 = new Person()
+            {
+                Id = 3,
+                FirstName = "Test2",
+                LastName = "Testesen2",
+                Initials = "2",
+                FullName = "Test Testesen [2]"
+            };
+
+            var user1 = new Person()
+            {
+                Id = 2,
+                FirstName = "User",
+                LastName = "Usersen",
+                Initials = "UU",
+                FullName = "User Usersen [UU]"
+            };
+
+            var user2 = new Person()
+            {
+                Id = 4,
+                FirstName = "User",
+                LastName = "Usersen",
+                Initials = "UU",
+                FullName = "User Usersen [UU]"
+            };
+
+            var orgUnit = new OrgUnit()
+            {
+                Id = 1,
+            };
+
+            var orgUnit2 = new OrgUnit()
+            {
+                Id = 12,
+            };
+
+            var leaderEmpl1 = new Employment()
+            {
+                Id = 1,
+                OrgUnitId = 1,
+                OrgUnit = orgUnit,
+                Person = leader1,
+                PersonId = leader1.Id,
+                IsLeader = true
+            };
+
+            var leaderEmpl2 = new Employment()
+            {
+                Id = 2,
+                OrgUnitId = 2,
+                OrgUnit = orgUnit2,
+                Person = leader1,
+                PersonId = leader1.Id,
+                IsLeader = true
+            };
+
+            var userEmpl1 = new Employment()
+            {
+                Id = 3,
+                OrgUnitId = 1,
+                OrgUnit = orgUnit,
+                Person = user1,
+                PersonId = user1.Id,
+                IsLeader = false
+            };
+
+            var userEmpl2 = new Employment()
+            {
+                Id = 4,
+                OrgUnitId = 2,
+                OrgUnit = orgUnit2,
+                Person = user2,
+                PersonId = user2.Id,
+                IsLeader = false
+            };
+
+            _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
+            {
+                leaderEmpl1,
+                userEmpl1,
+                leaderEmpl2,
+                userEmpl2
+            }.AsQueryable());
+
+            _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
+            {
+                orgUnit,
+                orgUnit2
+            }.AsQueryable());
+
+            var reports = new List<DriveReport>()
+            {
+                new DriveReport()
+                {
+                    Id = 1,
+                    Employment = userEmpl1,
+                    EmploymentId = userEmpl1.Id,
+                    PersonId = user1.Id,
+                    Person = user1,
+                },
+                new DriveReport()
+                {
+                    Id = 2,
+                    Employment = userEmpl1,
+                    EmploymentId = userEmpl1.Id,
+                    PersonId = user1.Id,
+                    Person = user1,
+                },
+                new DriveReport()
+                {
+                    Id = 3,
+                    Employment = userEmpl2,
+                    EmploymentId = userEmpl2.Id,
+                    PersonId = user2.Id,
+                    Person = user2,
+                },
+                new DriveReport()
+                {
+                    Id = 4,
+                    Employment = userEmpl2,
+                    EmploymentId = userEmpl2.Id,
+                    PersonId = user2.Id,
+                    Person = user2,
+                }
+            };
+
+            _driveRepo.AsQueryable().ReturnsForAnyArgs(reports.AsQueryable());
+
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
         }
 
@@ -164,7 +306,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
 
             _repo = new List<Substitute>();
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -195,7 +337,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock, _orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -226,7 +368,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock, _orgService,_driveService, _driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -471,7 +613,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock, _orgService, _driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -500,7 +642,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -529,7 +671,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -560,7 +702,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsFalse(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -591,7 +733,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsFalse(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -622,7 +764,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsFalse(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -652,7 +794,7 @@ namespace ApplicationServices.Test.SubstituteServiceTest
                 },
             };
             _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
-            _uut = new SubstituteService(_repoMock,_orgService,_driveService,_driveRepo, _logger);
+            _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
         }
@@ -697,6 +839,216 @@ namespace ApplicationServices.Test.SubstituteServiceTest
             _uut = new SubstituteService(_repoMock, _orgService, _driveService, _driveRepo, _logger);
 
             Assert.IsTrue(_uut.CheckIfNewSubIsAllowed(substitute));
-        }        
+        }
+
+        [Test]
+        public void UpdateResponsibleLeadersDaily_CalledForAllSubs()
+        {
+            _repo = new List<Substitute>()
+            {
+                new Substitute()
+                {
+                    StartDateTimestamp = 1432166400,
+                    EndDateTimestamp = 1432339200,
+                    PersonId = 1,
+                    LeaderId = 3,
+                    SubId = 2,
+                    Sub = new Person{ Id = 2},
+                    OrgUnitId = 12
+                },
+
+                new Substitute()
+                {
+                    StartDateTimestamp = 1432166400,
+                    EndDateTimestamp = 1432339200,
+                    PersonId = 1,
+                    OrgUnitId = 12,
+                    LeaderId = 1,
+                    SubId = 2,
+                    Sub = new Person{ Id = 2},
+                }
+            };
+            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
+
+            _uut.UpdateResponsibleLeadersDaily();
+        }
+
+        [Test]
+        public void UpdateReportsAffectedBySubstitute_PersonalApproverUser1()
+        {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
+
+            _repo = new List<Substitute>()
+            {
+                new Substitute()
+                {
+                    StartDateTimestamp = weekAgoUnix,
+                    EndDateTimestamp = todayUnix,
+                    PersonId = 2,
+                    LeaderId = 1,
+                    SubId = 4,
+                    Sub = new Person{ Id = 4},
+                    OrgUnitId = 1
+                }
+            };
+            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
+
+            _uut.UpdateReportsAffectedBySubstitute(_repoMock.AsQueryable().ToList()[0]);
+            _driveService.DidNotReceiveWithAnyArgs().GetResponsibleLeadersForReport(null);
+            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders.Count);
+            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders.Count);
+            Assert.AreEqual(4, _driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders.ToList()[0].Id);
+            Assert.AreEqual(4, _driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders.ToList()[0].Id);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders);
+        }
+
+        [Test]
+        public void UpdateReportsAffectedBySubstitute_PersonalApproverExpired()
+        {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
+
+            _repo = new List<Substitute>()
+            {
+                new Substitute()
+                {
+                    StartDateTimestamp = weekAgoUnix,
+                    EndDateTimestamp = yesterdayUnix,
+                    PersonId = 2,
+                    LeaderId = 1,
+                    SubId = 4,
+                    Sub = new Person{ Id = 4},
+                    OrgUnitId = 1
+                }
+            };
+            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
+
+            _uut.UpdateReportsAffectedBySubstitute(_repoMock.AsQueryable().ToList()[0]);
+
+            _driveService.DidNotReceiveWithAnyArgs().GetResponsibleLeadersForReport(null);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders);
+        }
+
+        [Test]
+        public void UpdateReportsAffectedBySubstitute_SubstituteLeaderId3()
+        {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
+
+            _repo = new List<Substitute>()
+            {
+                new Substitute()
+                {
+                    StartDateTimestamp = weekAgoUnix,
+                    EndDateTimestamp = todayUnix,
+                    PersonId = 3,
+                    LeaderId = 3,
+                    SubId = 2,
+                    Sub = new Person{ Id = 2},
+                    OrgUnitId = 2
+                }
+            };
+            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
+
+            _uut.UpdateReportsAffectedBySubstitute(_repoMock.AsQueryable().ToList()[0]);
+
+            // Asserts
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
+        }
+
+        [Test]
+        public void UpdateReportsAffectedBySubstitute_SubstituteLeaderId1()
+        {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
+
+            _repo = new List<Substitute>()
+            {
+                new Substitute()
+                {
+                    StartDateTimestamp = weekAgoUnix,
+                    EndDateTimestamp = todayUnix,
+                    PersonId = 1,
+                    LeaderId = 1,
+                    SubId = 2,
+                    Sub = new Person{Id = 4},
+                    OrgUnitId = 1
+                }
+            };
+            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
+
+            _uut.UpdateReportsAffectedBySubstitute(_repoMock.AsQueryable().ToList()[0]);
+
+            // Asserts
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+        }
+
+        [Test]
+        public void UpdateResponsibleLeadersDaily_TestSubAndPersApprover()
+        {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
+
+            _repo = new List<Substitute>()
+            {
+                new Substitute()
+                {
+                    StartDateTimestamp = weekAgoUnix,
+                    EndDateTimestamp = todayUnix,
+                    PersonId = 1,
+                    LeaderId = 1,
+                    SubId = 2,
+                    Sub = new Person{Id = 4},
+                    OrgUnitId = 1
+                },
+                new Substitute()
+                {
+                    StartDateTimestamp = weekAgoUnix,
+                    EndDateTimestamp = todayUnix,
+                    PersonId = 4,
+                    LeaderId = 3,
+                    SubId = 2,
+                    Sub = new Person{ Id = 2},
+                    OrgUnitId = 2
+                }
+            };
+            _repoMock.AsQueryable().ReturnsForAnyArgs(_repo.AsQueryable());
+
+            _uut.UpdateResponsibleLeadersDaily();
+
+            // Asserts
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[0]);
+            _driveService.Received().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[1]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[2]);
+            _driveService.DidNotReceive().GetResponsibleLeadersForReport(_driveRepo.AsQueryable().ToList()[3]);
+
+            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders.Count);
+            Assert.AreEqual(1, _driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders.Count);
+            Assert.AreEqual(2, _driveRepo.AsQueryable().ToList()[2].ResponsibleLeaders.ToList()[0].Id);
+            Assert.AreEqual(2, _driveRepo.AsQueryable().ToList()[3].ResponsibleLeaders.ToList()[0].Id);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[0].ResponsibleLeaders);
+            Assert.IsNull(_driveRepo.AsQueryable().ToList()[1].ResponsibleLeaders);
+        }
     }
 }

@@ -502,7 +502,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void RemoveExpiredLeadersForPendingReports()
         {
-            var todayUnix = Utilities.ToUnixTime(DateTime.Today.AddDays(1).AddSeconds(-1));
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
             var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
             var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
             var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
@@ -625,11 +625,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                     Person = user1,
                     Status = ReportStatus.Pending
                 }
-            };
-
-            Assert.AreEqual(2, _subMock.AsQueryable().ToList().Count);
-            _subServiceMock.UpdateResponsibleLeadersDaily();
-            Assert.AreEqual(1, _subMock.AsQueryable().ToList().Count);
+            };           
 
             var res0 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(0));
             var res1 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(1));

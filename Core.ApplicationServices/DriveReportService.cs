@@ -291,7 +291,7 @@ namespace Core.ApplicationServices
         public List<Person> GetResponsibleLeadersForReport(DriveReport driveReport)
         {
             var responsibleLeaders = new List<Person>();
-            var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Now);
+            var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Today);
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var person = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).Person;

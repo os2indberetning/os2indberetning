@@ -45,9 +45,6 @@ namespace Mail
         /// </summary>
         public void RunMailService()
         {
-            // Update the responsible leaders for pending reports by removing the subs that are expired.
-            _substituteService.UpdateResponsibleLeadersDaily();
-
             // Send notifications
             var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger, _customSettings);
             try
@@ -84,6 +81,12 @@ namespace Mail
                 Console.WriteLine(Environment.CurrentDirectory);
                 Thread.Sleep(3000);
             }
+        }
+
+        public void UpdateResponsibleLeaders()
+        {
+            // Update the responsible leaders for pending reports by removing the subs that are expired.
+            _substituteService.UpdateResponsibleLeadersDaily();
         }
 
 

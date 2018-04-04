@@ -5,6 +5,7 @@ using Core.ApplicationServices.FileGenerator;
 using Core.DomainModel;
 using NUnit.Framework;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices;
 
 namespace ApplicationServices.Test.FileGenerator
 {
@@ -15,7 +16,7 @@ namespace ApplicationServices.Test.FileGenerator
         public void WriteRecordsShouldAlterReportStatusToInvoiced()
         {
             var repoMock = new ReportRepositoryMock();
-            var reportGenerator = new ReportGenerator(repoMock, new FileWriterMock(), new Logger());
+            var reportGenerator = new ReportGenerator(repoMock, new FileWriterMock(), new Logger(), new CustomSettings());
 
             Assert.AreEqual(ReportStatus.Accepted, repoMock.Report1.Status, "Status should be accepted before being passed to file generator");
             Assert.AreEqual(ReportStatus.Accepted, repoMock.Report2.Status, "Status should be accepted before being passed to file generator");
@@ -43,7 +44,7 @@ namespace ApplicationServices.Test.FileGenerator
         {
             var repoMock = new ReportRepositoryMock();
             var writerMock = new FileWriterMock();
-            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger());
+            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger(), new CustomSettings());
 
             Assert.AreEqual(0, writerMock.RecordList.Count, "The writer should have an empty list before the generator is called");
             reportGenerator.WriteRecordsToFileAndAlterReportStatus();
@@ -57,7 +58,7 @@ namespace ApplicationServices.Test.FileGenerator
         {
             var repoMock = new ReportRepositoryMock();
             var writerMock = new FileWriterMock();
-            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger());
+            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger(), new CustomSettings());
 
             Assert.AreEqual(0, writerMock.RecordList.Count, "The writer should have an empty list before the generator is called");
             reportGenerator.WriteRecordsToFileAndAlterReportStatus();
@@ -73,7 +74,7 @@ namespace ApplicationServices.Test.FileGenerator
         {
             var repoMock = new ReportRepositoryMock();
             var writerMock = new FileWriterMock();
-            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger());
+            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger(), new CustomSettings());
 
             Assert.AreEqual(0, writerMock.RecordList.Count, "The writer should have an empty list before the generator is called");
             reportGenerator.WriteRecordsToFileAndAlterReportStatus();

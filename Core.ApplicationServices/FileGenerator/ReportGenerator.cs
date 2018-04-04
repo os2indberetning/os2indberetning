@@ -4,6 +4,7 @@ using System.Linq;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.ApplicationServices.Logger;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices.FileGenerator
 {
@@ -12,12 +13,14 @@ namespace Core.ApplicationServices.FileGenerator
         private readonly IGenericRepository<DriveReport> _reportRepo;
         private readonly IReportFileWriter _fileWriter;
         private ILogger _logger;
+        private ICustomSettings _customSettings;
         
-        public ReportGenerator(IGenericRepository<DriveReport> reportRepo, IReportFileWriter fileWriter, ILogger logger)
+        public ReportGenerator(IGenericRepository<DriveReport> reportRepo, IReportFileWriter fileWriter, ILogger logger, ICustomSettings customSettings)
         {
             _reportRepo = reportRepo;
             _fileWriter = fileWriter;
             _logger = logger;
+            _customSettings = customSettings;
         }
 
         public void WriteRecordsToFileAndAlterReportStatus()
@@ -101,7 +104,7 @@ namespace Core.ApplicationServices.FileGenerator
                     {
                         if (currentDriveReport != null)
                         {
-                            fileRecords.Add(new FileRecord(currentDriveReport, cpr));
+                            fileRecords.Add(new FileRecord(currentDriveReport, cpr, _customSettings));
                         }
                         currentMonth = driveDate.Month;
                         currentTfCode = driveReport.TFCode;
@@ -120,7 +123,7 @@ namespace Core.ApplicationServices.FileGenerator
                     currentDriveReport.Distance += driveReport.Distance;
                 }
                 if (currentDriveReport != null) { 
-                    fileRecords.Add(new FileRecord(currentDriveReport, cpr));
+                    fileRecords.Add(new FileRecord(currentDriveReport, cpr, _customSettings));
                 }
 
             }

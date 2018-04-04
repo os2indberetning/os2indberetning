@@ -3,11 +3,13 @@ using System.Configuration;
 using System.Text;
 using Core.DomainModel;
 using Microsoft.Ajax.Utilities;
+using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices.FileGenerator
 {
     public class FileRecord
     {
+        private ICustomSettings _customSettings;
         public string CprNr { get; set; }
         public DateTime Date { get; set; }
         public double ReimbursementDistance { get; set; }
@@ -17,8 +19,9 @@ namespace Core.ApplicationServices.FileGenerator
         public string Account { get; set; }
         public bool IsAdministrativeWorker { get; set; }
 
-        public FileRecord(DriveReport report, string ownerCpr)
+        public FileRecord(DriveReport report, string ownerCpr, ICustomSettings customSettings)
         {
+            _customSettings = customSettings;
             // Unix timestamp is seconds past epoch
             DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
             var reportDate = dtDateTime.AddSeconds(report.DriveDateTimestamp).ToLocalTime();
@@ -31,14 +34,14 @@ namespace Core.ApplicationServices.FileGenerator
             TFCode = report.TFCode;
             IsAdministrativeWorker =
                 report.Employment.CostCenter.ToString()
-                    .StartsWith(getSetting("PROTECTED_AdministrativeCostCenterPrefix"));
+                    .StartsWith(_customSettings.AdministrativeCostCenterPrefix);
             if ( ! string.IsNullOrWhiteSpace(report.AccountNumber) && report.AccountNumber.Length == 10)
             {
                 Account = report.AccountNumber;
             }
             else if (IsAdministrativeWorker)
             {
-                Account = getSetting("PROTECTED_AdministrativeAccount");
+                Account = _customSettings.AdministrativeAccount;
             }
         }
 
@@ -49,14 +52,14 @@ namespace Core.ApplicationServices.FileGenerator
 
             var builder = new StringBuilder();
 
-            builder.Append(getSetting("PROTECTED_KMDStaticNr"));        //KMD statisk identifier
-            builder.Append(getSetting("PROTECTED_CommuneNr"));          //Syddjurs' KommuneNr.
+            builder.Append(_customSettings.KMDStaticNumber);        //KMD statisk identifier
+            builder.Append(_customSettings.KMDMunicipalityNumber);          //Syddjurs' KommuneNr.
             builder.Append(EmploymentType);                             //Ansættelsesform (0,1,3)
             builder.Append(CprNr);                                      //CPR Nr.
             builder.Append(ExtraNumber);                                //Ekstra ciffer (0,1,2,3 nn)
             builder.Append(TFCode);                                     //TF Kode
             builder.Append(DistanceStringBuilder(distance.ToString())); //Kørte Km
-            builder.Append(getSetting("PROTECTED_KMDReservedNr"));      //KMD reserverede pladser
+            builder.Append(_customSettings.KMDReservedNumber);      //KMD reserverede pladser
 
             if ( ! string.IsNullOrWhiteSpace(Account) && Account.Length == 10)
             {
@@ -102,11 +105,6 @@ namespace Core.ApplicationServices.FileGenerator
             }
 
             return beforeComma + afterComma;
-        }
-
-        private string getSetting(string key)
-        {
-            return ConfigurationManager.AppSettings[key];
         }
     }
 }

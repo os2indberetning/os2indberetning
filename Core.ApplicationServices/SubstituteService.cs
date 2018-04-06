@@ -7,6 +7,8 @@ using Core.DomainModel;
 using Core.DomainServices;
 using System.Threading;
 using Ninject;
+using Core.DomainServices.Interfaces;
+using Core.ApplicationServices.Logger;
 
 namespace Core.ApplicationServices
 {
@@ -16,13 +18,16 @@ namespace Core.ApplicationServices
         private readonly IOrgUnitService _orgService;
         private readonly IDriveReportService _driveService;
         private readonly IGenericRepository<DriveReport> _driveRepo;
+        private readonly ILogger _logger;
 
-        public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService, IDriveReportService driveService, IGenericRepository<DriveReport> driveRepo)
+
+        public SubstituteService(IGenericRepository<Substitute> subRepo, IOrgUnitService orgService, IDriveReportService driveService, IGenericRepository<DriveReport> driveRepo, ILogger logger)
         {
             _subRepo = subRepo;
             _orgService = orgService;
             _driveService = driveService;
             _driveRepo = driveRepo;
+            _logger = logger;
         }
 
         /// <summary>
@@ -36,7 +41,6 @@ namespace Core.ApplicationServices
                 sub.Sub.CprNumber = "";
                 sub.Leader.CprNumber = "";
                 sub.Person.CprNumber = "";
-
             }
         }
 
@@ -81,12 +85,13 @@ namespace Core.ApplicationServices
                 if (_subRepo.AsQueryable().Any(x => x.OrgUnitId.Equals(newSub.OrgUnitId) &&
                     // Id has to be different. Otherwise it will return true when trying to patch a sub
                     // Because a substitute already exists in the period, however that is the same sub we are trying to change.
-                    x.Id != newSub.Id &&
+                    x.PersonId == newSub.PersonId && x.SubId == newSub.SubId && x.Id != newSub.Id &&
                     ((newSub.StartDateTimestamp >= x.StartDateTimestamp && newSub.StartDateTimestamp <= x.EndDateTimestamp) ||
                     (newSub.StartDateTimestamp <= x.StartDateTimestamp && newSub.EndDateTimestamp >= x.StartDateTimestamp))))
                 {
                     return false;
                 }
+                return true;
             }
             // newSub is a personal approver
             else
@@ -106,6 +111,8 @@ namespace Core.ApplicationServices
 
         public void UpdateReportsAffectedBySubstitute(Substitute sub)
         {
+            try
+            {
                 if (sub.LeaderId == sub.PersonId)
                 {
                     // Substitute is a substitute - Not a Personal Approver.
@@ -119,7 +126,7 @@ namespace Core.ApplicationServices
                     reports.AddRange(reportsForLeadersOfImmediateChildOrgs);
                     foreach (var report in reports)
                     {
-                        report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                        report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
                     }
                     _driveRepo.Save();
                 }
@@ -127,13 +134,35 @@ namespace Core.ApplicationServices
                 {
                     // Substitute is a personal approver
                     // Select reports to be updated based on PersonId on report
-                    var reports2 = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
-                    foreach (var report in reports2)
+                    var reports = _driveRepo.AsQueryable().Where(rep => rep.PersonId == sub.PersonId).ToList();
+                    foreach (var report in reports)
                     {
-                        report.ResponsibleLeaderId = sub.SubId;
+                        report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
                     }
                     _driveRepo.Save();
                 }
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{this.GetType().Name}, Error updating reports for substitute ", e);
+            }
+            
+        }
+
+        public void UpdateResponsibleLeadersDaily()
+        {
+            try
+            {
+                var substitutes = _subRepo.AsQueryable().ToList();
+                foreach (var sub in substitutes)
+                {
+                    UpdateReportsAffectedBySubstitute(sub);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Error($"{this.GetType().Name}, Error updating the responsible leaders for all pending drive reports", e);
+            }
         }
     }
 }

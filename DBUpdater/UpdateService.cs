@@ -503,7 +503,7 @@ namespace DBUpdater
                     Console.WriteLine("Updating leaders on report " + i + " of " + max);
                 }
                 i++;
-                report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
                 report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
                 if (i % 1000 == 0)
                 {
@@ -540,14 +540,14 @@ namespace DBUpdater
             // Fail-safe as some reports for unknown reasons have not had a leader attached
             Console.WriteLine("Adding leaders to reports that have none");
             var i = 0;
-            var reports = _reportRepo.AsQueryable().Where(r => r.ResponsibleLeader == null || r.ActualLeader == null).ToList();
+            var reports = _reportRepo.AsQueryable().Where(r => r.ResponsibleLeaders.Count == 0 || r.ActualLeader == null).ToList();
             foreach (var report in reports)
             {
                 try
                 {
                     i++;
                     Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
-                    report.ResponsibleLeaderId = _driveService.GetResponsibleLeaderForReport(report).Id;
+                    report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
                     report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
                     if (i % 100 == 0)
                     {

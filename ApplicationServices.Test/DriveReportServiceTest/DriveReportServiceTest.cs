@@ -44,6 +44,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         private IRoute<RouteInformation> _routeMock;
         private IAddressCoordinates _coordinatesMock;
         private IMailService _mailServiceMock;
+        private ISubstituteService _subServiceMock;
         private IGenericRepository<Person> _personMock;
         private List<DriveReport> repoList;
         private Core.ApplicationServices.Logger.ILogger _logger;
@@ -63,6 +64,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _coordinatesMock = Substitute.For<IAddressCoordinates>();
             _subMock = Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
             _mailServiceMock = Substitute.For<IMailService>();
+            _subServiceMock = Substitute.For<ISubstituteService>();
             _reportRepoMock = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
             _personMock = Substitute.For<IGenericRepository<Person>>();
             _logger = new Core.ApplicationServices.Logger.Logger();
@@ -188,8 +190,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             };
 
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("Test Testesen [TT]", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Test Testesen [TT]", res[0].FullName);
         }
 
         [Test]
@@ -227,6 +229,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 PersonId = leader.Id,
                 IsLeader = true
             };
+
             var userEmpl = new Employment()
             {
                 Id = 2,
@@ -236,8 +239,6 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 PersonId = user.Id,
                 IsLeader = false
             };
-
-
 
             var substitute = new Core.DomainModel.Substitute()
             {
@@ -283,13 +284,18 @@ namespace ApplicationServices.Test.DriveReportServiceTest
            };
 
 
-            var res = _uut.GetResponsibleLeaderForReport(report);
-            Assert.AreEqual("En Substitute [ES]", res.FullName);
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual("Test Testesen [TT]", res[0].FullName);
+            Assert.AreEqual("En Substitute [ES]", res[1].FullName);
         }
 
         [Test]
         public void GetResponsibleLeader_WithMultipleReports_SomeWithSubSomeWithout_ShouldFindCorrectLeaders()
         {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Today.AddDays(1).AddSeconds(-1));
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
 
             var leader1 = new Person()
             {
@@ -362,50 +368,89 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             {
                 Id = 4,
                 OrgUnitId = 2,
-                OrgUnit = orgUnit,
+                OrgUnit = orgUnit2,
                 Person = user1,
                 PersonId = user1.Id,
                 IsLeader = false
             };
-
-
 
             var substitute = new Core.DomainModel.Substitute()
             {
                 Id = 1,
                 PersonId = 1,
                 LeaderId = 1,
-                OrgUnitId = leaderEmpl1.Id,
+                OrgUnitId = leaderEmpl1.OrgUnitId,
                 Person = leader1,
                 Sub = new Person()
                 {
+                    Id = 1,
                     FirstName = "En",
                     LastName = "Substitute",
                     Initials = "ES",
                     FullName = "En Substitute [ES]"
                 },
-                StartDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds,
-                EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds,
+                StartDateTimestamp = weekAgoUnix,
+                EndDateTimestamp = todayUnix,
+            };
+
+            var substituteTo = new Core.DomainModel.Substitute()
+            {
+                Id = 2,
+                PersonId = 1,
+                LeaderId = 1,
+                OrgUnitId = leaderEmpl1.OrgUnitId,
+                Person = leader1,
+                Sub = new Person()
+                {
+                    Id = 2,
+                    FirstName = "To",
+                    LastName = "Substitute",
+                    Initials = "TS",
+                    FullName = "Tn Substitute [TS]"
+                },
+                StartDateTimestamp = yesterdayUnix,
+                EndDateTimestamp = todayUnix,
+            };
+
+            var substitute3 = new Core.DomainModel.Substitute()
+            {
+                Id = 3,
+                PersonId = 2,
+                LeaderId = 2,
+                OrgUnitId = leaderEmpl2.OrgUnitId,
+                Person = leader2,
+                Sub = new Person()
+                {
+                    Id = 3,
+                    FirstName = "Test",
+                    LastName = "Substitute",
+                    Initials = "TEST",
+                    FullName = "Test Substitute [TEST]"
+                },
+                StartDateTimestamp = weekAgoUnix,
+                EndDateTimestamp = todayUnix,
             };
 
             _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
             {
-             leaderEmpl1,leaderEmpl2, userEmpl1, userEmpl2
+                leaderEmpl1,
+                leaderEmpl2,
+                userEmpl1,
+                userEmpl2
             }.AsQueryable());
-
 
             _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
             {
-                orgUnit,orgUnit2
+                orgUnit,
+                orgUnit2
             }.AsQueryable());
-
 
             _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
             {
-                substitute
+                substitute,
+                substituteTo,
+                substitute3
             }.AsQueryable());
-
-
 
             var report = new List<DriveReport>()
             {
@@ -435,13 +480,163 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 }
             };
 
+            var res0 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(0));
+            var res1 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(1));
+            var res2 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(2));
 
-            var res0 = _uut.GetResponsibleLeaderForReport(report.AsQueryable().ElementAt(0));
-            var res1 = _uut.GetResponsibleLeaderForReport(report.AsQueryable().ElementAt(1));
-            var res2 = _uut.GetResponsibleLeaderForReport(report.AsQueryable().ElementAt(2));
-            Assert.AreEqual("En Substitute [ES]", res0.FullName);
-            Assert.AreEqual("En Substitute [ES]", res1.FullName);
-            Assert.AreEqual("Test Tester [TT]", res2.FullName);
+            Assert.AreEqual(3, res0.Count);
+            Assert.AreEqual("Test Testesen [TT]", res0[0].FullName);
+            Assert.AreEqual("En Substitute [ES]", res0[1].FullName);
+            Assert.AreEqual("Tn Substitute [TS]", res0[2].FullName);
+
+            Assert.AreEqual(3, res1.Count);
+            Assert.AreEqual("Test Testesen [TT]", res1[0].FullName);
+            Assert.AreEqual("En Substitute [ES]", res1[1].FullName);
+            Assert.AreEqual("Tn Substitute [TS]", res1[2].FullName);
+
+            Assert.AreEqual(2, res2.Count);
+            Assert.AreEqual("Test Tester [TT]", res2[0].FullName);
+            Assert.AreEqual("Test Substitute [TEST]", res2[1].FullName);
+        }
+
+        [Test]
+        public void RemoveExpiredLeadersForPendingReports()
+        {
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
+            var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
+            var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
+
+            var leader1 = new Person()
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testesen",
+                Initials = "TT",
+                FullName = "Test Testesen [TT]"
+            };                        
+
+            var user1 = new Person()
+            {
+                Id = 3,
+                FirstName = "User",
+                LastName = "Usersen",
+                Initials = "UU",
+                FullName = "User Usersen [UU]"
+            };
+
+            var orgUnit = new OrgUnit()
+            {
+                Id = 1,
+            };            
+
+            var leaderEmpl1 = new Employment()
+            {
+                Id = 1,
+                OrgUnitId = 1,
+                OrgUnit = orgUnit,
+                Person = leader1,
+                PersonId = leader1.Id,
+                IsLeader = true
+            };            
+
+            var userEmpl1 = new Employment()
+            {
+                Id = 3,
+                OrgUnitId = 1,
+                OrgUnit = orgUnit,
+                Person = user1,
+                PersonId = user1.Id,
+                IsLeader = false
+            };            
+
+            var substitute = new Core.DomainModel.Substitute()
+            {
+                Id = 1,
+                PersonId = 1,
+                LeaderId = 1,
+                OrgUnitId = leaderEmpl1.OrgUnitId,
+                Person = leader1,
+                Sub = new Person()
+                {
+                    Id = 1,
+                    FirstName = "En",
+                    LastName = "Substitute",
+                    Initials = "ES",
+                    FullName = "En Substitute [ES]"
+                },
+                StartDateTimestamp = weekAgoUnix,
+                EndDateTimestamp = todayUnix,
+            };
+
+            var substituteTo = new Core.DomainModel.Substitute()
+            {
+                Id = 2,
+                PersonId = 1,
+                LeaderId = 1,
+                OrgUnitId = leaderEmpl1.OrgUnitId,
+                Person = leader1,
+                Sub = new Person()
+                {
+                    Id = 2,
+                    FirstName = "To",
+                    LastName = "Substitute",
+                    Initials = "TS",
+                    FullName = "Tn Substitute [TS]"
+                },
+                StartDateTimestamp = yesterdayUnix,
+                EndDateTimestamp = yesterdayUnix,
+            };
+
+            _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
+            {
+                leaderEmpl1,
+                userEmpl1
+            }.AsQueryable());
+
+            _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
+            {
+                orgUnit,
+            }.AsQueryable());
+
+            _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
+            {
+                substitute,
+                substituteTo
+            }.AsQueryable());
+
+            var report = new List<DriveReport>()
+            {
+                new DriveReport()
+                {
+                    Id = 1,
+                    Employment = userEmpl1,
+                    EmploymentId = userEmpl1.Id,
+                    PersonId = user1.Id,
+                    Person = user1,
+                    Status = ReportStatus.Pending
+                },
+                new DriveReport()
+                {
+                    Id = 2,
+                    Employment = userEmpl1,
+                    EmploymentId = userEmpl1.Id,
+                    PersonId = user1.Id,
+                    Person = user1,
+                    Status = ReportStatus.Pending
+                }
+            };           
+
+            var res0 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(0));
+            var res1 = _uut.GetResponsibleLeadersForReport(report.AsQueryable().ElementAt(1));
+
+            Assert.AreEqual(2, res0.Count);
+            Assert.AreEqual("Test Testesen [TT]", res0[0].FullName);
+            Assert.AreEqual("En Substitute [ES]", res0[1].FullName);
+
+            Assert.AreEqual(2, res1.Count);
+            Assert.AreEqual("Test Testesen [TT]", res1[0].FullName);
+            Assert.AreEqual("En Substitute [ES]", res1[1].FullName);
         }
 
         [Test]
@@ -742,11 +937,13 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             var delta = new Delta<DriveReport>(typeof(DriveReport));
             delta.TrySetPropertyValue("Status", ReportStatus.Rejected);
             delta.TrySetPropertyValue("Comment", comment);
+            var datetimestampNow = Utilities.ToUnixTime(DateTime.Now);
 
             repoList.Add(new DriveReport
             {
                 Id = 1,
                 Status = ReportStatus.Pending,
+                CreatedDateTimestamp = datetimestampNow,
                 Person = new Person
                 {
                     Mail = "test@mail.dk",
@@ -755,7 +952,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             });
 
             _uut.SendMailForRejectedReport(1, delta);
-            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning, oprettet den 01-01-1970 01:00:00, er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
+            _mailServiceMock.Received().SendMail("test@mail.dk", "Afvist indberetning", "Din indberetning, oprettet den "+ Utilities.FromUnixTime(datetimestampNow) +", er blevet afvist med kommentaren: \n \n" + comment + "\n \n Du har mulighed for at redigere den afviste indberetning i OS2indberetning under Mine indberetninger / Afviste, hvorefter den vil lægge sig under Afventer godkendelse - fanen igen.");
         }
 
         [Test]
@@ -779,7 +976,6 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
             Assert.Throws<Exception>(() => _uut.SendMailForRejectedReport(1, delta));
         }
-
 
         [Test]
         public void ReCalculateFourKmRuleForOtherReports_WhenDeletingFirstReportOfTheDay()
@@ -897,7 +1093,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 {
                     Id = 2
                 },
-                Person = new Person() { Id = 13, FullName = "Leader" },
+                Person = new Person() { Id = 13, FullName = "Leader", Mail = "leadermail@test.test", RecieveMail = true },
                 PersonId = 13,
                 IsLeader = true
             };
@@ -938,7 +1134,6 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Purpose = "Test",
                 TFCode = "1234",
                 Employment = empl,
-                ResponsibleLeader = new Person {Mail = "leadermail@test.test" },
                 Person = new Person() { Id = 1, FirstName = "Person", LastName = "Person", FullName = "Person Person" },
             };
 

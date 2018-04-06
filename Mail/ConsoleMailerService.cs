@@ -12,6 +12,8 @@ using Core.ApplicationServices;
 using Core.ApplicationServices.Logger;
 using Core.ApplicationServices.MailerService.Impl;
 using Core.ApplicationServices.MailerService.Interface;
+using Core.ApplicationServices.Interfaces;
+
 using Core.DomainModel;
 using Core.DomainServices;
 using Mail.LogMailer;
@@ -23,16 +25,19 @@ namespace Mail
     public class ConsoleMailerService
     {
         private IMailService _mailService;
+        private ISubstituteService _substituteService;
+
         private IGenericRepository<MailNotificationSchedule> _repo;
         private ILogger _logger;
         private ICustomSettings _customSettings;
 
-        public ConsoleMailerService(IMailService mailService, IGenericRepository<MailNotificationSchedule> repo, ILogger logger, ICustomSettings customSettings)
+        public ConsoleMailerService(IMailService mailService, ISubstituteService subService, IGenericRepository<MailNotificationSchedule> repo, ILogger logger, ICustomSettings customSettings)
         {
             _mailService = mailService;
             _repo = repo;
             _logger = logger;
             _customSettings = customSettings;
+            _substituteService = subService;
         }
 
         /// <summary>
@@ -40,7 +45,7 @@ namespace Mail
         /// </summary>
         public void RunMailService()
         {
-
+            // Send notifications
             var logMailer = new LogMailer.LogMailer(new LogParserRegex(), new LogReader(), _mailService, _logger, _customSettings);
             try
             {
@@ -64,22 +69,9 @@ namespace Mail
                 Console.WriteLine("Forsøger at sende emails.");
                 foreach (var notification in notifications.ToList())
                 {
-                    //if (notification.Repeat)
-                    //{
-                    //    var newDateTime = Utilities.ToUnixTime(Utilities.FromUnixTime(notification.DateTimestamp).AddMonths(1));
-                    //    _repo.Insert(new MailNotificationSchedule()
-                    //    {
-                    //        DateTimestamp = newDateTime,
-                    //        Notified = false,
-                    //        Repeat = true
-                    //    });
-                    //}
-                    //notification.Notified = true;
-
                     AttemptSendMails(_mailService, Utilities.FromUnixTime(notification.FileGenerationSchedule.DateTimestamp), notification.CustomText, 2);
                 }
-
-                //_repo.Save();
+                
                 _logger.Debug($"{this.GetType().Name}, RunMailerService(), Notification mails for leaders sending finished");
             }
             else
@@ -89,6 +81,12 @@ namespace Mail
                 Console.WriteLine(Environment.CurrentDirectory);
                 Thread.Sleep(3000);
             }
+        }
+
+        public void UpdateResponsibleLeaders()
+        {
+            // Update the responsible leaders for pending reports by removing the subs that are expired.
+            _substituteService.UpdateResponsibleLeadersDaily();
         }
 
 

@@ -199,6 +199,15 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<Report>().Property(p => p.Comment).IsRequired();
             modelBuilder.Entity<Report>().HasRequired(p => p.Person);
             modelBuilder.Entity<Report>().HasRequired(p => p.Employment);
+            modelBuilder.Entity<Report>()
+                .HasMany(c => c.ResponsibleLeaders)
+                .WithMany()
+                .Map(x =>
+                {
+                    x.MapLeftKey("ReportId");
+                    x.MapRightKey("PersonId");
+                    x.ToTable("ReportPersonMapping");
+                });
         }
 
         private void ConfigurePropertiesForEmployment(DbModelBuilder modelBuilder)

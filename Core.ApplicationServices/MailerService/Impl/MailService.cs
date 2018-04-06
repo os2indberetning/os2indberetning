@@ -72,11 +72,11 @@ namespace Core.ApplicationServices.MailerService.Impl
         /// <returns>List of email addresses.</returns>
         public IEnumerable<string> GetLeadersWithPendingReportsMails()
         {
-            var approverEmails = new HashSet<String>();
+            var approverEmails = new List<String>();
 
             var reports = _driveRepo.AsQueryable().Where(r => r.Status == ReportStatus.Pending).ToList();
 
-            var reportsWithNoLeader = reports.Where(driveReport => driveReport.ResponsibleLeader == null);
+            var reportsWithNoLeader = reports.Where(driveReport => driveReport.ResponsibleLeaders.Count == 0);
 
             foreach (var report in reportsWithNoLeader)
             {
@@ -84,9 +84,9 @@ namespace Core.ApplicationServices.MailerService.Impl
                 _logger.Error($"{this.GetType().Name}, GetLeadersWithPendingReportsMails(): {report.Person.FullName}s indberetning har ingen leder. Indberetningen kan derfor ikke godkendes.");
             }
 
-            foreach (var driveReport in reports.Where(driveReport => driveReport.ResponsibleLeaderId != null && !string.IsNullOrEmpty(driveReport.ResponsibleLeader.Mail) && driveReport.ResponsibleLeader.RecieveMail))
+            foreach (var driveReport in reports)
             {
-                approverEmails.Add(driveReport.ResponsibleLeader.Mail);
+                approverEmails.AddRange(driveReport.ResponsibleLeaders.Where(p => !string.IsNullOrEmpty(p.Mail) && p.RecieveMail).Select(p => p.Mail));
             }
 
             return approverEmails;

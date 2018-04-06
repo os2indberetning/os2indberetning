@@ -19,6 +19,7 @@ namespace Mail
             ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
             _logger.Debug($"-------- MAIL STARTED --------");
             var service = NinjectWebKernel.GetKernel().Get<ConsoleMailerService>();
+            service.UpdateResponsibleLeaders();
             service.RunMailService();
             _logger.Debug($"-------- MAIL FINISHED --------");
         }

@@ -118,6 +118,7 @@
     <Content Include="Log4Net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Mail.nuspec" />
     <None Include="Mail_TemporaryKey.pfx" />
     <None Include="packages.config" />
   </ItemGroup>

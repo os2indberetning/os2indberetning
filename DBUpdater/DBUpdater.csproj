@@ -122,6 +122,7 @@
     <Content Include="Log4Net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="DBUpdater.nuspec" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

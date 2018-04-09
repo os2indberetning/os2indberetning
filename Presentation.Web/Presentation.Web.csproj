@@ -302,6 +302,7 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Content Include="apple-touch-icon.png" />
     <Content Include="App\Admin\Controllers\Email\AddEditFileGenerationScheduleController.js" />
     <Content Include="App\Admin\Controllers\Email\DeleteFileGenerationScheduleController.js" />
     <Content Include="App\Admin\Controllers\Email\FileGenerationScheduleController.js" />

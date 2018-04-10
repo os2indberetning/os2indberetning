@@ -101,11 +101,9 @@
        var getDataUrl = function (from, to, fullName, longDescription) {
            var url = "/odata/DriveReports?from=approve&status=Pending&$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeaders";
 
-           var leaderFilter = "";
+           var removeOwn = "";
 
-           if ($scope.checkboxes.showSubbed) {
-               leaderFilter = " and ActualLeaderId eq " + $scope.CurrentUser.Id;
-           }
+           removeOwn = " and PersonId ne " + $scope.CurrentUser.Id;
 
            var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
            if (fullName != undefined && fullName != "") {
@@ -114,7 +112,7 @@
            if (longDescription != undefined && longDescription != "") {
                filters += " and Employment/OrgUnitId eq " + $scope.orgUnit.chosenId;
            }
-           filters += leaderFilter;
+           filters += removeOwn;
 
            var result = url + filters;
            return result;
@@ -133,7 +131,7 @@
                 type: "odata-v4",
                 transport: {
                     read: {
-                        url: "/odata/DriveReports?from=approve&status=Pending&$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeaders &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ActualLeaderId eq " + $scope.CurrentUser.Id,
+                        url: "/odata/DriveReports?from=approve&status=Pending&$expand=Employment($expand=OrgUnit),DriveReportPoints,ResponsibleLeaders &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and PersonId ne " + $scope.CurrentUser.Id,
                         dataType: "json",
                         cache: false
                     },

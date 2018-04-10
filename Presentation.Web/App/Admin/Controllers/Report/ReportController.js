@@ -115,7 +115,7 @@
         }
  
         var getDataUrl = function (startDate, endDate, personId, orgUnit) {
-            var url = "/odata/DriveReports?queryType=admin&$expand=DriveReportPoints,ResponsibleLeader,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
+            var url = "/odata/DriveReports?queryType=admin&$expand=DriveReportPoints,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
             var filters = "&$filter=DriveDateTimestamp ge " + startDate + " and DriveDateTimestamp le " + endDate;
             if (personId != undefined && personId > 0) {
                 filters += " and PersonId eq " + personId;

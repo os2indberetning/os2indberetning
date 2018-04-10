@@ -36,6 +36,11 @@
                     $scope.FileGenerationSchedule.Repeat = "false";
                 }
             });
+        } else {
+            // Generate one default email
+            $scope.FileGenerationSchedule.MailNotificationSchedules.push({DateTimestamp: 0 , CustomText:""});
+            $scope.MailsDates.push(new Date());
+            $scope.ShowTextareaValues.push(false);
         }
 
         $scope.dateOptions = {

@@ -1,5 +1,5 @@
 angular.module("application").controller("MainMenuController", [
-   "$scope", "Person", "PersonalAddress", "HelpText", "$rootScope", "OrgUnit", function ($scope, Person, PersonalAddress, HelpText, $rootScope, OrgUnit) {
+   "$scope", "$window", "Person", "PersonalAddress", "HelpText", "$rootScope", "OrgUnit", function ($scope, $window, Person, PersonalAddress, HelpText, $rootScope, OrgUnit) {
 
 
        HelpText.getAll().$promise.then(function (res) {
@@ -13,6 +13,10 @@ angular.module("application").controller("MainMenuController", [
                $scope.showAdministration = res.IsAdmin;
                $scope.showApproveReports = res.IsLeader || res.IsSubstitute;
                $scope.UserName = res.FullName;
+           }).catch(function(e){
+               if ($rootScope.HelpTexts.AUTHENTICATION.text == "SAML") {
+                   $window.location.href = "login.ashx"
+               }
            });
        }
 

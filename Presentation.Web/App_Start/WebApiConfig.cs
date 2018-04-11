@@ -142,6 +142,10 @@ namespace OS2Indberetning
             .Function("GetEmployeesOfLeader")
             .ReturnsFromEntitySet<Person>("Person");
 
+            builder.EntityType<OrgUnit>().Collection
+            .Function("GetOrgUnitsForLeader")
+            .ReturnsFromEntitySet<OrgUnit>("OrgUnits");
+
 
 
             builder.EntitySet<PersonalAddress>("PersonalAddresses");

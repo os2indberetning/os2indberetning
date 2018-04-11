@@ -256,6 +256,33 @@
                     }
                 },
             }
+        },
+        allOrgUnitsForLeader: function () {
+            return {
+                type: "json",
+                minLength: 3,
+                serverFiltering: false,
+                crossDomain: true,
+                transport: {
+                    read: {
+                        url: function () {
+
+                            var req = "odata/OrgUnits/Service.GetOrgUnitsForLeader?";
+                            return req;
+                        },
+                        dataType: "json",
+                        data: {
+
+                        }
+                    }
+                },
+                schema: {
+                    data: function (data) {
+                        console.log(data.value);
+                        return data.value;
+                    }
+                },
+            }
         }
     }
 });

@@ -89,27 +89,27 @@
         }
 
         $scope.updateData = function (data) {
-            if(data.value[0] != undefined && data.value[0] != null) {
-                result = data.value[0];
-                $scope.Name = result.Person.FullName;
-                $scope.LicensePlates = result.LicensePlate;
-                var selectedEmpl = $scope.getSelectedEmployment($scope.container.SelectedEmployment);
+            $scope.Name = $scope.container.employeeFilter;
+            $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
+            $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;
+            $scope.LicensePlates = $rootScope.CurrentUser.LicensePlates[0].Plate;
+
+            var selectedEmpl = $scope.getSelectedEmployment($scope.container.SelectedEmployment);
                 if(selectedEmpl != undefined && selectedEmpl != null) 
                     $scope.OrgUnit = selectedEmpl.OrgUnit.LongDescription;
                 else 
-                    $scope.OrgUnit = "Ikke angivet";
+                    $scope.OrgUnit = "Ikke angivet"; 
+
+            $scope.HomeAddressStreet = "N/A";
+            $scope.HomeAddressTown = "N/A"; 
+
+            if(data.value[0] != undefined && data.value[0] != null) {
+                result = data.value[0];                               
                 
-                $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
-                $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;
                 var homeAddress = $scope.findHomeAddress(result.Person.PersonalAddresses);
-                //$scope.AdminName = result.AdminName;
                 if(homeAddress != null && homeAddress != undefined) {
                     $scope.HomeAddressStreet = homeAddress.StreetName + " " + homeAddress.StreetNumber;
                     $scope.HomeAddressTown = homeAddress.ZipCode + " " + homeAddress.Town;
-                }
-                else {
-                    $scope.HomeAddressStreet = "N/A";
-                    $scope.HomeAddressTown = "N/A"; 
                 }
             }
             
@@ -479,7 +479,7 @@
                         },
                         {
                             cells: [ 
-                                { value: "Dato interval for udbetaling" },
+                                { value: "Kørselsdato interval" },
                                 { value: $scope.DateInterval}
                             ]
                         },

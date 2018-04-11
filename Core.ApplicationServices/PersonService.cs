@@ -183,6 +183,26 @@ namespace Core.ApplicationServices
             return employees;
         }
 
+        public List<OrgUnit> GetOrgUnitsForLeader(Person currentUser)
+        {
+            var orgUnitsDupes = new List<OrgUnit>();
+            if (currentUser.Employments.Where(e => e.IsLeader).Any())
+            {
+                foreach (Employment e in currentUser.Employments.Where(e => e.IsLeader))
+                {
+                    OrgUnit org = e.OrgUnit;
+                    orgUnitsDupes.Add(org);
+                    orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
+                }
+
+                return orgUnitsDupes.Distinct().ToList();
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         /// <summary>
         /// Find the children orgUnits based on the parent id
         /// </summary>

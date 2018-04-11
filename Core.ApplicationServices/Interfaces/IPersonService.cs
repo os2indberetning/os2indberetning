@@ -10,5 +10,6 @@ namespace Core.ApplicationServices.Interfaces
         PersonalAddress GetHomeAddress(Person person);
         Person AddHomeWorkDistanceToEmployments(Person person);
         List<Person> GetEmployeesOfLeader(Person person);
+        List<OrgUnit> GetOrgUnitsForLeader(Person person);
     }
 }

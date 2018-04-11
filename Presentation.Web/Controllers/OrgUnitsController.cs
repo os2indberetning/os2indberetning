@@ -9,16 +9,20 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Microsoft.Ajax.Utilities;
 using Core.DomainServices.Interfaces;
+using System.Collections.Generic;
 
 namespace OS2Indberetning.Controllers
 {
     public class OrgUnitsController : BaseController<OrgUnit>
     {
         private readonly IOrgUnitService _orgService;
+        private IPersonService _person;
 
-        public OrgUnitsController(IGenericRepository<OrgUnit> repo, IGenericRepository<Person> personRepo, IOrgUnitService orgService) : base(repo, personRepo)
+
+        public OrgUnitsController(IGenericRepository<OrgUnit> repo, IGenericRepository<Person> personRepo, IOrgUnitService orgService, IPersonService personService) : base(repo, personRepo)
         {
             _orgService = orgService;
+            _person = personService;
         }
 
         //GET: odata/OrgUnits
@@ -116,6 +120,25 @@ namespace OS2Indberetning.Controllers
         public new IHttpActionResult Delete([FromODataUri] int key)
         {
             return StatusCode(HttpStatusCode.MethodNotAllowed);
+        }
+
+        /// <summary>
+        /// Gets all orgUnits that for the leader
+        /// </summary>
+        /// <returns></returns>
+        [System.Web.Http.HttpGet]
+        public IHttpActionResult GetOrgUnitsForLeader()
+        {
+            List<OrgUnit> orgUnits = new List<OrgUnit>();
+            if (CurrentUser.Employments.Where(e => e.IsLeader).Any())
+            {
+                orgUnits = _person.GetOrgUnitsForLeader(CurrentUser);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+            return Ok(orgUnits);
         }
     }
 }

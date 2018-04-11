@@ -7,7 +7,7 @@
 
         $scope.container = {};
         $scope.persons = Autocomplete.allEmployeesForLeader();
-        $scope.orgUnits = Autocomplete.orgUnits();
+        $scope.orgUnits = Autocomplete.allOrgUnitsForLeader();
         $scope.showReport = false;
         
 
@@ -37,15 +37,33 @@
             filter: "contains",
             select: function (e) {
                 $scope.container.chosenPersonId = this.dataItem(e.item.index()).Id;
+                $scope.container.chosenPersonFullName = this.dataItem(e.item.index()).FullName;                
             }
         };
+
+        $scope.personTextChanged = function() {
+            // In case the user types something that does not exist in the autocomplete list
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.chosenPersonFullName) && $scope.container.employeeFilter != $scope.container.chosenPersonFullName)
+            {
+                $scope.container.chosenPersonId = 0;
+            }
+        }
 
         $scope.orgunitAutoCompleteOptions = {
             filter: "contains",
             select: function (e) {
                 $scope.container.chosenOrgunitId = this.dataItem(e.item.index()).Id;
+                $scope.container.chosenOrgunitLongDescription = this.dataItem(e.item.index()).LongDescription;                
             }
         };
+
+        $scope.orgUnitTextChanged = function() {
+            // In case the user types something that does not exist in the autocomplete list
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.chosenOrgunitLongDescription) && $scope.container.orgUnitFilter != $scope.container.chosenOrgunitLongDescription)
+            {
+                $scope.container.chosenOrgunitId = 0;
+            }
+        }
 
         $scope.createReportClick = function () {
             var personId = $scope.container.chosenPersonId;
@@ -56,13 +74,17 @@
             // $scope.container.chosenPersonId = "";
             // $scope.container.chosenOrgunitId = "";
 
-             if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
+             if (($scope.checkStringNotEmptyOrUndefined($scope.container.employeeFilter) || $scope.checkStringNotEmptyOrUndefined($scope.container.orgUnitFilter)) && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
                 $scope.gridContainer.reportsGrid.dataSource.read();          
                 $scope.showReport = true;            
             }else {
-                alert('Du mangler at udfylde et felt med en *');
+                alert('Alle felter med markeret med * og enten medarbejdernavn eller organisationsenhed skal udfyldes.');
             }       
+        }
+
+        $scope.checkStringNotEmptyOrUndefined = function (input) {
+            return input != undefined && input != "";
         }
 
         $scope.getEndOfDayStamp = function (d) {
@@ -76,29 +98,44 @@
         }
 
         $scope.updateData = function (data) {
-            if(data.value[0] != undefined && data.value[0] != null) {
-                result = data.value[0];
-                $scope.Name = result.Person.FullName;
-                $scope.LicensePlates = result.LicensePlate;
-                if($scope.container.orgUnitFilter != undefined && $scope.container.orgUnitFilter != "") 
-                    $scope.OrgUnit = $scope.container.orgUnitFilter;
-                else 
-                    $scope.OrgUnit = "Ikke angivet";
-                
-                $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
-                $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;
-                var homeAddress = $scope.findHomeAddress(result.Person.PersonalAddresses);
-                //$scope.AdminName = result.AdminName;
-                if(homeAddress != null && homeAddress != undefined) {
-                    $scope.HomeAddressStreet = homeAddress.StreetName + " " + homeAddress.StreetNumber;
-                    $scope.HomeAddressTown = homeAddress.ZipCode + " " + homeAddress.Town;
-                }
-                else {
-                    $scope.HomeAddressStreet = "N/A";
-                    $scope.HomeAddressTown = "N/A"; 
-                }
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.employeeFilter) && $scope.container.chosenPersonId > 0)
+            {
+                $scope.Name = $scope.container.employeeFilter;
             }
-            
+            else 
+            {
+                $scope.Name = "Ikke angivet";
+            }
+
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.orgUnitFilter) && $scope.container.chosenOrgunitId > 0)
+            { 
+                $scope.OrgUnit = $scope.container.orgUnitFilter;
+            }
+            else 
+            {
+                $scope.OrgUnit = "Ikke angivet";
+            }   
+            $scope.LicensePlates = "N/A";
+            $scope.HomeAddressStreet = "N/A";
+            $scope.HomeAddressTown = "N/A";
+            $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
+            $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;   
+
+            if(data.value[0] != undefined && data.value[0] != null)
+            {
+                result = data.value[0];
+                if($scope.checkStringNotEmptyOrUndefined($scope.container.employeeFilter) && $scope.container.chosenPersonId > 0 && result != null && result != undefined)
+                {
+                    $scope.LicensePlates = result.LicensePlate;
+                    var homeAddress = $scope.findHomeAddress(result.Person.PersonalAddresses);
+                    if(homeAddress != null && homeAddress != undefined)
+                    {
+                        $scope.HomeAddressStreet = homeAddress.StreetName + " " + homeAddress.StreetNumber;
+                        $scope.HomeAddressTown = homeAddress.ZipCode + " " + homeAddress.Town;
+                    }
+                }               
+            }                  
+              
             reports = data;
         }
 
@@ -241,6 +278,11 @@
                         }
                     },
                     width: 100
+                },
+                { 
+                    field: "Person.FullName", 
+                    title: "Medarbejder",
+                    width: 100 
                 },
                 { 
                     field: "Employment.OrgUnit.LongDescription", 
@@ -465,7 +507,7 @@
                         },
                         {
                             cells: [ 
-                                { value: "Dato interval for udbetaling" },
+                                { value: "Kørselsdato interval" },
                                 { value: $scope.DateInterval}
                             ]
                         },
@@ -490,19 +532,19 @@
                 // Add roundtrip, extra distance and fourkmrule templates to the excel cheet columns.
                 var DriveDateTemplate = kendo.template(this.columns[0].template);
                 var CreatedDateTemplate = kendo.template(this.columns[1].template);
-                var RuteTemplate = kendo.template(this.columns[4].template);                
-                var IsRoundTripTemplate = kendo.template(this.columns[5].template);
-                var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
-                var FourKmRuleTemplate = kendo.template(this.columns[7].template);
-                var DistanceFromBordersTemplate = kendo.template(this.columns[9].template);                
-                var SixtyDaysRuleTemplate = kendo.template(this.columns[10].template);
-                var DistanceTemplate = kendo.template(this.columns[11].template);
-                var AmountTemplate = kendo.template(this.columns[12].template);
-                var KmRateTemplate = kendo.template(this.columns[13].template);
-                var StatusTemplate = kendo.template(this.columns[14].template);                
-                var ClosedDateTemplate = kendo.template(this.columns[15].template);
-                var ProcessedDateTemplate = kendo.template(this.columns[16].template);
-                var ApprovedByTemplate = kendo.template(this.columns[17].template);
+                var RuteTemplate = kendo.template(this.columns[5].template);                
+                var IsRoundTripTemplate = kendo.template(this.columns[6].template);
+                var IsExtraDistanceTemplate = kendo.template(this.columns[7].template);
+                var FourKmRuleTemplate = kendo.template(this.columns[8].template);
+                var DistanceFromBordersTemplate = kendo.template(this.columns[10].template);                
+                var SixtyDaysRuleTemplate = kendo.template(this.columns[11].template);
+                var DistanceTemplate = kendo.template(this.columns[12].template);
+                var AmountTemplate = kendo.template(this.columns[13].template);
+                var KmRateTemplate = kendo.template(this.columns[14].template);
+                var StatusTemplate = kendo.template(this.columns[15].template);                
+                var ClosedDateTemplate = kendo.template(this.columns[16].template);
+                var ProcessedDateTemplate = kendo.template(this.columns[17].template);
+                var ApprovedByTemplate = kendo.template(this.columns[18].template);
 
 
 
@@ -515,44 +557,44 @@
                         CreatedDateTimestamp: row.cells[1].value
                     };
                     var IsRutedataItem = {
-                        DriveReportPoints: row.cells[4].value
+                        DriveReportPoints: row.cells[5].value
                     };
                     var IsRoundTripdataItem = {
-                        IsRoundTrip: row.cells[5].value
+                        IsRoundTrip: row.cells[6].value
                     };
                     var IsExtraDistancedataItem = {
-                        IsExtraDistance: row.cells[6].value
+                        IsExtraDistance: row.cells[7].value
                     };
                     var FourKmRuledataItem = {
-                        FourKmRule: row.cells[7].value
+                        FourKmRule: row.cells[8].value
                     };
                     var IsDistanceFromBordersdataItem = {
-                        DistanceFromHomeToBorder: row.cells[9].value
+                        DistanceFromHomeToBorder: row.cells[10].value
                     };
                     var SixtyDaysRuledataItem = {
-                        SixtyDaysRule: row.cells[10].value
+                        SixtyDaysRule: row.cells[11].value
                     };
                     var DistancedataItem = {
-                        Distance: row.cells[11].value
+                        Distance: row.cells[12].value
                     };
                     var AmountdataItem = {
-                        AmountToReimburse: row.cells[12].value
+                        AmountToReimburse: row.cells[13].value
                     };
                     var KmRatedataItem = {
-                        KmRate: row.cells[13].value
+                        KmRate: row.cells[14].value
                     };
                     var StatusdataItem = {
-                        Status: row.cells[14].value
+                        Status: row.cells[15].value
                     };
                     var ClosedDatedataItem = {
-                        ClosedDateTimestamp: row.cells[15].value
+                        ClosedDateTimestamp: row.cells[16].value
                     };
                     var ProcessedDatedataItem = {
-                        ProcessedDateTimestamp: row.cells[16].value
+                        ProcessedDateTimestamp: row.cells[17].value
                     };
                     var ApprovedBydataItem = {
                         ApprovedBy: {
-                            FullName: row.cells[17].value
+                            FullName: row.cells[18].value
                         }
                             
                     };

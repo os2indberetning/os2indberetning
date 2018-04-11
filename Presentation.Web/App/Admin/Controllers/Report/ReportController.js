@@ -37,35 +37,55 @@
             filter: "contains",
             select: function (e) {
                 $scope.container.chosenPersonId = this.dataItem(e.item.index()).Id;
+                $scope.container.chosenPersonFullName = this.dataItem(e.item.index()).FullName;
             }
         };
+
+        $scope.personTextChanged = function() {
+            // In case the user types something that does not exist in the autocomplete list
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.chosenPersonFullName) && $scope.container.employeeFilter != $scope.container.chosenPersonFullName)
+            {
+                $scope.container.chosenPersonId = 0;
+            }
+        }
 
         $scope.orgunitAutoCompleteOptions = {
             filter: "contains",
             select: function (e) {
                 $scope.container.chosenOrgunitId = this.dataItem(e.item.index()).Id;
+                $scope.container.chosenOrgunitLongDescription = this.dataItem(e.item.index()).LongDescription;                
             }
         };
+
+        $scope.orgUnitTextChanged = function() {
+            // In case the user types something that does not exist in the autocomplete list
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.chosenOrgunitLongDescription) && $scope.container.orgUnitFilter != $scope.container.chosenOrgunitLongDescription)
+            {
+                $scope.container.chosenOrgunitId = 0;
+            }
+        }
 
         $scope.createReportClick = function () {
             var personId = $scope.container.chosenPersonId;
             var orgunitId = $scope.container.chosenOrgunitId;
-            var fromUnix = $scope.getStartOfDayStamp($scope.dateContainer.fromDate);
-            var toUnix = $scope.getEndOfDayStamp($scope.dateContainer.toDate);
+            if((personId > 0 && personId != undefined) || (orgunitId > 0 && orgunitId != undefined)) {
+                var fromUnix = $scope.getStartOfDayStamp($scope.dateContainer.fromDate);
+                var toUnix = $scope.getEndOfDayStamp($scope.dateContainer.toDate);
 
-            // $scope.container.chosenPersonId = "";
-            // $scope.container.chosenOrgunitId = "";
-
-             if (($scope.checkStringEmptyOrUndefined($scope.container.employeeFilter) || $scope.checkStringEmptyOrUndefined($scope.container.orgUnitFilter)) && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
-                $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
-                $scope.gridContainer.reportsGrid.dataSource.read(); 
-                $scope.showReport = true;               
-            }else {
-                alert('Alle felter med markeret med * og enten medarbejdernavn eller organisationsenhed skal udfyldes.');
-            }       
+                if (($scope.checkStringNotEmptyOrUndefined($scope.container.employeeFilter) || $scope.checkStringNotEmptyOrUndefined($scope.container.orgUnitFilter)) && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
+                    $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
+                    $scope.gridContainer.reportsGrid.dataSource.read(); 
+                    $scope.showReport = true;               
+                } else {
+                    alert('Alle felter med markeret med * og enten medarbejdernavn eller organisationsenhed skal udfyldes.');
+                }      
+            } 
+            else {
+                alert('Korrekt medarbejdernavn eller organisationsenhed skal udfyldes.');                
+            }
         }
 
-        $scope.checkStringEmptyOrUndefined = function (input) {
+        $scope.checkStringNotEmptyOrUndefined = function (input) {
             return input != undefined && input != "";
         }
 
@@ -80,29 +100,43 @@
         }
 
         $scope.updateData = function (data) {
-            if(data.value[0] != undefined && data.value[0] != null) {
-                result = data.value[0];
-                $scope.Name = result.Person.FullName;
-                $scope.LicensePlates = result.LicensePlate;
-                if($scope.container.orgUnitFilter != undefined && $scope.container.orgUnitFilter != "") 
-                    $scope.OrgUnit = $scope.container.orgUnitFilter;
-                else 
-                    $scope.OrgUnit = "Ikke angivet";
-                
-                $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
-                $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;
-                var homeAddress = $scope.findHomeAddress(result.Person.PersonalAddresses);
-                //$scope.AdminName = result.AdminName;
-                if(homeAddress != null && homeAddress != undefined) {
-                    $scope.HomeAddressStreet = homeAddress.StreetName + " " + homeAddress.StreetNumber;
-                    $scope.HomeAddressTown = homeAddress.ZipCode + " " + homeAddress.Town;
-                }
-                else {
-                    $scope.HomeAddressStreet = "N/A";
-                    $scope.HomeAddressTown = "N/A"; 
-                }
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.employeeFilter) && $scope.container.chosenPersonId > 0)
+            {
+                $scope.Name = $scope.container.employeeFilter;
             }
-            
+            else 
+            {
+                $scope.Name = "Ikke angivet";
+            }
+
+            if($scope.checkStringNotEmptyOrUndefined($scope.container.orgUnitFilter) && $scope.container.chosenOrgunitId > 0)
+            { 
+                $scope.OrgUnit = $scope.container.orgUnitFilter;
+            }
+            else 
+            {
+                $scope.OrgUnit = "Ikke angivet";
+            }   
+            $scope.LicensePlates = "N/A";
+            $scope.HomeAddressStreet = "N/A";
+            $scope.HomeAddressTown = "N/A";
+            $scope.Municipality = $rootScope.HelpTexts.muniplicity.text; 
+            $scope.DateInterval = $scope.container.reportFromDateString + " - " + $scope.container.reportToDateString;   
+
+            if(data.value[0] != undefined && data.value[0] != null)
+            {
+                result = data.value[0];
+                if($scope.checkStringNotEmptyOrUndefined($scope.container.employeeFilter) && $scope.container.chosenPersonId > 0 && result != null && result != undefined)
+                {
+                    $scope.LicensePlates = result.LicensePlate;
+                    var homeAddress = $scope.findHomeAddress(result.Person.PersonalAddresses);
+                    if(homeAddress != null && homeAddress != undefined)
+                    {
+                        $scope.HomeAddressStreet = homeAddress.StreetName + " " + homeAddress.StreetNumber;
+                        $scope.HomeAddressTown = homeAddress.ZipCode + " " + homeAddress.Town;
+                    }
+                }               
+            }                    
             reports = data;
         }
 
@@ -474,7 +508,7 @@
                         },
                         {
                             cells: [ 
-                                { value: "Dato interval for udbetaling" },
+                                { value: "Kørselsdato interval" },
                                 { value: $scope.DateInterval}
                             ]
                         },

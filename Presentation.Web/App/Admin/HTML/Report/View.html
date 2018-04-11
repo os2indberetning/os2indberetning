@@ -31,7 +31,7 @@
                 <div class="col-xs-6 col-lg-6">
                     <label class="pull-left">Medarbejder navn</label></span>
                     <div class="fill-width">
-                        <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text"  k-options="personAutoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" k-data-value-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
+                        <input id="employeeTextBox" ng-required="string"  ng-model="container.employeeFilter" type="text" ng-change="personTextChanged()"  k-options="personAutoCompleteOptions" k-data-source="persons" k-ng-model="person" k-data-text-field="'FullName'" k-data-value-field="'FullName'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast navn'"/>
                     </div>
                 </div>               
                 <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
@@ -42,7 +42,7 @@
                 </div>
                 <div class="col-xs-6 col-lg-6">
                     <label>Organisationsenhed</label>
-                    <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="orgunitAutoCompleteOptions"  k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'"  k-data-value-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
+                    <input id="orgUnitTextBox" ng-model="container.orgUnitFilter" type="text" k-options="orgunitAutoCompleteOptions" ng-change="orgUnitTextChanged()" k-data-source="orgUnits" k-ng-model="orgUnit" k-data-text-field="'LongDescription'"  k-data-value-field="'LongDescription'" kendo-auto-complete class="form-control fill-width" k-placeholder="'Indtast organisationsenhed'"/>
                 </div>
                 <div class="col-xs-6 col-lg-6" style="padding-bottom: 10px">
                     <label>Kørselsdato slut</label><span style="color:red;">*</span>
@@ -67,7 +67,7 @@
                                 <text style="float:right;">{{HomeAddressTown}}</text><br />
                                 Organisationsenhed: <text id="Organisationsenhed"style="float:right;">{{OrgUnit}}</text><br />  
                                 Kommune: <text  style="float:right;" id="Kommune">{{Municipality}}</text><br />  
-                                Datointerval for udbetaling:<div style="float:right;">{{DateInterval}}</div><br />
+                                Kørselsdato interval:<div style="float:right;">{{DateInterval}}</div><br />
                                 Dato for rapportdannelse: <text style="float:right;" id="dateCreated">{{Today}}</text><br />
                             </div>
                             <div style="float:left; padding-left:10px" >

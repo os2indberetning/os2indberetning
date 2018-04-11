@@ -57,8 +57,8 @@
             // $scope.container.chosenOrgunitId = "";
 
              if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
-                $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
-                $scope.gridContainer.reportsGrid.dataSource.read(); 
+                $scope.gridContainer.reportsSkatGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
+                $scope.gridContainer.reportsSkatGrid.dataSource.read(); 
                 $scope.showReport = true;               
             }else {
                 alert('Du mangler at udfylde et felt med en *');
@@ -127,7 +127,7 @@
             return result;
         }
 
-        $scope.reports = {
+        $scope.reportsSkat = {
             toolbar: ["excel", "pdf"],
             excel: {
                 fileName: "Rapport-" + today + ".xlsx",

@@ -55,9 +55,9 @@
                 </div>                
             </div>
             <div id="printThis" ng-show="showReport">
-                    <button class="k-button k-button-icontext k-grid-pdf" id="btnPDF"><span class="k-icon k-i-pdf"></span>Export Pdf</button>
-                    <button class="k-button k-button-icontext k-grid-excel" id="btnExcel"><span class="k-icon k-i-excel"></span>Export excel</button>                
-                    <div kendo-grid="gridContainer.reportsGrid" id="grid_id" class="margin-top-10 scrollable" options="reports">                 
+                    <button class="k-button k-button-icontext k-grid-pdf" id="skatBtnPDF"><span class="k-icon k-i-pdf"></span>Export Pdf</button>
+                    <button class="k-button k-button-icontext k-grid-excel" id="skatBtnExcel"><span class="k-icon k-i-excel"></span>Export excel</button>                
+                    <div kendo-grid="gridContainer.reportsSkatGrid" id="grid_id" class="margin-top-10 scrollable" options="reportsSkat">                 
                         <div class="k-header k-grid-toolbar ng-scope">
                             <div id="textwrapper" style="width:450px; float: left;" >
                                 Medarbejdernavn: <span id="MaNavn" style="float:right;">{{Name}}</span><br />
@@ -72,8 +72,8 @@
                             </div>
                             <div style="float:left; padding-left:10px" >
                             </div>
-                            <a class="k-button k-button-icontext k-grid-excel reallinks" id="reallinkExcel" href="#"><span class="k-icon k-i-excel"></span>xlsx</a>
-                            <a class="k-button k-button-icontext k-grid-pdf reallinks" id="reallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>pdf</a>
+                            <a class="k-button k-button-icontext k-grid-excel reallinks" id="skatReallinkExcel" href="#"><span class="k-icon k-i-excel"></span>xlsx</a>
+                            <a class="k-button k-button-icontext k-grid-pdf reallinks" id="skatReallinkPDF" href="#"><span class="k-icon k-i-pdf"></span>pdf</a>
                         </div>
                     </div> 
                 </div>
@@ -94,12 +94,12 @@
 
         $('.reallinks').hide();
 
-        $('#btnPDF').click(function () {
-            $('#reallinkPDF').click();
+        $('#skatBtnPDF').click(function () {
+            $('#skatReallinkPDF').click();
         });
 
-       $('#btnExcel').click(function () {
-            $('#reallinkExcel').click();
+       $('#skatBtnExcel').click(function () {
+            $('#skatReallinkExcel').click();
         });
     });
 

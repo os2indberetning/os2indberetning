@@ -58,11 +58,18 @@ namespace ApplicationServices.Test.TransferToPayrollServiceTest
                 Distance = 50,
                 Employment = new Employment()
                 {
-                    Id = 0
+                    Id = 0,
+                    EmploymentId = "123"
+                },
+                ApprovedBy = new Person()
+                {
+                    Id = 321,
+                    CprNumber = "9090909090"
                 },
                 TFCode = "0000",
                 DriveDateTimestamp = 0,
                 LicensePlate = "aa 12 123",
+                Purpose = "shouldProcessAndChangeStatus",
                 Person = new Person()
                 {
                     CprNumber = "1234123400"

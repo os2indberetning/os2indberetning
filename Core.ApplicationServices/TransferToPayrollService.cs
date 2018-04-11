@@ -130,7 +130,7 @@ namespace Core.ApplicationServices
                 throw new SdConfigException("PROTECTED_institutionNumber må ikke være tom");
             }
             opretInputType.ItemElementName = SdKoersel.ItemChoiceType.InstitutionIdentifikator;
-            opretInputType.BrugerIdentifikator = report.Person.CprNumber;
+            opretInputType.BrugerIdentifikator = report.ApprovedBy.CprNumber;
             opretInputType.Item1 = report.Employment.EmploymentId; // AnsaettelseIdentifikator 
             opretInputType.RegistreringTypeIdentifikator = report.TFCode;
             opretInputType.GodkendtIndikator = true;

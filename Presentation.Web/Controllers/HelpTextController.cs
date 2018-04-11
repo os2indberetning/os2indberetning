@@ -2,6 +2,7 @@
 using Core.ApplicationServices.Interfaces;
 using Core.DomainServices.Interfaces;
 using Ninject;
+using dk.nita.saml20.config;
 using OS2Indberetning.Filters;
 using System;
 using System.Collections.Generic;
@@ -64,6 +65,10 @@ namespace OS2Indberetning.Controllers
             {
                 res.AddRange(from key in ConfigurationManager.AppSettings.AllKeys 
                              where !key.Contains("PROTECTED") select new KeyValuePair<string, string>(key, ConfigurationManager.AppSettings[key]));
+
+                var listofendpoints = SAML20FederationConfig.GetConfig().Endpoints.IDPEndPoints;
+                var endpoint = listofendpoints.FirstOrDefault().GetIDPLoginUrl(false, false);
+                res.Add(new KeyValuePair<string, string>("IDPEndpoint", endpoint));
 
                 return Ok(res);
             }

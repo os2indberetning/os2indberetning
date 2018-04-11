@@ -56,13 +56,17 @@
             // $scope.container.chosenPersonId = "";
             // $scope.container.chosenOrgunitId = "";
 
-             if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
+             if (($scope.checkStringEmptyOrUndefined($scope.container.employeeFilter) || $scope.checkStringEmptyOrUndefined($scope.container.orgUnitFilter)) && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
                 $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
                 $scope.gridContainer.reportsGrid.dataSource.read(); 
                 $scope.showReport = true;               
             }else {
-                alert('Du mangler at udfylde et felt med en *');
+                alert('Alle felter med markeret med * og enten medarbejdernavn eller organisationsenhed skal udfyldes.');
             }       
+        }
+
+        $scope.checkStringEmptyOrUndefined = function (input) {
+            return input != undefined && input != "";
         }
 
         $scope.getEndOfDayStamp = function (d) {
@@ -241,6 +245,11 @@
                         }
                     },
                     width: 100
+                },
+                { 
+                    field: "Person.FullName", 
+                    title: "Medarbejder",
+                    width: 100 
                 },
                 { 
                     field: "Employment.OrgUnit.LongDescription", 
@@ -490,19 +499,19 @@
                 // Add roundtrip, extra distance and fourkmrule templates to the excel cheet columns.
                 var DriveDateTemplate = kendo.template(this.columns[0].template);
                 var CreatedDateTemplate = kendo.template(this.columns[1].template);
-                var RuteTemplate = kendo.template(this.columns[4].template);                
-                var IsRoundTripTemplate = kendo.template(this.columns[5].template);
-                var IsExtraDistanceTemplate = kendo.template(this.columns[6].template);
-                var FourKmRuleTemplate = kendo.template(this.columns[7].template);
-                var DistanceFromBordersTemplate = kendo.template(this.columns[9].template);                
-                var SixtyDaysRuleTemplate = kendo.template(this.columns[10].template);
-                var DistanceTemplate = kendo.template(this.columns[11].template);
-                var AmountTemplate = kendo.template(this.columns[12].template);
-                var KmRateTemplate = kendo.template(this.columns[13].template);
-                var StatusTemplate = kendo.template(this.columns[14].template);                
-                var ClosedDateTemplate = kendo.template(this.columns[15].template);
-                var ProcessedDateTemplate = kendo.template(this.columns[16].template);
-                var ApprovedByTemplate = kendo.template(this.columns[17].template);
+                var RuteTemplate = kendo.template(this.columns[5].template);                
+                var IsRoundTripTemplate = kendo.template(this.columns[6].template);
+                var IsExtraDistanceTemplate = kendo.template(this.columns[7].template);
+                var FourKmRuleTemplate = kendo.template(this.columns[8].template);
+                var DistanceFromBordersTemplate = kendo.template(this.columns[10].template);                
+                var SixtyDaysRuleTemplate = kendo.template(this.columns[11].template);
+                var DistanceTemplate = kendo.template(this.columns[12].template);
+                var AmountTemplate = kendo.template(this.columns[13].template);
+                var KmRateTemplate = kendo.template(this.columns[14].template);
+                var StatusTemplate = kendo.template(this.columns[15].template);                
+                var ClosedDateTemplate = kendo.template(this.columns[16].template);
+                var ProcessedDateTemplate = kendo.template(this.columns[17].template);
+                var ApprovedByTemplate = kendo.template(this.columns[18].template);
 
 
 
@@ -515,63 +524,63 @@
                         CreatedDateTimestamp: row.cells[1].value
                     };
                     var IsRutedataItem = {
-                        DriveReportPoints: row.cells[4].value
+                        DriveReportPoints: row.cells[5].value
                     };
                     var IsRoundTripdataItem = {
-                        IsRoundTrip: row.cells[5].value
+                        IsRoundTrip: row.cells[6].value
                     };
                     var IsExtraDistancedataItem = {
-                        IsExtraDistance: row.cells[6].value
+                        IsExtraDistance: row.cells[7].value
                     };
                     var FourKmRuledataItem = {
-                        FourKmRule: row.cells[7].value
+                        FourKmRule: row.cells[8].value
                     };
                     var IsDistanceFromBordersdataItem = {
-                        DistanceFromHomeToBorder: row.cells[9].value
+                        DistanceFromHomeToBorder: row.cells[10].value
                     };
                     var SixtyDaysRuledataItem = {
-                        SixtyDaysRule: row.cells[10].value
+                        SixtyDaysRule: row.cells[11].value
                     };
                     var DistancedataItem = {
-                        Distance: row.cells[11].value
+                        Distance: row.cells[12].value
                     };
                     var AmountdataItem = {
-                        AmountToReimburse: row.cells[12].value
+                        AmountToReimburse: row.cells[13].value
                     };
                     var KmRatedataItem = {
-                        KmRate: row.cells[13].value
+                        KmRate: row.cells[14].value
                     };
                     var StatusdataItem = {
-                        Status: row.cells[14].value
+                        Status: row.cells[15].value
                     };
                     var ClosedDatedataItem = {
-                        ClosedDateTimestamp: row.cells[15].value
+                        ClosedDateTimestamp: row.cells[16].value
                     };
                     var ProcessedDatedataItem = {
-                        ProcessedDateTimestamp: row.cells[16].value
+                        ProcessedDateTimestamp: row.cells[17].value
                     };
                     var ApprovedBydataItem = {
                         ApprovedBy: {
-                            FullName: row.cells[17].value
+                            FullName: row.cells[18].value
                         }
                             
                     };
 
                     row.cells[0].value = DriveDateTemplate(IsDriveDatedataItem);
                     row.cells[1].value = CreatedDateTemplate(IsCreatedDatedataItem);
-                    row.cells[4].value = RuteTemplate(IsRutedataItem);
-                    row.cells[5].value = IsRoundTripTemplate(IsRoundTripdataItem);
-                    row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
-                    row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
-                    row.cells[9].value = DistanceFromBordersTemplate(IsDistanceFromBordersdataItem);
-                    row.cells[10].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
-                    row.cells[11].value = DistanceTemplate(DistancedataItem);
-                    row.cells[12].value = AmountTemplate(AmountdataItem);
-                    row.cells[13].value = KmRateTemplate(KmRatedataItem);
-                    row.cells[14].value = StatusTemplate(StatusdataItem);
-                    row.cells[15].value = ClosedDateTemplate(ClosedDatedataItem);
-                    row.cells[16].value = ProcessedDateTemplate(ProcessedDatedataItem);
-                    row.cells[17].value = ApprovedByTemplate(ApprovedBydataItem);                    
+                    row.cells[5].value = RuteTemplate(IsRutedataItem);
+                    row.cells[6].value = IsRoundTripTemplate(IsRoundTripdataItem);
+                    row.cells[7].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
+                    row.cells[8].value = FourKmRuleTemplate(FourKmRuledataItem);
+                    row.cells[10].value = DistanceFromBordersTemplate(IsDistanceFromBordersdataItem);
+                    row.cells[11].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
+                    row.cells[12].value = DistanceTemplate(DistancedataItem);
+                    row.cells[13].value = AmountTemplate(AmountdataItem);
+                    row.cells[14].value = KmRateTemplate(KmRatedataItem);
+                    row.cells[15].value = StatusTemplate(StatusdataItem);
+                    row.cells[16].value = ClosedDateTemplate(ClosedDatedataItem);
+                    row.cells[17].value = ProcessedDateTemplate(ProcessedDatedataItem);
+                    row.cells[18].value = ApprovedByTemplate(ApprovedBydataItem);                    
                 }
             }
         }

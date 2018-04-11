@@ -17,6 +17,7 @@ using OS2Indberetning.Filters;
 using dk.nita.saml20.identity;
 using Core.ApplicationServices;
 using Ninject;
+using System.Configuration;
 
 namespace OS2Indberetning.Controllers
 {

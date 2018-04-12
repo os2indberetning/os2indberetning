@@ -313,6 +313,16 @@
             //    console.log("res['value']= " + res["value"]);
             //    return res;
             //}
+       },
+       "getNDKWorkRouteCalculation": {
+           method: "POST",
+           url: "/api/AlternativeCalculation/NDKWorkRouteCalculation?employmentId=:employmentId&transportType=:transportType&startsHome=:startsHome&endsHome=:endsHome",
+           transformRequest: function (adresses) {
+               return JSON.stringify(adresses);
+           },
+           transformResponse: function (data) {
+               return { resultData: data }; // wrapped in object because of angular "bug" where the string data would be returned an array of chars.
+           }
         }
     });
 }]);

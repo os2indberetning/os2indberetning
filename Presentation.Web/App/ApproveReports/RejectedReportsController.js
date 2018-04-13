@@ -73,14 +73,8 @@
        }
 
        var getDataUrl = function (from, to, fullName, longDescription) {
-           var url = "/odata/DriveReports?leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints";
-           var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;
-
-           var leaderFilter = " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id;
-
-           if ($scope.checkboxes.showSubbed) {
-               leaderFilter = " and (ResponsibleLeaderId eq " + $scope.CurrentUser.Id + " or ActualLeaderId eq " + $scope.CurrentUser.Id + ")";
-           }
+           var url = "/odata/DriveReports?from=approve&leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints";
+           var filters = "&$filter=DriveDateTimestamp ge " + from + " and DriveDateTimestamp le " + to;          
 
            if (fullName != undefined && fullName != "") {
                filters += " and PersonId eq " + $scope.person.chosenId;
@@ -88,8 +82,6 @@
            if (longDescription != undefined && longDescription != "") {
                filters += " and Employment/OrgUnitId eq " + $scope.orgUnit.chosenId;
            }
-
-           filters += leaderFilter;
 
            var result = url + filters;
            return result;
@@ -111,7 +103,7 @@
                type: "odata-v4",
                transport: {
                    read: {
-                       url: "/odata/DriveReports?leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter + " and ResponsibleLeaderId eq " + $scope.CurrentUser.Id,
+                       url: "/odata/DriveReports?from=approve&leaderId=" + personId + "&status=Rejected" + "&getReportsWhereSubExists=" + $scope.checkboxes.showSubbed + " &$expand=Employment($expand=OrgUnit),DriveReportPoints &$filter=DriveDateTimestamp ge " + fromDateFilter + " and DriveDateTimestamp le " + toDateFilter,
                        dataType: "json",
                        cache: false
                  },

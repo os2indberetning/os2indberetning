@@ -130,7 +130,7 @@ namespace OS2Indberetning.Controllers
         public IHttpActionResult GetOrgUnitsForLeader()
         {
             List<OrgUnit> orgUnits = new List<OrgUnit>();
-            if (CurrentUser.Employments.Where(e => e.IsLeader).Any())
+            if (CurrentUser.Employments.Where(e => e.IsLeader).Any() || CurrentUser.SubstituteLeaders.Count > 0)
             {
                 orgUnits = _person.GetOrgUnitsForLeader(CurrentUser);
             }

@@ -25,7 +25,7 @@ namespace ApplicationServices.Test.PersonService
 
         private IPersonService _uut;
         private ILogger _loggerMock;
-            
+
         [SetUp]
         public void SetUp()
         {
@@ -742,7 +742,166 @@ namespace ApplicationServices.Test.PersonService
             var result = _uut.GetEmployeesOfLeader(_persons.AsQueryable().ToList()[0]);
 
             // Asserts
-            Assert.IsNull(result);
+            Assert.IsEmpty(result);
+        }
+
+        [Test]
+        public void GetEmploymentForLeader_NotLeader_ButSubstitute()
+        {
+            _persons = new List<Person>{
+                new Person
+                {
+                    Id = 1,
+                    FirstName = "Morten",
+                    LastName = "Rasmussen",
+                    CprNumber = "1234567890",
+                    Initials = "MR",
+                    Employments = new List<Employment>
+                    {
+                        new Employment
+                        {
+                            Id = 4,
+                            OrgUnit = new OrgUnit
+                            {
+                                Id = 3,
+                                OrgId = 3,
+                                ShortDescription = "orgUnit3",
+                                LongDescription = "OrgUnit 2.2",
+                                Level = 2,
+                                ParentId = 1
+                            },
+                            OrgUnitId = 3,
+                            IsLeader = true,
+                            PersonId = 1,
+                            Person = _persons.AsQueryable().ToList()[0]
+                        }
+                    }
+                },
+                new Person
+                {
+                    Id = 2,
+                    FirstName = "Morten",
+                    LastName = "Jørgensen",
+                    CprNumber = "0987654321",
+                    Initials = "MJ",
+                    Employments = new List<Employment>
+                    {
+                        new Employment
+                        {
+                            Id = 4,
+                            OrgUnit = new OrgUnit
+                            {
+                                Id = 3,
+                                OrgId = 3,
+                                ShortDescription = "orgUnit3",
+                                LongDescription = "OrgUnit 2.2",
+                                Level = 2,
+                                ParentId = 1
+                            },
+                            OrgUnitId = 3,
+                            IsLeader = false,
+                            PersonId = 2,
+                            Person = _persons.AsQueryable().ToList()[2]
+                        }
+                    },
+                    SubstituteLeaders = new List<Core.DomainModel.Substitute>
+                    {
+                        new Core.DomainModel.Substitute
+                        {
+                            Leader = _persons.AsQueryable().ToList()[0]
+                        }
+                    }
+                },
+                new Person
+                {
+                    Id = 3,
+                    FirstName = "Jacob",
+                    LastName = "Jensen",
+                    CprNumber = "456456456",
+                    Initials = "JOJ",
+                }
+            }.AsQueryable();
+
+            _employmentsRepoMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>
+            {
+                new Employment
+                {
+                    Id = 1,
+                    OrgUnit = new OrgUnit
+                    {
+                        Id = 1,
+                        OrgId = 1,
+                        ShortDescription = "orgUnit1",
+                        LongDescription = "OrgUnit 1.0",
+                        Level = 1,
+                        ParentId = null
+                    },
+                    OrgUnitId = 1,
+                    IsLeader = true,
+                    PersonId = 1,
+                    Person = _persons.AsQueryable().ToList()[0]
+                },
+                new Employment
+                {
+                    Id = 2,
+                    OrgUnit = new OrgUnit
+                    {
+                        Id = 2,
+                        OrgId = 2,
+                        ShortDescription = "orgUnit2",
+                        LongDescription = "OrgUnit 2.1",
+                        Level = 2,
+                        ParentId = 1
+                    },
+                    OrgUnitId = 2,
+                    IsLeader = true,
+                    PersonId = 1,
+                    Person = _persons.AsQueryable().ToList()[0]
+                },
+                new Employment
+                {
+                    Id = 2,
+                    OrgUnit = new OrgUnit
+                    {
+                        Id = 3,
+                        OrgId = 2,
+                        ShortDescription = "orgUnit2",
+                        LongDescription = "OrgUnit 2.1",
+                        Level = 2,
+                        ParentId = 1
+                    },
+                    OrgUnitId = 2,
+                    IsLeader = false,
+                    PersonId = 2,
+                    Person = _persons.AsQueryable().ToList()[1]
+                },
+                new Employment
+                {
+                    Id = 4,
+                    OrgUnit = new OrgUnit
+                    {
+                        Id = 3,
+                        OrgId = 3,
+                        ShortDescription = "orgUnit3",
+                        LongDescription = "OrgUnit 2.2",
+                        Level = 2,
+                        ParentId = 1
+                    },
+                    OrgUnitId = 3,
+                    IsLeader = true,
+                    PersonId = 3,
+                    Person = _persons.AsQueryable().ToList()[2]
+                }
+
+            }.AsQueryable());
+            _persons.AsQueryable().ToList()[1].SubstituteLeaders.ToList()[0].Leader = _persons.AsQueryable().ToList()[0];
+            var result = _uut.GetEmployeesOfLeader(_persons.AsQueryable().ToList()[1]);
+
+            // Asserts
+            Assert.AreEqual(1, result.Count);
+            Assert.IsFalse(result.Contains(_persons.AsQueryable().ToList()[0]));
+            Assert.IsFalse(result.Contains(_persons.AsQueryable().ToList()[1]));
+            Assert.IsTrue(result.Contains(_persons.AsQueryable().ToList()[2]));
         }
     }
 }

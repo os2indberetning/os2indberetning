@@ -152,33 +152,25 @@ namespace Core.ApplicationServices
         public List<Person> GetEmployeesOfLeader(Person currentUser)
         {
             List<Person> employees = new List<Person>();
-            if (currentUser.Employments.Where(e => e.IsLeader).Any())
+            if (currentUser.Employments.Where(e => e.IsLeader).Any() || (currentUser.SubstituteLeaders != null && currentUser.SubstituteLeaders.Count > 0))
             {
-                var orgUnitsDupes = new List<OrgUnit>();
-                foreach (Employment e in currentUser.Employments.Where(e => e.IsLeader))
+                var orgUnits = GetOrgUnitsForLeader(currentUser);
+                if (orgUnits != null)
                 {
-                    OrgUnit org = e.OrgUnit;
-                    orgUnitsDupes.Add(org);
-                    orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
-                }
-
-                var orgUnitsIds = orgUnitsDupes.Select(x => x.Id).Distinct();
-                var empDupes = new List<Person>();
-                foreach (var orgUnitId in orgUnitsIds)
-                {
-                    var employments = _employmentRepo.AsQueryable().Where(e => e.OrgUnitId == orgUnitId).ToList();
-                    foreach (var employment in employments)
+                    var orgUnitsIds = orgUnits.Select(x => x.Id).Distinct();
+                    var empDupes = new List<Person>();
+                    foreach (var orgUnitId in orgUnitsIds)
                     {
-                        empDupes.Add(employment.Person);
+                        var employments = _employmentRepo.AsQueryable().Where(e => e.OrgUnitId == orgUnitId).ToList();
+                        foreach (var employment in employments)
+                        {
+                            empDupes.Add(employment.Person);
+                        }
                     }
-                }
 
-                employees = empDupes.Distinct().ToList();
-            }
-            else
-            {
-                return null;
-            }
+                    employees = empDupes.Distinct().ToList();
+                }
+            }           
 
             return employees;
         }
@@ -194,13 +186,24 @@ namespace Core.ApplicationServices
                     orgUnitsDupes.Add(org);
                     orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
                 }
+            }
 
-                return orgUnitsDupes.Distinct().ToList();
-            }
-            else
+            if (currentUser.SubstituteLeaders != null && currentUser.SubstituteLeaders.Count > 0)
             {
-                return null;
+
+                foreach (Substitute subFor in currentUser.SubstituteLeaders)
+                {
+                    Person leader = subFor.Leader;
+                    foreach (Employment e in leader.Employments.Where(e => e.IsLeader))
+                    {
+                        OrgUnit org = e.OrgUnit;
+                        orgUnitsDupes.Add(org);
+                        orgUnitsDupes.AddRange(getChildrenOrgUnits(org.Id));
+                    }
+                }
             }
+
+            return orgUnitsDupes.Distinct().ToList();            
         }
 
         /// <summary>

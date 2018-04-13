@@ -253,8 +253,8 @@ namespace OS2Indberetning.Controllers
         [System.Web.Http.HttpGet]
         public IHttpActionResult GetEmployeesOfLeader()
         {
-            List<Person> employees = new List<Person>();
-            if(CurrentUser.Employments.Where(e => e.IsLeader).Any())
+           List<Person> employees = new List<Person>();
+            if(CurrentUser.Employments.Where(e => e.IsLeader).Any() || CurrentUser.SubstituteLeaders.Count > 0)
             {
                 employees = _person.GetEmployeesOfLeader(CurrentUser);               
             }

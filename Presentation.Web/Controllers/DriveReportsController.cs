@@ -116,7 +116,7 @@ namespace OS2Indberetning.Controllers
                     break;
                 case "godkender":
                     {
-                        if(CurrentUser.Employments.Any(em => em.IsLeader))
+                        if(CurrentUser.Employments.Any(em => em.IsLeader) || CurrentUser.SubstituteLeaders.Count > 0)
                         {
                             queryable = GetQueryable(queryOptions);
                         }

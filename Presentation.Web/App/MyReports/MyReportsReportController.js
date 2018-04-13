@@ -371,7 +371,7 @@
                     title: "Takst",
                     template: 
                         function (data) {
-                            return data.KmRate.toFixed(2).toString().replace('.', ',') + " øre/km ";
+                            return data.KmRate.toString() + " øre/km ";
                         },
                     width: 100
                 },

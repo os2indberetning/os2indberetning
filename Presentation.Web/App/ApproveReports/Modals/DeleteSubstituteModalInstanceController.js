@@ -11,7 +11,6 @@
 
             $scope.substitute = data.value[0]; // This is bad, but can't change the service
             $scope.person = $scope.substitute.Sub;
-            console.log($scope.substitute);
             $scope.substituteFromDate = new Date($scope.substitute.StartDateTimestamp * 1000).toLocaleDateString();
             if ($scope.substitute.EndDateTimestamp == 9999999999) {
                 $scope.substituteToDate = "På ubestemt tid";
@@ -22,7 +21,6 @@
 
         
         $scope.orgUnitSelected = function (id) {
-            console.log(id);
         }
 
         $scope.deleteSubstitute = function () {

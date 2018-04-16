@@ -308,12 +308,6 @@
             method: "GET",
             isArray: false,
             url: "/odata/DriveReports/Service.GetCalculationMethod",
-            //transformResponse: function (data) {
-            //    console.log("data= " + data);
-            //    var res = angular.fromJson(data);
-            //    console.log("res['value']= " + res["value"]);
-            //    return res;
-            //}
         }
     });
 }]);

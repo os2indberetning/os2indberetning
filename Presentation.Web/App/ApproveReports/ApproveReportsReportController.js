@@ -208,9 +208,24 @@
                     }
                 },
                 schema: {
-                    model: {
+                    parse: function(data) {
+                        $.each(data.value, function(idx, elem) {
+                            var routeText = ""
+                            angular.forEach(elem.DriveReportPoints, function (point, key) {
+                                if (key != elem.DriveReportPoints.length - 1) {
+                                    routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + " - ";
+                                } else {
+                                    routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
+                                }
+                            });
+                            elem.RoutePointsText = routeText;
+                        });
+                        return data;
+                    },
+                    model: {                        
                         fields: {
-                            AmountToReimburse: { type: "number" }
+                            AmountToReimburse: { type: "number" },
+                            RoutePointsText: {type: "string"}
                         }
                     },
                     data: function (data) {
@@ -242,11 +257,15 @@
                 pageSizes: [5, 10, 20, 30, 40, 50, 100, 150, 200]
             },
             groupable: false,
+            columnMenu: true,
+            filterable: true,
+            sortable: true,
             resizable: true,
             columns: [
                 {
                     field: "DriveDateTimestamp",
                     title: "Dato for kørsel", 
+                    filterable: false,
                     template: function (data) {
                         if (data.DriveDateTimestamp > 0) {
                             var m = moment.unix(data.DriveDateTimestamp);
@@ -263,6 +282,7 @@
                 {
                     field: "CreatedDateTimestamp",
                     title: "Dato for indberetning", 
+                    filterable: false,
                     template: function (data) {
                         if (data.CreatedDateTimestamp > 0) {
                             var m = moment.unix(data.CreatedDateTimestamp);
@@ -279,37 +299,36 @@
                 { 
                     field: "Person.FullName", 
                     title: "Medarbejder",
+                    filterable: false,
                     width: 100 
+                },
+                { 
+                    field: "Employment.EmploymentId", 
+                    title: "MA.NR.", 
+                    filterable: false,
+                    width: 50 
                 },
                 { 
                     field: "Employment.OrgUnit.LongDescription", 
                     title: "Org. Enhed", 
+                    filterable: false,
                     width: 100 
                 },
                 { 
                     field: "Purpose", 
                     title: "Formål",
+                    filterable: false,
                     width: 150
                 },
                 {
                     title: "Rute",
-                    field: "DriveReportPoints",
-                    template: function (data) {
-                        var routeText = ""
-                        angular.forEach(data.DriveReportPoints, function (point, key) {
-                            if (key != data.DriveReportPoints.length - 1) {
-                                routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town + " - ";
-                            } else {
-                                routeText += point.StreetName + " " + point.StreetNumber + ", " + point.ZipCode + " " + point.Town;
-                            }
-                        });
-                        return routeText;
-                    },
+                    field: "RoutePointsText",
                     width: 150
                 },
                 {
                     field: "IsRoundTrip", 
                     title: "Retur",
+                    filterable: false,
                     template: function (data) {
                         if (!data.IsRoundTrip || data.IsRoundTrip == null)
                             return "Nej";
@@ -321,6 +340,7 @@
                 {
                     field: "IsExtraDistance", 
                     title: "MK",
+                    filterable: false,
                     template: function (data) {
                         if (!data.IsExtraDistance || data.IsExtraDistance == null)
                             return "Nej";
@@ -332,6 +352,7 @@
                 {
                     field: "FourKmRule", 
                     title: "4-km",
+                    filterable: false,
                     template: function (data) {
                         if (!data.FourKmRule || data.FourKmRule == null)
                             return "Nej";
@@ -343,11 +364,13 @@
                 {
                     field: "FourKmRuleDeducted", 
                     title: "4-km fratrukket",
+                    filterable: false,
                     width: 50
                 },
                 { 
                     field: "DistanceFromHomeToBorder", 
                     title: "KM til kommunegrænse",
+                    filterable: false,
                     template: function (data) {
                         if (data.FourKmRule) {
                             if(data.IsRoundTrip) {
@@ -366,6 +389,7 @@
                 {
                     field: "SixtyDaysRule", 
                     title: "60-dage",
+                    filterable: false,
                     template: function (data) {
                         if (!data.SixtyDaysRule || data.SixtyDaysRule == null)
                             return "Nej";
@@ -377,6 +401,7 @@
                 {
                     field: "Distance", 
                     title: "KM til udbetaling",
+                    filterable: false,
                     template: 
                         function (data) {
                             return data.Distance.toFixed(2).toString().replace('.', ',') + " km ";
@@ -388,6 +413,7 @@
                 {
                     field: "AmountToReimburse", 
                     title: "Beløb",
+                    filterable: false,
                     template: function (data) {
                         return data.AmountToReimburse.toFixed(2).toString().replace('.', ',') + " kr.";
                     }, 
@@ -397,6 +423,7 @@
                 { 
                     field: "KmRate", 
                     title: "Takst",
+                    filterable: false,
                     template: 
                         function (data) {
                             return data.KmRate.toString() + " øre/km ";
@@ -406,6 +433,7 @@
                 {
                     field: "Status",
                     title: "Status",
+                    filterable: false,
                     template: function (data) {
                         if (data.Status == "Pending")
                             return "Afventer";
@@ -421,6 +449,7 @@
                 { 
                     field: "ClosedDateTimestamp", 
                     title: "Godkendt/Afvist dato",
+                    filterable: false,
                     template: function (data) {
                         if (data.ClosedDateTimestamp > 0) {
                             var m = moment.unix(data.ClosedDateTimestamp);
@@ -437,6 +466,7 @@
                 { 
                     field: "ProcessedDateTimestamp", 
                     title: "Sendt til løn",
+                    filterable: false,
                     template: function (data) {
                         if (data.ProcessedDateTimestamp > 0) {
                             var m = moment.unix(data.ProcessedDateTimestamp);
@@ -453,6 +483,7 @@
                 { 
                     field: "ApprovedBy.FullName", 
                     title: "Godkendt/Afvist af" ,
+                    filterable: false,
                     template: function (data) {
                         if (data.ApprovedBy == null || data.ApprovedBy == undefined)
                             return "";
@@ -464,6 +495,7 @@
                 { 
                     field: "UserComment", 
                     title: "Bemærkning",
+                    filterable: false,
                     width: 100 
                 }
 
@@ -529,19 +561,18 @@
                 // Add roundtrip, extra distance and fourkmrule templates to the excel cheet columns.
                 var DriveDateTemplate = kendo.template(this.columns[0].template);
                 var CreatedDateTemplate = kendo.template(this.columns[1].template);
-                var RuteTemplate = kendo.template(this.columns[5].template);                
-                var IsRoundTripTemplate = kendo.template(this.columns[6].template);
-                var IsExtraDistanceTemplate = kendo.template(this.columns[7].template);
-                var FourKmRuleTemplate = kendo.template(this.columns[8].template);
-                var DistanceFromBordersTemplate = kendo.template(this.columns[10].template);                
-                var SixtyDaysRuleTemplate = kendo.template(this.columns[11].template);
-                var DistanceTemplate = kendo.template(this.columns[12].template);
-                var AmountTemplate = kendo.template(this.columns[13].template);
-                var KmRateTemplate = kendo.template(this.columns[14].template);
-                var StatusTemplate = kendo.template(this.columns[15].template);                
-                var ClosedDateTemplate = kendo.template(this.columns[16].template);
-                var ProcessedDateTemplate = kendo.template(this.columns[17].template);
-                var ApprovedByTemplate = kendo.template(this.columns[18].template);
+                var IsRoundTripTemplate = kendo.template(this.columns[7].template);
+                var IsExtraDistanceTemplate = kendo.template(this.columns[8].template);
+                var FourKmRuleTemplate = kendo.template(this.columns[9].template);
+                var DistanceFromBordersTemplate = kendo.template(this.columns[11].template);                
+                var SixtyDaysRuleTemplate = kendo.template(this.columns[12].template);
+                var DistanceTemplate = kendo.template(this.columns[13].template);
+                var AmountTemplate = kendo.template(this.columns[14].template);
+                var KmRateTemplate = kendo.template(this.columns[15].template);
+                var StatusTemplate = kendo.template(this.columns[16].template);                
+                var ClosedDateTemplate = kendo.template(this.columns[17].template);
+                var ProcessedDateTemplate = kendo.template(this.columns[18].template);
+                var ApprovedByTemplate = kendo.template(this.columns[19].template);
 
 
 
@@ -552,65 +583,61 @@
                     };
                     var IsCreatedDatedataItem = {
                         CreatedDateTimestamp: row.cells[1].value
-                    };
-                    var IsRutedataItem = {
-                        DriveReportPoints: row.cells[5].value
-                    };
+                    };                   
                     var IsRoundTripdataItem = {
-                        IsRoundTrip: row.cells[6].value
+                        IsRoundTrip: row.cells[7].value
                     };
                     var IsExtraDistancedataItem = {
-                        IsExtraDistance: row.cells[7].value
+                        IsExtraDistance: row.cells[8].value
                     };
                     var FourKmRuledataItem = {
-                        FourKmRule: row.cells[8].value
+                        FourKmRule: row.cells[9].value
                     };
                     var IsDistanceFromBordersdataItem = {
-                        DistanceFromHomeToBorder: row.cells[10].value
+                        DistanceFromHomeToBorder: row.cells[11].value
                     };
                     var SixtyDaysRuledataItem = {
-                        SixtyDaysRule: row.cells[11].value
+                        SixtyDaysRule: row.cells[12].value
                     };
                     var DistancedataItem = {
-                        Distance: row.cells[12].value
+                        Distance: row.cells[13].value
                     };
                     var AmountdataItem = {
-                        AmountToReimburse: row.cells[13].value
+                        AmountToReimburse: row.cells[14].value
                     };
                     var KmRatedataItem = {
-                        KmRate: row.cells[14].value
+                        KmRate: row.cells[15].value
                     };
                     var StatusdataItem = {
-                        Status: row.cells[15].value
+                        Status: row.cells[16].value
                     };
                     var ClosedDatedataItem = {
-                        ClosedDateTimestamp: row.cells[16].value
+                        ClosedDateTimestamp: row.cells[17].value
                     };
                     var ProcessedDatedataItem = {
-                        ProcessedDateTimestamp: row.cells[17].value
+                        ProcessedDateTimestamp: row.cells[18].value
                     };
                     var ApprovedBydataItem = {
                         ApprovedBy: {
-                            FullName: row.cells[18].value
+                            FullName: row.cells[19].value
                         }
                             
                     };
 
                     row.cells[0].value = DriveDateTemplate(IsDriveDatedataItem);
                     row.cells[1].value = CreatedDateTemplate(IsCreatedDatedataItem);
-                    row.cells[4].value = RuteTemplate(IsRutedataItem);
-                    row.cells[5].value = IsRoundTripTemplate(IsRoundTripdataItem);
-                    row.cells[6].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
-                    row.cells[7].value = FourKmRuleTemplate(FourKmRuledataItem);
-                    row.cells[9].value = DistanceFromBordersTemplate(IsDistanceFromBordersdataItem);
-                    row.cells[10].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
-                    row.cells[11].value = DistanceTemplate(DistancedataItem);
-                    row.cells[12].value = AmountTemplate(AmountdataItem);
-                    row.cells[13].value = KmRateTemplate(KmRatedataItem);
-                    row.cells[14].value = StatusTemplate(StatusdataItem);
-                    row.cells[15].value = ClosedDateTemplate(ClosedDatedataItem);
-                    row.cells[16].value = ProcessedDateTemplate(ProcessedDatedataItem);
-                    row.cells[17].value = ApprovedByTemplate(ApprovedBydataItem);                    
+                    row.cells[7].value = IsRoundTripTemplate(IsRoundTripdataItem);
+                    row.cells[8].value = IsExtraDistanceTemplate(IsExtraDistancedataItem);
+                    row.cells[9].value = FourKmRuleTemplate(FourKmRuledataItem);
+                    row.cells[11].value = DistanceFromBordersTemplate(IsDistanceFromBordersdataItem);
+                    row.cells[12].value = SixtyDaysRuleTemplate(SixtyDaysRuledataItem);
+                    row.cells[13].value = DistanceTemplate(DistancedataItem);
+                    row.cells[14].value = AmountTemplate(AmountdataItem);
+                    row.cells[15].value = KmRateTemplate(KmRatedataItem);
+                    row.cells[16].value = StatusTemplate(StatusdataItem);
+                    row.cells[17].value = ClosedDateTemplate(ClosedDatedataItem);
+                    row.cells[18].value = ProcessedDateTemplate(ProcessedDatedataItem);
+                    row.cells[19].value = ApprovedByTemplate(ApprovedBydataItem);                    
                 }
             }
         }

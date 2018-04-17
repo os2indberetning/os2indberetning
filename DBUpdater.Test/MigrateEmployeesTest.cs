@@ -446,6 +446,33 @@ namespace DBUpdater.Test
         }
 
         [Test]
+        public void TestEndTimestamp()
+        {
+            var end1 = 0;
+            var end2 = (Int32)(DateTime.UtcNow.AddMonths(1).Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var end3 = (Int32)(DateTime.UtcNow.AddMonths(-1).Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
+            _emplRepoMock.AsQueryable().Returns(new List<Employment> {
+                new Employment {
+                    EndDateTimestamp = 0,
+                },
+                new Employment {
+                    EndDateTimestamp = end2
+                },
+                new Employment {
+                    EndDateTimestamp = end3
+                }
+            }.AsQueryable());
+
+            _uut.MigrateEmployees();
+            var empl = _emplRepoMock.AsQueryable();
+
+            Assert.AreNotEqual(end1, empl.ToList()[0].EndDateTimestamp);
+            Assert.AreEqual(end2, empl.ToList()[1].EndDateTimestamp);
+            Assert.AreEqual(end3, empl.ToList()[2].EndDateTimestamp);            
+        }
+
+        [Test]
         public void EmployeeWithNo_Email_ShouldSetEmailToBlank()
         {
             _dataProvider.GetEmployeesAsQueryable().Returns(new List<Employee>()

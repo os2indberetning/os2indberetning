@@ -238,7 +238,7 @@ namespace DBUpdater
             //one day where the updater did not run and the employee
             //has been removed from the latest MDM view we are working on
             //The end date will be adjusted in the next loop
-            foreach (var employment in _emplRepo.AsQueryable())
+            foreach (var employment in _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0))
             {
                 employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             }

@@ -197,9 +197,9 @@ ModelManifest.xml
 /Presentation.Web/App/Admin/StandardAddressController - Copy.js.html
 /Configuration/*
 /Presentation.Web/Content/favicon.ico
-/Presentation.Web/Content/private.css
+# /Presentation.Web/Content/private.css
 /Presentation.Web/favicon.ico
-/Presentation.Web/logo.png
+# /Presentation.Web/logo.png
 /.vs/config
 /Presentation.Web/Content/favicon.png
 Presentation.Web/private.css

@@ -33,6 +33,7 @@ namespace DBUpdater
             ICustomSettings customSettings = ninjectKernel.Get<ICustomSettings>();
 
             logger.Debug($"-------- DBUPDATER STARTED --------");
+            logger.Debug($"-------- AZURE TESTING --------");
 
             IAddressHistoryService historyService = new AddressHistoryService(ninjectKernel.Get<IGenericRepository<Employment>>(), ninjectKernel.Get<IGenericRepository<AddressHistory>>(), ninjectKernel.Get<IGenericRepository<PersonalAddress>>());
 

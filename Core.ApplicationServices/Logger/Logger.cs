@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using log4net;
+using log4net.Appender;
+using System.Configuration;
 
 namespace Core.ApplicationServices.Logger
 {
@@ -19,6 +21,9 @@ namespace Core.ApplicationServices.Logger
 
         public Logger()
         {
+            GlobalContext.Properties["BASE_FILE_PATH"] = ConfigurationManager.AppSettings["PROTECTED_LOG_FILEPATH_BASE"];
+            log4net.Config.XmlConfigurator.Configure();
+
             // Filename for each log is configured in the Log4Net.config in each project.
             _devLog = LogManager.GetLogger("DefaultLog");
             _adminLog = LogManager.GetLogger("adminLog");

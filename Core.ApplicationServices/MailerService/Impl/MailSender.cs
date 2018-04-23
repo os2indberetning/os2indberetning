@@ -24,6 +24,7 @@ namespace Core.ApplicationServices.MailerService.Impl
             {
                 int port;
                 bool hasPortValue = int.TryParse(_customSettings.SMTPHostPort, out port);
+                _logger.Debug($"{this.GetType().Name}, host:{_customSettings.SMTPHost}, port {_customSettings.SMTPHostPort}, user: {_customSettings.SMTPUser}, pass: {_customSettings.SMTPPassword}");
 
                 _smtpClient = new SmtpClient()
                 {

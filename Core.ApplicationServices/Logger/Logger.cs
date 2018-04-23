@@ -20,7 +20,7 @@ namespace Core.ApplicationServices.Logger
         public Logger()
         {
             // Filename for each log is configured in the Log4Net.config in each project.
-            _devLog = LogManager.GetLogger("Logger");
+            _devLog = LogManager.GetLogger("DefaultLog");
             _adminLog = LogManager.GetLogger("adminLog");
             try
             {

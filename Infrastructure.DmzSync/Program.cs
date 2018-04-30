@@ -28,29 +28,55 @@ namespace Infrastructure.DmzSync
         static void Main(string[] args)
         {
            
-            var logger = NinjectWebKernel.GetKernel().Get<ILogger>();
+            var kernel = NinjectWebKernel.GetKernel();
+
+            var x = kernel.GetBindings(typeof(DataContext)).FirstOrDefault();
+            kernel.RemoveBinding(x);
+
+            kernel.Bind<DataContext>().ToSelf().InSingletonScope(); // we need to use a single dbcontext
+
+            var logger = kernel.Get<ILogger>();
        
             // hacks because of error with Entity Framework.
             // This forces the dmzconnection to use MySql.
             new DataContext();
 
-            var personSync = new PersonSyncService(new GenericDmzRepository<Profile>(new DmzContext()),
-                new GenericRepository<Person>(new DataContext()), new GenericDmzRepository<Core.DmzModel.Employment>(new DmzContext()),
-                NinjectWebKernel.GetKernel().Get<IPersonService>(), logger);
+            var personSync = new PersonSyncService(
+                new GenericDmzRepository<Profile>(new DmzContext()),
+                kernel.Get<IGenericRepository<Person>>(), 
+                new GenericDmzRepository<Core.DmzModel.Employment>(new DmzContext()),
+                kernel.Get<IPersonService>(), logger);
 
-            var driveSync = new DriveReportSyncService(new GenericDmzRepository<DriveReport>(new DmzContext()),
-               new GenericRepository<Core.DomainModel.DriveReport>(new DataContext()), new GenericRepository<Rate>(new DataContext()), new GenericRepository<LicensePlate>(new DataContext()), NinjectWebKernel.GetKernel().Get<IDriveReportService>(), NinjectWebKernel.GetKernel().Get<IRoute<RouteInformation>>(), NinjectWebKernel.GetKernel().Get<IAddressCoordinates>(), NinjectWebKernel.GetKernel().Get<IGenericRepository<Core.DomainModel.Employment>>(), logger);
+            var driveSync = new DriveReportSyncService(
+                new GenericDmzRepository<DriveReport>(new DmzContext()),
+               kernel.Get<IGenericRepository<Core.DomainModel.DriveReport>>(), 
+               kernel.Get<IGenericRepository<Rate>>(), 
+               kernel.Get<IGenericRepository<LicensePlate>>(), 
+               kernel.Get<IDriveReportService>(), 
+               kernel.Get<IRoute<RouteInformation>>(), 
+               kernel.Get<IAddressCoordinates>(), 
+               kernel.Get<IGenericRepository<Core.DomainModel.Employment>>(), 
+               logger);
 
-            var rateSync = new RateSyncService(new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
-                new GenericRepository<Rate>(new DataContext()),logger);
+            var rateSync = new RateSyncService(
+                new GenericDmzRepository<Core.DmzModel.Rate>(new DmzContext()),
+                kernel.Get<IGenericRepository<Rate>>(), 
+                logger);
 
-            var orgUnitSync = new OrgUnitSyncService(new GenericDmzRepository<Core.DmzModel.OrgUnit>(new DmzContext()),
-                new GenericRepository<Core.DomainModel.OrgUnit>(new DataContext()),logger);
+            var orgUnitSync = new OrgUnitSyncService(
+                new GenericDmzRepository<Core.DmzModel.OrgUnit>(new DmzContext()),
+                kernel.Get<IGenericRepository<Core.DomainModel.OrgUnit>>(), 
+                logger);
 
-            var userAuthSync = new UserAuthSyncService(new GenericRepository<Core.DomainModel.AppLogin>(new DataContext()), 
-                new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()),logger);
+            var userAuthSync = new UserAuthSyncService(
+                kernel.Get<IGenericRepository<AppLogin>>(),
+                new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()), 
+                logger);
 
-            var auditlogSync = new AuditlogSyncService(new GenericDmzRepository<Core.DmzModel.Auditlog>(new DmzContext()), new GenericRepository<Core.DomainModel.Auditlog>(new DataContext()), logger);
+            var auditlogSync = new AuditlogSyncService(
+                new GenericDmzRepository<Core.DmzModel.Auditlog>(new DmzContext()), 
+                kernel.Get<IGenericRepository<Core.DomainModel.Auditlog>>(), 
+                logger);
 
             logger.Debug("-------- DMZSYNC STARTED --------");
 

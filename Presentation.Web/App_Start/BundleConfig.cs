@@ -25,6 +25,7 @@ namespace OS2Indberetning
                 .Include("~/Scripts/bootstrap.js")
                 .Include("~/Scripts/respond.js")
                 .Include("~/Scripts/kendo/kendo.all.min.js")
+                .Include("~/Scripts/kendo/jszip.min.js")
                 .Include("~/Scripts/kendo/cultures/kendo.culture.da-DK.min.js")
                 .Include("~/Scripts/loading-bar.min.js")
                 .Include("~/Scripts/pnotify.custom.min.js")

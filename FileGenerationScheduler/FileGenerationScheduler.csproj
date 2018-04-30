@@ -78,6 +78,8 @@
     </Content>
     <Content Include="FileGenerationScheduler.nuspec" />
     <None Include="packages.config" />
+    <None Include="Properties\PublishProfiles\os2indberetning-drive-webapp - Web Deploy.pubxml" />
+    <None Include="Properties\webjob-publish-settings.json" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Core.ApplicationServices\Core.ApplicationServices.csproj">
@@ -105,4 +107,5 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\OctoPack.3.6.3\build\OctoPack.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\OctoPack.3.6.3\build\OctoPack.targets'))" />
   </Target>
+  <Import Project="..\packages\Microsoft.Web.WebJobs.Publish.1.0.12\tools\webjobs.targets" Condition="Exists('..\packages\Microsoft.Web.WebJobs.Publish.1.0.12\tools\webjobs.targets')" />
 </Project>

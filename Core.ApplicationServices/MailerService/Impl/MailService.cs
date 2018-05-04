@@ -89,7 +89,7 @@ namespace Core.ApplicationServices.MailerService.Impl
                 approverEmails.AddRange(driveReport.ResponsibleLeaders.Where(p => !string.IsNullOrEmpty(p.Mail) && p.RecieveMail).Select(p => p.Mail));
             }
 
-            return approverEmails;
+            return approverEmails.Distinct();
         }
 
         public void SendMailToAdmins(string subject, string text)

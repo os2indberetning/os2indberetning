@@ -73,7 +73,12 @@ namespace Infrastructure.DmzSync.Services.Impl
                 var viaPoints = new List<DriveReportPoint>();
                 for (var j = 0; j < dmzReport.Route.GPSCoordinates.Count; j++)
                 {
-                    var gpsCoord = dmzReport.Route.GPSCoordinates.ToArray()[j];
+                    var gpsCoord = new GPSCoordinate();
+                    gpsCoord.RouteId = dmzReport.Route.GPSCoordinates.ToArray()[j].RouteId;
+                    gpsCoord.Id = dmzReport.Route.GPSCoordinates.ToArray()[j].Id;
+                    gpsCoord.IsViaPoint = dmzReport.Route.GPSCoordinates.ToArray()[j].IsViaPoint;
+                    gpsCoord.Latitude = dmzReport.Route.GPSCoordinates.ToArray()[j].Latitude;
+                    gpsCoord.Longitude = dmzReport.Route.GPSCoordinates.ToArray()[j].Longitude;
                     try
                     {
                         gpsCoord = Encryptor.DecryptGPSCoordinate(gpsCoord);

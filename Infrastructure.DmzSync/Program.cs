@@ -68,10 +68,11 @@ namespace Infrastructure.DmzSync
                 kernel.Get<IGenericRepository<Core.DomainModel.OrgUnit>>(), 
                 logger);
 
-            var userAuthSync = new UserAuthSyncService(
-                kernel.Get<IGenericRepository<AppLogin>>(),
-                new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()), 
-                logger);
+            // DONT SYNC userauth table - Introduces login problems
+            //var userAuthSync = new UserAuthSyncService(
+            //    kernel.Get<IGenericRepository<AppLogin>>(),
+            //    new GenericDmzRepository<Core.DmzModel.UserAuth>(new DmzContext()), 
+            //    logger);
 
             var auditlogSync = new AuditlogSyncService(
                 new GenericDmzRepository<Core.DmzModel.Auditlog>(new DmzContext()), 
@@ -134,18 +135,19 @@ namespace Infrastructure.DmzSync
                 throw;
             }
 
-            try
-            {
-                logger.Debug("UserAuthSyncToDmz started");
-                Console.WriteLine("UserAuthSyncToDmz");
-                userAuthSync.SyncToDmz();
-            }
-            catch (Exception ex)
-            {
-                logger.Error($"Error during userauth synchronization from DMZ", ex);
-                logger.LogForAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
-                throw;
-            }
+            // DONT SYNC userauth table - Introduces login problems
+            //try
+            //{
+            //    logger.Debug("UserAuthSyncToDmz started");
+            //    Console.WriteLine("UserAuthSyncToDmz");
+            //    userAuthSync.SyncToDmz();
+            //}
+            //catch (Exception ex)
+            //{
+            //    logger.Error($"Error during userauth synchronization from DMZ", ex);
+            //    logger.LogForAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
+            //    throw;
+            //}
 
             try
             {

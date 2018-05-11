@@ -415,6 +415,7 @@ namespace Core.ApplicationServices
 
             if (orgUnit == null)
             {
+                _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), Orgunit with id: {empl.OrgUnitId} not found. Report ID: {driveReport.Id}");
                 return null;
             }
 
@@ -445,6 +446,7 @@ namespace Core.ApplicationServices
 
             if (orgUnit == null)
             {
+                _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), Orgunit with id: {empl.OrgUnitId} not found. Report ID: {driveReport.Id}");
                 return null;
             }
             if (leaderOfOrgUnit == null)
@@ -456,6 +458,7 @@ namespace Core.ApplicationServices
                 if (leaders != null && leaders.Count > 0)
                     return GetResponsibleLeadersForReport(driveReport).FirstOrDefault();
                 else
+                    _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), No leaders found. Report ID: {driveReport.Id}");
                     return null;
             }
 

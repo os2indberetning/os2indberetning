@@ -104,7 +104,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
         }
 
-        
+
         [Test]
         public void GetResponsibleLeader_WithNoSub_ShouldGetActualLeader()
         {
@@ -167,7 +167,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
             _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
             {
-             leaderEmpl,userEmpl   
+             leaderEmpl,userEmpl
             }.AsQueryable());
 
             _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
@@ -182,11 +182,11 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
             var report = new DriveReport()
             {
-                    Id = 1,
-                    Employment = userEmpl,
-                    EmploymentId = userEmpl.Id,
-                    PersonId = user.Id,
-                    Person = user
+                Id = 1,
+                Employment = userEmpl,
+                EmploymentId = userEmpl.Id,
+                PersonId = user.Id,
+                Person = user
             };
 
 
@@ -261,7 +261,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
             _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
             {
-             leaderEmpl,userEmpl   
+             leaderEmpl,userEmpl
             }.AsQueryable());
 
             _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
@@ -276,12 +276,12 @@ namespace ApplicationServices.Test.DriveReportServiceTest
 
             var report = new DriveReport()
             {
-                    Id = 1,
-                    Employment = userEmpl,
-                    EmploymentId = userEmpl.Id,
-                    PersonId = user.Id,
-                    Person = user,
-           };
+                Id = 1,
+                Employment = userEmpl,
+                EmploymentId = userEmpl.Id,
+                PersonId = user.Id,
+                Person = user,
+            };
 
 
             var res = _uut.GetResponsibleLeadersForReport(report);
@@ -314,7 +314,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Initials = "TT",
                 FullName = "Test Tester [TT]"
             };
-            
+
             var user1 = new Person()
             {
                 Id = 3,
@@ -499,6 +499,211 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             Assert.AreEqual("Test Substitute [TEST]", res2[1].FullName);
         }
 
+        [Test]
+        public void GetResponsibleLeader_LeaderEmplExpired_ShouldReturnParentOrgLeader()
+        {
+            var leader = new Person()
+            {
+                Id = 1,
+                FirstName = "Leader1",
+                LastName = "Test",
+                Initials = "TT",
+                FullName = "TestLeader1"
+            };
+
+            var leader2 = new Person()
+            {
+                Id = 2,
+                FirstName = "Leader2",
+                LastName = "Test",
+                Initials = "TT",
+                FullName = "TestLeader2"
+            };
+
+            var user = new Person()
+            {
+                Id = 3,
+                FirstName = "User",
+                LastName = "Usersen",
+                Initials = "UU",
+                FullName = "User Usersen [UU]"
+            };
+
+            var orgUnit = new OrgUnit()
+            {
+                Id = 1,
+            };
+
+            var orgUnit2 = new OrgUnit()
+            {
+                Id = 2,
+                Level = 1,
+                ParentId = orgUnit.Id,
+                Parent = orgUnit
+            };
+
+            var leaderEmpl = new Employment()
+            {
+                Id = 1,
+                OrgUnitId = 1,
+                OrgUnit = orgUnit,
+                Person = leader,
+                PersonId = leader.Id,
+                IsLeader = true
+            };
+
+            var leaderEmpl2 = new Employment()
+            {
+                Id = 2,
+                OrgUnitId = 2,
+                EndDateTimestamp = Utilities.ToUnixTime(DateTime.Today.AddHours(5)),
+                OrgUnit = orgUnit2,
+                Person = leader2,
+                PersonId = leader2.Id,
+                IsLeader = true
+            };
+
+            var userEmpl = new Employment()
+            {
+                Id = 3,
+                OrgUnitId = 2,
+                OrgUnit = orgUnit2,
+                Person = user,
+                PersonId = user.Id,
+                IsLeader = false
+            };
+
+            var substitute = new Core.DomainModel.Substitute()
+            {
+                Id = 1,
+                PersonId = leader2.Id,
+                Person = leader2,
+                OrgUnitId = leaderEmpl2.OrgUnitId,
+                LeaderId = leader2.Id,
+                SubId = 3,
+                StartDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds,
+                EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds,
+            };
+
+            _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
+            {
+             leaderEmpl, leaderEmpl2, userEmpl
+            }.AsQueryable());
+
+            _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
+            {
+                orgUnit, orgUnit2
+            }.AsQueryable());
+
+            _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
+            {
+                substitute
+            }.AsQueryable());
+
+            var report = new DriveReport()
+            {
+                Id = 1,
+                Employment = userEmpl,
+                EmploymentId = userEmpl.Id,
+                PersonId = user.Id,
+                Person = user,
+            };
+
+
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual(1, res.Count);
+            Assert.AreEqual("TestLeader1", res[0].FullName);
+        }
+
+        [Test, Ignore("Not decided yet")]
+        public void GetResponsibleLeader_WithSub_ShouldNotReturnSubThatAreExpired()
+        {
+            var leader = new Person()
+            {
+                Id = 1,
+                FirstName = "Test",
+                LastName = "Testesen",
+                Initials = "TT",
+                FullName = "Test Testesen [TT]"
+            };
+
+            var user = new Person()
+            {
+                Id = 2,
+                FirstName = "User",
+                LastName = "Usersen",
+                Initials = "UU",
+                FullName = "User Usersen [UU]"
+            };
+
+            var orgUnit = new OrgUnit()
+            {
+                Id = 1,
+            };
+
+            var leaderEmpl = new Employment()
+            {
+                Id = 1,
+                OrgUnitId = 1,
+                OrgUnit = orgUnit,
+                Person = leader,
+                PersonId = leader.Id,
+                IsLeader = true
+            };
+
+            var userEmpl = new Employment()
+            {
+                Id = 2,
+                OrgUnitId = 1,
+                EndDateTimestamp = Utilities.ToUnixTime(DateTime.Today.AddHours(5)),
+                OrgUnit = orgUnit,
+                Person = user,
+                PersonId = user.Id,
+                IsLeader = false
+            };
+
+            var substitute = new Core.DomainModel.Substitute()
+            {
+                Id = 1,
+                PersonId = leader.Id,
+                Person = leader,
+                OrgUnitId = leaderEmpl.OrgUnitId,
+                LeaderId = leader.Id,
+                SubId = user.Id,
+                StartDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds,
+                EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds,
+            };
+
+            _emplMock.AsQueryable().ReturnsForAnyArgs(new List<Employment>()
+            {
+             leaderEmpl,userEmpl
+            }.AsQueryable());
+
+            _orgUnitMock.AsQueryable().ReturnsForAnyArgs(new List<OrgUnit>()
+            {
+                orgUnit
+            }.AsQueryable());
+
+            _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
+            {
+                substitute
+            }.AsQueryable());
+
+            var report = new DriveReport()
+            {
+                Id = 1,
+                Employment = userEmpl,
+                EmploymentId = userEmpl.Id,
+                PersonId = user.Id,
+                Person = user,
+            };
+
+
+            var res = _uut.GetResponsibleLeadersForReport(report);
+            Assert.AreEqual(1, res.Count);
+            Assert.AreEqual("Test Testesen [TT]", res[0].FullName);
+        }
+        
         [Test]
         public void RemoveExpiredLeadersForPendingReports()
         {

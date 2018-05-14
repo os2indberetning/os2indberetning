@@ -7,6 +7,7 @@ using Core.DomainModel;
 using Core.DomainServices;
 using Ninject;
 using Core.ApplicationServices.Logger;
+using Infrastructure.DataAccess;
 
 namespace Mail
 {
@@ -15,10 +16,16 @@ namespace Mail
         
         public static void Main(string[] args)
         {
-            
-            ILogger _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
+            var kernel = NinjectWebKernel.GetKernel();
+
+            var x = kernel.GetBindings(typeof(DataContext)).FirstOrDefault();
+            kernel.RemoveBinding(x);
+
+            kernel.Bind<DataContext>().ToSelf().InSingletonScope(); // we need to use a single dbcontext
+
+            ILogger _logger = kernel.Get<ILogger>();
             _logger.Debug($"-------- MAIL STARTED --------");
-            var service = NinjectWebKernel.GetKernel().Get<ConsoleMailerService>();
+            var service = kernel.Get<ConsoleMailerService>();
             service.UpdateResponsibleLeaders();
             service.RunMailService();
             _logger.Debug($"-------- MAIL FINISHED --------");

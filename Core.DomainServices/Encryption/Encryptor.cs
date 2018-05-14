@@ -88,7 +88,7 @@ namespace Core.DomainServices.Encryption
         public static AppLogin EncryptAppLogin(AppLogin appLogin)
         {
             appLogin.GuId = StringCipher.Encrypt(appLogin.GuId, EncryptKey);
-            appLogin.UserName = StringCipher.Encrypt(appLogin.UserName, EncryptKey);
+            appLogin.UserName = StringCipher.Encrypt(appLogin.Person.Initials, EncryptKey);
             return appLogin;
         }
 

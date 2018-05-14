@@ -291,7 +291,7 @@ namespace Core.ApplicationServices
         public List<Person> GetResponsibleLeadersForReport(DriveReport driveReport)
         {
             var responsibleLeaders = new List<Person>();
-            var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Today);
+            var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Now);
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var person = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).Person;
@@ -334,8 +334,8 @@ namespace Core.ApplicationServices
                 while ((leaderOfOrgUnit == null && orgUnit.Parent != null) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
                     leaderOfOrgUnit = _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
-                                                                                                e.StartDateTimestamp < currentTimestamp &&
-                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                                                                                                e.StartDateTimestamp < currentDateTimestamp &&
+                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentDateTimestamp));
                     orgUnit = orgUnit.Parent;
                 }
             }
@@ -344,8 +344,8 @@ namespace Core.ApplicationServices
                 while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
                     leaderOfOrgUnit = _employmentRepository.AsQueryable().SingleOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
-                                                                                                e.StartDateTimestamp < currentTimestamp &&
-                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
+                                                                                                e.StartDateTimestamp < currentDateTimestamp &&
+                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentDateTimestamp));
                     orgUnit = orgUnit.Parent;
                 }
             }
@@ -371,7 +371,7 @@ namespace Core.ApplicationServices
             while (!loopHasFinished)
             {
                 subs = _substituteRepository.AsQueryable().Where(s => s.OrgUnitId == orgToCheck.Id && s.PersonId == leader.Id && s.StartDateTimestamp <= currentDateTimestamp && s.EndDateTimestamp >= currentDateTimestamp && s.PersonId.Equals(s.LeaderId)).ToList();
-                if (subs != null)
+                if (subs.Count > 0)
                 {
                     foreach (var sub in subs)
                     {
@@ -415,6 +415,7 @@ namespace Core.ApplicationServices
 
             if (orgUnit == null)
             {
+                _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), Orgunit with id: {empl.OrgUnitId} not found. Report ID: {driveReport.Id}");
                 return null;
             }
 
@@ -445,6 +446,7 @@ namespace Core.ApplicationServices
 
             if (orgUnit == null)
             {
+                _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), Orgunit with id: {empl.OrgUnitId} not found. Report ID: {driveReport.Id}");
                 return null;
             }
             if (leaderOfOrgUnit == null)
@@ -456,6 +458,7 @@ namespace Core.ApplicationServices
                 if (leaders != null && leaders.Count > 0)
                     return GetResponsibleLeadersForReport(driveReport).FirstOrDefault();
                 else
+                    _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), No leaders found. Report ID: {driveReport.Id}");
                     return null;
             }
 

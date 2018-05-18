@@ -106,16 +106,20 @@ namespace FileGenerationScheduler
                 _transferToPayrollService.TransferReportsToPayroll();
 
                 // Send mail to admins
-                var mailSubject = "";
-                var mailText = "";
+                var mailSubject = "Filen fra OS2 Indberetning er genereret";
+                var mailText = "Filen fra OS2 Indberetning med godkendte indberetning er genereret.";
                 _mailService.SendMailToAdmins(mailSubject, mailText);
             }
             catch (Exception e)
             {
+                var mailSubject = "Generering af filen fra OS2 Indberetning fejlede";
+                var mailText = "Generering af filen fra OS2 Indberetning med godkendte indberetninger fejlede. Filen er ikke blevet genereret.";
+                _mailService.SendMailToAdmins(mailSubject, mailText);
+
                 //TODO: Handle issues when trying to send payroll
                 Console.WriteLine("Kunne ikke send files til payroll");
-                _logger.LogForAdmin("Kunne ikke send files til payroll.");
-                _logger.Error($"{GetType().Name}, AttemptGenerateFiles(), Could not send files to the payroll system", e);
+                _logger.LogForAdmin("Fejl ved generering af IND01 fil til KMD med godkendte indberetninger. Filen er ikke genereret, og indberetninger dermed ikke overført.");
+                _logger.Error($"{GetType().Name}, AttemptGenerateFiles(), Could not generet file for KMD", e);
             }
         }
     }

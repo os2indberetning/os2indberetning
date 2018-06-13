@@ -65,16 +65,31 @@ namespace Core.ApplicationServices
                 && (x.EndDateTimestamp == 0 || x.EndDateTimestamp >= currentTimestamp) // do not include past employments
                 && x.Person.IsActive // only include employments with an active Person record);
             );
-            if (empl == null)
+            
+            if (empl == null && (orgUnit.Level > 0 || orgUnit.Parent != null))
             {
                 var parent = orgUnit.Parent;
-                empl = _emplRepo.AsQueryable().FirstOrDefault(x => x.IsLeader && x.OrgUnitId == parent.Id);
+                empl = _emplRepo.AsQueryable().FirstOrDefault(
+                    x => x.IsLeader
+                    && x.OrgUnitId == parent.Id
+                    && x.StartDateTimestamp <= currentTimestamp // do not include future employments
+                    && (x.EndDateTimestamp == 0 || x.EndDateTimestamp >= currentTimestamp) // do not include past employments
+                    && x.Person.IsActive // only include employments with an active Person record);
+                );
+
                 while (empl == null && (parent.Level > 0 || parent.Parent != null))
                 {
                     parent = parent.Parent;
-                    empl = _emplRepo.AsQueryable().FirstOrDefault(x => x.IsLeader && x.OrgUnitId == parent.Id);
+                    empl = _emplRepo.AsQueryable().FirstOrDefault(
+                        x => x.IsLeader
+                        && x.OrgUnitId == parent.Id
+                        && x.StartDateTimestamp <= currentTimestamp // do not include future employments
+                        && (x.EndDateTimestamp == 0 || x.EndDateTimestamp >= currentTimestamp) // do not include past employments
+                        && x.Person.IsActive // only include employments with an active Person record);
+                    );
                 }
             }
+
             if (empl == null)
             {
                 return new Person

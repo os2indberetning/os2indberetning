@@ -15,7 +15,11 @@ angular.module("application").controller("MainMenuController", [
                $scope.UserName = res.FullName;
            }).catch(function(e){
                if ($rootScope.HelpTexts.AUTHENTICATION.text == "SAML") {
-                   $window.location.href = "login.ashx"
+                var msg = e.data.error.innererror.message;
+                if (msg == "Gyldig domænebruger ikke fundet." || msg == "AD-bruger ikke fundet i databasen." || msg == "Inaktiv bruger forsøgte at logge ind.")   {
+                    return; // TDOD: such an ugly solution, needs to be refactored. Consider using exception types instead of comparing messages.
+                }
+                $window.location.href = "login.ashx"
                }
            });
        }

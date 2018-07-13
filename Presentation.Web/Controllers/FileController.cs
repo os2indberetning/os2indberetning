@@ -26,10 +26,11 @@ namespace OS2Indberetning.Controllers
 
 
 
-        public FileController(IGenericRepository<DriveReport> repo, IGenericRepository<Person> personRepo, ITransferToPayrollService transferToPayrollService) : base(repo, personRepo)
+        public FileController(IGenericRepository<DriveReport> repo, IGenericRepository<Person> personRepo, ITransferToPayrollService transferToPayrollService, ILogger logger) : base(repo, personRepo)
         {
             _repo = repo;
             _transferToPayrollService = transferToPayrollService;
+            _logger = logger;
         }
 
         //GET: Generate KMD File

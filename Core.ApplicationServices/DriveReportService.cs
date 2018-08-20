@@ -421,6 +421,15 @@ namespace Core.ApplicationServices
 
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
+            if(orgUnit.Parent == null)
+            {   
+                if(leaderOfOrgUnit == null)
+                {
+                    return null;
+                }
+                return leaderOfOrgUnit.Person;
+            }
+
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
             if (_customSettings.SdIsEnabled)
             {

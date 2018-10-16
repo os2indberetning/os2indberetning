@@ -54,17 +54,18 @@ namespace OS2Indberetning.Controllers
         {
             if (Saml20Identity.Current != null)
             {
-                string username;
+                string cpr;
                 try
                 {
-                    username = Saml20Identity.Current["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/samaccountname"].First().AttributeValue.First();
+                    var claim = ConfigurationManager.AppSettings["AUTHENTICATION_ATTRIBUTE"];
+                    cpr = Saml20Identity.Current[claim].First().AttributeValue.First();
                 }
                 catch (Exception e)
                 {
                     _logger.Error($"{GetType().Name}, Valid attribute not available on SAML token", e);
                     throw new UnauthorizedAccessException("Valid SAML attribute not available");
                 }
-                ValidateUser(username);
+                ValidateUser(cpr, cpr: true);
             }
             else
             {
@@ -75,7 +76,7 @@ namespace OS2Indberetning.Controllers
         private void LoginUserWindowsIntegratedAuthentication()
         {
             string[] httpUser = User.Identity.Name.Split('\\');
-            //httpUser[1] = "rro";
+            //httpUser[1] = "";
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], _customSettings.AdDomain, StringComparison.CurrentCultureIgnoreCase))
             {
@@ -89,15 +90,33 @@ namespace OS2Indberetning.Controllers
             }
         }
 
-        private void ValidateUser(string initials)
+        private void ValidateUser(string initials, bool cpr = false)
         {
-            CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials) && p.IsActive);
+            if (cpr)
+            {
+                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.CprNumber.Equals(initials) && p.IsActive);
+            }
+            else
+            {
+                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(initials) && p.IsActive);
+            }
+
             if (CurrentUser == null)
             {
-                _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
-                _logger.Debug($"{GetType().Name}, Initialize(), AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
-                throw new UnauthorizedAccessException("AD-bruger ikke fundet i databasen.");
+                if (cpr)
+                {   
+                    _logger.LogForAdmin("Bruger ikke fundet i databasen. CPR: " + initials);
+                    _logger.Debug($"{GetType().Name}, ValidateUser(), Bruger ikke fundet i databasen. CPR: " + initials);
+                    throw new UnauthorizedAccessException("Bruger ikke fundet via SAML login.");
+                }
+                else
+                {
+                    _logger.LogForAdmin("AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                    _logger.Debug($"{GetType().Name}, Initialize(), AD-bruger ikke fundet i databasen (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");
+                    throw new UnauthorizedAccessException("Bruger ikke fundet i databasen.");
+                }
             }
+
             if (!CurrentUser.IsActive)
             {
                 _logger.LogForAdmin("Inaktiv bruger forsøgte at logge ind (" + User.Identity.Name + "). " + User.Identity.Name + " har derfor ikke kunnet logge på.");

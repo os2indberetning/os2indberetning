@@ -134,7 +134,7 @@ namespace Core.ApplicationServices
             opretInputType.Item1 = report.Employment.EmploymentId; // AnsaettelseIdentifikator 
             opretInputType.RegistreringTypeIdentifikator = report.TFCode;
             opretInputType.GodkendtIndikator = true;
-            opretInputType.KoerselDato = new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp);
+            opretInputType.KoerselDato = new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp).ToLocalTime();
             opretInputType.RegistreringNummerIdentifikator = report.LicensePlate;
             opretInputType.KontrolleretIndikator = true;
             opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);

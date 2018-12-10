@@ -130,7 +130,7 @@ namespace Core.DomainServices
         {
             get
             {
-                return GetProtectedValue("muniplicity");
+                return GetValue("muniplicity");
             }
         }
         public string SdInstitutionNumber

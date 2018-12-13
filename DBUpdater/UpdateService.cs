@@ -579,7 +579,13 @@ namespace DBUpdater
 
             var result = new List<string>();
             var index = street.IndexOfAny("0123456789".ToCharArray());
-            if (index == -1)
+            if(index == 0) // Case for the "5. Junivej" street that crashesh the process in Ballerup kommune
+            {
+                var indexOfLastSpace = street.LastIndexOf(" ");
+                result.Add(street.Substring(0, indexOfLastSpace));
+                result.Add(street.Substring(indexOfLastSpace + 1));
+            }
+            else if (index == -1)
             {
                 result.Add(street);
             }

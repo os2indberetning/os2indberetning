@@ -76,7 +76,6 @@ namespace OS2Indberetning.Controllers
         private void LoginUserWindowsIntegratedAuthentication()
         {
             string[] httpUser = User.Identity.Name.Split('\\');
-            //httpUser[1] = "";
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], _customSettings.AdDomain, StringComparison.CurrentCultureIgnoreCase))
             {

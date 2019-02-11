@@ -86,7 +86,7 @@
                     //field: "Notified",
                     title: "Er kørt",
                     template: function (data) {
-                        if (data.DateTimestamp < moment().unix()) {
+                        if (data.Completed) {
                             return "<i class='fa fa-check'></i>";
                         }
                         return "";

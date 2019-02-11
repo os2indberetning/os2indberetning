@@ -36,7 +36,7 @@ namespace FileGenerationScheduler
             var endOfDay = Utilities.ToUnixTime(new DateTime(DateTime.Now.Year, DateTime.Now.Month, DateTime.Now.Day, 23, 59, 59));
 
             // Filter the repository with the files that need to be generated today
-            var filesToGenerate = _fileRepo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay).ToList();
+            var filesToGenerate = _fileRepo.AsQueryable().Where(r => r.DateTimestamp >= startOfDay && r.DateTimestamp <= endOfDay && !r.Completed).ToList();
 
             if (filesToGenerate.Any())
             {

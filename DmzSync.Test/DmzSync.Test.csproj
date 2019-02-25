@@ -53,6 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DriveReportSyncServiceTests.cs" />
+    <Compile Include="GPSEncryptServiceTests.cs" />
     <Compile Include="PersonSyncServiceTests.cs" />
     <Compile Include="RateSyncServiceTests.cs" />
     <Compile Include="TokenSyncServiceTests.cs" />

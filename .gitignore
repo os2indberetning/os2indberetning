@@ -205,3 +205,4 @@ ModelManifest.xml
 Presentation.Web/private.css
 *.pubxml
 Presentation.Web/idp-metadata/*
+.vs/

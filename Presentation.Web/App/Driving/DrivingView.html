@@ -254,8 +254,8 @@
         </div>
         <div class="row">
             <div class="col-sm-12 text-right">
+                <span ng-show="sixtyDaysRuleHelptext" popover="{{sixtyDaysRuleHelptext}}" popover-append-to-body="true" popover-trigger="mouseenter" class="info-popup"><i class="fa fa-question"></i></span>
                 <input type="checkbox" class="k-checkbox" id="sixtyDaysRule" ng-model="DriveReport.SixtyDaysRule" ng-click="sixtyDaysRuleApplied()" /><label for="sixtyDaysRule" class="k-checkbox-label">60 dages reglen</label>
-                <span ng-show="sixtyDaysRuleHelptext" popover="{{sixtyDaysRuleHelptext}}" popover-append-to-body='true' popover-trigger="mouseenter" class="info-popup"><i class="fa fa-question"></i></span>
             </div>
         </div>
     </div>

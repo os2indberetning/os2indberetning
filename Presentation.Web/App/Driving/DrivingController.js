@@ -7,8 +7,7 @@
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
         $scope.sixtyDaysRuleHelptext = $rootScope.HelpTexts.SixtyDaysRuleHelpText.text;
-
-
+        $scope.fourKmRuleValueHelpText = $rootScope.HelpTexts.FourKmRuleValueHelpText.text;
 
         // Setup functions in scope.
         $scope.Number = Number;

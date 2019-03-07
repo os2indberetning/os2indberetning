@@ -642,7 +642,7 @@
                     formattedAddress = AddressFormatter.fn(addr.Personal);
                 } else if ($scope.isAddressNameSet(addr)) {
                     formattedAddress = AddressFormatter.fn(addr.Name);
-                } 
+                }
 
                 // validate formattedAddress
                 if (formattedAddress != undefined && validateAddressFormatted(formattedAddress)) {
@@ -674,6 +674,10 @@
                     setMap(mapArray, $scope.transportType);
                     isFormDirty = true;
                     isRouteValid = true;
+                });
+            }
+        }
+
         $scope.onAddressBlurTriggeredByIndex = function (index) {
             if (index == undefined) {
                 return;

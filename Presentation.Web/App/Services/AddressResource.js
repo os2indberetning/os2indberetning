@@ -50,35 +50,24 @@
                 return res;
             }
         },
-        "setCoordinatesOnAddress": {
-            method: "POST",
-            url: "/odata/Addresses/Service.SetCoordinatesOnAddress",
-            isArray: true,
-            transformResponse: function (data) {
-                var res = angular.fromJson(data);
-                if (res.error == undefined) {
-                    return res.value;
-                }
-
-                var modalInstance = $modal.open({
-                    templateUrl: '/App/Services/Error/ServiceError.html',
-                    controller: "ServiceErrorController",
-                    backdrop: "static",
-                    resolve: {
-                        errorMsg: function () {
-                            return res.error.innererror.message;
-                        }
-                    }
-                });
-                return res;
-            }
-        },
         "setCoordinatesOnAddressList": {
             method: "POST",
             url: "/api/Coordinate/SetCoordinatesOnAddressList",
             isArray: true,
             transformResponse: function (data) {
                 var res = angular.fromJson(data);
+                return res;
+            }
+        },
+        "setCoordinatesOnAddress": {
+            method: "POST",
+            url: "/odata/Addresses/Service.SetCoordinatesOnAddress",
+            isArray: false,
+            transformResponse: function (data) {
+                var res = angular.fromJson(data);
+                if (res.error == undefined) {
+                    return res;
+                }
                 return res;
             }
         },

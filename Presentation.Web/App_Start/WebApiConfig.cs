@@ -54,11 +54,6 @@ namespace OS2Indberetning
             builder.EntityType<Address>().Collection
             .Action("SetCoordinatesOnAddress")
             .ReturnsFromEntitySet<Address>("Addresses");
-
-            builder.EntityType<Address>().Collection
-            .Action("SetCoordinatesOnAddressList")
-            .ReturnsFromEntitySet<Address>("Addresses");
-
             
 
             builder.EntityType<Address>().Collection

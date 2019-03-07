@@ -613,8 +613,6 @@
             return commRes && distRes;
         }
 
-        
-
         $scope.addressInputChanged = function (index) {
 
             /// <summary>
@@ -676,7 +674,59 @@
                     setMap(mapArray, $scope.transportType);
                     isFormDirty = true;
                     isRouteValid = true;
+        $scope.onAddressBlurTriggeredByIndex = function (index) {
+            if (index == undefined) {
+                return;
+            }
+
+            var addr = $scope.DriveReport.Addresses[index];
+            if (addr == undefined) {
+                return;
+            }
+
+            $scope.addressSelectionErrorMessage = "";
+
+            // Format all addresses and add them to postRequest
+            var formattedAddress = {};
+            if (!$scope.isAddressNameSet(addr) && !$scope.isAddressPersonalSet(addr)) {
+                // If addr is not set just continue;
+                return;
+            } else if (!$scope.isAddressNameSet(addr) && $scope.isAddressPersonalSet(addr)) {
+                formattedAddress = AddressFormatter.fn(addr.Personal);
+            } else if ($scope.isAddressNameSet(addr)) {
+                formattedAddress = AddressFormatter.fn(addr.Name);
+            }
+
+            // validate formattedAddress
+            if (formattedAddress != undefined && validateAddressFormatted(formattedAddress)) {
+                Address.setCoordinatesOnAddress({
+                    StreetName: formattedAddress.StreetName,
+                    StreetNumber: formattedAddress.StreetNumber,
+                    ZipCode: formattedAddress.ZipCode,
+                    Town: formattedAddress.Town }).$promise.then(function (data) {
+                        // Format address objects for OS2RouteMap once received.
+                        $scope.DriveReport.Addresses[index].StreetName = data.StreetName;
+                        $scope.DriveReport.Addresses[index].StreetNumber = data.StreetNumber;
+                        $scope.DriveReport.Addresses[index].ZipCode = data.ZipCode;
+                        $scope.DriveReport.Addresses[index].Town = data.Town;
+                        $scope.DriveReport.Addresses[index].Latitude = data.Latitude;
+                        $scope.DriveReport.Addresses[index].Longitude = data.Longitude;
+
+                        $scope.addressInputChanged();
+
+                }, function (reason) {
+                    if (!$scope.isAddressNameSet(addr) && $scope.isAddressPersonalSet(addr)) {
+                        $scope.addressSelectionErrorMessage = "Adressen " + addr.Personal + " er ikke valid, vælg fra drop down";
+                    } else if ($scope.isAddressNameSet(addr)) {
+                        $scope.addressSelectionErrorMessage = "Adressen " + addr.Name + " er ikke valid, vælg fra drop down";
+                    }
                 });
+            } else {
+                if (!$scope.isAddressNameSet(addr) && $scope.isAddressPersonalSet(addr)) {
+                    $scope.addressSelectionErrorMessage = "Adressen " + addr.Personal + " er ikke valid, vælg fra drop down";
+                } else if ($scope.isAddressNameSet(addr)) {
+                    $scope.addressSelectionErrorMessage = "Adressen " + addr.Name + " er ikke valid, vælg fra drop down";
+                }
             }
         }
 

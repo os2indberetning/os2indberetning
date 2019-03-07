@@ -247,5 +247,25 @@ namespace OS2Indberetning.Controllers
                 return StatusCode(HttpStatusCode.BadRequest);
             }
         }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="address"></param>
+        /// <returns></returns>
+        [EnableQuery]
+        public IHttpActionResult SetCoordinatesOnAddress(Address address)
+        {
+            try
+            {
+                var result = _coordinates.GetAddressCoordinates(address, true);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(HttpStatusCode.BadRequest);
+            }
+        }
     }
 }

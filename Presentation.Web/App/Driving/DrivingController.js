@@ -18,6 +18,8 @@
 
         var isFormDirty = false;
 
+        var isRouteValid = false;
+
         var fourKmAdjustment = 4;
         var defaultFourKmRuleValue = 0;
 
@@ -496,34 +498,50 @@
         }
 
         $scope.isAddressNameSet = function (address) {
-            return !(address.Name == "" || address.Name == $scope.addressPlaceholderText || address.Name == undefined);
+            return address != undefined && address.Name != undefined && address.Name.length > 0 && address.Name != $scope.addressPlaceholderText;
         }
 
         $scope.isAddressPersonalSet = function (address) {
-            return !(address.Personal == undefined || address.Personal == "");
+            return address != undefined && address.Personal != undefined && address.Personal.length > 0;
         }
 
-        var validateAddressInput = function (setError) {
-            setError = typeof setError !== 'undefined' ? setError : true;
+        var validateAddressAndRoute = function () {
+            $scope.addressSelectionErrorMessage = "";
+
             if ($scope.DriveReport.KilometerAllowance == "Read") {
                 return true;
             }
-            var res = true;
-            if (setError === true) {
-                $scope.addressSelectionErrorMessage = "";
+
+            if (isRouteValid) {
+                return isRouteValid;
             }
-            angular.forEach($scope.DriveReport.Addresses, function (address, key) {
-                if ($scope.isAddressNameSet(address) && $scope.isAddressPersonalSet(address)) {
-                    address.Name = "";
-                }
-                if (!$scope.isAddressNameSet(address) && !$scope.isAddressPersonalSet(address)) {
-                    res = false;
-                    if (setError === true) {
-                        $scope.addressSelectionErrorMessage = "*  Du skal udfylde alle adressefelter.";
-                    }
-                }
-            });
-            return res;
+
+            $scope.addressSelectionErrorMessage = "*  Du skal udfylde alle adressefelter.";
+            return isRouteValid;
+        }
+
+        var validateAddressFormatted = function (formattedAddress) {
+            if (formattedAddress == undefined || formattedAddress == "") {
+                return false;
+            }
+
+            if (formattedAddress.StreetName == undefined || formattedAddress.StreetName == "") {
+                return false;
+            }
+
+            if (formattedAddress.StreetNumber == undefined || formattedAddress.StreetNumber == "") {
+                return false;
+            }
+
+            if (formattedAddress.ZipCode == undefined || formattedAddress.ZipCode == "" || formattedAddress.ZipCode.toString().length != 4) {
+                return false;
+            }
+
+            if (formattedAddress.Town == undefined || formattedAddress.Town == "") {
+                return false;
+            }
+
+            return true;
         }
 
         var validateDate = function () {
@@ -595,7 +613,7 @@
             return commRes && distRes;
         }
 
-
+        
 
         $scope.addressInputChanged = function (index) {
 
@@ -603,37 +621,63 @@
             /// Resolves address coordinates and updates map.
             /// </summary>
             /// <param name="index"></param>
-            if (!validateAddressInput(false) || mapChanging || firstMapLoad) {
+
+            if (mapChanging || firstMapLoad) {
                 return;
             }
+
+            isRouteValid = false;
+            $scope.addressSelectionErrorMessage = "";
 
             var mapArray = [];
 
             // Empty array to hold addresses
             var postRequest = [];
             angular.forEach($scope.DriveReport.Addresses, function (addr, key) {
+
                 // Format all addresses and add them to postRequest
-                if (!$scope.isAddressNameSet(addr) && addr.Personal != "") {
-                    var format = AddressFormatter.fn(addr.Personal);
-                    postRequest.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
+                var formattedAddress = {};
+                if (!$scope.isAddressNameSet(addr) && !$scope.isAddressPersonalSet(addr)) {
+                    // If addr is not set just continue;
+                    return;
+                } else if (!$scope.isAddressNameSet(addr) && $scope.isAddressPersonalSet(addr)) {
+                    formattedAddress = AddressFormatter.fn(addr.Personal);
                 } else if ($scope.isAddressNameSet(addr)) {
-                    var format = AddressFormatter.fn(addr.Name);
-                    postRequest.push({ StreetName: format.StreetName, StreetNumber: format.StreetNumber, ZipCode: format.ZipCode, Town: format.Town });
+                    formattedAddress = AddressFormatter.fn(addr.Name);
+                } 
+
+                // validate formattedAddress
+                if (formattedAddress != undefined && validateAddressFormatted(formattedAddress)) {
+                    postRequest.push({
+                        StreetName: formattedAddress.StreetName,
+                        StreetNumber: formattedAddress.StreetNumber,
+                        ZipCode: formattedAddress.ZipCode,
+                        Town: formattedAddress.Town
+                    });
+                } else {
+                    if (!$scope.isAddressNameSet(addr) && $scope.isAddressPersonalSet(addr)) {
+                        $scope.addressSelectionErrorMessage = "Adressen " + addr.Personal + " er ikke valid, vælg fra drop down";
+                    } else if ($scope.isAddressNameSet(addr)) {
+                        $scope.addressSelectionErrorMessage = "Adressen " + addr.Name + " er ikke valid, vælg fra drop down";
+                    }
                 }
             });
 
-            // Send request to backend
-            Address.setCoordinatesOnAddressList(postRequest).$promise.then(function (data) {
-                // Format address objects for OS2RouteMap once received.
-                angular.forEach(data, function (address, value) {
-                    mapArray.push({ name: address.streetName + " " + address.streetNumber + ", " + address.zipCode + " " + address.town, lat: address.latitude, lng: address.longitude });
-                    $scope.DriveReport.Addresses[value].Latitude = address.latitude;
-                    $scope.DriveReport.Addresses[value].Longitude = address.longitude;
-                });
+            if (postRequest.length > 1 && postRequest.length == $scope.DriveReport.Addresses.length) {
+                // Send request to backend
+                Address.setCoordinatesOnAddressList(postRequest).$promise.then(function (data) {
+                    // Format address objects for OS2RouteMap once received.
+                    angular.forEach(data, function (address, value) {
+                        mapArray.push({ name: address.streetName + " " + address.streetNumber + ", " + address.zipCode + " " + address.town, lat: address.latitude, lng: address.longitude });
+                        $scope.DriveReport.Addresses[value].Latitude = address.latitude;
+                        $scope.DriveReport.Addresses[value].Longitude = address.longitude;
+                    });
 
-                setMap(mapArray, $scope.transportType);
-                isFormDirty = true;
-            });
+                    setMap(mapArray, $scope.transportType);
+                    isFormDirty = true;
+                    isRouteValid = true;
+                });
+            }
         }
 
         var setMap = function (mapArray, transportType) {
@@ -759,7 +803,7 @@
             // Define validateInput now. Otherwise it gets called from drivingview.html before having loaded resources.
             $scope.validateInput = function () {
                 $scope.canSubmitDriveReport = validateReadInput();
-                $scope.canSubmitDriveReport &= validateAddressInput();
+                $scope.canSubmitDriveReport &= validateAddressAndRoute();
                 $scope.canSubmitDriveReport &= validatePurpose();
                 $scope.canSubmitDriveReport &= validateLicensePlate();
                 $scope.canSubmitDriveReport &= validateFourKmRule();

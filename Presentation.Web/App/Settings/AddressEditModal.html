@@ -5,7 +5,8 @@
 
     <label>Adresse</label>
     <input type="text" kendo-auto-complete k-data-text-field="'tekst'" k-data-value-field="'tekst'"
-           k-data-source="SmartAddress" ng-model="oldAddress"  k-options="addressFieldOptions" class="fill-width" k-placeholder="'Skriv her'" />
+           k-data-source="SmartAddress" ng-model="oldAddress" k-options="addressFieldOptions" class="fill-width" k-placeholder="'Skriv her'" />
+    <label ng-if="addressSelectionErrorMessage.length > 0" ng-bind="addressSelectionErrorMessage" class="text-danger"></label>
     <div class="seperator"></div>
     <label>Beskrivelse</label>
     <input ng-enter="saveEditedAddress()" class="form-control" ng-model="addressDescription" />

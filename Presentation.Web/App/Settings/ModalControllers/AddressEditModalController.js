@@ -26,8 +26,11 @@
         }
 
     $scope.saveEditedAddress = function () {
-
-        if ($scope.addressNotFound) return;
+        $scope.addressSelectionErrorMessage = "";
+        if ($scope.addressNotFound) {
+            $scope.addressSelectionErrorMessage = "Adressen " + $scope.oldAddress.Name + " er ikke valid, vælg fra drop down";
+            return;
+        }
 
         $scope.newAddress = $scope.oldAddress;
 

@@ -1,11 +1,12 @@
 ﻿angular.module("application").controller('RouteEditModalInstanceController', [
-    "$scope", "Route", "Point", "NotificationService", "$modalInstance", "routeId", "personId", "AddressFormatter", "SmartAdresseSource", function ($scope, Route, Point, NotificationService, $modalInstance, routeId, personId, AddressFormatter, SmartAdresseSource) {
+    "$scope", "Route", "Point", "NotificationService", "$modalInstance", "routeId", "personId", "Address", "AddressFormatter", "SmartAdresseSource", function ($scope, Route, Point, NotificationService, $modalInstance, routeId, personId, Address, AddressFormatter, SmartAdresseSource) {
 
 
         //Contains addresses as strings ex. "Road 1, 8220 Aarhus"
         $scope.viaPointModels = [];
 
         $scope.isSaveDisabled = false;
+        $scope.canSubmitRoute = false;
 
         $scope.addressFieldOptions = {
             dataBound: function () {
@@ -31,8 +32,64 @@
             });
         }
 
+        var validateAddressFormatted = function (formattedAddress) {
+            if (formattedAddress == undefined || formattedAddress == "") {
+                return false;
+            }
+
+            if (formattedAddress.StreetName == undefined || formattedAddress.StreetName == "") {
+                return false;
+            }
+
+            if (formattedAddress.StreetNumber == undefined || formattedAddress.StreetNumber == "") {
+                return false;
+            }
+
+            if (formattedAddress.ZipCode == undefined || formattedAddress.ZipCode == "" || formattedAddress.ZipCode.toString().length != 4) {
+                return false;
+            }
+
+            if (formattedAddress.Town == undefined || formattedAddress.Town == "") {
+                return false;
+            }
+
+            return true;
+        }
+
+        var validateAddress = function (addr) {            
+            if (addr == undefined) {
+                return false;
+            }
+
+            if ($scope.addressSelectionErrorMessage.length > 0) {
+                return false;
+            }
+
+            return true;
+        }
+
+        var validateInput = function () {
+            if (!validateAddress($scope.newStartPoint)) {
+                return false;
+            }
+
+            if (!validateAddress($scope.newEndPoint)) {
+                return false;
+            }
+            
+            angular.forEach($scope.viaPointModels, function (addr, key) {
+                if (!validateAddress(addr)) {
+                    return false;
+                }
+            });
+            return true;
+        }
+
         $scope.saveRoute = function () {
-            if ($scope.addressNotFound) return;
+            if (!validateInput()) { 
+                return;
+            }
+            
             $scope.isSaveDisabled = true;
             if (routeId != undefined) {
                 // routeId is defined -> User is editing existing route ->  Delete it, and then post the edited route as a new route.
@@ -112,6 +169,51 @@
                 }
                 $modalInstance.close();
             });
+        }
+
+        $scope.onAddressBlurTriggered = function (addr) {
+            if (addr == undefined) {
+                return false;
+            }
+
+            if ($scope.addressNotFound) {
+                $scope.addressSelectionErrorMessage = "Adressen " + addr + " er ikke valid, vælg fra drop down";
+                return false;
+            }
+
+            // Format all addresses and add them to postRequest
+            var formattedAddress = AddressFormatter.fn(addr);
+
+            // validate formattedAddress
+            if (formattedAddress == undefined || !validateAddressFormatted(formattedAddress)) {
+                $scope.addressSelectionErrorMessage = "Adressen " + addr + " er ikke valid, vælg fra drop down";
+                return false;
+            } else {
+                Address.setCoordinatesOnAddress({
+                    StreetName: formattedAddress.StreetName,
+                    StreetNumber: formattedAddress.StreetNumber,
+                    ZipCode: formattedAddress.ZipCode,
+                    Town: formattedAddress.Town
+                }).$promise.then(function (data) {
+                    $scope.addressSelectionErrorMessage = "";
+                    
+                }, function (reason) {
+
+                    $scope.addressSelectionErrorMessage = "Adressen " + addr + " er ikke valid, vælg fra drop down";
+                });
+            }
+        }
+
+        $scope.onStartAddressBlurTriggered = function () {
+            $scope.onAddressBlurTriggered($scope.newStartPoint);
+        }
+
+        $scope.onEndAddressBlurTriggered = function() {
+            $scope.onAddressBlurTriggered($scope.newEndPoint);
+        }
+
+        $scope.onViaPointAddressBlurTriggered = function ($index) {
+            $scope.onAddressBlurTriggered($scope.viaPointModels[index]);
         }
 
         $scope.removeViaPoint = function ($index) {

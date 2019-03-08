@@ -7,7 +7,7 @@
     <div class="seperator"></div>
     <label>Adresse 1</label>
     <input type="text" kendo-auto-complete k-data-text-field="'tekst'" k-data-value-field="'tekst'" k-options="addressFieldOptions"
-           k-data-source="SmartAddress" ng-model="newStartPoint" class="fill-width" k-placeholder="'Skriv her'" />
+           k-data-source="SmartAddress" ng-model="newStartPoint.Name" class="fill-width" k-placeholder="'Skriv her'" ng-blur="onStartAddressBlurTriggered()" />
     <div class="seperator"></div>
     <label ng-if="viaPointModels.length > 0">Viapunkter</label>
     <div ng-repeat="viapoint in viaPointModels track by $index">
@@ -15,7 +15,7 @@
 
         <div class="col-sm-11" style="margin-left: -15px;">
             <input type="text" kendo-auto-complete k-data-text-field="'tekst'" k-data-value-field="'tekst'" k-options="addressFieldOptions"
-                   k-data-source="SmartAddress" ng-model="viaPointModels[$index]" class="fill-width" k-placeholder="'Skriv her'" />
+                   k-data-source="SmartAddress" ng-model="viaPointModels[$index].Name" class="fill-width" k-placeholder="'Skriv her'" ng-blur="onViaPointAddressBlurTriggered($index)" />
         </div>
         <div class="col-sm-1 pull-right" style="margin-right: -15px;">
             <button class="btn btn-danger pull-right" ng-click="removeViaPoint($index)">Slet</button>
@@ -27,8 +27,11 @@
     <div class="seperator"></div>
     <label>Adresse 2</label>
     <input type="text" kendo-auto-complete k-data-text-field="'tekst'" k-data-value-field="'tekst'" k-options="addressFieldOptions"
-           k-data-source="SmartAddress" ng-model="newEndPoint" class="fill-width" k-placeholder="'Skriv her'" />
+           k-data-source="SmartAddress" ng-model="newEndPoint.Name" class="fill-width" k-placeholder="'Skriv her'" ng-blur="onEndAddressBlurTriggered()" />
+
     <div class="seperator"></div>
+
+    <label ng-if="addressSelectionErrorMessage.length > 0" ng-bind="addressSelectionErrorMessage" class="text-danger"></label>
 
     <button class="btn btn-primary" ng-click="addNewViaPoint()"><i class="fa fa-plus"></i> Viapunkt</button>
 

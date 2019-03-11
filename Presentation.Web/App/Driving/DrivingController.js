@@ -167,6 +167,29 @@
             return res;
         }
 
+        $scope.setDivergentAddress = function () {
+            var isUsingDivergentAddress = false;
+            angular.forEach($scope.DriveReport.Addresses, function (address, key) {
+                if (address.Personal != undefined && address.Personal.length != undefined && address.Personal.length > 0) {
+                    if ($scope.HomeAddress.address == address.Personal) {
+                        if ($scope.HomeAddress.Type == "AlternativeHome") {
+                            isUsingDivergentAddress = true;
+                        }
+                    }
+                }
+
+                if (address.Name != undefined && address.Name.length != undefined && address.Name.length > 0) {
+                    if ($scope.HomeAddress.address == address.Name) {
+                        if ($scope.HomeAddress.Type == "AlternativeHome") {
+                            isUsingDivergentAddress = true;
+                            address.Personal = address.Name;
+                        }
+                    }
+                }
+            });
+            $scope.DriveReport.IsUsingDivergentAddress = isUsingDivergentAddress;
+        }
+
         var loadValuesFromReport = function (report) {
             /// <summary>
             /// Loads values from user's latest report and sets fields in the view.
@@ -301,6 +324,9 @@
                         res += "{name: \"" + addr.Name + "\", lat: " + addr.Latitude + ", lng: " + addr.Longitude + "},";
                     });
                     res += "]";
+
+                    // Check to see if any of the addresses is a divergent
+                    $scope.setDivergentAddress();
 
                     $scope.$on("kendoWidgetCreated", function (event, widget) {
                         if (widget === $scope.container.lastTextBox) {
@@ -797,6 +823,7 @@
             $scope.DriveReport.ReadDistance = 0;
             $scope.DriveReport.UserComment = "";
             $scope.DriveReport.Purpose = "";
+            $scope.DriveReport.IsUsingDivergentAddress = false;
             $scope.clearErrorMessages();
             updateDrivenKm();
             $window.scrollTo(0, 0);
@@ -886,6 +913,9 @@
             if (!$scope.canSubmitDriveReport) {
                 return;
             }
+
+            $scope.setDivergentAddress();
+
             if ($scope.DriveReport.Status == "Accepted") {
                 // An admin is trying to edit an already approved report.
                 var modalInstance = $modal.open({

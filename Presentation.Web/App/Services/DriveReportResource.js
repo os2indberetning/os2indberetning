@@ -29,6 +29,7 @@
                 driveReport.TFCode = getKmRate().Type.TFCode;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;
                 driveReport.SixtyDaysRule = $scope.DriveReport.SixtyDaysRule;
+                driveReport.IsUsingDivergentAddress = $scope.DriveReport.IsUsingDivergentAddress;
 
                 driveReport.KilometerAllowance = $scope.DriveReport.KilometerAllowance;
                 driveReport.Distance = 0;
@@ -169,6 +170,7 @@
                 driveReport.TFCode = getKmRate().Type.TFCode;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;
                 driveReport.SixtyDaysRule = $scope.DriveReport.SixtyDaysRule;
+                driveReport.IsUsingDivergentAddress = $scope.DriveReport.IsUsingDivergentAddress;
 
                 driveReport.KilometerAllowance = $scope.DriveReport.KilometerAllowance;
                 driveReport.Distance = 0;

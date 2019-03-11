@@ -50,6 +50,7 @@ namespace Core.DomainModel
         public bool? IsOldMigratedReport { get; set; }
         public bool? IsRoundTrip { get; set; }
         public bool SixtyDaysRule { get; set; }
+        public bool IsUsingDivergentAddress { get; set; }
 
 
         public virtual ICollection<DriveReportPoint> DriveReportPoints { get; set; }

@@ -434,6 +434,10 @@
     <Compile Include="Migrations\201903081335388_AddUsngDivergentAddress.Designer.cs">
       <DependentUpon>201903081335388_AddUsngDivergentAddress.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201903111359330_RateTypeAddTFCoOptional.cs" />
+    <Compile Include="Migrations\201903111359330_RateTypeAddTFCoOptional.Designer.cs">
+      <DependentUpon>201903111359330_RateTypeAddTFCoOptional.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -732,6 +736,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903081335388_AddUsngDivergentAddress.resx">
       <DependentUpon>201903081335388_AddUsngDivergentAddress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903111359330_RateTypeAddTFCoOptional.resx">
+      <DependentUpon>201903111359330_RateTypeAddTFCoOptional.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

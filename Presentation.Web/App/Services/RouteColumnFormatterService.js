@@ -49,7 +49,7 @@
 
             var usingDivergentAddress = "";
             if (data.IsUsingDivergentAddress) {
-                usingDivergentAddress = "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'Der er brugt enten afvigende arbejds- eller bopælsadresse i denne indberetning'\"><p style=\"font-size: 22px; margin-top: 3px\"><b>A</b></p></div>";
+                usingDivergentAddress = "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'Der er brugt enten afvigende arbejds- eller bopælsadresse i denne indberetning'\"><i class='fa fa-tag fa-2x'></i></div>";
                 result += usingDivergentAddress;
             }
 

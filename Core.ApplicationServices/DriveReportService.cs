@@ -120,9 +120,6 @@ namespace Core.ApplicationServices
                 }
             }
 
-
-
-
             // Round off Distance and AmountToReimburse to two decimals.
             report.Distance = Convert.ToDouble(report.Distance.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);
             report.AmountToReimburse = Convert.ToDouble(report.AmountToReimburse.ToString("0.##", CultureInfo.InvariantCulture), CultureInfo.InvariantCulture);

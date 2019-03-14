@@ -234,15 +234,17 @@ namespace DBUpdater
             _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), Home adresses updated.");
             _personalAddressRepo.Save();
 
-            //Sets all employments to end now in the case there was
+            //Sets all active employments to end now in the case there was
             //one day where the updater did not run and the employee
             //has been removed from the latest MDM view we are working on
-            //The end date will be adjusted in the next loop
-            foreach (var employment in _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0))
+            //The end date will be adjusted in the next loop in CreateEmployment()
+            var timeStampToday = (Int32)DateTime.UtcNow.Date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            var activeEmployments = _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0 || e.EndDateTimestamp > timeStampToday);
+            foreach (var employment in activeEmployments)
             {
-                employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                employment.EndDateTimestamp = timeStampToday;
             }
-            _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), All employments end date set to now.");
+            _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), All active employments end date set to now.");
             _emplRepo.Save();
 
             i = 0;
@@ -773,14 +775,17 @@ namespace DBUpdater
             }
             _personalAddressRepo.Save();
 
-            //Sets all employments to end now in the case there was
+            //Sets all active employments to end now in the case there was
             //one day where the updater did not run and the employee
             //has been removed from the latest MDM view we are working on
-            //The end date will be adjusted in the next loop
-            foreach (var employment in _emplRepo.AsQueryable())
+            //The end date will be adjusted in the next loop in CreateEmployment()
+            var timeStampToday = (Int32)DateTime.UtcNow.Date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            var activeEmployments = _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0 || e.EndDateTimestamp > timeStampToday);
+            foreach (var employment in activeEmployments)
             {
-                employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                employment.EndDateTimestamp = timeStampToday;
             }
+            _logger.Debug($"{this.GetType().Name}, MigrateEmployeesIDM(), All active employments end date set to now.");
             _emplRepo.Save();
 
             i = 0;

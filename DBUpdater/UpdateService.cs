@@ -492,31 +492,6 @@ namespace DBUpdater
             return launderedAddress;
         }
 
-        public void UpdateLeadersOnAllReports()
-        {
-            var i = 0;
-
-            var reports = _reportRepo.AsQueryable().Where(x => x.Employment.OrgUnit.Level > 1).ToList();
-            var max = reports.Count();
-            foreach (var report in reports)
-            {
-                if (i % 100 == 0)
-                {
-                    Console.WriteLine("Updating leaders on report " + i + " of " + max);
-                }
-                i++;
-                report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
-                report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
-                if (i % 1000 == 0)
-                {
-                    Console.WriteLine("Saving to database");
-                    _reportRepo.Save();
-                }
-            }
-            Console.WriteLine("Saving to database");
-            _reportRepo.Save();
-        }
-
         /// <summary>
         /// Updates ResponsibleLeader on all reports that had a substitute which expired yesterday or became active today.
         /// </summary>
@@ -550,7 +525,16 @@ namespace DBUpdater
                     i++;
                     Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
                     report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
-                    report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
+                    var actualLeader = _driveService.GetActualLeaderForReport(report);
+                    if (actualLeader != null)
+                    {
+                        report.ActualLeaderId = actualLeader.Id;
+                    }
+                    else
+                    {
+                        _logger.Error($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(), Could not find actual leader for person ? {report.PersonId} and report = {report.Id}", e);
+                    }
+
                     if (i % 100 == 0)
                     {
                         Console.WriteLine("Saving to database");
@@ -559,7 +543,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().Name}, UpdateLeadersOnExpiredOrActivatedSubstitutes(), Error, report = {report.Id}", e);
+                    _logger.Error($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(), Error, report = {report.Id}", e);
                     throw;
                 }
             }

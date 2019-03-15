@@ -126,7 +126,11 @@ namespace Core.ApplicationServices
 
             var createdReport = _driveReportRepository.Insert(report);
             createdReport.UpdateResponsibleLeaders(GetResponsibleLeadersForReport(report));
-            createdReport.ActualLeaderId = GetActualLeaderForReport(report).Id;
+            var actualLeader = GetActualLeaderForReport(report);
+            if (actualLeader != null)
+            {
+                createdReport.ActualLeaderId = actualLeader.Id;
+            }
 
             if (report.Status == ReportStatus.Rejected)
             {
@@ -407,14 +411,15 @@ namespace Core.ApplicationServices
 
             //Find an org unit where the person is not the leader, and then find the leader of that org unit to attach to the drive report
             var orgUnit = _orgUnitRepository.AsQueryable().SingleOrDefault(o => o.Id == empl.OrgUnitId);
-            var leaderOfOrgUnit =
-                _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
             if (orgUnit == null)
             {
                 _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), Orgunit with id: {empl.OrgUnitId} not found. Report ID: {driveReport.Id}");
                 return null;
             }
+
+            var leaderOfOrgUnit =
+                _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
             var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 

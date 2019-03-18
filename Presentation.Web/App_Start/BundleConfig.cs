@@ -50,14 +50,14 @@ namespace OS2Indberetning
                       "~/Content/custom.css",
                       "~/Content/angular-busy.min.css"));
 
-
-            bundles.Add(new ScriptBundle("~/bundles/angular").IncludeDirectoryWithExclusion("~/App", "*.js", true, "*.spec.js"));
+            // application.js must be the first item included from the "App" folder
+            bundles.Add(new ScriptBundle("~/bundles/angular").Include("~/App/application.js").IncludeDirectoryWithExclusion("~/App", "*.js", true, "*.spec.js|application.js"));
         }
     }
 
     public static class BundleExtentions
     {
-        public static Bundle IncludeDirectoryWithExclusion(this ScriptBundle bundle, string directoryVirtualPath, string searchPattern, bool includeSubDirectories, string excludePattern)
+        public static Bundle IncludeDirectoryWithExclusion(this Bundle bundle, string directoryVirtualPath, string searchPattern, bool includeSubDirectories, string excludePattern)
         {
             var folderPath = HttpContext.Current.Server.MapPath(directoryVirtualPath);
             SearchOption searchOption = includeSubDirectories

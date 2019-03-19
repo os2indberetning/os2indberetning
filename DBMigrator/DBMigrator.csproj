@@ -26,6 +26,13 @@
     <WarningLevel>4</WarningLevel>
     <ExternalConsole>true</ExternalConsole>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(RunConfiguration)' == 'Default' ">
+    <StartAction>Project</StartAction>
+    <EnvironmentVariables>
+      <Variable name="TARGET_PROJECT_FILE" value="$(SolutionDir)/Infrastructure.DataAccess/Infrastructure.DataAccess.csproj" />
+      <Variable name="MIGRATIONS_OUTPUT_DIRECTORY" value="$(SolutionDir)/Infrastructure.DataAccess/Migrations" />
+    </EnvironmentVariables>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Windows.Forms" />

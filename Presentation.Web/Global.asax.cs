@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.Web.Http;
+﻿using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Web.Http.ExceptionHandling;
+using System.Web.Http.Controllers;
+using System.Net.Http.Headers;
+using System.Diagnostics;
+using ActionFilterAttribute = System.Web.Http.Filters.ActionFilterAttribute;
 
 namespace OS2Indberetning
 {
@@ -15,12 +14,16 @@ namespace OS2Indberetning
     {
         protected void Application_Start()
         {
-            
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
+
+#if DEBUG
+            GlobalConfiguration.Configuration.Services.Add(typeof(IExceptionLogger), new DebugExceptionLogger());
+            GlobalConfiguration.Configuration.Filters.Add(new AddAcceptCharsetHeaderActionFilter());
+#endif
 
             //// Turns off self reference looping when serializing models in API controlllers
             //GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
@@ -29,4 +32,26 @@ namespace OS2Indberetning
             //GlobalConfiguration.Configuration.Formatters.JsonFormatter.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
         }
     }
+
+#if DEBUG
+    public class AddAcceptCharsetHeaderActionFilter : ActionFilterAttribute
+    {
+        public override void OnActionExecuting(HttpActionContext actionContext)
+        {
+            // Inject "Accept-Charset" header into the client request,
+            // since apparently this is required when running on Mono
+            // See: https://github.com/OData/odata.net/issues/165
+            actionContext.Request.Headers.AcceptCharset.Add(new StringWithQualityHeaderValue("UTF-8"));
+            base.OnActionExecuting(actionContext);
+        }
+    }
+
+    public class DebugExceptionLogger : ExceptionLogger
+    {
+        public override void Log(ExceptionLoggerContext context)
+        {
+            Debug.WriteLine(context.Exception);
+        }
+    }
+#endif
 }

@@ -445,6 +445,7 @@
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MigrationsRunner.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\connections.config">

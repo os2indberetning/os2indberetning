@@ -23,15 +23,7 @@ using Core.DomainServices.Interfaces;
 
 namespace ApplicationServices.Test.DriveReportServiceTest
 {
-    [TestFixture] //TODO rewrite tests, did not catch that the person was always set as responsible leader
-    /** Things to test: 
-     *      person is an employee
-     *      person is a leader (approver is leader of next level
-     *      Person is leader on two levels
-     *      Person has personal approver
-     *      persons leader has substitute
-     */
-
+    [TestFixture]
     public class GetActualLeaderForReportTests
     {
         private IGenericRepository<Employment> _emplMock;

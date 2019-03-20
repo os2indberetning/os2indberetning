@@ -129,6 +129,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DriveReportServiceTest\DriveReportMock.cs" />
+    <Compile Include="DriveReportServiceTest\GetActualLeaderForReportTests.cs" />
     <Compile Include="DriveReportServiceTest\GetResponsibleLeaderTests.cs" />
     <Compile Include="DriveReportServiceTest\DriveReportServiceTest.cs" />
     <Compile Include="DriveReportServiceTest\SubstituteRepositoryMock.cs" />

@@ -47,8 +47,9 @@ namespace FileGenerationScheduler
                     // TransferToPayrollService call here
                     AttemptGenerateFile();
 
+                    // Set file generation complete
                     file.Completed = true;
-                    _fileRepo.Update(file);
+                    _fileRepo.Save();
 
                     // Check if Repeat is true and schedule all mail notification and file gen jobs for the next month
                     if (file.Repeat)

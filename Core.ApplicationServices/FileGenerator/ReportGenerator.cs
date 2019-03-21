@@ -164,5 +164,32 @@ namespace Core.ApplicationServices.FileGenerator
             var lastDay = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
             return (long)(lastDay - epoch).TotalSeconds;
         }
+
+        public List<DriveReport> ReceiveReportsToInvoiceSD()
+        {
+            var reportsToInvoice = _reportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
+
+            // If a Drive report has an TFCodeOptional, we want to make two records for that report. 
+            // One using the real TFCode and one using the TFCodeOptional
+            reportsToInvoice.AddRange(CreateDriveReportWithOptionalTFCodeForSD(reportsToInvoice));
+
+            return reportsToInvoice;
+        }
+
+        private List<DriveReport> CreateDriveReportWithOptionalTFCodeForSD(List<DriveReport> driveReports)
+        {
+            return driveReports.Where(r => r.TFCodeOptional != null).Select(r =>
+            {
+                return new DriveReport
+                {
+                    ApprovedBy = r.ApprovedBy,
+                    Employment = r.Employment,
+                    TFCode = r.TFCodeOptional,
+                    DriveDateTimestamp = r.DriveDateTimestamp,
+                    LicensePlate = r.LicensePlate,
+                    Distance = r.Distance
+                };
+            }).ToList();
+        }
     }
 }

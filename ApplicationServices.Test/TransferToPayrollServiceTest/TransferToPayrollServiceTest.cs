@@ -1,4 +1,5 @@
-﻿using Core.ApplicationServices;
+﻿using ApplicationServices.Test.FileGenerator;
+using Core.ApplicationServices;
 using Core.ApplicationServices.FileGenerator;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
@@ -36,6 +37,8 @@ namespace ApplicationServices.Test.TransferToPayrollServiceTest
             _reportRepoMock.Insert(new DriveReport()).ReturnsForAnyArgs(x => x.Arg<DriveReport>()).AndDoes(x => _reportList.Add(x.Arg<DriveReport>())).AndDoes(x => x.Arg<DriveReport>().Id = idCounter).AndDoes(x => idCounter++);
             _reportRepoMock.AsQueryable().ReturnsForAnyArgs(_reportList.AsQueryable());
             _reportGeneratorMock = NSubstitute.Substitute.For<IReportGenerator>();
+            var writerMock = new FileWriterMock();
+            _reportGeneratorMock = new ReportGenerator(_reportRepoMock, writerMock, new Logger(), new CustomSettings());
             _sdClientMock = NSubstitute.Substitute.For<ISdClient>();
             _loggerMock = NSubstitute.Substitute.For<ILogger>();
             _customSettingsMock = NSubstitute.Substitute.For<ICustomSettings>();

@@ -110,6 +110,27 @@ namespace ApplicationServices.Test.FileGenerator
 
             Assert.AreEqual(preRepoMockCount, repoMock.AsQueryable().Count(), "Reports created with Optional TFCode should not be saved");
         }
+
+        [Test]
+        public void TestReceiveReportsToInvoiceSD()
+        {
+            var repoMock = new ReportRepositoryMock();
+            var writerMock = new FileWriterMock();
+            var reportGenerator = new ReportGenerator(repoMock, writerMock, new Logger(), new CustomSettings());
+
+            var acceptedReports = repoMock.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
+            var preRepoMockCount = acceptedReports.Count();
+
+            var reportToInvoice = reportGenerator.ReceiveReportsToInvoiceSD();
+
+            Assert.AreNotEqual(preRepoMockCount, reportToInvoice.Count, "The number of reports before receiving reports to invoice should contain less reports");
+            Assert.AreEqual(8, reportToInvoice.Count, "The number of reports to invoice should be 7");
+            
+            var reportsWithTFCode = acceptedReports.Where(x => x.TFCode == "310-4").ToList();
+            var reportsToInvoiceWithTFCode = reportToInvoice.Where(x => x.TFCode == "310-4").ToList();
+            Assert.AreEqual(5, reportsWithTFCode.Count, "The number of accepted reports before, should be 5");
+            Assert.AreEqual(6, reportsToInvoiceWithTFCode.Count, "The number of accepted reports after, should be 6");
+        }
     }
 
     class FileWriterMock : IReportFileWriter

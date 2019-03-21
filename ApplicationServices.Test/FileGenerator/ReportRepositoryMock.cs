@@ -127,12 +127,23 @@ namespace ApplicationServices.Test.FileGenerator
             AccountNumber = ""
         };
 
+        public DriveReport Report9 = new DriveReport
+        {
+            DriveDateTimestamp = 1426334400, //March 14 2015
+            TFCode = "310-9",
+            TFCodeOptional = "310-4",
+            Distance = 600,
+            Employment = Employment,
+            Person = Person2,
+            Status = ReportStatus.Accepted,
+            AccountNumber = ""
+        };
 
         protected override List<DriveReport> Seed()
         {
             return new List<DriveReport>
             {
-                Report1, Report2, Report3, Report4, Report5, Report6, Report7, Report8 
+                Report1, Report2, Report3, Report4, Report5, Report6, Report7, Report8, Report9
             };
         }
     }

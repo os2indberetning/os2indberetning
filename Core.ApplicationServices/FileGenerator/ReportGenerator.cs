@@ -88,7 +88,26 @@ namespace Core.ApplicationServices.FileGenerator
             var fileRecords = new List<FileRecord>();
             foreach (var cpr in usersToReimburse.Keys)
             {
-                var driveReports = usersToReimburse[cpr].OrderBy(x => x.EmploymentId).OrderBy(x => x.TFCode).ThenBy(x => x.AccountNumber).ThenBy(x => x.DriveDateTimestamp);
+                var userDriveReports = usersToReimburse[cpr];
+
+                // If a Drive report has an TFCodeOptional, we want to make two records. 
+                // One using the real TFCode and one using the TFCodeOptional
+                var driveReportsWithOptionalTFCode = userDriveReports.Where(r => r.TFCodeOptional != null);
+                userDriveReports.AddRange(driveReportsWithOptionalTFCode.Select(r =>
+                {
+                    var reportUsingOptionalTFCode = new DriveReport
+                    {
+                        TFCode = r.TFCodeOptional,
+                        AccountNumber = r.AccountNumber,
+                        Employment = r.Employment,
+                        EmploymentId = r.EmploymentId,
+                        Distance = r.Distance,
+                        DriveDateTimestamp = r.DriveDateTimestamp
+                    };
+                    return reportUsingOptionalTFCode;
+                }).ToList());
+
+                var driveReports = userDriveReports.OrderBy(x => x.EmploymentId).OrderBy(x => x.TFCode).ThenBy(x => x.AccountNumber).ThenBy(x => x.DriveDateTimestamp);
                 DriveReport currentDriveReport = null;
                 var currentTfCode = "";
                 var currentMonth = -1;
@@ -96,10 +115,10 @@ namespace Core.ApplicationServices.FileGenerator
                 foreach (var driveReport in driveReports)
                 {
                     var driveDate = TimestampToDate(driveReport.DriveDateTimestamp);
-                    if ( ! driveReport.TFCode.Equals(currentTfCode) //We make one file record for each employment and each tf code
-                            || driveDate.Month != currentMonth 
-                            || currentDriveReport == null 
-                            || ! driveReport.EmploymentId.Equals(currentDriveReport.EmploymentId)
+                    if (!driveReport.TFCode.Equals(currentTfCode) //We make one file record for each employment and each tf code
+                            || driveDate.Month != currentMonth
+                            || currentDriveReport == null
+                            || !driveReport.EmploymentId.Equals(currentDriveReport.EmploymentId)
                             || !(driveReport.AccountNumber == currentAccountNumber))
                     {
                         if (currentDriveReport != null)
@@ -122,11 +141,12 @@ namespace Core.ApplicationServices.FileGenerator
                     }
                     currentDriveReport.Distance += driveReport.Distance;
                 }
-                if (currentDriveReport != null) { 
+                if (currentDriveReport != null)
+                {
                     fileRecords.Add(new FileRecord(currentDriveReport, cpr, _customSettings));
                 }
-
             }
+
             return fileRecords;
         }
 
@@ -143,6 +163,33 @@ namespace Core.ApplicationServices.FileGenerator
 
             var lastDay = new DateTime(date.Year, date.Month, DateTime.DaysInMonth(date.Year, date.Month));
             return (long)(lastDay - epoch).TotalSeconds;
+        }
+
+        public List<DriveReport> ReceiveReportsToInvoiceSD()
+        {
+            var reportsToInvoice = _reportRepo.AsQueryable().Where(x => x.Status == ReportStatus.Accepted && x.Distance > 0).ToList();
+
+            // If a Drive report has an TFCodeOptional, we want to make two records for that report. 
+            // One using the real TFCode and one using the TFCodeOptional
+            reportsToInvoice.AddRange(CreateDriveReportWithOptionalTFCodeForSD(reportsToInvoice));
+
+            return reportsToInvoice;
+        }
+
+        private List<DriveReport> CreateDriveReportWithOptionalTFCodeForSD(List<DriveReport> driveReports)
+        {
+            return driveReports.Where(r => r.TFCodeOptional != null).Select(r =>
+            {
+                return new DriveReport
+                {
+                    ApprovedBy = r.ApprovedBy,
+                    Employment = r.Employment,
+                    TFCode = r.TFCodeOptional,
+                    DriveDateTimestamp = r.DriveDateTimestamp,
+                    LicensePlate = r.LicensePlate,
+                    Distance = r.Distance
+                };
+            }).ToList();
         }
     }
 }

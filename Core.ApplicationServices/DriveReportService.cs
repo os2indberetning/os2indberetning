@@ -505,9 +505,6 @@ namespace Core.ApplicationServices
             _mailService.SendMail(report.Person.Mail, "En administrator har ændret i din indberetning.", mailContent);
 
             _mailService.SendMail(report.ApprovedBy.Mail, "En administrator har ændret i en indberetning du har godkendt.", mailContent);
-
-
-
         }
     }
 }

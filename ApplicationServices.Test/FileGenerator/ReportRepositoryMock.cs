@@ -39,7 +39,7 @@ namespace ApplicationServices.Test.FileGenerator
             CprNumber = "2222222222"
         };
 
-        public DriveReport Report1 = new DriveReport
+        public DriveReport Report1Accepted = new DriveReport
         {
             DriveDateTimestamp = 1426248000, //March 13 2015
             TFCode = "310-4",
@@ -47,10 +47,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person1,
             Status = ReportStatus.Accepted,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person2,
+            LicensePlate = "aaa1213"
         };
 
-        public DriveReport Report2 = new DriveReport
+        public DriveReport Report2Accepted = new DriveReport
         {
             DriveDateTimestamp = 1426248000,  //March 13 2015
             TFCode = "310-4",
@@ -58,10 +60,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person2,
             Status = ReportStatus.Accepted,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person1,
+            LicensePlate = "bba1213"
         };
 
-        public DriveReport Report3 = new DriveReport
+        public DriveReport Report3Rejected = new DriveReport
         {
             DriveDateTimestamp = 1426334400, //March 14 2015
             TFCode = "310-4",
@@ -69,10 +73,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person2,
             Status = ReportStatus.Rejected,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person1,
+            LicensePlate = "bba1213"
         };
 
-        public DriveReport Report4 = new DriveReport
+        public DriveReport Report4Invoiced = new DriveReport
         {
             DriveDateTimestamp = 1429012800,  //April 13 2015
             TFCode = "310-4",
@@ -80,10 +86,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person1,
             Status = ReportStatus.Invoiced,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person2,
+            LicensePlate = "aaa1213"
         };
 
-        public DriveReport Report5 = new DriveReport
+        public DriveReport Report5Accepted = new DriveReport
         {
             DriveDateTimestamp = 1426248000,  //March 13 2015
             TFCode = "310-4",
@@ -91,10 +99,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person1,
             Status = ReportStatus.Accepted,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person2,
+            LicensePlate = "aaa1213"
         };
 
-        public DriveReport Report6 = new DriveReport
+        public DriveReport Report6Accepted = new DriveReport
         {
             DriveDateTimestamp = 1426334400, //March 14 2015
             TFCode = "310-4",
@@ -102,10 +112,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person2,
             Status = ReportStatus.Accepted,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person1,
+            LicensePlate = "bba1213"
         };
 
-        public DriveReport Report7 = new DriveReport
+        public DriveReport Report7Accepted = new DriveReport
         {
             DriveDateTimestamp = 1429012800,  //April 13 2015
             TFCode = "310-4",
@@ -113,10 +125,12 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person2,
             Status = ReportStatus.Accepted,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person1,
+            LicensePlate = "bba1213"
         };
 
-        public DriveReport Report8 = new DriveReport
+        public DriveReport Report8Accepted = new DriveReport
         {
             DriveDateTimestamp = 1426334400, //March 14 2015
             TFCode = "310-3",
@@ -124,15 +138,30 @@ namespace ApplicationServices.Test.FileGenerator
             Employment = Employment,
             Person = Person2,
             Status = ReportStatus.Accepted,
-            AccountNumber = ""
+            AccountNumber = "",
+            ApprovedBy = Person1,
+            LicensePlate = "bba1213"
         };
 
+        public DriveReport Report9Accepted = new DriveReport
+        {
+            DriveDateTimestamp = 1426334400, //March 14 2015
+            TFCode = "310-9",
+            TFCodeOptional = "310-4",
+            Distance = 600,
+            Employment = Employment,
+            Person = Person2,
+            Status = ReportStatus.Accepted,
+            AccountNumber = "",
+            ApprovedBy = Person1,
+            LicensePlate = "bba1213"
+        };
 
         protected override List<DriveReport> Seed()
         {
             return new List<DriveReport>
             {
-                Report1, Report2, Report3, Report4, Report5, Report6, Report7, Report8 
+                Report1Accepted, Report2Accepted, Report3Rejected, Report4Invoiced, Report5Accepted, Report6Accepted, Report7Accepted, Report8Accepted, Report9Accepted
             };
         }
     }

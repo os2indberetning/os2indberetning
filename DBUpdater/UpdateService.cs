@@ -532,7 +532,7 @@ namespace DBUpdater
                     }
                     else
                     {
-                        _logger.Error($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(), Could not find actual leader for person ? {report.PersonId} and report = {report.Id}", e);
+                        _logger.Error($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(), Could not find actual leader for person ? {report.PersonId} and report = {report.Id}");
                     }
 
                     if (i % 100 == 0)

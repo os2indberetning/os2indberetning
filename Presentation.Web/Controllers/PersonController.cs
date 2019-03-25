@@ -6,15 +6,12 @@ using System.Web.Http;
 using System.Web.Mvc;
 using System.Web.OData;
 using System.Web.OData.Query;
-using Core.ApplicationServices;
 using Core.ApplicationServices.Interfaces;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
 using Infrastructure.DataAccess;
-using Newtonsoft.Json.Schema;
 using Core.ApplicationServices.Logger;
-using OS2Indberetning.Filters;
 
 namespace OS2Indberetning.Controllers
 {
@@ -28,7 +25,7 @@ namespace OS2Indberetning.Controllers
         private readonly IGenericRepository<OrgUnit> _orgUnitsRepo;
         private readonly ILogger _logger;
 
-       
+
         public PersonController(IGenericRepository<Person> repo, IPersonService personService, IGenericRepository<Employment> employmentRepo, IGenericRepository<LicensePlate> licensePlateRepo, IGenericRepository<Substitute> substituteRepo, IGenericRepository<AppLogin> appLoginRepo, IGenericRepository<OrgUnit> orgUnitRepo, ILogger log)
             : base(repo, repo)
         {
@@ -52,7 +49,7 @@ namespace OS2Indberetning.Controllers
         {
             var res = GetQueryable(queryOptions);
             _person.ScrubCprFromPersons(res);
-            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             //We used to loop through all persons and remove employments that had expired
             //This proved to be to slow, and we did not have a use for current employments 
             //for a list of users, each time we needed someones employment we made queries
@@ -75,11 +72,12 @@ namespace OS2Indberetning.Controllers
         {
             try
             {
-                var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                var currentDateTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
                 var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == CurrentUser.Id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
                 var employmentList = employments.ToList();
 
                 CurrentUser.Employments.Clear();
+
                 foreach (var employment in employmentList)
                 {
                     CurrentUser.Employments.Add(employment);
@@ -89,13 +87,13 @@ namespace OS2Indberetning.Controllers
                 CurrentUser.CprNumber = "";
                 CurrentUser.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == CurrentUser.Id);
                 CurrentUser.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(CurrentUser.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
-           
-            }catch(Exception ex)
+            }
+            catch (Exception ex)
             {
                 _logger.Error($"{GetType().Name}, GetCurrentUser(), Error", ex);
             }
-            return CurrentUser;
 
+            return CurrentUser;
         }
 
         /// <summary>
@@ -111,11 +109,12 @@ namespace OS2Indberetning.Controllers
         {
             var result = Repo.AsQueryable().First(x => x.Id == id);
 
-            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentDateTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             var employments = _employmentRepo.AsQueryable().Where(x => x.PersonId == id && (x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentDateTimestamp));
             var employmentList = employments.ToList();
 
             result.Employments.Clear();
+
             foreach (var employment in employmentList)
             {
                 result.Employments.Add(employment);
@@ -125,6 +124,7 @@ namespace OS2Indberetning.Controllers
             result.CprNumber = "";
             result.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == result.Id);
             result.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(result.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
+
             return result;
         }
 
@@ -142,12 +142,14 @@ namespace OS2Indberetning.Controllers
             {
                 var cprScrubbed = _person.ScrubCprFromPersons(GetQueryable(key, queryOptions));
                 var res = cprScrubbed.ToList();
-                var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+
                 foreach (var person in res.ToList())
                 {
                     // Remove employments that have expired.
                     person.Employments = person.Employments.Where(x => x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentTimestamp).ToList();
                 }
+
                 return res.AsQueryable();
             }
             catch (RouteInformationException e)
@@ -218,13 +220,15 @@ namespace OS2Indberetning.Controllers
         public IHttpActionResult GetEmployments([FromODataUri] int key, ODataQueryOptions<Person> queryOptions)
         {
             var person = Repo.AsQueryable().FirstOrDefault(x => x.Id.Equals(key));
+
             if (person == null)
             {
                 return BadRequest("Der findes ingen person med id " + key);
             }
+
             person = _person.AddHomeWorkDistanceToEmployments(person);
 
-            var currentTimestamp = (Int32) (DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // Remove employments that have expired.
             var res = person.Employments.Where(x => x.EndDateTimestamp == 0 || x.EndDateTimestamp > currentTimestamp);
@@ -253,16 +257,18 @@ namespace OS2Indberetning.Controllers
         [System.Web.Http.HttpGet]
         public IHttpActionResult GetEmployeesOfLeader()
         {
-           List<Person> employees = new List<Person>();
-            if(CurrentUser.Employments.Where(e => e.IsLeader).Any() || CurrentUser.SubstituteLeaders.Count > 0)
+            List<Person> employees = new List<Person>();
+
+            if (CurrentUser.Employments.Where(e => e.IsLeader).Any() || CurrentUser.SubstituteLeaders.Count > 0)
             {
-                employees = _person.GetEmployeesOfLeader(CurrentUser);               
+                employees = _person.GetEmployeesOfLeader(CurrentUser);
             }
             else
             {
                 return Unauthorized();
             }
+
             return Ok(employees);
-        }        
+        }
     }
 }

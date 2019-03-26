@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Web.OData;
 using Core.ApplicationServices.Interfaces;
-using Core.ApplicationServices.MailerService.Impl;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
-using Infrastructure.AddressServices;
-using Infrastructure.AddressServices.Routing;
-using Infrastructure.DataAccess;
-using Ninject;
-using OS2Indberetning;
 using Core.ApplicationServices.Logger;
-using System.Threading.Tasks;
 using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
@@ -105,7 +95,7 @@ namespace Core.ApplicationServices
                         isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, report.DriveReportPoints);
 
 
-                    report.Distance = (double)drivenRoute.Length / 1000;
+                    report.Distance = drivenRoute.Length / 1000;
 
                     if (report.Distance < 0)
                     {
@@ -213,7 +203,7 @@ namespace Core.ApplicationServices
         {
             var report = _driveReportRepository.AsQueryable().FirstOrDefault(r => r.Id == key);
             var recipient = "";
-            if (report != null && !String.IsNullOrEmpty(report.Person.Mail))
+            if (report != null && !string.IsNullOrEmpty(report.Person.Mail))
             {
                 recipient = report.Person.Mail;
             }
@@ -328,7 +318,7 @@ namespace Core.ApplicationServices
 
             var leaderOfOrgUnit = _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
-            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
             if (_customSettings.SdIsEnabled)
@@ -402,7 +392,7 @@ namespace Core.ApplicationServices
 
         public Person GetActualLeaderForReport(DriveReport driveReport)
         {
-            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentDateTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var person = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).Person;
@@ -422,7 +412,7 @@ namespace Core.ApplicationServices
             var leaderOfOrgUnit =
                 _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
-            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             if (orgUnit.Parent == null)
             {

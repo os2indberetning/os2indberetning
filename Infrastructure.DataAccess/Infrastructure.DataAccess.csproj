@@ -446,6 +446,10 @@
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="MigrationsRunner.cs" />
+    <Compile Include="Migrations\201903261005531_SubstituteAddTakesOverOriginalLeader.cs" />
+    <Compile Include="Migrations\201903261005531_SubstituteAddTakesOverOriginalLeader.Designer.cs">
+      <DependentUpon>201903261005531_SubstituteAddTakesOverOriginalLeader.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\connections.config">
@@ -747,6 +751,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201903121410529_DriveReportAddTFCodeOptional.resx">
       <DependentUpon>201903121410529_DriveReportAddTFCodeOptional.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903261005531_SubstituteAddTakesOverOriginalLeader.resx">
+      <DependentUpon>201903261005531_SubstituteAddTakesOverOriginalLeader.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

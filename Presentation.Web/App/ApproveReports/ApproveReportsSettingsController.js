@@ -80,13 +80,16 @@
            {
                field: "Person.FullName",
                title: "Stedfortræder for"
-           }, {
+           },
+           {
                field: "OrgUnit.LongDescription",
                title: "Organisationsenhed",
-           }, {
+           },
+           {
                field: "Leader.FullName",
                title: "Opsat af"
-           }, {
+           },
+           {
                field: "StartDateTimestamp",
                title: "Fra",
                template: function (data) {
@@ -95,7 +98,8 @@
                          (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                           m._d.getFullYear();
                }
-           }, {
+           },
+           {
                title: "Til",
                field: "EndDateTimestamp",
                template: function (data) {
@@ -107,7 +111,15 @@
                        (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                        m._d.getFullYear();
                }
-           }, {
+           },
+           {
+                field: "TakesOverOriginalLeaderReports",
+                title: "Overtag indberetninger for oprindelig leder",
+                template: function (data) {
+                    return data.TakesOverOriginalLeaderReports == true ? "Ja" : "Nej";
+                }
+            },
+           {
                title: "Muligheder",
                template: "<a ng-click='openEditSubstitute(${Id})'>Rediger</a> | <a ng-click='openDeleteSubstitute(${Id})'>Slet</a>"
            }],
@@ -170,13 +182,16 @@
            columns: [{
                field: "Sub.FullName",
                title: "Godkender"
-           }, {
+           },
+           {
                field: "Person.FullName",
                title: "Godkender for"
-           }, {
+           },
+           {
                field: "Leader.FullName",
                title: "Opsat af"
-           }, {
+           },
+           {
                field: "StartDateTimestamp",
                title: "Fra",
                template: function (data) {
@@ -185,7 +200,8 @@
                        (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                        m._d.getFullYear();
                },
-           }, {
+           },
+           {
                field: "EndDateTimestamp",
                title: "Til",
                template: function (data) {
@@ -197,10 +213,11 @@
                        (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                        m._d.getFullYear();
                },
-           }, {
+           },
+            {
                title: "Muligheder",
                template: "<a ng-click='openEditApprover(${Id})'>Rediger</a> | <a ng-click='openDeleteApprover(${Id})'>Slet</a>"
-           }],
+            }],
            scrollable: false
        };
 
@@ -264,13 +281,16 @@
            {
                field: "Person.FullName",
                title: "Stedfortræder for"
-           }, {
+           },
+           {
                field: "OrgUnit.LongDescription",
                title: "Organisationsenhed",
-           }, {
+           },
+           {
                field: "Leader.FullName",
                title: "Opsat af"
-           }, {
+           },
+           {
                field: "StartDateTimestamp",
                title: "Fra",
                template: function (data) {
@@ -279,7 +299,8 @@
                        (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                        m._d.getFullYear();
                }
-           }, {
+           },
+           {
                title: "Til",
                field: "EndDateTimestamp",
                template: function (data) {
@@ -291,7 +312,15 @@
                        (m._d.getMonth() + 1) + "/" + // +1 because getMonth is zero indexed.
                        m._d.getFullYear();
                }
-           }],
+           },
+           {
+                field: "TakesOverOriginalLeaderReports",
+                title: "Overtag indberetninger for oprindelig leder",
+                template: function (data) {
+                    return data.TakesOverOriginalLeaderReports == true ? "Ja" : "Nej";
+                }
+            },
+        ],
            scrollable: false
        };
 

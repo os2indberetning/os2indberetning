@@ -309,6 +309,38 @@ namespace Core.ApplicationServices
                 }
             }
 
+            var leaderOverrulingSubstitutes = _substituteRepository
+                .AsQueryable()
+                .Where(
+                    s =>
+                        s.PersonId == s.LeaderId &&
+                        s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
+                        s.TakesOverOriginalLeaderReports
+                )
+                .ToList();
+
+            if (leaderOverrulingSubstitutes.Any())
+            {
+                var remainingSubstitutes = _substituteRepository
+                    .AsQueryable()
+                    .Where(
+                        s =>
+                            s.PersonId == s.LeaderId &&
+                            s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
+                            !s.TakesOverOriginalLeaderReports
+                    )
+                    .ToList();
+
+                var allSubstitutes = leaderOverrulingSubstitutes.Concat(remainingSubstitutes);
+
+                foreach (var substitute in allSubstitutes)
+                {
+                    responsibleLeaders.Add(substitute.Sub);
+                }
+
+                return responsibleLeaders;
+            }
+
             //Find an org unit where the person is not the leader, and then find the leader of that org unit to attach to the drive report
             var orgUnit = _orgUnitRepository.AsQueryable().SingleOrDefault(o => o.Id == empl.OrgUnitId);
             if (orgUnit == null)

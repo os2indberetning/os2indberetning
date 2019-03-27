@@ -29,5 +29,6 @@ namespace Core.DomainModel
         public virtual OrgUnit OrgUnit { get; set; }
         public int? CreatedById { get; set; }
         public virtual Person CreatedBy { get; set; }
+        public bool TakesOverOriginalLeaderReports { get; set; }
     }
 }

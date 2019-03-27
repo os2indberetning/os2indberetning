@@ -1,25 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
 using System.Data;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Web.OData;
 using Core.ApplicationServices.Interfaces;
-using Core.ApplicationServices.MailerService.Impl;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
-using Infrastructure.AddressServices;
-using Infrastructure.AddressServices.Routing;
-using Infrastructure.DataAccess;
-using Ninject;
-using OS2Indberetning;
 using Core.ApplicationServices.Logger;
-using System.Threading.Tasks;
 using Core.DomainServices.Interfaces;
 
 namespace Core.ApplicationServices
@@ -105,7 +95,7 @@ namespace Core.ApplicationServices
                         isBike ? DriveReportTransportType.Bike : DriveReportTransportType.Car, report.DriveReportPoints);
 
 
-                    report.Distance = (double)drivenRoute.Length / 1000;
+                    report.Distance = drivenRoute.Length / 1000;
 
                     if (report.Distance < 0)
                     {
@@ -213,10 +203,11 @@ namespace Core.ApplicationServices
         {
             var report = _driveReportRepository.AsQueryable().FirstOrDefault(r => r.Id == key);
             var recipient = "";
-            if (report != null && !String.IsNullOrEmpty(report.Person.Mail))
+            if (report != null && !string.IsNullOrEmpty(report.Person.Mail))
             {
                 recipient = report.Person.Mail;
-            } else
+            }
+            else
             {
                 _logger.LogForAdmin("Forsøg på at sende mail om afvist indberetning til " + report.Person.FullName + ", men der findes ingen emailadresse. " + report.Person.FullName + " har derfor ikke modtaget en mailadvisering");
                 throw new Exception("Forsøg på at sende mail til person uden emailaddresse");
@@ -248,11 +239,11 @@ namespace Core.ApplicationServices
                     && x.FourKmRule)
                     .OrderBy(x => x.DriveDateTimestamp).ToList();
 
-            foreach(var r in reportsFromSameDayWithFourKmRule)
+            foreach (var r in reportsFromSameDayWithFourKmRule)
             {
                 if (_calculator.AreReportsDrivenOnSameDay(report.DriveDateTimestamp, r.DriveDateTimestamp))
                 {
-                    _calculator.CalculateFourKmRuleForReport(r); 
+                    _calculator.CalculateFourKmRuleForReport(r);
                 }
             }
 
@@ -275,11 +266,11 @@ namespace Core.ApplicationServices
             _mailService.SendMailToAdmins($"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
 
             // Send mail to leader.
-            foreach(var leader in report.ResponsibleLeaders)
+            foreach (var leader in report.ResponsibleLeaders)
             {
                 if (leader.RecieveMail && !string.IsNullOrEmpty(leader.Mail))
                 {
-                    _mailService.SendMail(leader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");  
+                    _mailService.SendMail(leader.Mail, $"{report.Person.FullName} har angivet brug af 60-dages reglen", $"Brugeren {report.Person.FirstName} {report.Person.LastName} med medarbejdernummer {report.Employment.EmploymentId} har angivet at være omfattet af 60-dages reglen");
                 }
             }
         }
@@ -318,6 +309,38 @@ namespace Core.ApplicationServices
                 }
             }
 
+            var leaderOverrulingSubstitutes = _substituteRepository
+                .AsQueryable()
+                .Where(
+                    s =>
+                        s.PersonId == s.LeaderId &&
+                        s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
+                        s.TakesOverOriginalLeaderReports
+                )
+                .ToList();
+
+            if (leaderOverrulingSubstitutes.Any())
+            {
+                var remainingSubstitutes = _substituteRepository
+                    .AsQueryable()
+                    .Where(
+                        s =>
+                            s.PersonId == s.LeaderId &&
+                            s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
+                            !s.TakesOverOriginalLeaderReports
+                    )
+                    .ToList();
+
+                var allSubstitutes = leaderOverrulingSubstitutes.Concat(remainingSubstitutes);
+
+                foreach (var substitute in allSubstitutes)
+                {
+                    responsibleLeaders.Add(substitute.Sub);
+                }
+
+                return responsibleLeaders;
+            }
+
             //Find an org unit where the person is not the leader, and then find the leader of that org unit to attach to the drive report
             var orgUnit = _orgUnitRepository.AsQueryable().SingleOrDefault(o => o.Id == empl.OrgUnitId);
             if (orgUnit == null)
@@ -327,7 +350,7 @@ namespace Core.ApplicationServices
 
             var leaderOfOrgUnit = _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
-            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
             if (_customSettings.SdIsEnabled)
@@ -358,7 +381,7 @@ namespace Core.ApplicationServices
             }
 
             var leader = leaderOfOrgUnit.Person;
-            if(!responsibleLeaders.Contains(leader))
+            if (!responsibleLeaders.Contains(leader))
                 responsibleLeaders.Add(leaderOfOrgUnit.Person);
 
             // Recursively look for substitutes in child orgs, up to the org of the actual leader.
@@ -383,7 +406,7 @@ namespace Core.ApplicationServices
                         }
                         if (!responsibleLeaders.Contains(sub.Sub))
                             responsibleLeaders.Add(sub.Sub);
-                    }                    
+                    }
                     loopHasFinished = true;
                 }
                 else
@@ -395,13 +418,13 @@ namespace Core.ApplicationServices
                     }
                 }
             }
-            
+
             return responsibleLeaders; // sub != null ? sub.Sub : leaderOfOrgUnit.Person;
         }
 
         public Person GetActualLeaderForReport(DriveReport driveReport)
         {
-            var currentDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentDateTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var person = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).Person;
@@ -421,11 +444,11 @@ namespace Core.ApplicationServices
             var leaderOfOrgUnit =
                 _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.Id && e.IsLeader && e.StartDateTimestamp < currentDateTimestamp && (e.EndDateTimestamp > currentDateTimestamp || e.EndDateTimestamp == 0));
 
-            var currentTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+            var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 
-            if(orgUnit.Parent == null)
-            {   
-                if(leaderOfOrgUnit == null)
+            if (orgUnit.Parent == null)
+            {
+                if (leaderOfOrgUnit == null)
                 {
                     return null;
                 }
@@ -441,7 +464,7 @@ namespace Core.ApplicationServices
                                                                                                 e.StartDateTimestamp < currentTimestamp &&
                                                                                                 (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentTimestamp));
                     orgUnit = orgUnit.Parent;
-                } 
+                }
             }
             else
             {
@@ -470,7 +493,7 @@ namespace Core.ApplicationServices
                     return GetResponsibleLeadersForReport(driveReport).FirstOrDefault();
                 else
                     _logger.Error($"{this.GetType().Name}, GetActualLeaderForReport(), No leaders found. Report ID: {driveReport.Id}");
-                    return null;
+                return null;
             }
 
             return leaderOfOrgUnit.Person;
@@ -496,7 +519,7 @@ namespace Core.ApplicationServices
                 + "Slutadresse: " + report.DriveReportPoints.Last().ToString() + Environment.NewLine;
             }
 
-            mailContent += "Afstand: " + report.Distance.ToString().Replace(".",",") + Environment.NewLine
+            mailContent += "Afstand: " + report.Distance.ToString().Replace(".", ",") + Environment.NewLine
             + "Kørselsdato: " + Utilities.FromUnixTime(report.DriveDateTimestamp) + Environment.NewLine + Environment.NewLine
             + "Hvis du mener at dette er en fejl, så kontakt mig da venligst på " + admin.Mail + Environment.NewLine
             + "Med venlig hilsen " + admin.FullName + Environment.NewLine + Environment.NewLine

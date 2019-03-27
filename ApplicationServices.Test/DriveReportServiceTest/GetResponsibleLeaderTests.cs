@@ -165,8 +165,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void SubstituteForLeader_ShouldReturnSubstitute()
         {
-            var yesterdayStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
-            var tomorrowStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds;
+            var yesterdayStamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
+            var tomorrowStamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds;
 
             _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
             {
@@ -276,14 +276,13 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             var res = _uut.GetResponsibleLeadersForReport(report);
             Assert.AreEqual("Eva Due", res[0].FullName);
             Assert.AreEqual("Heidi Huber", res[1].FullName);
-
         }
 
         [Test]
         public void PersonalApproverForReportOwner_ShouldReturnPersonalApprover()
         {
-            var yesterdayStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
-            var tomorrowStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds;
+            var yesterdayStamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
+            var tomorrowStamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds;
 
             _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
             {
@@ -397,8 +396,8 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void PersonalApproverForReportOwner_AndSubstituteForLeader_ShouldReturnPersonalApprover()
         {
-            var yesterdayStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
-            var tomorrowStamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds;
+            var yesterdayStamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(1))).TotalSeconds;
+            var tomorrowStamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1).AddDays(-1))).TotalSeconds;
 
             _subMock.AsQueryable().ReturnsForAnyArgs(new List<Core.DomainModel.Substitute>()
             {

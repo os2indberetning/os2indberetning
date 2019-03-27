@@ -426,9 +426,30 @@
     <Compile Include="Migrations\201803280639268_MultipleResponsibleLeadersForReport.Designer.cs">
       <DependentUpon>201803280639268_MultipleResponsibleLeadersForReport.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201902051142243_FileGeneratinSchedule_Complete.cs" />
+    <Compile Include="Migrations\201902051142243_FileGeneratinSchedule_Complete.Designer.cs">
+      <DependentUpon>201902051142243_FileGeneratinSchedule_Complete.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903081335388_AddUsngDivergentAddress.cs" />
+    <Compile Include="Migrations\201903081335388_AddUsngDivergentAddress.Designer.cs">
+      <DependentUpon>201903081335388_AddUsngDivergentAddress.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903111359330_RateTypeAddTFCoOptional.cs" />
+    <Compile Include="Migrations\201903111359330_RateTypeAddTFCoOptional.Designer.cs">
+      <DependentUpon>201903111359330_RateTypeAddTFCoOptional.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201903121410529_DriveReportAddTFCodeOptional.cs" />
+    <Compile Include="Migrations\201903121410529_DriveReportAddTFCodeOptional.Designer.cs">
+      <DependentUpon>201903121410529_DriveReportAddTFCodeOptional.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Example\ExampleRepository.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="MigrationsRunner.cs" />
+    <Compile Include="Migrations\201903261005531_SubstituteAddTakesOverOriginalLeader.cs" />
+    <Compile Include="Migrations\201903261005531_SubstituteAddTakesOverOriginalLeader.Designer.cs">
+      <DependentUpon>201903261005531_SubstituteAddTakesOverOriginalLeader.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\connections.config">
@@ -718,6 +739,21 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201803280639268_MultipleResponsibleLeadersForReport.resx">
       <DependentUpon>201803280639268_MultipleResponsibleLeadersForReport.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201902051142243_FileGeneratinSchedule_Complete.resx">
+      <DependentUpon>201902051142243_FileGeneratinSchedule_Complete.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903081335388_AddUsngDivergentAddress.resx">
+      <DependentUpon>201903081335388_AddUsngDivergentAddress.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903111359330_RateTypeAddTFCoOptional.resx">
+      <DependentUpon>201903111359330_RateTypeAddTFCoOptional.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903121410529_DriveReportAddTFCodeOptional.resx">
+      <DependentUpon>201903121410529_DriveReportAddTFCodeOptional.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201903261005531_SubstituteAddTakesOverOriginalLeader.resx">
+      <DependentUpon>201903261005531_SubstituteAddTakesOverOriginalLeader.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

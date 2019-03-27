@@ -36,12 +36,24 @@
                 <div class="navbar-brand" ng-click="menuCollapse = !menuCollapse">
                     <i style="color:white" class="fa fa-bars"></i>
                     <label href="#" style="color: white">OS2Indberetning</label>
-
+                    @if (HttpContext.Current.IsDebuggingEnabled)
+                    {
+                        <label style="color: red">DEBUG</label>
+                    }
                 </div>
                 <img class="pull-right margin-top-5" src="../../logo.png" alt="" />
             </div>
             <!-- Top Menu Items -->
             <div class="pull-right margin-top-15 margin-right-10">
+                @if (HttpContext.Current.IsDebuggingEnabled)
+                {
+                    <form onsubmit="event.preventDefault(); document.cookie = 'debug_user=' + document.getElementById('debug_user').value + '; path=/'; location.reload(); return false;">
+                        <fieldset>
+                            <input id="debug_user" placeholder="Initialer" type="text" />
+                            <input type="submit" value="Log ind">
+                        </fieldset>
+                    </form>
+                }
                 <span style="color: #FFF">
                     <a class="informationHelpLink" href="{{helpLink.text}}" target="_blank">Information og vejledning</a> -
                     {{UserName}}

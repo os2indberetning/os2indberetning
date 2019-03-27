@@ -234,15 +234,17 @@ namespace DBUpdater
             _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), Home adresses updated.");
             _personalAddressRepo.Save();
 
-            //Sets all employments to end now in the case there was
+            //Sets all active employments to end now in the case there was
             //one day where the updater did not run and the employee
             //has been removed from the latest MDM view we are working on
-            //The end date will be adjusted in the next loop
-            foreach (var employment in _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0))
+            //The end date will be adjusted in the next loop in CreateEmployment()
+            var timeStampToday = (Int32)DateTime.UtcNow.Date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            var activeEmployments = _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0 || e.EndDateTimestamp > timeStampToday);
+            foreach (var employment in activeEmployments)
             {
-                employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                employment.EndDateTimestamp = timeStampToday;
             }
-            _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), All employments end date set to now.");
+            _logger.Debug($"{this.GetType().Name}, MigrateEmployees(), All active employments end date set to now.");
             _emplRepo.Save();
 
             i = 0;
@@ -490,31 +492,6 @@ namespace DBUpdater
             return launderedAddress;
         }
 
-        public void UpdateLeadersOnAllReports()
-        {
-            var i = 0;
-
-            var reports = _reportRepo.AsQueryable().Where(x => x.Employment.OrgUnit.Level > 1).ToList();
-            var max = reports.Count();
-            foreach (var report in reports)
-            {
-                if (i % 100 == 0)
-                {
-                    Console.WriteLine("Updating leaders on report " + i + " of " + max);
-                }
-                i++;
-                report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
-                report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
-                if (i % 1000 == 0)
-                {
-                    Console.WriteLine("Saving to database");
-                    _reportRepo.Save();
-                }
-            }
-            Console.WriteLine("Saving to database");
-            _reportRepo.Save();
-        }
-
         /// <summary>
         /// Updates ResponsibleLeader on all reports that had a substitute which expired yesterday or became active today.
         /// </summary>
@@ -548,7 +525,16 @@ namespace DBUpdater
                     i++;
                     Console.WriteLine("Adding leaders to report " + i + " of " + reports.Count);
                     report.UpdateResponsibleLeaders(_driveService.GetResponsibleLeadersForReport(report));
-                    report.ActualLeaderId = _driveService.GetActualLeaderForReport(report).Id;
+                    var actualLeader = _driveService.GetActualLeaderForReport(report);
+                    if (actualLeader != null)
+                    {
+                        report.ActualLeaderId = actualLeader.Id;
+                    }
+                    else
+                    {
+                        _logger.Error($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(), Could not find actual leader for person ? {report.PersonId} and report = {report.Id}");
+                    }
+
                     if (i % 100 == 0)
                     {
                         Console.WriteLine("Saving to database");
@@ -557,7 +543,7 @@ namespace DBUpdater
                 }
                 catch (Exception e)
                 {
-                    _logger.Error($"{this.GetType().Name}, UpdateLeadersOnExpiredOrActivatedSubstitutes(), Error, report = {report.Id}", e);
+                    _logger.Error($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone(), Error, report = {report.Id}", e);
                     throw;
                 }
             }
@@ -773,14 +759,17 @@ namespace DBUpdater
             }
             _personalAddressRepo.Save();
 
-            //Sets all employments to end now in the case there was
+            //Sets all active employments to end now in the case there was
             //one day where the updater did not run and the employee
             //has been removed from the latest MDM view we are working on
-            //The end date will be adjusted in the next loop
-            foreach (var employment in _emplRepo.AsQueryable())
+            //The end date will be adjusted in the next loop in CreateEmployment()
+            var timeStampToday = (Int32)DateTime.UtcNow.Date.Subtract(new DateTime(1970, 1, 1)).TotalSeconds;
+            var activeEmployments = _emplRepo.AsQueryable().Where(e => e.EndDateTimestamp == 0 || e.EndDateTimestamp > timeStampToday);
+            foreach (var employment in activeEmployments)
             {
-                employment.EndDateTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
+                employment.EndDateTimestamp = timeStampToday;
             }
+            _logger.Debug($"{this.GetType().Name}, MigrateEmployeesIDM(), All active employments end date set to now.");
             _emplRepo.Save();
 
             i = 0;

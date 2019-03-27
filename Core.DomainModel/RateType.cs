@@ -15,6 +15,7 @@ namespace Core.DomainModel
         /// TF Code for KMD integration. When SD integration is used instead of KMD, this property is used for the "lønart" id, which is basically the same.
         /// </summary>
         public String TFCode { get; set; }
+        public String TFCodeOptional { get; set; }
         public bool RequiresLicensePlate { get; set; }
         public bool IsBike { get; set; }
     }

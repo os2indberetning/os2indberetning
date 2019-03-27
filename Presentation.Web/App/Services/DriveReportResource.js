@@ -27,8 +27,10 @@
                 driveReport.DriveDateTimestamp = Math.floor($scope.DriveReport.Date.getTime() / 1000);
                 driveReport.KmRate = parseFloat(getKmRate().KmRate);
                 driveReport.TFCode = getKmRate().Type.TFCode;
+                driveReport.TFCodeOptional = getKmRate().Type.TFCodeOptional;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;
                 driveReport.SixtyDaysRule = $scope.DriveReport.SixtyDaysRule;
+                driveReport.IsUsingDivergentAddress = $scope.DriveReport.IsUsingDivergentAddress;
 
                 driveReport.KilometerAllowance = $scope.DriveReport.KilometerAllowance;
                 driveReport.Distance = 0;
@@ -167,8 +169,10 @@
                 driveReport.DriveDateTimestamp = Math.floor($scope.DriveReport.Date.getTime() / 1000);
                 driveReport.KmRate = parseFloat(getKmRate().KmRate);
                 driveReport.TFCode = getKmRate().Type.TFCode;
+                driveReport.TFCodeOptional = getKmRate().Type.TFCodeOptional;
                 driveReport.IsRoundTrip = $scope.DriveReport.IsRoundTrip;
                 driveReport.SixtyDaysRule = $scope.DriveReport.SixtyDaysRule;
+                driveReport.IsUsingDivergentAddress = $scope.DriveReport.IsUsingDivergentAddress;
 
                 driveReport.KilometerAllowance = $scope.DriveReport.KilometerAllowance;
                 driveReport.Distance = 0;

@@ -79,12 +79,14 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\Impl\AuditlogSyncService.cs" />
+    <Compile Include="Services\Impl\GPSEncryptService.cs" />
     <Compile Include="Services\Impl\OrgUnitSyncService.cs" />
     <Compile Include="Services\Impl\UserAuthSyncService.cs" />
     <Compile Include="Services\Impl\DriveReportSyncService.cs" />
     <Compile Include="Services\Impl\RateSyncService.cs" />
     <Compile Include="Services\Impl\PersonSyncService.cs" />
     <Compile Include="Services\Impl\TokenSyncService.cs" />
+    <Compile Include="Services\Interface\IGPSEncryptService.cs" />
     <Compile Include="Services\Interface\ISyncService.cs" />
   </ItemGroup>
   <ItemGroup>

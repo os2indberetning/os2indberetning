@@ -284,5 +284,54 @@ namespace FileGeneration.Test
             Assert.AreEqual(mail1.CustomText, mailRepoList[4].CustomText);
             Assert.AreEqual(mail2.CustomText, mailRepoList[5].CustomText);
         }
+
+        [Test]
+        public void RunFileGenService_IsAllFilesGenerated()
+        {
+            var mailServiceSub = NSubstitute.Substitute.For<IMailService>();
+            var transferToPayrollServiceSub = NSubstitute.Substitute.For<ITransferToPayrollService>();
+
+            // Insert initial data
+            var file1 = fileRepoMock.Insert(new FileGenerationSchedule
+            {
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                Completed = false,
+                Repeat = false
+            });
+            var file2 = fileRepoMock.Insert(new FileGenerationSchedule
+            {
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                Completed = false,
+                Repeat = false
+            });
+            var file3 = fileRepoMock.Insert(new FileGenerationSchedule
+            {
+                DateTimestamp = Utilities.ToUnixTime(DateTime.Now),
+                Completed = false,
+                Repeat = true
+            });
+            var fileRepoEntriesCount = fileRepoList.Count;
+
+            // Run service call
+            var service = new FileGenerationService(mailServiceSub, transferToPayrollServiceSub, mailRepoMock, fileRepoMock, _logger);
+            service.RunFileGenerationService();
+
+            // Asserts
+            // 1. 3 files where to schedule, one with Repeat set to true
+            // 2. TransferReportsToPayroll called
+            // 3. SendMailToAdmins(subject, message) called
+            // 4. Files count should be one higher (4)
+            // 5. First 3 should have IsFileGenerated set to true
+            // 6. Last should not yet been generated
+
+            transferToPayrollServiceSub.Received().TransferReportsToPayroll();
+            mailServiceSub.ReceivedWithAnyArgs().SendMailToAdmins("", "");
+            var fileRepoEntriesAfterCall = fileRepoList.Count;
+            Assert.AreEqual(fileRepoEntriesAfterCall, fileRepoEntriesCount + 1);
+            Assert.AreEqual(fileRepoList[0].Completed, true);
+            Assert.AreEqual(fileRepoList[1].Completed, true);
+            Assert.AreEqual(fileRepoList[2].Completed, true);
+            Assert.AreEqual(fileRepoList[3].Completed, false);
+        }
     }
 }

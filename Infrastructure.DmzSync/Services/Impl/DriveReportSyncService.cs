@@ -176,9 +176,8 @@ namespace Infrastructure.DmzSync.Services.Impl
                 newReport.DriveDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
                 newReport.CreatedDateTimestamp = (Int32)(Convert.ToDateTime(dmzReport.Date).Subtract(new DateTime(1970, 1, 1)).TotalSeconds);
                 newReport.TFCode = rate.Type.TFCode;
+                newReport.TFCodeOptional = rate.Type.TFCodeOptional;
                 newReport.FullName = dmzReport.Profile.FullName;
-
-
 
                 newReport.RouteGeometry = GeoService.Encode(points);
 

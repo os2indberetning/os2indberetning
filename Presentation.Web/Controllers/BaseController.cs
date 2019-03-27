@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.OData;
 using System.Web.OData.Query;
+using Core.ApplicationServices;
 using Core.ApplicationServices.Logger;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.Interfaces;
-using Expression = System.Linq.Expressions.Expression;
-using OS2Indberetning.Filters;
 using dk.nita.saml20.identity;
-using Core.ApplicationServices;
 using Ninject;
-using System.Configuration;
+using OS2Indberetning.Filters;
+using Expression = System.Linq.Expressions.Expression;
 
 namespace OS2Indberetning.Controllers
 {
@@ -34,10 +35,19 @@ namespace OS2Indberetning.Controllers
 
         protected Person CurrentUser;
 
-        protected override void Initialize(HttpControllerContext requestContext)
+        protected override void Initialize(HttpControllerContext controllerContext)
         {
-            base.Initialize(requestContext);
+            base.Initialize(controllerContext);
 
+#if DEBUG
+            var userCookie = controllerContext.Request.Headers.GetCookies()?.FirstOrDefault()?["debug_user"];
+            var userInitials = userCookie?.Value?.ToLower();
+
+            if (userInitials != null)
+            {
+                CurrentUser = _personRepo.AsQueryable().FirstOrDefault(p => p.Initials.ToLower().Equals(userInitials) && p.IsActive);
+            }
+#else
             if (ConfigurationManager.AppSettings["AUTHENTICATION"].Equals("SAML"))
             {
                 LoginUserSAML();
@@ -46,6 +56,7 @@ namespace OS2Indberetning.Controllers
             {
                 LoginUserWindowsIntegratedAuthentication();
             }
+#endif
 
             _logger.Debug($"{GetType()}, Initialize(), User logged in: {CurrentUser.FullName}");
         }
@@ -76,7 +87,6 @@ namespace OS2Indberetning.Controllers
         private void LoginUserWindowsIntegratedAuthentication()
         {
             string[] httpUser = User.Identity.Name.Split('\\');
-            //httpUser[1] = "";
 
             if (httpUser.Length == 2 && String.Equals(httpUser[0], _customSettings.AdDomain, StringComparison.CurrentCultureIgnoreCase))
             {

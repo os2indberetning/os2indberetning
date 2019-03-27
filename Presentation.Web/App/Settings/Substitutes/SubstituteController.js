@@ -132,6 +132,13 @@
                 }
             },
             {
+                field: "TakesOverOriginalLeaderReports",
+                title: "Overtag indberetninger for oprindelig leder",
+                template: function (data) {
+                    return data.TakesOverOriginalLeaderReports == true ? "Ja" : "Nej";
+                }
+            },
+            {
                 title: "Muligheder",
                 template: "<a ng-click='openEditSubstitute(${Id})'>Rediger</a> | <a ng-click='openDeleteSubstitute(${Id})'>Slet</a>"
             }]

@@ -19,6 +19,7 @@
             $scope.substituteFromDate = new Date();
             $scope.substituteToDate = new Date();
             $scope.orgUnits = Autocomplete.orgUnitsThatHaveALeader();
+            $scope.takesOverOriginalLeaderReports = false;
 
             $scope.clearSelections = function() {
                 $scope.personFor = [];
@@ -85,7 +86,8 @@
                     SubId: $scope.person[0].Id,
                     OrgUnitId: $scope.orgUnit.Id,
                     PersonId: $scope.personFor[0].Id,
-                    CreatedById: leader.Id
+                    CreatedById: leader.Id,
+                    TakesOverOriginalLeaderReports: $scope.takesOverOriginalLeaderReports
                 });
 
                 if ($scope.infinitePeriod) {

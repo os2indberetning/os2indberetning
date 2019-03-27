@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
@@ -50,14 +51,14 @@ namespace OS2Indberetning
                       "~/Content/custom.css",
                       "~/Content/angular-busy.min.css"));
 
-
-            bundles.Add(new ScriptBundle("~/bundles/angular").IncludeDirectoryWithExclusion("~/App", "*.js", true, "*.spec.js"));
+            // application.js must be the first item included from the "App" folder
+            bundles.Add(new ScriptBundle("~/bundles/angular").Include("~/App/application.js").IncludeDirectoryWithExclusion("~/App", "*.js", true, new[] { "*.spec.js", "application.js" }));
         }
     }
 
     public static class BundleExtentions
     {
-        public static Bundle IncludeDirectoryWithExclusion(this ScriptBundle bundle, string directoryVirtualPath, string searchPattern, bool includeSubDirectories, string excludePattern)
+        public static Bundle IncludeDirectoryWithExclusion(this Bundle bundle, string directoryVirtualPath, string searchPattern, bool includeSubDirectories, string[] excludePatterns)
         {
             var folderPath = HttpContext.Current.Server.MapPath(directoryVirtualPath);
             SearchOption searchOption = includeSubDirectories
@@ -66,7 +67,11 @@ namespace OS2Indberetning
 
             var foundFiles = Directory.GetFiles(folderPath, searchPattern, searchOption);
 
-            var filesToExclude = Directory.GetFiles(folderPath, excludePattern, searchOption);
+            var filesToExclude = new List<string>();
+            foreach (var excludePattern in excludePatterns)
+            {
+                filesToExclude.AddRange(Directory.GetFiles(folderPath, excludePattern, searchOption));
+            }
 
             foreach (var file in foundFiles)
             {

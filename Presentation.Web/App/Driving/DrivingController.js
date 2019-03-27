@@ -7,8 +7,7 @@
         $scope.fourKmRuleHelpText = $rootScope.HelpTexts.FourKmRuleHelpText.text;
         $scope.noLicensePlateHelpText = $rootScope.HelpTexts.NoLicensePlateHelpText.text;
         $scope.sixtyDaysRuleHelptext = $rootScope.HelpTexts.SixtyDaysRuleHelpText.text;
-
-
+        $scope.fourKmRuleValueHelpText = $rootScope.HelpTexts.FourKmRuleValueHelpText.text;
 
         // Setup functions in scope.
         $scope.Number = Number;
@@ -20,6 +19,9 @@
         var isFormDirty = false;
 
         var fourKmAdjustment = 4;
+        var defaultFourKmRuleValue = 0;
+
+
 
         // Coordinate threshold is the amount two gps coordinates can differ and still be considered the same address.
         // Third decimal is 100 meters, so 0.001 means that addresses within 100 meters of each other will be considered the same when checking if route starts or ends at home.
@@ -103,6 +105,10 @@
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });
             $scope.DriveReport.Addresses.push({ Name: "", Personal: "" });
             $scope.container.datePickerMaxDate = new Date();
+
+            $scope.DriveReport.FourKmRule = {};
+            $scope.DriveReport.FourKmRule.Using = false;
+            $scope.DriveReport.FourKmRule.Value = defaultFourKmRuleValue;
         }
 
         setupForNewReport();
@@ -161,13 +167,37 @@
             return res;
         }
 
+        $scope.setDivergentAddress = function () {
+            var isUsingDivergentAddress = false;
+            angular.forEach($scope.DriveReport.Addresses, function (address, key) {
+                if (address.Personal != undefined && address.Personal.length != undefined && address.Personal.length > 0) {
+                    if ($scope.HomeAddress.address == address.Personal) {
+                        if ($scope.HomeAddress.Type == "AlternativeHome") {
+                            isUsingDivergentAddress = true;
+                        }
+                    }
+                }
+
+                if (address.Name != undefined && address.Name.length != undefined && address.Name.length > 0) {
+                    if ($scope.HomeAddress.address == address.Name) {
+                        if ($scope.HomeAddress.Type == "AlternativeHome") {
+                            isUsingDivergentAddress = true;
+                            address.Personal = address.Name;
+                        }
+                    }
+                }
+            });
+            $scope.DriveReport.IsUsingDivergentAddress = isUsingDivergentAddress;
+        }
+
         var loadValuesFromReport = function (report) {
             /// <summary>
             /// Loads values from user's latest report and sets fields in the view.
             /// </summary>
             /// <param name="report"></param>
-            $scope.DriveReport.FourKmRule = {};
-            $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
+            if ($scope.currentUser.DistanceFromHomeToBorder != undefined && $scope.currentUser.DistanceFromHomeToBorder > 0.0) {
+                $scope.DriveReport.FourKmRule.Value = $scope.currentUser.DistanceFromHomeToBorder.toString().replace(".", ",");
+            }
             
             var initialKilometerAllowance = "Calculated";
 
@@ -294,6 +324,9 @@
                         res += "{name: \"" + addr.Name + "\", lat: " + addr.Latitude + ", lng: " + addr.Longitude + "},";
                     });
                     res += "]";
+
+                    // Check to see if any of the addresses is a divergent
+                    $scope.setDivergentAddress();
 
                     $scope.$on("kendoWidgetCreated", function (event, widget) {
                         if (widget === $scope.container.lastTextBox) {
@@ -545,10 +578,12 @@
             /// Validates fourkmrule and sets error message in view accordingly.
             /// </summary>
             $scope.fourKmRuleValueErrorMessage = "";
-            if ($scope.DriveReport.FourKmRule.Using === true && ($scope.DriveReport.FourKmRule.Value == "" || $scope.DriveReport.FourKmRule.Value == undefined)) {
-                $scope.fourKmRuleValueErrorMessage = "* Du skal udfylde en 4 km-regel værdi.";
+            var fourKmRuleValue = $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".");
+            if ($scope.DriveReport.FourKmRule.Using === true && (fourKmRuleValue == undefined || isNaN(fourKmRuleValue))) {
+                $scope.fourKmRuleValueErrorMessage = "* Du skal angive en valid afstand.";
                 return false;
             }
+            
             return true;
         }
 
@@ -780,11 +815,15 @@
 
             $scope.DriveReport.IsRoundTrip = false;
             $scope.DriveReport.SixtyDaysRule = false;
+            $scope.DriveReport.FourKmRule = {};
+            $scope.DriveReport.FourKmRule.Using = false;
+            $scope.DriveReport.FourKmRule.Value = defaultFourKmRuleValue;
             loadValuesFromReport($scope.latestDriveReport);
             $scope.DriveReport.Addresses = [{ Name: "" }, { Name: "" }];
             $scope.DriveReport.ReadDistance = 0;
             $scope.DriveReport.UserComment = "";
             $scope.DriveReport.Purpose = "";
+            $scope.DriveReport.IsUsingDivergentAddress = false;
             $scope.clearErrorMessages();
             updateDrivenKm();
             $window.scrollTo(0, 0);
@@ -874,6 +913,9 @@
             if (!$scope.canSubmitDriveReport) {
                 return;
             }
+
+            $scope.setDivergentAddress();
+
             if ($scope.DriveReport.Status == "Accepted") {
                 // An admin is trying to edit an already approved report.
                 var modalInstance = $modal.open({
@@ -895,9 +937,11 @@
         }
 
         $scope.prepHandleSave = function () {
-            if ($scope.currentUser.DistanceFromHomeToBorder != $scope.DriveReport.FourKmRule.Value && $scope.DriveReport.FourKmRule.Value != "" && $scope.DriveReport.FourKmRule.Value != undefined) {
-                $scope.currentUser.DistanceFromHomeToBorder = $scope.DriveReport.FourKmRule.Value
-                Person.patch({ id: $scope.currentUser.Id }, { DistanceFromHomeToBorder: $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".") }).$promise.then(function () {
+            var fourKmRuleValue = $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".");
+            
+            if ($scope.currentUser.DistanceFromHomeToBorder != fourKmRuleValue && fourKmRuleValue != "" && fourKmRuleValue != undefined) {
+                $scope.currentUser.DistanceFromHomeToBorder = fourKmRuleValue
+                Person.patch({ id: $scope.currentUser.Id }, { DistanceFromHomeToBorder: fourKmRuleValue }).$promise.then(function () {
                     handleSave();
                 });
             } else {
@@ -932,6 +976,9 @@
                     $scope.AlternativeCalculationTextDistanceForReport = " (Kan højst svare til hvis tjenesterejsen var påbegyndt og afsluttet på det faste tjenestested)";
                 }
             }
+
+            $scope.fourKmRuleValueErrorMessage = "";
+
             updateDrivenKm();
         }
 
@@ -1042,15 +1089,22 @@
                     $scope.TransportAllowance = Number($scope.TransportAllowance) * 2;
                 }
             }
+
             if ($scope.DriveReport.FourKmRule != undefined && $scope.DriveReport.FourKmRule.Using === true && $scope.DriveReport.FourKmRule.Value != undefined) {
-                if (routeStartsAtHome() != routeEndsAtHome()) {
+                var fourKmRuleFormatted = $scope.DriveReport.FourKmRule.Value.toString().replace(",", ".");
+
+                if (isNaN(fourKmRuleFormatted)) {
+                    $scope.TransportAllowance = fourKmAdjustment;
+                }
+                else if (routeStartsAtHome() != routeEndsAtHome()) {
                     if ($scope.DriveReport.IsRoundTrip === true) {
-                        $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(".", ",")) * 2) + fourKmAdjustment;
+                        $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
                     }
                     else {
                         $scope.TransportAllowance = Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) + fourKmAdjustment;
                     }
-                } else if (routeStartsAtHome() && routeEndsAtHome()) {
+                }
+                else if (routeStartsAtHome() && routeEndsAtHome()) {
                     $scope.TransportAllowance = (Number($scope.DriveReport.FourKmRule.Value.toString().replace(",", ".")) * 2) + fourKmAdjustment;
                 }
                 else {

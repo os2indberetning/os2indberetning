@@ -47,6 +47,12 @@
                 commentToolTip =  "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'" + kendo.htmlEncode(comment.replace(/(?:\r\n|\r|\n)/g, '<br />')) + "'\"><i class=\"fa fa-2x fa-comment-o\"></i></div>";
             }
 
+            var usingDivergentAddress = "";
+            if (data.IsUsingDivergentAddress) {
+                usingDivergentAddress = "<div class='inline margin-right-5 pull-right' kendo-tooltip k-content=\"'Der er brugt enten afvigende arbejds- eller bopælsadresse i denne indberetning'\"><i class='fa fa-tag fa-2x'></i></div>";
+                result += usingDivergentAddress;
+            }
+
             if (data.IsFromApp) {
                 var fromAppTooltip = "<div class='inline margin-left-5'>Indberettet fra mobil app</div>" + commentToolTip;
                 if (data.DriveReportPoints.length > 1) {

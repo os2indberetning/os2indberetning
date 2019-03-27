@@ -41,6 +41,10 @@ namespace Infrastructure.DmzSync
             // This forces the dmzconnection to use MySql.
             new DataContext();
 
+            var gpsEncryptService = new GPSEncryptService(
+                new GenericDmzRepository<DriveReport>(new DmzContext()),
+                logger);
+
             var personSync = new PersonSyncService(
                 new GenericDmzRepository<Profile>(new DmzContext()),
                 kernel.Get<IGenericRepository<Person>>(), 
@@ -79,6 +83,23 @@ namespace Infrastructure.DmzSync
                 kernel.Get<IGenericRepository<Core.DomainModel.Auditlog>>(), 
                 logger);
 
+            logger.Debug("-------- Pre DMZSYNC STARTED --------");
+
+            try
+            {
+                logger.Debug("DoGPSEncrypt started");
+                Console.WriteLine("DoGPSEncrypt");
+                gpsEncryptService.DoGPSEncrypt();
+            }
+            catch (Exception ex)
+            {
+                logger.Error($"Error during encrypting geocoordinates on DMZ", ex);
+                logger.LogForAdmin("Fejl under kryptering af geo koodinater på DMZ.");
+                throw;
+            }
+
+            logger.Debug("-------- Pre DMZSYNC Ended --------");
+
             logger.Debug("-------- DMZSYNC STARTED --------");
 
             try
@@ -86,7 +107,6 @@ namespace Infrastructure.DmzSync
                 logger.Debug("SyncFromDMZ started");
                 Console.WriteLine("DriveReportsSyncFromDmz");
                 driveSync.SyncFromDmz();
-
             }
             catch (Exception ex)
             {

@@ -71,6 +71,13 @@ namespace Core.DomainServices.Encryption
             return gpscoord;
         }
 
+        public static GPSCoordinate EncryptGPSCoordinate(GPSCoordinate gpscoord)
+        {
+            gpscoord.Latitude = StringCipher.Encrypt(gpscoord.Latitude, EncryptKey);
+            gpscoord.Longitude = StringCipher.Encrypt(gpscoord.Longitude, EncryptKey);
+            return gpscoord;
+        }
+
         public static Token EncryptToken(Token token)
         {
             token.GuId = StringCipher.Encrypt(token.GuId, EncryptKey);

@@ -29,6 +29,7 @@
             $scope.person[0] = $scope.substitute.Sub;
             $scope.substituteFromDate = new Date($scope.substitute.StartDateTimestamp * 1000);
             $scope.substituteToDate = new Date($scope.substitute.EndDateTimestamp * 1000);
+            $scope.takesOverOriginalLeaderReports = $scope.substitute.TakesOverOriginalLeaderReports;
             $scope.container.autoComplete.value($scope.substitute.Sub.FullName);
         });
 
@@ -43,7 +44,8 @@
                 EndDateTimestamp: Math.floor($scope.substituteToDate.getTime() / 1000),
                 SubId: $scope.person[0].Id,
                 OrgUnitId: $scope.orgUnit.Id,
-                CreatedById: leader.Id
+                CreatedById: leader.Id,
+                TakesOverOriginalLeaderReports: $scope.takesOverOriginalLeaderReports
             });
 
             if ($scope.infinitePeriod) {

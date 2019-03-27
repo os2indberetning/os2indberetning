@@ -1,23 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Web.Http;
-using System.Web.OData;
 using Core.ApplicationServices;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.MailerService.Interface;
 using Core.DomainModel;
 using Core.DomainServices;
 using Core.DomainServices.RoutingClasses;
-using Microsoft.Owin.Testing;
-using Ninject;
 using NUnit.Framework;
-using OS2Indberetning;
-using Owin;
 using NSubstitute;
-using Presentation.Web.Test;
 using Substitute = NSubstitute.Substitute;
 using Core.DomainServices.Interfaces;
 
@@ -63,7 +54,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             _subMock = Substitute.For<IGenericRepository<Core.DomainModel.Substitute>>();
             _mailServiceMock = Substitute.For<IMailService>();
             _reportRepoMock = NSubstitute.Substitute.For<IGenericRepository<DriveReport>>();
-            _personMock = Substitute.For <IGenericRepository<Person>>();
+            _personMock = Substitute.For<IGenericRepository<Person>>();
             _logger = new Core.ApplicationServices.Logger.Logger();
             _customSettings = new CustomSettings();
 
@@ -538,8 +529,5 @@ namespace ApplicationServices.Test.DriveReportServiceTest
             var res = _uut.GetResponsibleLeadersForReport(report);
             Assert.AreEqual("Heidi Huber Approves", res[0].FullName);
         }
-
-
-       
     }
 }

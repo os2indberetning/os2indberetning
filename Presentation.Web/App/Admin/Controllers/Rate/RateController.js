@@ -65,13 +65,19 @@
                 {
                     field: "Year",
                     title: "År"
-                }, {
+                },
+                {
                     field: "KmRate",
                     title: "Takst",
                     template: "${KmRate} ører pr/km"
-                }, {
+                },
+                {
                     field: "Type.TFCode",
                     title: "TF kode",
+                },
+                {
+                    field: "Type.TFCodeOptional",
+                    title: "Anden TF kode",
                 },
                 {
                     field: "Type",

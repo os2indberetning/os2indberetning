@@ -94,7 +94,12 @@
             if (widget === $scope.container.rateDropDown) {
                 $scope.rateTypes = RateType.get(function () {
                     angular.forEach($scope.rateTypes, function (rateType, key) {
-                        rateType.Description += " (" + rateType.TFCode + ")"
+                        if (rateType.TFCodeOptional && rateType.TFCodeOptional.trim().length > 0) {
+                            rateType.Description += " (" + rateType.TFCode + " & " + rateType.TFCodeOptional + ")"
+                        }
+                        else {
+                            rateType.Description += " (" + rateType.TFCode + ")"
+                        }
                     });
                     $scope.container.rateDropDown.dataSource.read();
                     $scope.container.rateDropDown.select(0);

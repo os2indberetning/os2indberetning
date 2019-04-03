@@ -517,7 +517,12 @@ namespace DBUpdater
             // Fail-safe as some reports for unknown reasons have not had a leader attached
             Console.WriteLine("Adding leaders to reports that have none");
             var i = 0;
-            var reports = _reportRepo.AsQueryable().Where(r => r.ResponsibleLeaders.Count == 0 || r.ActualLeader == null).ToList();
+            var reports = _reportRepo.AsQueryable()
+                .Where(r => 
+                (r.ResponsibleLeaders.Count == 0 || r.ActualLeader == null) && 
+                r.Status == ReportStatus.Pending)
+                .ToList();
+
             foreach (var report in reports)
             {
                 try

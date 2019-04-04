@@ -309,38 +309,6 @@ namespace Core.ApplicationServices
                 }
             }
 
-            var leaderOverrulingSubstitutes = _substituteRepository
-                .AsQueryable()
-                .Where(
-                    s =>
-                        s.PersonId == s.LeaderId &&
-                        s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
-                        s.TakesOverOriginalLeaderReports
-                )
-                .ToList();
-
-            if (leaderOverrulingSubstitutes.Any())
-            {
-                var remainingSubstitutes = _substituteRepository
-                    .AsQueryable()
-                    .Where(
-                        s =>
-                            s.PersonId == s.LeaderId &&
-                            s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
-                            !s.TakesOverOriginalLeaderReports
-                    )
-                    .ToList();
-
-                var allSubstitutes = leaderOverrulingSubstitutes.Concat(remainingSubstitutes);
-
-                foreach (var substitute in allSubstitutes)
-                {
-                    responsibleLeaders.Add(substitute.Sub);
-                }
-
-                return responsibleLeaders;
-            }
-
             //Find an org unit where the person is not the leader, and then find the leader of that org unit to attach to the drive report
             var orgUnit = _orgUnitRepository.AsQueryable().SingleOrDefault(o => o.Id == empl.OrgUnitId);
             if (orgUnit == null)
@@ -374,22 +342,35 @@ namespace Core.ApplicationServices
                 }
             }
 
-
             if (orgUnit == null || leaderOfOrgUnit == null)
             {
                 return responsibleLeaders;
             }
 
             var leader = leaderOfOrgUnit.Person;
-            if (!responsibleLeaders.Contains(leader))
+            var orgToCheck = empl.OrgUnit;
+
+            var leaderOverrulingSubstitutes = _substituteRepository
+                .AsQueryable()
+                .Where(
+                    s =>
+                        s.OrgUnitId == orgToCheck.Id &&
+                        s.PersonId == s.LeaderId &&
+                        s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
+                        s.TakesOverOriginalLeaderReports
+                )
+                .ToList();
+
+            if (!leaderOverrulingSubstitutes.Any() && !responsibleLeaders.Contains(leader))
+            {
                 responsibleLeaders.Add(leaderOfOrgUnit.Person);
+            }
 
             // Recursively look for substitutes in child orgs, up to the org of the actual leader.
             // Say the actual leader is leader of orgunit 1 with children 2 and 3. Child 2 has another child 4.
             // A report comes in for orgUnit 4. Check if leader has a substitute for that org.
             // If not then check if leader has a substitute for org 2.
             // If not then return the actual leader.
-            var orgToCheck = empl.OrgUnit;
             List<Substitute> subs = null;
             var loopHasFinished = false;
             while (!loopHasFinished)

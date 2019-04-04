@@ -119,9 +119,9 @@ namespace Core.ApplicationServices
                     // Select reports to be updated based on OrgUnits
                     var orgIds = new List<int>();
                     orgIds.Add(sub.OrgUnitId);
-                    orgIds.AddRange(_orgService.GetChildOrgsWithoutLeader(sub.OrgUnitId).Select(x => x.Id));
+                    orgIds.AddRange(_orgService.GetChildOrgsWithoutLeader(parentId: sub.OrgUnitId).Select(x => x.Id));
                     var reports = _driveRepo.AsQueryable().Where(rep => orgIds.Contains(rep.Employment.OrgUnitId)).ToList();
-                    var idsOfLeadersOfImmediateChildOrgs = _orgService.GetIdsOfLeadersInImmediateChildOrgs(sub.OrgUnitId);
+                    var idsOfLeadersOfImmediateChildOrgs = _orgService.GetIdsOfLeadersInImmediateChildOrgs(parentOrgId: sub.OrgUnitId);
                     var reportsForLeadersOfImmediateChildOrgs = _driveRepo.AsQueryable().Where(rep => idsOfLeadersOfImmediateChildOrgs.Contains(rep.PersonId)).ToList();
                     reports.AddRange(reportsForLeadersOfImmediateChildOrgs);
                     foreach (var report in reports)

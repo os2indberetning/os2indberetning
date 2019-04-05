@@ -285,8 +285,12 @@ namespace Core.ApplicationServices
             var responsibleLeaders = new List<Person>();
             var currentDateTimestamp = Utilities.ToUnixTime(DateTime.Now);
 
+            // Entity Framework doesnt always return child objects
+            // https://stackoverflow.com/questions/29272581/why-ef-navigation-property-return-null
+
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
-            var person = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).Person;
+            var personId = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).PersonId;
+            var person = _personRepository.AsQueryable().First(p => p.Id == personId);
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var empl = _employmentRepository.AsQueryable().First(x => x.Id == driveReport.EmploymentId);
@@ -323,21 +327,33 @@ namespace Core.ApplicationServices
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
             if (_customSettings.SdIsEnabled)
             {
-                while ((leaderOfOrgUnit == null && orgUnit.Parent != null) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                while ((leaderOfOrgUnit == null && orgUnit.Parent != null) ||
+                    (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
-                    leaderOfOrgUnit = _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
-                                                                                                e.StartDateTimestamp < currentDateTimestamp &&
-                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentDateTimestamp));
+                    leaderOfOrgUnit = _employmentRepository
+                        .AsQueryable()
+                        .FirstOrDefault(e =>
+                            e.OrgUnit.Id == orgUnit.ParentId &&
+                            e.IsLeader &&
+                            e.StartDateTimestamp < currentDateTimestamp &&
+                            (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentDateTimestamp));
+
                     orgUnit = orgUnit.Parent;
                 }
             }
             else
             {
-                while ((leaderOfOrgUnit == null && orgUnit.Level > 0) || (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                while ((leaderOfOrgUnit == null && orgUnit.Level > 0) ||
+                    (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
-                    leaderOfOrgUnit = _employmentRepository.AsQueryable().FirstOrDefault(e => e.OrgUnit.Id == orgUnit.ParentId && e.IsLeader &&
-                                                                                                e.StartDateTimestamp < currentDateTimestamp &&
-                                                                                                (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentDateTimestamp));
+                    leaderOfOrgUnit = _employmentRepository
+                        .AsQueryable()
+                        .FirstOrDefault(e =>
+                            e.OrgUnit.Id == orgUnit.ParentId &&
+                            e.IsLeader &&
+                            e.StartDateTimestamp < currentDateTimestamp &&
+                            (e.EndDateTimestamp == 0 || e.EndDateTimestamp > currentDateTimestamp));
+
                     orgUnit = orgUnit.Parent;
                 }
             }

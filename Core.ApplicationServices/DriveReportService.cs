@@ -327,7 +327,7 @@ namespace Core.ApplicationServices
             // If the municipality uses SD/IDM instead of KMD/SOFD, the level property is not used, and we need to look at the parent instead og level.
             if (_customSettings.SdIsEnabled)
             {
-                while ((leaderOfOrgUnit == null && orgUnit.Parent != null) ||
+                while ((leaderOfOrgUnit == null && orgUnit != null && orgUnit.Parent != null) ||
                     (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
                     leaderOfOrgUnit = _employmentRepository
@@ -343,7 +343,7 @@ namespace Core.ApplicationServices
             }
             else
             {
-                while ((leaderOfOrgUnit == null && orgUnit.Level > 0) ||
+                while ((leaderOfOrgUnit == null && orgUnit != null && orgUnit.Level > 0) ||
                     (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
                 {
                     leaderOfOrgUnit = _employmentRepository

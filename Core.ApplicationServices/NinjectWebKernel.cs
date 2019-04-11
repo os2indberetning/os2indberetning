@@ -28,11 +28,11 @@ namespace Core.ApplicationServices
     {
         private static IKernel _currentInstance;
 
-        public static IKernel GetKernel()
+        public static IKernel GetKernel(bool isWebProject = false)
         {
             if(_currentInstance == null)
             {
-                CreateKernel();
+                CreateKernel(isWebProject);
             }
             return _currentInstance;
         }
@@ -42,7 +42,7 @@ namespace Core.ApplicationServices
         /// </summary>
         /// <param name="getInjections"></param>
         /// <returns>The created kernel.</returns>
-        private static void CreateKernel()
+        private static void CreateKernel(bool isWebProject)
         {
             var kernel = new StandardKernel();
             kernel.Load(Assembly.GetExecutingAssembly());
@@ -51,7 +51,7 @@ namespace Core.ApplicationServices
                 kernel.Bind<Func<IKernel>>().ToMethod(ctx => () => new Bootstrapper().Kernel);
                 kernel.Bind<IHttpModule>().To<HttpApplicationInitializationHttpModule>();
 
-                RegisterServices(kernel);
+                RegisterServices(kernel, isWebProject);
 
                 // Install our Ninject-based IDependencyResolver into the Web API config
                 GlobalConfiguration.Configuration.DependencyResolver = new NinjectDependencyResolver(kernel);
@@ -69,9 +69,16 @@ namespace Core.ApplicationServices
         /// Load your modules or register your services here!
         /// </summary>
         /// <param name="kernel">The kernel.</param>
-        public static void RegisterServices(IKernel kernel)
+        public static void RegisterServices(IKernel kernel, bool isWebProject)
         {
-            kernel.Bind<DataContext>().ToSelf().InRequestScope();
+            if (isWebProject)
+            {
+                kernel.Bind<DataContext>().ToSelf().InRequestScope();
+            }
+            else
+            {
+                kernel.Bind<DataContext>().ToSelf().InSingletonScope();
+            }
 
             // Core
             // DomainServices

@@ -22,7 +22,7 @@ namespace OS2Indberetning.Controllers
 
         protected override void Initialize(HttpControllerContext controllerContext)
         {
-            _customSettings = NinjectWebKernel.GetKernel().Get<ICustomSettings>();
+            _customSettings = NinjectWebKernel.GetKernel(isWebProject: true).Get<ICustomSettings>();
 
             base.Initialize(controllerContext);
         }

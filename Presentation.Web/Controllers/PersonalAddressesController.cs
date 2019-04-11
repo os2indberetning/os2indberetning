@@ -70,7 +70,7 @@ namespace OS2Indberetning.Controllers
                 return StatusCode(HttpStatusCode.Forbidden);
             }
 
-            var coordinates = NinjectWebKernel.GetKernel().Get<IAddressCoordinates>();
+            var coordinates = NinjectWebKernel.GetKernel(isWebProject: true).Get<IAddressCoordinates>();
             var result = coordinates.GetAddressCoordinates(personalAddress);
             personalAddress.Latitude = result.Latitude;
             personalAddress.Longitude = result.Longitude;

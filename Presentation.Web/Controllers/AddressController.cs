@@ -60,7 +60,7 @@ namespace OS2Indberetning.Controllers
         {
             if (MapStartAddress == null)
             {
-                var coordinates = NinjectWebKernel.GetKernel().Get<IAddressCoordinates>();
+                var coordinates = NinjectWebKernel.GetKernel(isWebProject: true).Get<IAddressCoordinates>();
                 MapStartAddress = new Address
                 {
                     StreetName = _customSettings.MapStartStreetName,
@@ -195,7 +195,7 @@ namespace OS2Indberetning.Controllers
         {
             if (CurrentUser.IsAdmin)
             {
-                var repo = NinjectWebKernel.GetKernel().Get<IGenericRepository<CachedAddress>>();
+                var repo = NinjectWebKernel.GetKernel(isWebProject: true).Get<IGenericRepository<CachedAddress>>();
                 if (!includeCleanAddresses)
                 {
                     var res = repo.AsQueryable().Where(x => x.IsDirty);

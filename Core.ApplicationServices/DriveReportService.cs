@@ -290,7 +290,6 @@ namespace Core.ApplicationServices
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var personId = _employmentRepository.AsQueryable().First(x => x.PersonId == driveReport.PersonId).PersonId;
-            var person = _personRepository.AsQueryable().First(p => p.Id == personId);
 
             // Fix for bug that sometimes happens when drivereport is from app, where personid is set, but person is not.
             var empl = _employmentRepository.AsQueryable().First(x => x.Id == driveReport.EmploymentId);
@@ -300,7 +299,7 @@ namespace Core.ApplicationServices
                 _substituteRepository.AsQueryable()
                     .Where(
                         s =>
-                            s.PersonId != s.LeaderId && s.PersonId == person.Id &&
+                            s.PersonId != s.LeaderId && s.PersonId == personId &&
                             s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp).ToList();
             if (personalApprovers != null)
             {
@@ -328,7 +327,7 @@ namespace Core.ApplicationServices
             if (_customSettings.SdIsEnabled)
             {
                 while ((leaderOfOrgUnit == null && orgUnit != null && orgUnit.Parent != null) ||
-                    (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                    (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == personId))
                 {
                     leaderOfOrgUnit = _employmentRepository
                         .AsQueryable()
@@ -344,7 +343,7 @@ namespace Core.ApplicationServices
             else
             {
                 while ((leaderOfOrgUnit == null && orgUnit != null && orgUnit.Level > 0) ||
-                    (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == person.Id))
+                    (leaderOfOrgUnit != null && leaderOfOrgUnit.PersonId == personId))
                 {
                     leaderOfOrgUnit = _employmentRepository
                         .AsQueryable()
@@ -373,7 +372,8 @@ namespace Core.ApplicationServices
                         s.OrgUnitId == orgToCheck.Id &&
                         s.PersonId == s.LeaderId &&
                         s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
-                        s.TakesOverOriginalLeaderReports
+                        s.TakesOverOriginalLeaderReports &&
+                        s.PersonId != personId
                 )
                 .ToList();
 

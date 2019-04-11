@@ -372,7 +372,8 @@ namespace Core.ApplicationServices
                         s.OrgUnitId == orgToCheck.Id &&
                         s.PersonId == s.LeaderId &&
                         s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
-                        s.TakesOverOriginalLeaderReports
+                        s.TakesOverOriginalLeaderReports &&
+                        s.PersonId != personId
                 )
                 .ToList();
 

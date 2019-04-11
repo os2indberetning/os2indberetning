@@ -18,8 +18,8 @@ namespace OS2Indberetning.Controllers
     public class PersonController : BaseController<Person>
     {
         private IPersonService _person;
-        private readonly IGenericRepository<Employment> _employmentRepo = new GenericRepository<Employment>(new DataContext());
-        private readonly IGenericRepository<LicensePlate> _licensePlateRepo = new GenericRepository<LicensePlate>(new DataContext());
+        private readonly IGenericRepository<Employment> _employmentRepo;
+        private readonly IGenericRepository<LicensePlate> _licensePlateRepo;
         private readonly IGenericRepository<Substitute> _substituteRepo;
         private readonly IGenericRepository<AppLogin> _appLoginRepo;
         private readonly IGenericRepository<OrgUnit> _orgUnitsRepo;

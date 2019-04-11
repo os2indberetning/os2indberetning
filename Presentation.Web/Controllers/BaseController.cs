@@ -143,8 +143,8 @@ namespace OS2Indberetning.Controllers
             Repo = repository;
             _primaryKeyProp = Repo.GetPrimaryKeyProperty();
 
-            _logger = NinjectWebKernel.GetKernel().Get<ILogger>();
-            _customSettings = NinjectWebKernel.GetKernel().Get<ICustomSettings>(); ;
+            _logger = NinjectWebKernel.GetKernel(isWebProject: true).Get<ILogger>();
+            _customSettings = NinjectWebKernel.GetKernel(isWebProject: true).Get<ICustomSettings>();
         }
 
         protected IQueryable<T> GetQueryable(ODataQueryOptions<T> queryOptions)

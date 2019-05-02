@@ -12,12 +12,13 @@ namespace Infrastructure.DmzSync.Services.Impl
 {
     public class GPSEncryptService : IGPSEncryptService
     {
-        private IGenericRepository<Core.DmzModel.DriveReport> _dmzDriveReportRepo;
+        private IGenericRepository<Core.DmzModel.GPSCoordinate> _gpsCoordinatesRepo;
+
         private readonly ILogger _logger;
 
-        public GPSEncryptService(IGenericRepository<Core.DmzModel.DriveReport> dmzDriveReportRepo, ILogger logger)
+        public GPSEncryptService(IGenericRepository<Core.DmzModel.GPSCoordinate> gpsCoordinatesRepo, ILogger logger)
         {
-            _dmzDriveReportRepo = dmzDriveReportRepo;
+            _gpsCoordinatesRepo = gpsCoordinatesRepo;
             _logger = logger;
         }
 
@@ -25,28 +26,59 @@ namespace Infrastructure.DmzSync.Services.Impl
         {
             try
             {
-                bool anyChanges = false;
-                var reports = _dmzDriveReportRepo.AsQueryable().ToList(); 
-                foreach (var report in reports)
+                var skip = 0;
+                var takeIncrement = 10000;
+
+                var max = _gpsCoordinatesRepo.AsQueryable().Count();
+
+                while (skip < max)
                 {
-                    for (int i = 0; i < report.Route.GPSCoordinates.Count(); i++)
+                    var take = (skip + takeIncrement) > max ? (max - skip) : takeIncrement;
+
+                    var gpsCoordinates = _gpsCoordinatesRepo.AsQueryable()
+                        .OrderBy(x => x.Id)
+                        .Skip(skip)
+                        .Take(take)
+                        .ToList();
+
+                    var decryptedGPSCoordinates = gpsCoordinates.Where(x =>
+                        ValidateLatitude(x.Latitude) &&
+                        ValidateLongitude(x.Longitude))
+                        .ToList();
+
+                    bool anyChanges = false;
+
+                    if (decryptedGPSCoordinates.Any())
                     {
-                        var gpsCoordinate = report.Route.GPSCoordinates.ElementAt(i);
-                        if (IsCoordinateDecrypted(gpsCoordinate.Latitude) && IsCoordinateDecrypted(gpsCoordinate.Longitude))
+                        for (int i = 0; i < decryptedGPSCoordinates.Count(); i++)
                         {
-                            gpsCoordinate = Encryptor.EncryptGPSCoordinate(gpsCoordinate);
-                            anyChanges = true;
+                            var gpsCoordinate = decryptedGPSCoordinates.ElementAt(i);
+
+                            try
+                            {
+                                gpsCoordinate = Encryptor.EncryptGPSCoordinate(gpsCoordinate);
+                                anyChanges = true;
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"DoGPSEncrypt, failed to decrypt coordinate: {gpsCoordinate.Id} with exception: {ex}");
+                                _logger.Error($"DoGPSEncrypt, failed to decrypt coordinate: {gpsCoordinate.Id}", ex);
+                                throw;
+                            }
                         }
                     }
-                }
-                if (anyChanges)
-                {
-                    _dmzDriveReportRepo.Save();
-                    _logger.Debug("GPSCoordinates has been encrypted");
-                }
-                else
-                {
-                    _logger.Debug("All GPSCoordinates is already encrypted");
+
+                    if (anyChanges)
+                    {
+                        _gpsCoordinatesRepo.Save();
+                        _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} has been encrypted");
+                    }
+                    else
+                    {
+                        _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} was already encrypted");
+                    }
+
+                    skip += take;
                 }
             }
             catch (Exception)
@@ -55,29 +87,44 @@ namespace Infrastructure.DmzSync.Services.Impl
             }
         }
 
-        private bool IsCoordinateDecrypted(string latOrLng)
+        private bool ValidateLatitude(string latitude)
         {
-            if (String.IsNullOrEmpty(latOrLng))
+            if (string.IsNullOrEmpty(latitude))
             {
                 return false;
             }
 
-            var array = latOrLng.Split('.');
-            if (array.Count() == 2)
+            double d;
+            bool isNumeric = double.TryParse(latitude, out d);
+            if (!isNumeric)
             {
-                double nOne;
-                bool isNumericFirst = double.TryParse(array[0], out nOne);
-                if (!isNumericFirst)
-                {
-                    return false;
-                }
-                double nTwo;
-                bool isNumericSecond = double.TryParse(array[1], out nTwo);
-                if (!isNumericSecond)
-                {
-                    return false;
-                }
+                return false;
+            }
 
+            if (d <= 90.0 && d >= -90.0)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ValidateLongitude(string longitude)
+        {
+            if (string.IsNullOrEmpty(longitude))
+            {
+                return false;
+            }
+
+            double d;
+            bool isNumeric = double.TryParse(longitude, out d);
+            if (!isNumeric)
+            {
+                return false;
+            }
+
+            if (d <= 180.0 && d >= -180.0)
+            {
                 return true;
             }
 

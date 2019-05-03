@@ -64,7 +64,7 @@ namespace Infrastructure.DmzDataAccess
 
         public IQueryable<T> AsQueryable()
         {
-            return _dbSet.AsQueryable();
+            return new DmzContext().Set<T>().AsQueryable();
         }
 
         public IQueryable<T> AsNoTracking()

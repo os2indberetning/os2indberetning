@@ -1,16 +1,15 @@
 ﻿using Core.ApplicationServices.Logger;
 using Core.DomainServices;
 using Core.DomainServices.Encryption;
-using Infrastructure.DmzSync.Services.Interface;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Infrastructure.DmzSync.Services.Impl
+namespace Infrastructure.DMZGPSEncrypt.Services
 {
-    public class GPSEncryptService : IGPSEncryptService
+    public class GPSEncryptService
     {
         private IGenericRepository<Core.DmzModel.GPSCoordinate> _gpsCoordinatesRepo;
 
@@ -27,19 +26,20 @@ namespace Infrastructure.DmzSync.Services.Impl
             try
             {
                 var skip = 0;
-                var takeIncrement = 10000;
+                var take = 10000;
 
-                var max = _gpsCoordinatesRepo.AsQueryable().Count();
-
-                while (skip < max)
+                while (true)
                 {
-                    var take = (skip + takeIncrement) > max ? (max - skip) : takeIncrement;
-
                     var gpsCoordinates = _gpsCoordinatesRepo.AsQueryable()
                         .OrderBy(x => x.Id)
                         .Skip(skip)
                         .Take(take)
                         .ToList();
+
+                    if (!gpsCoordinates.Any())
+                    {
+                        break;
+                    }
 
                     var decryptedGPSCoordinates = gpsCoordinates.Where(x =>
                         ValidateLatitude(x.Latitude) &&
@@ -50,13 +50,11 @@ namespace Infrastructure.DmzSync.Services.Impl
 
                     if (decryptedGPSCoordinates.Any())
                     {
-                        for (int i = 0; i < decryptedGPSCoordinates.Count(); i++)
+                        foreach (var gpsCoordinate in decryptedGPSCoordinates)
                         {
-                            var gpsCoordinate = decryptedGPSCoordinates.ElementAt(i);
-
                             try
                             {
-                                gpsCoordinate = Encryptor.EncryptGPSCoordinate(gpsCoordinate);
+                                Encryptor.EncryptGPSCoordinate(gpsCoordinate);
                                 anyChanges = true;
                             }
                             catch (Exception ex)
@@ -71,11 +69,13 @@ namespace Infrastructure.DmzSync.Services.Impl
                     if (anyChanges)
                     {
                         _gpsCoordinatesRepo.Save();
+                        Console.WriteLine($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} has been encrypted");
                         _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} has been encrypted");
                     }
                     else
                     {
-                        _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} was already encrypted");
+                        Console.WriteLine($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} is already encrypted");
+                        _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} is already encrypted");
                     }
 
                     skip += take;

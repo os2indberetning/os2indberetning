@@ -1,123 +1,73 @@
-﻿using Core.ApplicationServices.Logger;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Core.ApplicationServices.Logger;
 using Core.DmzModel;
 using Core.DomainServices;
 using Core.DomainServices.Encryption;
-using Infrastructure.DmzSync.Services.Impl;
-using Infrastructure.DmzSync.Services.Interface;
+using Infrastructure.DMZGPSEncrypt.Services;
 using NSubstitute;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DmzSync.Test
 {
     [TestFixture]
     public class GPSEncryptServiceTests
     {
-        private IGPSEncryptService _gpsEncryptService;
-        private List<Core.DmzModel.DriveReport> _dmzReportList = new List<Core.DmzModel.DriveReport>();
-        private IGenericRepository<Core.DmzModel.DriveReport> _dmzRepoMock;
+        private GPSEncryptService _gpsEncryptService;
+        private List<Core.DmzModel.GPSCoordinate> _dmzGPSList = new List<Core.DmzModel.GPSCoordinate>();
+        private IGenericRepository<Core.DmzModel.GPSCoordinate> _dmzGPSRepoMock;
         private ILogger _logger;
 
         [SetUp]
         public void SetUp()
-        {
-            
-            _dmzRepoMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.DriveReport>>();
+        {            
+            _dmzGPSRepoMock = NSubstitute.Substitute.For<IGenericRepository<Core.DmzModel.GPSCoordinate>>();
             _logger = NSubstitute.Substitute.For<ILogger>();
 
-            _dmzRepoMock.WhenForAnyArgs(x => x.Delete(new Core.DmzModel.DriveReport())).Do(p => _dmzReportList.Remove(p.Arg<Core.DmzModel.DriveReport>()));
-            _dmzRepoMock.WhenForAnyArgs(x => x.Insert(new Core.DmzModel.DriveReport())).Do(t => _dmzReportList.Add(t.Arg<Core.DmzModel.DriveReport>()));
+            _dmzGPSRepoMock.WhenForAnyArgs(x => x.Delete(new Core.DmzModel.GPSCoordinate())).Do(p => _dmzGPSList.Remove(p.Arg<Core.DmzModel.GPSCoordinate>()));
+            _dmzGPSRepoMock.WhenForAnyArgs(x => x.Insert(new Core.DmzModel.GPSCoordinate())).Do(t => _dmzGPSList.Add(t.Arg<Core.DmzModel.GPSCoordinate>()));
 
-            _dmzReportList = new List<DriveReport>()
+
+            _dmzGPSList = new List<GPSCoordinate>()
             {
-                new DriveReport()
+                new GPSCoordinate()
                 {
-                    Id = 1,
-                    Purpose = "Test",
-                    StartsAtHome = false,
-                    EndsAtHome = false,
-                    ManualEntryRemark = "ManualEntry",
-                    Date = "2015-05-27",
-                    EmploymentId = 1,
-                    ProfileId = 1,
-                    RateId = 1,
-                    Profile = new Profile()
-                    {
-                        FullName = "Test Testesen [TT]"
-                    },
-                    Route = new Route()
-                    {
-                        Id = 1,
-                        GPSCoordinates = new List<GPSCoordinate>()
-                        {
-                            new GPSCoordinate()
-                            {
-                                Latitude = StringCipher.Encrypt("1", Encryptor.EncryptKey),
-                                Longitude = StringCipher.Encrypt("1", Encryptor.EncryptKey),
-                            },
-                            new GPSCoordinate()
-                            {
-                                Latitude = StringCipher.Encrypt("2", Encryptor.EncryptKey),
-                                Longitude = StringCipher.Encrypt("2", Encryptor.EncryptKey),
-                            }
-                        }
-                    }
+                    Latitude = StringCipher.Encrypt("1", Encryptor.EncryptKey),
+                    Longitude = StringCipher.Encrypt("1", Encryptor.EncryptKey),
                 },
-                new DriveReport()
+                new GPSCoordinate()
                 {
-                    Id = 2,
-                    Purpose = "Test2",
-                    StartsAtHome = true,
-                    EndsAtHome = true,
-                    ManualEntryRemark = "ManualEntry",
-                    Date = "2015-05-26",
-                    EmploymentId = 1,
-                    ProfileId = 1,
-                    RateId = 1,
-                    Profile = new Profile()
-                    {
-                        FullName = "Test Testesen [TT]"
-                    },
-                    Route = new Route()
-                    {
-                        Id = 2,
-                        GPSCoordinates = new List<GPSCoordinate>()
-                        {
-                            new GPSCoordinate()
-                            {
-                                Latitude = "57.0482206",
-                                Longitude = "9.9193939",
-                            },
-                            new GPSCoordinate()
-                            {
-                                Latitude = "A",
-                                Longitude = "9.9193939",
-                            }
-                        }
-                    }
+                    Latitude = StringCipher.Encrypt("2", Encryptor.EncryptKey),
+                    Longitude = StringCipher.Encrypt("2", Encryptor.EncryptKey),
+                },
+                new GPSCoordinate()
+                {
+                    Latitude = "57.0482206",
+                    Longitude = "9.9193939",
+                },
+                new GPSCoordinate()
+                {
+                    Latitude = "A",
+                    Longitude = "9.9193939",
                 }
             };
 
-            _dmzRepoMock.AsQueryable().ReturnsForAnyArgs(_dmzReportList.AsQueryable());
-            _gpsEncryptService = new GPSEncryptService(_dmzRepoMock, _logger);
+            _dmzGPSRepoMock.AsQueryable().ReturnsForAnyArgs(_dmzGPSList.AsQueryable());
+            _gpsEncryptService = new GPSEncryptService(_dmzGPSRepoMock, _logger);
         } 
 
         [Test]
         public void GPSEncrypt_ShouldEncrypCoordinate()
         {
-            var items = _dmzRepoMock.AsQueryable().ToList();
-            var coordinate = items[1].Route.GPSCoordinates.ToList()[0];
+            var items = _dmzGPSRepoMock.AsQueryable().ToList();
+            var coordinate = items[2];
             var lat = coordinate.Latitude;
             var lng = coordinate.Longitude;
 
             _gpsEncryptService.DoGPSEncrypt();
 
-            var itemsAfter = _dmzRepoMock.AsQueryable().ToList();
-            var coordinateAfter = items[1].Route.GPSCoordinates.ToList()[0];
+            var itemsAfter = _dmzGPSRepoMock.AsQueryable().ToList();
+            var coordinateAfter = itemsAfter[2];
 
             Assert.AreNotEqual(coordinateAfter.Latitude, lat);
             Assert.AreNotEqual(coordinateAfter.Longitude, lng);
@@ -126,15 +76,15 @@ namespace DmzSync.Test
         [Test]
         public void GPSEncrypt_ShouldSkipEncryptingCoordinate()
         {
-            var items = _dmzRepoMock.AsQueryable().ToList();
-            var coordinate = items[1].Route.GPSCoordinates.ToList()[1];
+            var items = _dmzGPSRepoMock.AsQueryable().ToList();
+            var coordinate = items[1];
             var lat = coordinate.Latitude;
             var lng = coordinate.Longitude;
 
             _gpsEncryptService.DoGPSEncrypt();
 
-            var itemsAfter = _dmzRepoMock.AsQueryable().ToList();
-            var coordinateAfter = items[1].Route.GPSCoordinates.ToList()[1];
+            var itemsAfter = _dmzGPSRepoMock.AsQueryable().ToList();
+            var coordinateAfter = itemsAfter[1];
 
             Assert.AreEqual(coordinateAfter.Latitude, lat);
             Assert.AreEqual(coordinateAfter.Longitude, lng);
@@ -143,19 +93,19 @@ namespace DmzSync.Test
         [Test]
         public void GPSEncrypt_EncryptAndDecryptShouldMatch()
         {
-            var items = _dmzRepoMock.AsQueryable().ToList();
-            var coordinate = items[1].Route.GPSCoordinates.ToList()[0];
+            var items = _dmzGPSRepoMock.AsQueryable().ToList();
+            var coordinate = items[2];
             var lat = coordinate.Latitude;
             var lng = coordinate.Longitude;
 
             _gpsEncryptService.DoGPSEncrypt();
 
-            var itemsAfter = _dmzRepoMock.AsQueryable().ToList();
-            var coordinateAfter = items[1].Route.GPSCoordinates.ToList()[0];
+            var itemsAfter = _dmzGPSRepoMock.AsQueryable().ToList();
+            var coordinateAfter = itemsAfter[2];
             var latEncrypted = coordinateAfter.Latitude;
             var lngEncrypted = coordinateAfter.Longitude;
 
-            var decrypted = Encryptor.DecryptGPSCoordinate(items[1].Route.GPSCoordinates.ToList()[0]);
+            var decrypted = Encryptor.DecryptGPSCoordinate(items[2]);
 
             Assert.AreNotEqual(latEncrypted, lat);
             Assert.AreNotEqual(lngEncrypted, lng);

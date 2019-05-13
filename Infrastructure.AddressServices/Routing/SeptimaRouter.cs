@@ -49,7 +49,7 @@ namespace Infrastructure.AddressServices.Routing
             //idet OSRM er gået fra at bruge "C style" exit-koder, til "HTTP Style" status-koder.
             if (result.status != 0 && result.status / 100 == 2)
             {
-                var e = new RouteInformationException("No route found."); ;
+                var e = new RouteInformationException("No route found.");
                 //Logger.Error("Exception when getting route information", e);
                 throw e;
             }

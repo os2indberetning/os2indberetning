@@ -117,9 +117,10 @@ namespace Core.ApplicationServices
                         catch (AddressCoordinatesException e)
                         {
                             // Catch the exception to write the error to the log file.
+                            _logger.Error($"{person.FullName} with id: {person.Id}, can't log in due to error in work- or homeaddress", e);
                             _logger.LogForAdmin(person.FullName + " kan ikke logge på, da der er fejl i vedkommendes arbejds- eller hjemmeadresse.");
                             // Rethrow the exception to allow to front end to display the error aswell.
-                            throw e;
+                            throw;
                         }
                     }
                 }

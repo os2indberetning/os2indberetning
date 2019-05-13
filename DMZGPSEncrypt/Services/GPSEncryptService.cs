@@ -1,6 +1,8 @@
 ﻿using Core.ApplicationServices.Logger;
+using Core.DmzModel;
 using Core.DomainServices;
 using Core.DomainServices.Encryption;
+using Infrastructure.DmzDataAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,13 +13,10 @@ namespace Infrastructure.DMZGPSEncrypt.Services
 {
     public class GPSEncryptService
     {
-        private IGenericRepository<Core.DmzModel.GPSCoordinate> _gpsCoordinatesRepo;
-
         private readonly ILogger _logger;
 
-        public GPSEncryptService(IGenericRepository<Core.DmzModel.GPSCoordinate> gpsCoordinatesRepo, ILogger logger)
+        public GPSEncryptService(ILogger logger)
         {
-            _gpsCoordinatesRepo = gpsCoordinatesRepo;
             _logger = logger;
         }
 
@@ -25,14 +24,16 @@ namespace Infrastructure.DMZGPSEncrypt.Services
         {
             try
             {
-                var skip = 0;
+                var skipFromId = 0;
                 var take = 10000;
 
                 while (true)
                 {
-                    var gpsCoordinates = _gpsCoordinatesRepo.AsQueryable()
+                    var gpsCoordinatesRepo = new GenericDmzRepository<GPSCoordinate>(new DmzContext());
+
+                    var gpsCoordinates = gpsCoordinatesRepo.AsQueryable()
+                        .Where(x => x.Id > skipFromId)
                         .OrderBy(x => x.Id)
-                        .Skip(skip)
                         .Take(take)
                         .ToList();
 
@@ -68,17 +69,17 @@ namespace Infrastructure.DMZGPSEncrypt.Services
 
                     if (anyChanges)
                     {
-                        _gpsCoordinatesRepo.Save();
+                        gpsCoordinatesRepo.Save();
                         Console.WriteLine($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} has been encrypted");
                         _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} has been encrypted");
                     }
                     else
                     {
-                        Console.WriteLine($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} is already encrypted");
-                        _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} is already encrypted");
+                        Console.WriteLine($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} are already encrypted");
+                        _logger.Debug($"GPSCoordinates between id: {gpsCoordinates.FirstOrDefault().Id} and id: {gpsCoordinates.LastOrDefault().Id} are already encrypted");
                     }
 
-                    skip += take;
+                    skipFromId = gpsCoordinates.Last().Id;
                 }
             }
             catch (Exception)

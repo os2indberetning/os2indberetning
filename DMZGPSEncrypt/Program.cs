@@ -27,9 +27,7 @@ namespace DMZGPSEncrypt
             // This forces the dmzconnection to use MySql.
             new DataContext();
 
-            var gpsEncryptService = new GPSEncryptService(
-                new GenericDmzRepository<GPSCoordinate>(new DmzContext()),
-                logger);
+            var gpsEncryptService = new GPSEncryptService(logger);
 
             logger.Debug("-------- DMZ GPS Encrypt STARTED --------");
 

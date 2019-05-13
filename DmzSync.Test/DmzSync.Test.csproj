@@ -84,10 +84,6 @@
       <Project>{537CFCE9-FC15-46C0-A706-92CA40CF2C0C}</Project>
       <Name>Infrastructure.DmzSync</Name>
     </ProjectReference>
-    <ProjectReference Include="..\DMZGPSEncrypt\DMZGPSEncrypt.csproj">
-      <Project>{9F710ECF-7AB8-48C5-94E6-21D7B4550647}</Project>
-      <Name>DMZGPSEncrypt</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />

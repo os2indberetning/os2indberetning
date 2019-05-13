@@ -1,25 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Globalization;
+ï»¿using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Core.ApplicationServices;
 using Core.ApplicationServices.Interfaces;
 using Core.ApplicationServices.Logger;
 using Core.DmzModel;
 using Core.DomainModel;
 using Core.DomainServices;
+using Core.DomainServices.Interfaces;
 using Core.DomainServices.RoutingClasses;
-using Infrastructure.AddressServices;
-using Infrastructure.DmzDataAccess;
 using Infrastructure.DataAccess;
-using Core.DomainServices.Encryption;
+using Infrastructure.DmzDataAccess;
 using Infrastructure.DmzSync.Services.Impl;
 using Ninject;
 using DriveReport = Core.DmzModel.DriveReport;
 using Rate = Core.DomainModel.Rate;
-using Core.DomainServices.Interfaces;
 
 namespace Infrastructure.DmzSync
 {
@@ -40,10 +34,6 @@ namespace Infrastructure.DmzSync
             // hacks because of error with Entity Framework.
             // This forces the dmzconnection to use MySql.
             new DataContext();
-
-            var gpsEncryptService = new GPSEncryptService(
-                new GenericDmzRepository<DriveReport>(new DmzContext()),
-                logger);
 
             var personSync = new PersonSyncService(
                 new GenericDmzRepository<Profile>(new DmzContext()),
@@ -82,23 +72,6 @@ namespace Infrastructure.DmzSync
                 new GenericDmzRepository<Core.DmzModel.Auditlog>(new DmzContext()), 
                 kernel.Get<IGenericRepository<Core.DomainModel.Auditlog>>(), 
                 logger);
-
-            logger.Debug("-------- Pre DMZSYNC STARTED --------");
-
-            try
-            {
-                logger.Debug("DoGPSEncrypt started");
-                Console.WriteLine("DoGPSEncrypt");
-                gpsEncryptService.DoGPSEncrypt();
-            }
-            catch (Exception ex)
-            {
-                logger.Error($"Error during encrypting geocoordinates on DMZ", ex);
-                logger.LogForAdmin("Fejl under kryptering af geo koodinater på DMZ.");
-                throw;
-            }
-
-            logger.Debug("-------- Pre DMZSYNC Ended --------");
 
             logger.Debug("-------- DMZSYNC STARTED --------");
 
@@ -154,20 +127,6 @@ namespace Infrastructure.DmzSync
                 logger.LogForAdmin("Fejl ved synkronisering af takster til DMZ.");
                 throw;
             }
-
-            // DONT SYNC userauth table - Introduces login problems
-            //try
-            //{
-            //    logger.Debug("UserAuthSyncToDmz started");
-            //    Console.WriteLine("UserAuthSyncToDmz");
-            //    userAuthSync.SyncToDmz();
-            //}
-            //catch (Exception ex)
-            //{
-            //    logger.Error($"Error during userauth synchronization from DMZ", ex);
-            //    logger.LogForAdmin("Fejl ved synkronisering af app-logins til DMZ. Nogle brugere vil muligvis ikke kunne logge på app.");
-            //    throw;
-            //}
 
             try
             {

@@ -1,4 +1,4 @@
-1) Liste over ledere/godkendere, der har fravalgt at få mails fra OS2indberetning om godkendelse af kørsler?
+1) Liste over ledere/godkendere, der har fravalgt at få mails fra OS2indberetning om godkendelse af kørsler
 ```
 SELECT
 *

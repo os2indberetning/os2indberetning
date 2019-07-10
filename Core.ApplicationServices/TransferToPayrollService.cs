@@ -144,15 +144,7 @@ namespace Core.ApplicationServices
             opretInputType.Item1 = report.Employment.EmploymentId; // AnsaettelseIdentifikator 
             opretInputType.RegistreringTypeIdentifikator = report.TFCode;
             opretInputType.GodkendtIndikator = true;
-
-            // Issue: The KoerselDato was set to one day before the actual day of the drive
-            // The DriveDateTimestamp received from the kendo date picker is returning as if the value is local timezone,
-            // (If you pick 2/2/1999, you get Tuesday, February 2, 1999 12:00:00 AM localtime, and utc will than be Tuesday, February 1, 1999 10:00:00 PM)
-            // We are not sure if SD will try to convert the datetime to UTC, so it is not safe to use ToLocalTime()
-            // and to not break anything from the rest of the application, we create a new utc datetime here with the same year, month and day as the local time
-            var localDateTime = Utilities.FromUnixTime(report.DriveDateTimestamp);
-            var sameDateAsUTC = new DateTime(localDateTime.Year, localDateTime.Month, localDateTime.Day, 0, 0, 0, DateTimeKind.Utc);
-            opretInputType.KoerselDato = sameDateAsUTC;
+            opretInputType.KoerselDato = new System.DateTime(1970, 1, 1, 0, 0, 0, 0).AddSeconds(report.DriveDateTimestamp).ToLocalTime();
             opretInputType.RegistreringNummerIdentifikator = report.LicensePlate;
             opretInputType.KontrolleretIndikator = true;
             opretInputType.KilometerMaal = Convert.ToDecimal(report.Distance);

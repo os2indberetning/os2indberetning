@@ -553,6 +553,7 @@ namespace DBUpdater
                 }
             }
             _reportRepo.Save();
+            Console.WriteLine("Adding leaders to reports that have none finished");
             _logger.Debug($"{this.GetType().Name}, AddLeadersToReportsThatHaveNone() finished");
         }
 

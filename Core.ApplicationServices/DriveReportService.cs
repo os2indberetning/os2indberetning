@@ -369,9 +369,9 @@ namespace Core.ApplicationServices
                 .AsQueryable()
                 .Where(
                     s =>
-                        s.OrgUnitId == orgToCheck.Id &&
                         s.PersonId == s.LeaderId &&
-                        s.StartDateTimestamp < currentDateTimestamp && s.EndDateTimestamp > currentDateTimestamp &&
+                        s.PersonId == leader.Id &&
+                        s.StartDateTimestamp <= currentDateTimestamp && s.EndDateTimestamp >= currentDateTimestamp &&
                         s.TakesOverOriginalLeaderReports &&
                         s.PersonId != personId
                 )

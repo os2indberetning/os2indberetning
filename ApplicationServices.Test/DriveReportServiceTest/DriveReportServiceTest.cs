@@ -707,7 +707,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
         [Test]
         public void RemoveExpiredLeadersForPendingReports()
         {
-            var todayUnix = Utilities.ToUnixTime(DateTime.Now);
+            var todayUnix = Utilities.ToUnixTime(DateTime.Now.AddMinutes(1));
             var tomorrowUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(1));
             var yesterdayUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-1));
             var weekAgoUnix = Utilities.ToUnixTime(DateTime.Now.AddDays(-7));
@@ -764,7 +764,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Person = leader1,
                 Sub = new Person()
                 {
-                    Id = 1,
+                    Id = 2,
                     FirstName = "En",
                     LastName = "Substitute",
                     Initials = "ES",
@@ -783,7 +783,7 @@ namespace ApplicationServices.Test.DriveReportServiceTest
                 Person = leader1,
                 Sub = new Person()
                 {
-                    Id = 2,
+                    Id = 4,
                     FirstName = "To",
                     LastName = "Substitute",
                     Initials = "TS",

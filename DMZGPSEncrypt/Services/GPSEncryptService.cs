@@ -5,6 +5,7 @@ using Core.DomainServices.Encryption;
 using Infrastructure.DmzDataAccess;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -96,7 +97,7 @@ namespace Infrastructure.DMZGPSEncrypt.Services
             }
 
             double d;
-            bool isNumeric = double.TryParse(latitude, out d);
+            bool isNumeric = double.TryParse(latitude, NumberStyles.Any, CultureInfo.InvariantCulture, out d);
             if (!isNumeric)
             {
                 return false;
@@ -118,7 +119,7 @@ namespace Infrastructure.DMZGPSEncrypt.Services
             }
 
             double d;
-            bool isNumeric = double.TryParse(longitude, out d);
+            bool isNumeric = double.TryParse(longitude, NumberStyles.Any, CultureInfo.InvariantCulture, out d);
             if (!isNumeric)
             {
                 return false;

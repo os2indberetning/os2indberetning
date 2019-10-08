@@ -215,6 +215,7 @@
                 if(employment != null){
                     initialKilometerAllowance = employment.OrgUnit.DefaultKilometerAllowance;
                 }
+                updateWorkAddressDropdown();
             }
 
             $scope.DriveReport.KilometerAllowance = initialKilometerAllowance;
@@ -989,7 +990,57 @@
                     $scope.hasAccessToFourKmRule = empl.OrgUnit.HasAccessToFourKmRule;
                 }
             });
-            updateDrivenKm();
+            updateWorkAddressDropdown();
+        }
+
+        
+
+        var workAddressChanged = function () {
+            var selectedEmployment = getCurrentUserEmployment($scope.DriveReport.Position);
+            var selectedWorkAddressId = $scope.DriveReport.WorkAddress
+            var selectedWorkAddress;
+            if (selectedEmployment.OrgUnit.Address.Id == selectedWorkAddressId) {
+                selectedWorkAddress = selectedEmployment.OrgUnit.Address;
+            }
+            else if (selectedEmployment.AlternativeWorkAddress.Id == selectedWorkAddressId) {
+                selectedWorkAddress = selectedEmployment.AlternativeWorkAddress;
+            }
+            if (selectedWorkAddress) {
+                Person.GetDistanceFromHome({ addressId: selectedWorkAddress.Id }).$promise.then(function (response) {
+                    $scope.HomeWorkDistance = response.value;
+                    updateDrivenKm();
+                });
+            }
+        }        
+
+        $scope.workAddressChanged = workAddressChanged;
+        var updateWorkAddressDropdown = function()
+        {
+            var selectedEmployment = getCurrentUserEmployment($scope.DriveReport.Position);
+            // ignore workaddresses if work distance has override value
+            if (selectedEmployment.WorkDistanceOverride) {
+                $scope.HomeWorkDistance = selectedEmployment.WorkDistanceOverride;
+                $scope.WorkAddresses = [];
+                $scope.DriveReport.WorkAddress = 0;
+                updateDrivenKm();
+            }
+            // populate work address dropdown
+            else {
+                var workAddresses = [];
+                // add alternative workaddress if it is set
+                if (selectedEmployment.AlternativeWorkAddress) {
+                    workAddresses.push(selectedEmployment.AlternativeWorkAddress);
+                }
+                // add stanard workaddress from employment orgunit
+                workAddresses.push(selectedEmployment.OrgUnit.Address);
+
+                angular.forEach(workAddresses, function (value, key) {
+                    value.PresentationString = value.StreetName + " " + value.StreetNumber + ", " + value.ZipCode + " " + value.Town;
+                });
+                $scope.WorkAddresses = workAddresses;
+                $scope.DriveReport.WorkAddress = workAddresses[0].Id;
+                workAddressChanged();
+            }
         }
 
         var routeStartsAtHome = function () {
@@ -1056,9 +1107,9 @@
             /// </summary>
             if ($scope.DriveReport.KilometerAllowance != "CalculatedWithoutExtraDistance") {
                 if (routeStartsAtHome() && routeEndsAtHome()) {
-                    $scope.TransportAllowance = Number(getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance) * 2;
+                    $scope.TransportAllowance = Number($scope.HomeWorkDistance) * 2;
                 } else if (routeStartsAtHome() || routeEndsAtHome()) {
-                    $scope.TransportAllowance = getCurrentUserEmployment($scope.DriveReport.Position).HomeWorkDistance;
+                    $scope.TransportAllowance = $scope.HomeWorkDistance;
                 } else {
                     $scope.TransportAllowance = 0;
                 }

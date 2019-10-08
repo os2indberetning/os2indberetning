@@ -25,6 +25,7 @@ namespace Core.ApplicationServices
         private readonly IGenericRepository<AddressHistory> _addressHistoryRepo;
         private readonly IGenericRepository<RateType> _rateTypeRepo;
         private readonly IGenericRepository<DriveReport> _driveReportRepository;
+        private readonly IGenericRepository<Address> _addressRepo;
         private const int FourKmAdjustment = 4;
         // Coordinate threshold is the amount two gps coordinates can differ and still be considered the same address.
         // Third decimal is 100 meters, so 0.001 means that addresses within 100 meters of each other will be considered the same when checking if route starts or ends at home.
@@ -33,7 +34,7 @@ namespace Core.ApplicationServices
         private readonly ILogger _logger;
         private readonly ICustomSettings _customSettings;
 
-        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger, ICustomSettings customeSettings, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<DriveReport> driveReportRepo)
+        public ReimbursementCalculator(IRoute<RouteInformation> route, IPersonService personService, IGenericRepository<Person> personRepo, IGenericRepository<Employment> emplrepo, IGenericRepository<AddressHistory> addressHistoryRepo, ILogger logger, ICustomSettings customeSettings, IGenericRepository<RateType> rateTypeRepo, IGenericRepository<DriveReport> driveReportRepo, IGenericRepository<Address> addressRepo)
         {
             _route = route;
             _personService = personService;
@@ -44,6 +45,7 @@ namespace Core.ApplicationServices
             _customSettings = customeSettings;
             _rateTypeRepo = rateTypeRepo;
             _driveReportRepository = driveReportRepo;
+            _addressRepo = addressRepo;
         }
 
         /// <summary>
@@ -113,6 +115,17 @@ namespace Core.ApplicationServices
             {
                 // Overwrite workaddress if an alternative work address exists.
                 workAddress = employment.AlternativeWorkAddress;
+            }
+
+            if (report.WorkAddressId != 0)
+            {
+                if (report.WorkAddressId != employment.AlternativeWorkAddress?.Id && report.WorkAddressId != employment.OrgUnit.Address.Id)
+                {
+                    // only allow work address id that is either the address of the orgunit or is the alternative address
+                    throw new Exception("Invalid WorkAddressId for report");
+                }
+                // Overwrite workaddress if chosen on web report page
+                workAddress = _addressRepo.AsQueryable().First(a => a.Id == report.WorkAddressId);
             }
 
             if (report.KilometerAllowance != KilometerAllowance.Read && !report.IsFromApp)

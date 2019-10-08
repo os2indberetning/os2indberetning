@@ -19,7 +19,8 @@ namespace ApplicationServices.Test.PersonService
         private IQueryable<Person> _persons;
         private IRoute<RouteInformation> _routeMock;
         private IAddressCoordinates _coordinatesMock;
-        private IGenericRepository<PersonalAddress> _addressRepoMock;
+        private IGenericRepository<PersonalAddress> _personalAddressRepoMock;
+        private IGenericRepository<Address> _addressRepoMock;
         private IGenericRepository<Employment> _employmentsRepoMock;
         private IGenericRepository<OrgUnit> _orgUnitsRepoMock;
 
@@ -58,7 +59,8 @@ namespace ApplicationServices.Test.PersonService
 
             _routeMock = NSubstitute.Substitute.For<IRoute<RouteInformation>>();
             _routeMock.GetRoute(DriveReportTransportType.Car, new List<Address>()).ReturnsForAnyArgs(new RouteInformation());
-            _addressRepoMock = NSubstitute.Substitute.For<IGenericRepository<PersonalAddress>>();
+            _personalAddressRepoMock = NSubstitute.Substitute.For<IGenericRepository<PersonalAddress>>();
+            _addressRepoMock = NSubstitute.Substitute.For<IGenericRepository<Address>>();
             _employmentsRepoMock = NSubstitute.Substitute.For<IGenericRepository<Employment>>();
             _orgUnitsRepoMock = NSubstitute.Substitute.For<IGenericRepository<OrgUnit>>();
 
@@ -100,7 +102,7 @@ namespace ApplicationServices.Test.PersonService
                 Latitude = "1",
                 Longitude = "1"
             });
-            _uut = new Core.ApplicationServices.PersonService(_addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
+            _uut = new Core.ApplicationServices.PersonService(_personalAddressRepoMock, _addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
         }
 
 
@@ -109,7 +111,7 @@ namespace ApplicationServices.Test.PersonService
         public void ScrubCprsShouldRemoveCprNumbers()
         {
 
-            var uut = new Core.ApplicationServices.PersonService(_addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
+            var uut = new Core.ApplicationServices.PersonService(_personalAddressRepoMock, _addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
 
             foreach (var person in _persons)
             {
@@ -130,7 +132,7 @@ namespace ApplicationServices.Test.PersonService
                 Id = 1
             };
 
-            _addressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
+            _personalAddressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
             {
                 new PersonalAddress
                 {
@@ -146,7 +148,7 @@ namespace ApplicationServices.Test.PersonService
                 }
             }.AsQueryable());
 
-            var uut = new Core.ApplicationServices.PersonService(_addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
+            var uut = new Core.ApplicationServices.PersonService(_personalAddressRepoMock, _addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
             var res = uut.GetHomeAddress(testPerson);
             Assert.AreEqual(PersonalAddressType.Home, res.Type);
             Assert.AreEqual("Katrinebjergvej", res.StreetName);
@@ -164,7 +166,7 @@ namespace ApplicationServices.Test.PersonService
                 Id = 1
             };
 
-            _addressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
+            _personalAddressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
             {
                 new PersonalAddress
                 {
@@ -192,7 +194,7 @@ namespace ApplicationServices.Test.PersonService
                 }
             }.AsQueryable());
 
-            var uut = new Core.ApplicationServices.PersonService(_addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
+            var uut = new Core.ApplicationServices.PersonService(_personalAddressRepoMock, _addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
             var res = uut.GetHomeAddress(testPerson);
             Assert.AreEqual(PersonalAddressType.AlternativeHome, res.Type);
             Assert.AreEqual("Jens Baggesens Vej", res.StreetName);
@@ -210,7 +212,7 @@ namespace ApplicationServices.Test.PersonService
                 Id = 1
             };
 
-            _addressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
+            _personalAddressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
             {
                 new PersonalAddress
                 {
@@ -236,7 +238,7 @@ namespace ApplicationServices.Test.PersonService
                 }
             }.AsQueryable());
 
-            var uut = new Core.ApplicationServices.PersonService(_addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
+            var uut = new Core.ApplicationServices.PersonService(_personalAddressRepoMock, _addressRepoMock, _employmentsRepoMock, _orgUnitsRepoMock, _routeMock, _coordinatesMock, _loggerMock);
             var res = uut.GetHomeAddress(testPerson);
             Assert.AreEqual(PersonalAddressType.AlternativeHome, res.Type);
             Assert.AreEqual("Jens Baggesens Vej", res.StreetName);
@@ -254,7 +256,7 @@ namespace ApplicationServices.Test.PersonService
                 Id = 1
             };
 
-            _addressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
+            _personalAddressRepoMock.AsQueryable().ReturnsForAnyArgs(new List<PersonalAddress>
             {
                 new PersonalAddress
                 {
@@ -278,102 +280,6 @@ namespace ApplicationServices.Test.PersonService
             _coordinatesMock.ReceivedWithAnyArgs().GetAddressCoordinates(new Address());
         }
 
-        [Test]
-        public void PersonWith_WorkDistanceOverrideSet_ShouldReturn_WorkDistanceOverride()
-        {
-            var testPerson = new Person
-            {
-                PersonalAddresses = new List<PersonalAddress>
-                {
-                    new PersonalAddress
-                    {
-                        Type = PersonalAddressType.Home
-                    },
-                },
-                Employments = new List<Employment>
-                {
-                    new Employment
-                    {
-                        WorkDistanceOverride = 1
-                    }
-                }
-            };
-
-            _uut.AddHomeWorkDistanceToEmployments(testPerson);
-            Assert.AreEqual(1, testPerson.Employments.ElementAt(0).HomeWorkDistance);
-        }
-
-        [Test]
-        public void PersonWithout_WorkDistanceOverrideSet_ActualWorkAddress_ShouldCall_GetRoute()
-        {
-            var testPerson = new Person
-            {
-                PersonalAddresses = new List<PersonalAddress>
-                {
-                    new PersonalAddress
-                    {
-                        Type = PersonalAddressType.Home
-                    },
-                },
-                Employments = new List<Employment>
-                {
-                    new Employment
-                    {
-                        OrgUnit = new OrgUnit()
-                        {
-                            Address = new WorkAddress()
-                            {
-                                StreetName = "Katrinebjergvej",
-                                StreetNumber = "93B",
-                                ZipCode = 8200,
-                                Town = "Aarhus N"
-                            }
-                        }
-                    }
-                }
-            };
-
-            _uut.AddHomeWorkDistanceToEmployments(testPerson);
-            _routeMock.ReceivedWithAnyArgs().GetRoute(DriveReportTransportType.Car, new List<Address>());
-        }
-
-        [Test]
-        public void PersonWithout_WorkDistanceOverrideSet_AlternativeWorkAddress_ShouldCall_GetRoute()
-        {
-            var testPerson = new Person
-            {
-                PersonalAddresses = new List<PersonalAddress>
-                {
-                    new PersonalAddress
-                    {
-                        Type = PersonalAddressType.Home
-                    },
-                },
-                Employments = new List<Employment>
-                {
-                    new Employment
-                    {
-                        OrgUnit = new OrgUnit()
-                        {
-                            Address = new WorkAddress()
-                            {
-                                StreetName = "Katrinebjergvej",
-                                StreetNumber = "93B",
-                                ZipCode = 8200,
-                                Town = "Aarhus N"
-                            }
-                        },
-                        AlternativeWorkAddress = new PersonalAddress
-                        {
-                            Type = PersonalAddressType.AlternativeWork
-                        }
-                    }
-                }
-            };
-
-            _uut.AddHomeWorkDistanceToEmployments(testPerson);
-            _routeMock.ReceivedWithAnyArgs().GetRoute(DriveReportTransportType.Car, new List<Address>());
-        }
 
         [Test]
         public void GetEmploymentForLeader_MultipleLayers()

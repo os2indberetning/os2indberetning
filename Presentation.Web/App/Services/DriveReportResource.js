@@ -52,6 +52,7 @@
                 driveReport.ClosedDateTimestamp = 0;
                 driveReport.ProcessedDateTimestamp = 0;
                 driveReport.EmploymentId = $scope.DriveReport.Position;
+                driveReport.WorkAddressId = $scope.DriveReport.WorkAddress;
 
                 if ($scope.DriveReport.KilometerAllowance === "Read") {
 

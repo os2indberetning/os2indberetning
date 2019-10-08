@@ -52,6 +52,7 @@ namespace Core.DomainModel
         public bool? IsRoundTrip { get; set; }
         public bool SixtyDaysRule { get; set; }
         public bool IsUsingDivergentAddress { get; set; }
+        public int WorkAddressId { get; set; }
 
 
         public virtual ICollection<DriveReportPoint> DriveReportPoints { get; set; }

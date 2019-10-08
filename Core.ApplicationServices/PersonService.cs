@@ -17,7 +17,8 @@ namespace Core.ApplicationServices
 {
     public class PersonService : IPersonService
     {
-        private readonly IGenericRepository<PersonalAddress> _addressRepo;
+        private readonly IGenericRepository<PersonalAddress> _personalAddressRepo;
+        private readonly IGenericRepository<Address> _addressRepo;
         private readonly IGenericRepository<Employment> _employmentRepo;
         private readonly IGenericRepository<OrgUnit> _orgUnitsRepo;
 
@@ -25,8 +26,9 @@ namespace Core.ApplicationServices
         private readonly IAddressCoordinates _coordinates;
         private readonly ILogger _logger;
 
-        public PersonService(IGenericRepository<PersonalAddress> addressRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<OrgUnit> orgUnitsRepo, IRoute<RouteInformation> route, IAddressCoordinates coordinates, ILogger logger)
+        public PersonService(IGenericRepository<PersonalAddress> personalAddressRepo,IGenericRepository<Address> addressRepo, IGenericRepository<Employment> employmentRepo, IGenericRepository<OrgUnit> orgUnitsRepo, IRoute<RouteInformation> route, IAddressCoordinates coordinates, ILogger logger)
         {
+            _personalAddressRepo = personalAddressRepo;
             _addressRepo = addressRepo;
             _route = route;
             _coordinates = coordinates;
@@ -62,7 +64,7 @@ namespace Core.ApplicationServices
         /// <returns></returns>
         public virtual PersonalAddress GetHomeAddress(Person person)
         {
-            var alternative = _addressRepo.AsQueryable()
+            var alternative = _personalAddressRepo.AsQueryable()
                     .FirstOrDefault(x => x.PersonId == person.Id && x.Type == PersonalAddressType.AlternativeHome);
 
             if (alternative != null)
@@ -71,7 +73,7 @@ namespace Core.ApplicationServices
                 return alternative;
             }
 
-            var home = _addressRepo.AsQueryable()
+            var home = _personalAddressRepo.AsQueryable()
                     .FirstOrDefault(x => x.PersonId == person.Id && x.Type == PersonalAddressType.Home);
 
             if (home != null) { 
@@ -81,51 +83,13 @@ namespace Core.ApplicationServices
             return home;
         }
 
-        /// <summary>
-        /// Calculates and sets HomeWorkDistance to each employment belonging to person.
-        /// </summary>
-        /// <param name="person"></param>
-        /// <returns></returns>
-        public Person AddHomeWorkDistanceToEmployments(Person person)
+        public double GetDistanceFromHome(Person person, int addressId)
         {
-            // Get employments for person
-            // Get alternative home address.
             var homeAddress = person.PersonalAddresses.AsQueryable().FirstOrDefault(x => x.Type == PersonalAddressType.AlternativeHome);
             // Get primary home address if alternative doesnt exist.
             homeAddress = homeAddress ?? person.PersonalAddresses.AsQueryable().FirstOrDefault(x => x.Type == PersonalAddressType.Home);
-            foreach (var employment in person.Employments)
-            {
-                if (employment.WorkDistanceOverride > 0)
-                {
-                    employment.HomeWorkDistance = employment.WorkDistanceOverride;
-                }
-                else
-                {
-                    var workAddress = employment.AlternativeWorkAddress ?? new PersonalAddress()
-                    {
-                        StreetName = employment.OrgUnit.Address.StreetName,
-                        StreetNumber = employment.OrgUnit.Address.StreetNumber,
-                        ZipCode = employment.OrgUnit.Address.ZipCode,
-                        Town = employment.OrgUnit.Address.Town
-                    };
-                    if (homeAddress != null && workAddress != null)
-                    {
-                        try
-                        {
-                            employment.HomeWorkDistance = _route.GetRoute(DriveReportTransportType.Car, new List<Address>() { homeAddress, workAddress }).Length;
-                        }
-                        catch (AddressCoordinatesException e)
-                        {
-                            // Catch the exception to write the error to the log file.
-                            _logger.Error($"{person.FullName} with id: {person.Id}, can't log in due to error in work- or homeaddress", e);
-                            _logger.LogForAdmin(person.FullName + " kan ikke logge på, da der er fejl i vedkommendes arbejds- eller hjemmeadresse.");
-                            // Rethrow the exception to allow to front end to display the error aswell.
-                            throw;
-                        }
-                    }
-                }
-            }
-            return person;
+            var workAddress = _addressRepo.AsQueryable().FirstOrDefault(a => a.Id == addressId);
+            return _route.GetRoute(DriveReportTransportType.Car, new List<Address>() { homeAddress, workAddress }).Length;
         }
 
         /// <summary>
@@ -141,7 +105,7 @@ namespace Core.ApplicationServices
                     var result = _coordinates.GetAddressCoordinates(a);
                     a.Latitude = result.Latitude;
                     a.Longitude = result.Longitude;
-                    _addressRepo.Save();
+                    _personalAddressRepo.Save();
                 }
             }
             catch (AddressCoordinatesException ade)

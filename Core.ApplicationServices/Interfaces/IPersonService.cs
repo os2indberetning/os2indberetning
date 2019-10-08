@@ -8,8 +8,8 @@ namespace Core.ApplicationServices.Interfaces
     {
         IQueryable<Person> ScrubCprFromPersons(IQueryable<Person> queryable);
         PersonalAddress GetHomeAddress(Person person);
-        Person AddHomeWorkDistanceToEmployments(Person person);
         List<Person> GetEmployeesOfLeader(Person person);
         List<OrgUnit> GetOrgUnitsForLeader(Person person);
+        double GetDistanceFromHome(Person person, int addressId);
     }
 }

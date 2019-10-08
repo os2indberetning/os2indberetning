@@ -50,6 +50,14 @@
                     </div>
                 </div>
             </div>
+            <div class="row m-b-l" ng-if="WorkAddresses.length > 1">
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="">Arbejdsadresse</label>
+                        <select class="fill-width" kendo-drop-down-list="container.WorkAddressDropDown" ng-model="DriveReport.WorkAddress" id="" ng-change="workAddressChanged()" k-data-source="WorkAddresses" k-data-text-field="'PresentationString'" k-data-value-field="'Id'" k-placeholder="'Stillingens arbejdsadresser'"><option>' '</option></select>
+                    </div>
+                </div>
+            </div>
             <div class="row m-b-l">
                 <div class="col-sm-7">
                     <div class="form-group">

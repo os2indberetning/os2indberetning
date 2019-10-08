@@ -135,6 +135,10 @@ namespace OS2Indberetning
            .ReturnsFromEntitySet<Person>("Person");
 
             builder.EntityType<Person>().Collection
+           .Function("GetDistanceFromHome")
+           .ReturnsFromEntitySet<Person>("Person");
+
+            builder.EntityType<Person>().Collection
             .Function("GetUserAsCurrentUser")
             .ReturnsFromEntitySet<Person>("Person");
 

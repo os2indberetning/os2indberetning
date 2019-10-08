@@ -117,6 +117,10 @@
 
                 return result;
             }
+        },
+        "GetDistanceFromHome": {
+            url: "/odata/Person/Service.GetDistanceFromHome?AddressId=:addressId",
+            method: "GET"
         }
     });
 }]);

@@ -83,7 +83,6 @@ namespace OS2Indberetning.Controllers
                     CurrentUser.Employments.Add(employment);
                 }
 
-                _person.AddHomeWorkDistanceToEmployments(CurrentUser);
                 CurrentUser.CprNumber = "";
                 CurrentUser.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == CurrentUser.Id);
                 CurrentUser.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(CurrentUser.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
@@ -94,6 +93,18 @@ namespace OS2Indberetning.Controllers
             }
 
             return CurrentUser;
+        }
+
+
+        /// <summary>
+        /// GET API endpoint for distance between CurrentUsers home address and given address.
+        /// </summary>
+        /// <returns>distance between CurrentUsers home address and given address</returns>
+        [OutputCache(NoStore = true, Duration = 0, VaryByParam = "None")]
+        public IHttpActionResult GetDistanceFromHome([FromODataUri] int addressId)
+        {
+            var distance = _person.GetDistanceFromHome(CurrentUser,addressId);
+            return Ok(distance);
         }
 
         /// <summary>
@@ -120,7 +131,6 @@ namespace OS2Indberetning.Controllers
                 result.Employments.Add(employment);
             }
 
-            _person.AddHomeWorkDistanceToEmployments(result);
             result.CprNumber = "";
             result.HasAppPassword = _appLoginRepo.AsQueryable().Any(x => x.PersonId == result.Id);
             result.IsSubstitute = _substituteRepo.AsQueryable().Any(x => x.SubId.Equals(result.Id) && x.StartDateTimestamp < currentDateTimestamp && x.EndDateTimestamp > currentDateTimestamp);
@@ -225,8 +235,6 @@ namespace OS2Indberetning.Controllers
             {
                 return BadRequest("Der findes ingen person med id " + key);
             }
-
-            person = _person.AddHomeWorkDistanceToEmployments(person);
 
             var currentTimestamp = (int)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
 

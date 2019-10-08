@@ -58,7 +58,7 @@ namespace OS2Indberetning.Controllers
             }
 #endif
 
-            _logger.Debug($"{GetType()}, Initialize(), User logged in: {CurrentUser.FullName}");
+            _logger.Debug($"{GetType()}, Initialize(), User logged in: {CurrentUser?.FullName}");
         }
 
         private void LoginUserSAML()

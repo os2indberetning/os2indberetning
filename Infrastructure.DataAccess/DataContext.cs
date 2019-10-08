@@ -190,6 +190,7 @@ namespace Infrastructure.DataAccess
             modelBuilder.Entity<DriveReport>().Property(p => p.EndsAtHome).IsRequired();
             modelBuilder.Entity<DriveReport>().Property(p => p.TFCode).IsRequired();
             modelBuilder.Entity<DriveReport>().Property(p => p.IsFromApp).IsRequired();
+            modelBuilder.Entity<DriveReport>().Ignore(p => p.WorkAddressId);
         }
 
         private void ConfigurePropertiesForReport(DbModelBuilder modelBuilder)

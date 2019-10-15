@@ -20,6 +20,7 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
         private RepoMocker<Person> _personMocker;
         private RepoMocker<Employment> _employmentMocker;
         private RepoMocker<RateType> _rateTypeMocker;
+        private RepoMocker<Address> _addressMocker;
         private ILogger _logger;
         private ICustomSettings _customSettings;
 
@@ -31,6 +32,7 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             _personMocker = new RepoMocker<Person>();
             _employmentMocker = new RepoMocker<Employment>();
             _rateTypeMocker = new RepoMocker<RateType>();
+            _addressMocker = new RepoMocker<Address>();
             _logger = Substitute.For<ILogger>();
             _customSettings = new CustomSettings();
         }
@@ -85,10 +87,11 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             var personRepo = _personMocker.GetMockedRepo();
             var employmentRepo = _employmentMocker.GetMockedRepo();
             var rateTypeRepo = _rateTypeMocker.GetMockedRepo();
+            var addressRepo = _addressMocker.GetMockedRepo();
             var route = new RouterMock();
             var personService = GetPersonServiceMock();
 
-            return new ReimbursementCalculator(route, personService, personRepo, employmentRepo, addressHistoryRepo, _logger, _customSettings, rateTypeRepo, driveReportRepo);
+            return new ReimbursementCalculator(route, personService, personRepo, employmentRepo, addressHistoryRepo, _logger, _customSettings, rateTypeRepo, driveReportRepo,addressRepo);
         }
 
         protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<DriveReport> driveReportMockData = null)
@@ -107,10 +110,11 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             });
             var employmentRepo = _employmentMocker.GetMockedRepo(emplMockData);
             var rateTypeRepo = _rateTypeMocker.GetMockedRepo();
+            var addressRepo = _addressMocker.GetMockedRepo();
             var route = new RouterMock();
             var personService = GetPersonServiceMock();
 
-            return new ReimbursementCalculator(route, personService, personRepo, employmentRepo, addressHistoryRepo, _logger, _customSettings, rateTypeRepo, driveReportRepo);
+            return new ReimbursementCalculator(route, personService, personRepo, employmentRepo, addressHistoryRepo, _logger, _customSettings, rateTypeRepo, driveReportRepo,addressRepo);
         }
 
         protected IReimbursementCalculator GetCalculator(List<Employment> emplMockData, List<AddressHistory> historyMockData)
@@ -129,8 +133,9 @@ namespace ApplicationServices.Test.ReimbursementCalculatorTest
             });
             var employmentRepo = _employmentMocker.GetMockedRepo(emplMockData);
             var rateTypeRepo = _rateTypeMocker.GetMockedRepo();
+            var addressRepo = _addressMocker.GetMockedRepo();
 
-            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), personRepo, employmentRepo, addressHistoryRepo, _logger, _customSettings, rateTypeRepo, driveReportRepo);
+            return new ReimbursementCalculator(new RouterMock(), GetPersonServiceMock(), personRepo, employmentRepo, addressHistoryRepo, _logger, _customSettings, rateTypeRepo, driveReportRepo, addressRepo);
         }
     }
 

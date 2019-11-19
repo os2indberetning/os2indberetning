@@ -65,12 +65,12 @@
 
         $scope.createReportClick = function () {
             var personId = $scope.container.chosenPersonId;
-            var orgunitId = $scope.getSelectedEmployment($scope.container.SelectedEmployment).OrgUnit.Id;
+            var employmentId = $scope.getSelectedEmployment($scope.container.SelectedEmployment).EmploymentId;
             var fromUnix = $scope.getStartOfDayStamp($scope.dateContainer.fromDate);
             var toUnix = $scope.getEndOfDayStamp($scope.dateContainer.toDate);
             
             if ($scope.container.employeeFilter != undefined && $scope.container.reportFromDateString != undefined && $scope.container.reportToDateString != undefined) {
-                $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, orgunitId);
+                $scope.gridContainer.reportsGrid.dataSource.transport.options.read.url = getDataUrl(fromUnix, toUnix, personId, employmentId);
                 $scope.gridContainer.reportsGrid.dataSource.read();
                 $scope.showReport = true;                
             }else {
@@ -128,14 +128,14 @@
             return result;
         }
  
-        var getDataUrl = function (startDate, endDate, personId, orgUnit) {
+        var getDataUrl = function (startDate, endDate, personId, employmentId) {
             var url = "/odata/DriveReports?queryType=mine&$expand=DriveReportPoints,Employment($expand=OrgUnit),Person($expand=PersonalAddresses),ApprovedBy";
             var filters = "&$filter=DriveDateTimestamp ge " + startDate + " and DriveDateTimestamp le " + endDate;
             // if (personId != undefined && personId > 0) {
             //     filters += " and PersonId eq " + personId;
             // }
-            if (orgUnit != undefined && orgUnit != "") {
-                filters += " and Employment/OrgUnitId eq " + orgUnit;
+            if (employmentId != undefined && employmentId != "") {
+                filters += " and Employment/EmploymentId eq '" + employmentId + "'";
             }
             var result = url + filters;
             return result;

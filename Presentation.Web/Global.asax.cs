@@ -7,6 +7,7 @@ using System.Web.Http.Controllers;
 using System.Net.Http.Headers;
 using System.Diagnostics;
 using ActionFilterAttribute = System.Web.Http.Filters.ActionFilterAttribute;
+using System.Net;
 
 namespace OS2Indberetning
 {
@@ -14,6 +15,8 @@ namespace OS2Indberetning
     {
         protected void Application_Start()
         {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);

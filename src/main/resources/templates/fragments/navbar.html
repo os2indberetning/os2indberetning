@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<body>
+	<div th:fragment="topbar" class="row border-bottom white-bg">
+		<nav class="navbar navbar-expand-xl navbar-static-top" role="navigation" style="background-color: #1b4455;">
+
+
+			<a th:href="@{/dashboard}" th:unless="${@cmsMessageBundle.getText('cms.logo') == ''}" style="align-self: center; padding-left:5px; background-color: #1b4455 !important;">
+				<img class="img-fluid" th:src="${'data:image/png;base64,' + @cmsMessageBundle.getText('cms.logo')}" style="max-width: 300px; max-height: 38px; ">
+			</a>
+			<a th:href="@{/dashboard}" class="navbar-brand" style="background-color: #1b4455; color:#ffffff; align-self: center;"><strong>OS2Indberetning</strong></a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar" aria-expanded="true" aria-label="Toggle navigation">
+				<i class="fa fa-reorder"></i>
+			</button>
+
+			<div class="navbar-collapse collapse" id="navbar" style="max-height: inherit">
+				<ul class="nav navbar-nav mr-auto">
+					<li th:if="${@OS2indberetningConfiguration.isAllowNewReports()}" sec:authorize="isAuthenticated()" th:class="${page != null && #strings.startsWith(page, 'report')} ? 'active' : ''">
+						<a th:href="@{/report}">
+							<i class="fa fa-car"></i> &nbsp; <span>Indberet kørsel</span>
+						</a>
+					</li>
+					<li sec:authorize="isAuthenticated()" th:class="${page != null && #strings.startsWith(page, 'personal')} ? 'active' : ''">
+						<a th:href="@{/report/list}">
+							<i class="fa fa-th-list"></i> &nbsp; <span>Mine indberetninger</span>
+						</a>
+					</li>
+					<li sec:authorize="hasRole('ROLE_APPROVER')" th:class="${page != null && #strings.startsWith(page, 'approve')} ? 'active' : ''">
+						<a th:href="@{/approve}">
+							<i class="fa fa-check"></i> &nbsp; <span>Godkend</span>
+						</a>
+					</li>
+					<li sec:authorize="isAuthenticated()" th:class="${page != null && #strings.startsWith(page, 'settings')} ? 'active' : ''">
+						<a th:href="@{/settings}">
+							<i class="fa fa-cog"></i> &nbsp; <span>Personlige indstillinger</span>
+						</a>
+					</li>
+					<li sec:authorize="hasRole('ROLE_ADMINISTRATOR')" th:class="${page != null && #strings.startsWith(page, 'admin')} ? 'active' : ''">
+						<a th:href="@{/admin}">
+							<i class="fa fa-server"></i> &nbsp; <span>Administration</span>
+						</a>
+					</li>
+				</ul>
+				<ul class="nav navbar-top-links navbar-right">
+					<li sec:authorize="hasRole('ROLE_USER')">
+						<a th:href="@{/settings}">
+							<i class="fa fa-user"></i> &nbsp; <span th:text="${@securityUtil.getName()}"></span>
+						</a>
+					</li>
+					<li sec:authorize="isAuthenticated()">
+						<form th:action="@{/logout}" id="logout_form" method="post"></form>
+						<a href="#" onclick="$('#logout_form').submit();">
+							<em class="fa fa-sign-out"></em>
+							<span>Log ud</span>
+						</a>
+					</li>
+					<li sec:authorize="!isAuthenticated()">
+						<a th:href="@{/dashboard}">
+							<i class="fa fa-sign-in"></i> Log ind
+						</a>
+					</li>
+				</ul>
+			</div>
+		</nav>
+	</div>
+</body>
+</html>

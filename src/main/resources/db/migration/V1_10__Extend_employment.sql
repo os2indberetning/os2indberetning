@@ -1,0 +1,1 @@
+ALTER TABLE employments ADD COLUMN home_to_work_distance_override DOUBLE;

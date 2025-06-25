@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.w3.org/1999/html">
+<div th:fragment="report-list" class="report-list-panel" th:data-status="${status}" th:data-personal="${personal}">
+    <div id="wrapper">
+        <input id="allowNewReportingToggle" th:value="${@OS2indberetningConfiguration.isAllowNewReports()}" style="display:none;">
+        <input id="alertOnAppReportEditing" th:value="${@OS2indberetningConfiguration.isAlertOnAppReportEditing()}" style="display:none;">
+        <div class="col-sm-12">
+            <div class="form-group row">
+                <label class="col-lg-6 col-form-label">Kørselsdato start</label>
+                <label class="col-lg-6 col-form-label">Kørselsdato slut</label>
+
+                <div class="col-lg-6">
+                    <input type="date" class="form-control" th:id="${prefix + 'driveDateFrom'}">
+                </div>
+
+                <div class="col-lg-6">
+                    <input type="date" class="form-control" th:id="${status + 'driveDateTo'}">
+                </div>
+            </div>
+            <div th:if="${adminView}" class="form-group row">
+                <label class="col-lg-6 col-form-label">Medarbejder navn</label>
+                <label class="col-lg-6 col-form-label">Organisationsenhed</label>
+
+                <div class="col-lg-6">
+                    <select class="form-control" th:id="${prefix + 'searchEmployee'}" style="width: 100%">
+                        <option>Indtast navn</option>
+                    </select>
+                </div>
+
+                <div class="col-lg-6">
+                    <select class="form-control" th:id="${prefix + 'searchOrgUnit'}" style="width: 100%">
+                        <option>Indtast Organisationsenhed</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; align-items: right; justify-content: right;">
+                <th:block th:if="${adminView} AND ${#strings.equals(status, 'PENDING')}">
+                    <input type="button" class="btn btn-primary" style="margin: 10px; float: right" onclick="reportListFragmentService.openApproveModal(0 , false)" value="Godkend alle valgte">
+                </th:block>
+                <button type="button" class="btn btn-w-m btn-danger" th:data-status="${status}" style="float: right; margin: 10px" onclick="reportListFragmentService.clearValues(this)">Nulstil Søgning</button>
+            </div>
+            <div class="col-sm-12">
+                <div class="table-responsive">
+                    <table th:id="${prefix} + 'Table'" style="padding-right:0px !important; width: 100%;" class="table table-striped table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th><input th:class="checkAllBoxes" type="checkbox"></th>
+                                <th>Medarbejder</th>
+                                <th>Org. Enhed</th>
+                                <th>MA.NR.</th>
+                                <th>Dato</th>
+                                <th>Formål</th>
+                                <th>Taksttype</th>
+                                <th class="table-col-mw-200">Rute</th>
+                                <th class="table-col-mw-50">Info</th>
+                                <th>Km</th>
+                                <th>Beløb</th>
+                                <th>MK</th>
+                                <th>4km</th>
+                                <th>Indberettet</th>
+                                <th>Godkender</th>
+                                <th>Godkender</th>
+                                <th>Godkendt</th>
+                                <th>Overført</th>
+                                <th>Handlinger</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="9" style="text-align:right">Total:</th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="report-list-approve-modal" th:data-personal="${personal}">
+    <div class="modal inmodal" id="approveModal" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <H4 id="singleApproveheader">Godkend indberetning</H4>
+                    <H4 id="multipleApproveheader" style="display:none;">Godkend indberetninger</H4>
+                </div>
+                <div class="modal-body" id="substituteModalBody">
+                    <div class="ibox-content">
+                        <form>
+                            <div class="form-group row" id="inputTypeDiv">
+                                <label class="col-lg-4 col-form-label">Type:</label>
+                                <div class="col-lg-6">
+                                    <select class="form-control" id="inputType" style="width: 100%;">
+                                        <option
+                                                th:each="type : ${T(dk.digitalidentity.indberetning.model.entity.enums.OverridePaymentType).values()}"
+                                                th:value="${type}" th:text="${type.text}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row" id="inputAccountDiv">
+                                <label class="col-lg-4 col-form-label" id="inputLabel">Type:</label>
+                                <div class="col-lg-6">
+                                    <input type="text" class="form-control" id="inputAccount">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div style="display: flex">
+                        <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px"
+                                onclick="reportListFragmentService.approve(this)">Godkend</button>
+                        <button type="button" class="btn btn-w-m btn-danger" style="margin: 10px"
+                                onclick="reportListFragmentService.closeApproveModal()">Anuller</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<div id="wrapper">
+    <div class="col-sm-12">
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-sm-8">
+                <h1>Administrator overblik</h1>
+            </div>
+            <div class="col-sm-8">
+                <p>
+                    Her ses en liste over alle de administratorer der er registreret i systemet. Du kan her angive om administratoren skal modtage emails om adressevask.
+                </p>
+                <p>
+                    Administratorer bliver oprettet i systemet i forbindelse med deres første login.
+                </p>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table style="padding-right:0px !important;" id="adminOverviewTable"
+                   class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>Person</th>
+                    <th>Email</th>
+                    <th>Modtag emails om adressevask</th>
+                </tr>
+                </thead>
+                <tfoot style="display: table-row-group">
+                <tr>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td></td>
+                </tr>
+                </tfoot>
+                <tbody>
+                <tr th:each="person: ${admins}">
+                    <td th:text="${person.name}"></td>
+                    <td>
+                        <span th:if="${person.email != null}" th:text="${person.email}"></span>
+                        <span th:unless="${person.email != null}">
+                            <i class="fa fa-exclamation-triangle"> &nbsp; Ingen email adresse registreret </i>
+                        </span>
+                    </td>
+                    <td>
+                        <a><input type="checkbox" id="receivingAddressWashEmails" th:checked="${person.receiveAdminMail}" th:disabled="${person.email == null}" th:data-id="${person.id}" onchange="emailNotificationService.updateFlag(this)" class="i-checks"></a>
+                    </td>
+                </tr>
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<div id="wrapper">
+    <div class="col-sm-12">
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-sm-8">
+                <h4>Takst typer</h4>
+            </div>
+            <div class="col-sm-4">
+                <button type="button" class="btn btn-primary" style="float: right;" onclick="rateTypeService.create()">Tilføj ny taksttype</button>
+            </div>
+        </div>
+        <div class="table-responsive" >
+            <table style="padding-right:0px !important;" id="rateTypeTable" class="table table-striped table-bordered table-hover" >
+                <thead>
+                    <tr>
+                        <th>Taksttype</th>
+                        <th>Lønart</th>
+                        <th>Løbenr.</th>
+                        <th>Primær</th>
+                        <th>Handlinger</th>
+                    </tr>
+                </thead>
+                <tfoot style="display: table-row-group">
+                    <tr>
+                        <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg blandt taksttyper" /></td>
+                        <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg blandt lønart" /></td>
+                        <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg blandt løbenr." /></td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    <tr th:each="rTypes : ${rateTypes}">
+                        <td th:text="${rTypes.name}"></td>
+                        <td th:text="${rTypes.payType}"></td>
+                        <td th:text="${rTypes.sequentialNumber}"></td>
+                        <td><a th:class="${rTypes.prime} ? 'fa fa-lg fa-check-circle'"/></td>
+                        <td style="display: flex">
+                            <a href="#rates" th:unless="${rTypes?.prime}" th:data-id="${rTypes.id}" th:onclick="rateTypeService.makePrimary(this)" style="color: black; margin-left: 10%" title="Sæt som primære taksttype"><em class="fa fa-lg fa-check-circle"></em></a>
+                            <a href="#rates" th:if="${rTypes?.prime}" th:data-id="${rTypes.id}" th:onclick="rateTypeService.removePrimary(this)" style="color: black; margin-left: 10%" title="Fjern primær-markering fra taksttype"><em class="fa fa-lg fa-times-circle"></em></a>
+                            <a href="#rates" th:data-id="${rTypes.id}" th:data-sqnumber="${rTypes.sequentialNumber}" th:data-ptype="${rTypes.payType}" th:data-name="${rTypes.name}" th:onclick="rateTypeService.edit(this)" style="color: black; margin-left: 10px" title="Rediger"><em class="fa fa-lg fa-pencil"></em></a>
+                            <a href="#rates" th:data-id="${rTypes.id}" th:onclick="rateTypeService.del(this)" style="color: black; margin-left: 10px;" title="Slet"><em class="fa fa-lg fa-times"></em></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal inmodal" id="rTypeModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <button type="button" class="close" onclick="rateTypeService.closeModal()">
+                            <span><em class="fa fa-lg fa-times"></em></span>
+                            <span class="sr-only">Luk</span>
+                        </button>
+                        <h4 class="modal-title">Tilføj/rediger taksttype</h4>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="rTypeId">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label" style="text-align:left;">Taksttype:</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="rTypeName" placeholder="Indtast navn">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label" style="text-align:left;">Lønart:</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="payType" placeholder="Indtast lønart">
+                            </div>
+                        </div>
+                        <input type="hidden" id="sqNumberId">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label" style="text-align:left;">Løbenr:</label>
+                            <div class="col-sm-10">
+                                <input class="form-control" id="sqNumber" placeholder="Indtast løbenr.">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger"  onclick="rateTypeService.closeModal()">Annuller</button>
+                        <button type="button" class="btn btn-success" id="butRateTypeCreate" onclick="rateTypeService.createSave()">Opret</button>
+                        <button type="button" class="btn btn-success" id="butRateTypeEdit" onclick="rateTypeService.editSave()">Gem ændring</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

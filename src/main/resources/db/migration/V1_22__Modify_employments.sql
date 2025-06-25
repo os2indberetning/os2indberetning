@@ -1,0 +1,1 @@
+ALTER TABLE employments RENAME COLUMN employment_id TO employee_number;

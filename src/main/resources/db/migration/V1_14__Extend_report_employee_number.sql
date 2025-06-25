@@ -1,0 +1,1 @@
+ALTER TABLE reports ADD COLUMN employee_number VARCHAR(255) NOT NULL;

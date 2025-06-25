@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head th:replace="~{fragments/header :: header (texteditor = true)}" />
+<body class="top-navigation">
+<div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+        <div th:replace="~{fragments/navbar :: topbar (page = 'admin.cms-edit')}" />
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5><em class="fa fa-pencil"></em> &nbsp; Rediger <span th:text="${cmsMessage.key}"></span></h5>
+                        </div>
+
+                        <div class="ibox-content">
+                            <p th:text="${cmsMessage.description}">
+                            </p>
+
+                            <p th:if="${cmsMessage.key == 'cms.logo'}">
+                                Her kan du uploade et nyt logo, som præsenteres for alle brugerne i øverste venstre hjørne. Det er vigtigt
+                                at logoet er i PNG format, og har en gennemsigtig baggrund. Bemærk at logoet bliver skaleret ned til en
+                                højde på 25 pixels, så test evt udseendet af logoet i den højde før det uploades.
+                            </p>
+
+                            <p>På grund af caching, vil der gå lidt tid (op til 5 minutter), inden ændringen træder i kraft</p>
+
+                            <form id="cmsLogoForm" th:if="${cmsMessage.key == 'cms.logo'}" action="#" th:action="@{/admin/cms-edit/logo}" th:object="${cmsMessage}" method="post" enctype="multipart/form-data">
+                                <input th:field="*{key}" style="display: none">
+                                <input th:field="*{description}" style="display: none">
+                                <div th:if="${cmsMessage.key == 'cms.logo'}">
+                                    <input type='file' name="value" id="value" accept=".png">
+                                </div>
+                                <p th:if="${showError}" style="color: red;">Den uploadede billede er for stort. Max 64KB tillades</p>
+                                <br/>
+
+                                <button th:if="${cmsMessage.key == 'cms.logo'}" type="submit" class="btn btn-primary block full-width m-b">Gem logo</button>
+                                <a th:href="@{/admin#cms}" th:if="${cmsMessage.key == 'cms.logo'}" onclick="cmsEditService.removeLogo()" class="btn btn-warning block full-width m-b">Fjern logo</a>
+                                <a th:href="@{/admin#cms}" class="btn btn-danger block full-width m-b">Annuller</a>
+                            </form>
+
+
+                            <form th:unless="${cmsMessage.key == 'cms.logo'}" action="#" th:action="@{/admin/cms-edit}" th:object="${cmsMessage}" method="post">
+                                <input th:field="*{key}" style="display: none">
+                                <input th:field="*{description}" style="display: none">
+                                <textarea id="content" class="form-control" th:field="*{value}" autocomplete="off" style="min-height:350px;"></textarea>
+                                <p th:if="${showError}" style="color: red;">Den indtastede tekst er for lang. Der tillades max 65536 tegn (inkl formattering)</p>
+                                <br/>
+
+                                <button type="submit" class="btn btn-primary block full-width m-b">Gem tekst</button>
+                                <a th:href="@{/admin#cms}" class="btn btn-danger block full-width m-b">Annuller</a>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/footer :: footer}" />
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: scripts (texteditor = true)}" />
+<script type="text/javascript" th:src="@{/js/admin/cms/edit.js}"></script>
+</body>
+</html>

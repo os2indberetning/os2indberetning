@@ -1,0 +1,3 @@
+ALTER TABLE gps_coordinates ADD COLUMN start_point BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE gps_coordinates ADD COLUMN end_point BOOLEAN  NOT NULL DEFAULT FALSE;
+ALTER TABLE gps_coordinates ADD COLUMN point_number INTEGER NOT NULL;

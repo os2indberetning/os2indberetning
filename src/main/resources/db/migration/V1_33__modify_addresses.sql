@@ -1,0 +1,1 @@
+ALTER TABLE addresses MODIFY created_timestamp datetime NULL;

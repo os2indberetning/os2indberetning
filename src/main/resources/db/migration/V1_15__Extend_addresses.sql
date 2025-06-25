@@ -1,0 +1,1 @@
+ALTER TABLE addresses ADD COLUMN primary_address BOOLEAN DEFAULT FALSE;

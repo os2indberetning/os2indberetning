@@ -1,0 +1,2 @@
+ALTER TABLE addresses ADD COLUMN start_date DATETIME;
+ALTER TABLE addresses ADD COLUMN end_date DATETIME;

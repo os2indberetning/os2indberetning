@@ -1,0 +1,1 @@
+ALTER TABLE reports MODIFY app_uuid VARCHAR(36);

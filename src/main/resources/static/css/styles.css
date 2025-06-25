@@ -1,0 +1,241 @@
+.nav-second-level {
+    background-color: #2e6d84 !important;
+}
+
+.navbar-default {
+    border-color: #ffffff !important;
+}
+
+.navbar-collapse {
+    background-color: #1b4455 !important;
+}
+
+.nav > li > a {
+    color: #ffffff !important;
+    background-color: #1b4455 !important;
+}
+
+.navbar-nav > li.active > a {
+    background: linear-gradient(to bottom, #2b6ca3, #1e5a74) !important;
+    color: #ffffff !important;
+    font-weight: bold !important;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2) !important;
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    background-color: #1b4455 !important;
+}
+
+.nav > li a:hover {
+    background-color: #2e6d84 !important;
+}
+
+.navbar-toggler {
+    background-color: #1b4455 !important;
+}
+
+.footer {
+    background-color: #2e6d84 !important;
+    border-top-color: #2a5a76 !important;
+}
+
+/* Background of page */
+.wrapper-content {
+    border-color: #c3cbd3 !important;
+    background-color: #e2e6e9 !important;
+}
+
+#page-wrapper {
+    background-color: #e2e6e9 !important;
+}
+
+/* IBX should stand out from the wrapper */
+.ibox-title {
+    background-color: #2e6d84 !important;
+    border-color: #c3cbd3 !important;
+    color: #ffffff !important;
+}
+
+.ibox-content {
+    color: #2a3b47 !important;
+    background-color: #ffffff !important;
+    border-color: #c3cbd3 !important;
+}
+
+.input-group {
+    background-color: #edf0f2 !important;
+    border-color: #c3cbd3 !important;
+}
+
+.icheckbox_square-green:not(.checked, :hover) {
+    background-image: none;
+    border: 1px solid #c3cbd3;
+    background-color: #edf0f2 !important;
+}
+
+.input-group-addon {
+    background-color:  #2e6d84 !important;
+    border-color:  #2e6d84 !important;
+    color: #ffffff !important;
+}
+
+.btn-secondary {
+    background-color:  #2e6d84 !important;
+    border-color:  #2e6d84 !important;
+    color: #ffffff !important;
+}
+
+.btn {
+    border-color: #c3cbd3 !important;
+}
+
+/* Links & list items */
+a, .list-group-item {
+    border-color: #c3cbd3 !important;
+    background-color: #edf0f2 !important;
+    color: #2a3b47 !important;
+}
+
+body {
+    color: #4a5e6b;
+    background-color: #f5f7f8;
+}
+
+.btn-danger {
+    background-color: #e74c3c !important;
+    border-color: #c0392b !important;
+    color: #ffffff !important;
+}
+.btn-primary {
+    background-color: #419164 !important;
+    border-color: #409063 !important;
+    color: #ffffff !important;
+}
+
+/* Tab list */
+.tabs-container .nav-tabs {
+    border-bottom: 1px solid #c3cbd3 !important;
+    margin-bottom: -1px;
+}
+
+/* All tabs (including the active one) */
+.tabs-container .nav-tabs > li > .nav-link {
+    background-color: #ffffff !important;
+    color: #2a3b47 !important;
+    border: 1px solid #c3cbd3 !important;
+    margin-right: 2px;
+    font-weight: normal;
+    border-top-left-radius: 6px !important;
+    border-top-right-radius: 6px !important;
+    border-bottom: 1px solid #c3cbd3 !important;
+}
+
+/* Inactive tab - no border */
+.tabs-container .nav-tabs > li > .nav-link:not(.active) {
+    border: none !important;
+}
+
+/* Hover state */
+.tabs-container .nav-tabs > li > .nav-link:hover {
+    background-color: #f5f7f8 !important;
+    color: #2a3b47 !important;
+}
+
+/* Active tab */
+.tabs-container .nav-tabs > li.active > .nav-link,
+.tabs-container .nav-tabs > li > .nav-link.active {
+    font-weight: bold;
+    border: 1px solid #c3cbd3 !important;
+    border-bottom: none !important;
+    border-top-left-radius: 6px !important;
+    border-top-right-radius: 6px !important;
+}
+
+/* Tab content */
+.tabs-container .tab-content {
+    background-color: #ffffff !important;
+    border: 1px solid #c3cbd3 !important;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+    padding: 15px;
+    position: relative;
+}
+
+/* Tab content area */
+.tabs-container .tab-content {
+    background-color: #ffffff !important;
+    border-color: #c3cbd3 !important;
+    padding: 15px;
+}
+
+.tabs-container .panel-body {
+    border: none !important;
+}
+
+/* For logos and icons in datatables*/
+.dataTable a {
+    background-color: transparent !important;
+}
+
+.icheckbox_square-blue,
+.iradio_square-blue {
+    display: inline-block;
+    *display: inline;
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    width: 22px;
+    height: 22px;
+    background: url(blue.png) no-repeat;
+    border: none;
+    cursor: pointer;
+}
+
+.icheckbox_square-blue {
+    background-position: 0 0;
+}
+.icheckbox_square-blue.hover {
+    background-position: -24px 0;
+}
+.icheckbox_square-blue.checked {
+    background-position: -48px 0;
+}
+.icheckbox_square-blue.disabled {
+    background-position: -72px 0;
+    cursor: default;
+}
+.icheckbox_square-blue.checked.disabled {
+    background-position: -96px 0;
+}
+
+.iradio_square-blue {
+    background-position: -120px 0;
+}
+.iradio_square-blue.hover {
+    background-position: -144px 0;
+}
+.iradio_square-blue.checked {
+    background-position: -168px 0;
+}
+.iradio_square-blue.disabled {
+    background-position: -192px 0;
+    cursor: default;
+}
+.iradio_square-blue.checked.disabled {
+    background-position: -216px 0;
+}
+
+.error-field {
+    background-color: #FFD6E4 !important;
+}
+
+/* HiDPI support */
+@media (-o-min-device-pixel-ratio: 5/4), (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {
+    .icheckbox_square-blue,
+    .iradio_square-blue {
+        background-image: url(blue@2x.png);
+        -webkit-background-size: 240px 24px;
+        background-size: 240px 24px;
+    }
+}

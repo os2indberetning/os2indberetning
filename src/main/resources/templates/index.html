@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head th:replace="~{fragments/header :: header}"></head>
+<body class="top-navigation">
+<div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+        <div th:replace="~{fragments/navbar :: topbar}"></div>
+
+        <div class="wrapper wrapper-content">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="ibox">
+                        <div class="ibox-title">
+                            <h5><em class="fa fa-car fa-lg"></em> &nbsp; OS2indberetning</h5>
+                        </div>
+
+                        <div class="ibox-content" >
+                            <p>Velkommen til OS2indberetning</p>
+                            <br/>
+
+                            <!-- Hidden on mobile -->
+                            <p class="d-none d-lg-block full-width" style="text-align: right">
+                                <a sec:authorize="!isAuthenticated()" style="font-size: larger; min-width: 250px; margin-right: 30px; margin-bottom: 20px;" class="btn btn-primary" th:href="@{/dashboard}">Log ind</a>
+                            </p>
+
+                            <!-- Visible on mobile -->
+                            <div class="d-block d-lg-none">
+                                <a sec:authorize="!isAuthenticated()" style="font-size: larger; min-width: 200px; margin-right: 30px; margin-bottom: 20px;" class="btn btn-primary btn-block" th:href="@{/dashboard}">Log ind</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

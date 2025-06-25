@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head th:replace="~{fragments/header :: header (leaflet = true, checkbox=true, moment = true)}"></head>
+<body class="top-navigation">
+<div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+        <div th:replace="~{fragments/navbar :: topbar(page = 'report')}"></div>
+
+        <div id="reportFragmentDiv">
+            <input class="form-control" name="id" id="reportEditId" style="display:none;" th:value="${dto?.id}">
+        </div>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: scripts (leaflet = true, checkbox=true, moment = true)}"></div>
+<script type="text/javascript" th:src="@{/js/report/report.js}"></script>
+<script type="text/javascript" th:src="@{/js/addressService.js}"></script>
+<script type="text/javascript" th:src="@{/js/notification.js}"></script>
+</body>
+</html>

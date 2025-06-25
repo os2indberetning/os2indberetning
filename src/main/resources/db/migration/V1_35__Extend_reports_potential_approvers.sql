@@ -1,0 +1,1 @@
+ALTER TABLE reports ADD COLUMN potential_approvers TEXT

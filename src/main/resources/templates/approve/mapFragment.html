@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<div>
+    <div id="map" style="min-height: 400px" th:data-lat="${primaryAddress.latitude}" th:data-lng="${primaryAddress.longitude}"></div>
+    <div class="form-group row" style="margin-top:15px;">
+        <label class="col-sm-2 col-form-label" style="text-align:left;">Afstand i km:</label>
+        <input class="col-sm-2 form-control" type="text" id="mapFragKmDist" th:value="${distance}" disabled/>
+        <label class="col-sm-3 col-form-label" style="text-align:left;">Afstand i km efter MK:</label>
+        <input class="col-sm-2 form-control" type="text" id="merkFradrag" th:value="${report.distance}" disabled/>
+        <input type="hidden" id="mapFragRoute" th:value="${route}">
+        <div id="interestmarkers">
+            <div th:each="ipoint: ${interestpoints}" th:data-lat="${ipoint.latitude}" th:data-lng="${ipoint.longitude}" th:data-address="${ipoint.address}"></div>
+        </div>
+    </div>
+    <div class="form-group row" style="margin-top: 15px;">
+        <div class="ibox" style="min-width: 770px;">
+            <div class="ibox-title">
+                <h4><strong>Rutepunkter</strong> <i th:if="${report.roundTrip}" class="fa fa-fw fa-lg fa-exchange" aria-hidden="true" title="Ruten er tur/retur"></i> </h4>
+            </div>
+            <div class="ibox-content">
+                <th:block th:each="coord : ${report.coords}">
+                    <p th:text="${coord.address}"></p>
+                </th:block>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head th:fragment="header">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}" />
+
+    <title>OS2indberetning</title>
+    
+	<link rel="shortcut icon" th:href="@{/favicon.ico}" type="image/vnd.microsoft.icon" />
+
+	<link rel="stylesheet" th:href="@{/css/styles.css}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/bootstrap.min.css}" />
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/font-awesome/css/font-awesome.css}" />
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/animate.css}" />
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/style.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/sweetalert/sweetalert.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/toastr/toastr.min.css}" />
+    <link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/steps/jquery.steps.css}" />
+	<style>
+		.toastr-buffer {
+			margin-top:60px;
+		}
+	</style>
+	
+	<th:block th:if="${checkbox == true}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/iCheck/custom.css}" />
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css}" />
+	<style>
+		.i-checks {
+			display: none;
+		}
+	</style>
+	</th:block>
+	
+	<th:block th:if="${slider == true}">
+	<link  rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/ionRangeSlider/ion.rangeSlider.css}" />
+	</th:block>
+
+	<th:block th:if="${datatables == true}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/dataTables/datatables.min.css}" />
+	<style>
+		ul.pagination {
+			float:right;
+		}
+		.dataTables_wrapper.container-fluid {
+			padding-right: 0px !important;
+			padding-left: 0px !important;
+		}
+	</style>
+	</th:block>
+	
+	<th:block th:if="${texteditor == true}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/summernote/summernote-bs4.css}" />
+	</th:block>
+	<style>
+		.no-p-wrap > p {
+			display: inline;
+		}
+	</style>
+	
+	<th:block th:if="${jstree == true}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/jsTree/style.min.css}" />
+	</th:block>
+
+	<th:block th:if="${codemirror == true}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/codemirror/codemirror.css}" />
+	</th:block>
+	
+	<th:block th:if="${select2 == true}">
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/select2/select2.min.css}" />
+	<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/select2/select2-bootstrap4.min.css}" />
+	</th:block>
+
+	<th:block th:if="${datepicker == true}">
+		<link rel="stylesheet" th:href="@{/webjars/inspinia/2.9.3/css/plugins/datapicker/datepicker3.css}" />
+	</th:block>
+	<style>
+		.nav-second-level {
+			background-color: #fff !important;
+		}
+		.navbar-default {
+			border-color: #fff !important;
+		}
+		.nav > li.active {
+			background-color: #fff !important;
+		}
+	</style>
+
+	<th:block th:if="${leaflet == true}">
+		<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+	</th:block>
+	<style>
+		#map {
+			min-height: 180px;
+			height: 100%;
+		}
+		.addressinput {
+			width: 100%;
+		}
+		div.note-editor > div.modal > div.modal-dialog > div.modal-content > div.modal-body > label.custom-checkbox > span.custom-control-description {
+			display: none;
+		}
+	</style>
+	<style>
+		.table-col-mw-200{
+			min-width:200px;
+		}
+		.table-col-mw-50{
+			min-width:50px;
+		}
+	</style>
+
+</head>
+<body>
+</body>
+</html>

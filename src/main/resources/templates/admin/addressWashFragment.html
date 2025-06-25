@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<div id="wrapper wrapper-content">
+    <div class="row" style="display: flex; margin: 2%">
+        <div class="column" style="width: 100%; align: left;">
+            <h1 style="text-align:left;">Adressevask</h1>
+            <div class="table-responsive">
+                <table style="padding-right:0px !important;" id="addressWashTable" class="table table-striped table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>Person (Ma. Nr.) / Org. Enhed</th>
+                            <th>Type</th>
+                            <th>Beskrivelse</th>
+                            <th>Nuværende adresse</th>
+                            <th>Uvasket adresse</th>
+                            <th>Vasket</th>
+                            <th>Muligheder</th>
+                        </tr>
+                    </thead>
+                    <tfoot style="display: table-row-group">
+                        <tr>
+                            <td class="input-filter"><input type="text" class="form-control input-sm" placeholder="Søg i MA. Nr./ Org. Enhed" /></td>
+                            <td class="input-filter">
+                                <select class="form-control input-sm">
+                                    <option value="">Alle</option>
+                                    <option th:each="type : ${T(dk.digitalidentity.indberetning.model.entity.enums.AddressType).values()}" th:value="${type.description}" th:text="${type.description}"></option>
+                                </select>
+                            </td>
+                            <td class="input-filter"><input type="text" class="form-control input-sm" placeholder="Søg i beskrivelser" /></td>
+                            <td class="input-filter"><input type="text" class="form-control input-sm" autocomplete="off" placeholder="Søg i nuværende adresser" /></td>
+                            <td class="input-filter"><input type="text" class="form-control input-sm" autocomplete="off" placeholder="Søg i uvasket adresser" /></td>
+                            <td class="checkbox-filter"><label for="washedCheck" style="display: flex; justify-content: center; align-items: center; vertical-align: middle; word-wrap: break-word;">Skjul vaskede<input type="checkbox" onclick="addressWashService.updateLocalStorage()" class="form-control input-sm" id="washedCheck" style="display: inline-block; vertical-align: middle;"/></label></td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        <tr th:each="uwaddress : ${unwashedAddresses}">
+                            <td th:switch="${uwaddress.person}">
+                                <span th:case="null" th:text="${uwaddress.orgUnit?.longDescription}"></span>
+                                <span th:case="*" th:text="${uwaddress.person.getName() + ' (' + uwaddress.person.getEmployeeNumbers() + ')'}"></span>
+                            </td>
+                            <td th:text="${uwaddress.getPrettyType()}"></td>
+                            <td th:text="${uwaddress.description}"></td>
+                            <td th:text="${uwaddress.getAddressString}"></td>
+                            <td th:text="${uwaddress.getDirtyString} ?: 'Endnu ikke vasket'"></td>
+                            <td><p th:text="${uwaddress.washed}" hidden></p><a th:class="${uwaddress.washed} ? 'fa fa-check-circle'"></a></td>
+                            <td style="display: flex">
+                                <a th:data-id="${uwaddress.id}" th:data-street="${uwaddress.streetName}" th:data-number="${uwaddress.streetNumber}" th:data-zip="${uwaddress.zipCode}" th:data-town="${uwaddress.town}"  th:data-lat="${uwaddress.latitude}"  th:data-lng="${uwaddress.longitude}" onclick="addressWashService.edit(this)" style="color: black; margin-left: 10%" title="Rediger"><em class="fa fa-pencil"></em></a>
+                                <a th:data-id="${uwaddress.id}" onclick="addressWashService.originate(this)" style="color: black; margin-left: 10%" title="Nulstil vasket adresse"><em class="fa fa-recycle"></em></a>
+                                <a th:data-latitude="${uwaddress.latitude}" th:data-longitude="${uwaddress.longitude}" th:data-id="${uwaddress.id}" onclick="addressWashService.clean(this)" style="color: black; margin-left: 10%" title="Adressen er korrekt"><em class="fa fa-shower"></em></a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="modal inmodal" id="dirtyModal" tabindex="-1" role="dialog" style="display: none;" aria-hidden="true">
+                <div class="modal-dialog modal-lg">
+                    <div class="modal-content animated fadeIn">
+                        <div class="modal-header">
+                            <button type="button" class="close" onclick="addressWashService.closeModal()">
+                                <span><em class="fa fa-lg fa-times"></em></span>
+                                <span class="sr-only">Luk</span>
+                            </button>
+                            <h4 class="modal-title">Vask addresse</h4>
+                        </div>
+                        <div class="modal-body" id="dirtyModalBody">
+                            <div class="form-group row">
+                                <div class="column" style="width: 52%; align: left;">
+                                    <input type="hidden" id="dirtyId">
+                                    <h4>Manual indtastning</h4>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label" style="text-align:left;">Vejnavn</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control reading" id="dirtyStreet" readonly autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label" style="text-align:left;">Vejnummer</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control reading" id="dirtyNumber" autocomplete="off" readonly>
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label" style="text-align:left;">Postnummer</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control reading" id="dirtyZip" readonly autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label" style="text-align:left;">By</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" class="form-control reading" id="dirtyTown" readonly autocomplete="off">
+                                        </div>
+                                    </div>
+                                    <h4>Indtastning med autocomplete</h4>
+                                    <div class="form-group row">
+                                        <label class="col-sm-4 col-form-label" style="text-align:left;">Vejnummer</label>
+                                        <div class="col-sm-8">
+                                            <input class="addressinput form-control reading" readonly type="text" id="addressWashAutocompleteField" placeholder="Indtast adresse her" autocomplete="off" list="addressWashAutocompleteList">
+                                            <dataList id="addressWashAutocompleteList"></dataList>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column" style="width: 3%; align: center;"></div>
+                                <div class="column" style="width: 45%; align: right;">
+                                    <div id="washingMap" style="height: 100%; min-height: 250px;" th:data-lat="${primaryAddress.latitude}" th:data-lng="${primaryAddress.longitude}"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row" style="display: flex; align-items: center; justify-content: center;">
+                                <button type="button" id="closeButton" class="btn btn-lg btn-danger" style="margin: 2%;" onclick="addressWashService.closeModal()">Luk</button>
+                                <button type="button" id="resetButton" class="btn btn-lg btn-warning" style="margin: 2%;" onclick="addressWashService.edit(this)">Nulstil</button>
+                                <button type="button" id="toLatLngButton" class="btn btn-lg btn-primary" style="margin: 2%;" onclick="addressWashService.toLatLng()">
+                                    Adresse til kort
+                                    <a th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.address.wash.address.to.map'))}" class="fa fa-lg fa-info" style="padding-left: 5px; background-color: #2da5de !important;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.address.wash.address.to.map')}"></a>
+                                </button>
+                                <button type="button" id="toAddressButton" class="btn btn-lg btn-primary" style="margin: 2%;" onclick="addressWashService.toAddr()">
+                                    Kort til adresse
+                                    <a th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.address.wash.map.to.address'))}" class="fa fa-lg fa-info" style="padding-left: 5px; background-color: #2da5de !important;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.address.wash.map.to.address')}"></a>
+                                </button>
+                                <button type="button" id="saveButton" class="btn btn-lg btn-success" style="margin: 2%;" onclick="addressWashService.save()">Gem</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>

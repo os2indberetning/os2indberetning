@@ -1,0 +1,341 @@
+ {
+  "orgUnits": [
+    {
+      "id": "10",
+      "parentId": "",
+      "name": "Digitalkøbing kommune",
+      "address": {
+        "street": "Rådhuspladsen 2  ",
+        "postalCode": 8000,
+        "city": "Aarhus C",
+        "addressProtected": false
+      }
+    },
+    {
+      "id": "101",
+      "parentId": "10",
+      "name": "Direktion",
+      "address": {
+        "street": "Rådhuspladsen 2",
+        "postalCode": 8000,
+        "city": "Aarhus C",
+        "addressProtected": false
+      }
+    },
+    {
+      "id": "102",
+      "parentId": "10",
+      "name": "Direktionsområde Stab",
+      "address": {
+        "street": "Hack Kampmanns Plads 2",
+        "postalCode": 8000,
+        "city": "Aarhus C",
+        "addressProtected": false
+      }
+    },
+    {
+      "id": "103",
+      "parentId": "10",
+      "name": "Direktionsområde Velfærd",
+      "address": {
+        "street": "Hack Kampmanns Plads 2",
+        "postalCode": 8000,
+        "city": "Aarhus C",
+        "addressProtected": false
+      }
+    }
+  ],
+  "persons": [
+    {
+      "cpr": "0000000001",
+      "firstName": "Sten-Erik",
+      "lastName": "Falberg",
+      "address": {
+        "street": "Montanagade 51",
+        "postalCode": 8000,
+        "city": "Aarhus C",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2266",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "10",
+          "position": "IT chef",
+          "manager": true,
+          "extraNumber": 0,
+          "employmentType": 3
+        },
+        {
+          "employeeNumber": "2263",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "10",
+          "position": "Assistent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000002",
+      "firstName": "Josephine",
+      "lastName": "Svendsen",
+      "address": {
+        "street": "Dirch Passers Gade 26",
+        "postalCode": 8000,
+        "city": "Aarhus C",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2254",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "101",
+          "position": "IT konsulent",
+          "manager": true,
+          "extraNumber": 0,
+          "employmentType": 3
+        },
+        {
+          "employeeNumber": "2264",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "10",
+          "position": "Assistent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000003",
+      "firstName": "Senta Maria",
+      "lastName": "Berger",
+      "address": {
+        "street": "Harald Kiddes Vej 42",
+        "postalCode": 8230,
+        "city": "Aarhus C",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2255",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "102",
+          "position": "IT konsulent",
+          "manager": true,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000004",
+      "firstName": "Vagn Møller",
+      "lastName": "Kajberg",
+      "address": {
+        "street": "Fridtjof Nansens Vej 20",
+        "postalCode": 8200,
+        "city": "Aarhus",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2256",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "103",
+          "position": "IT konsulent",
+          "manager": true,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000005",
+      "firstName": "Sander Elof",
+      "lastName": "Birkenfeldt",
+      "address": {
+        "street": "Mariane Thomsens Gade 3",
+        "postalCode": 8000,
+        "city": "Aarhus",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2257",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "101",
+          "position": "IT konsulent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000006",
+      "firstName": "Hermann Olrik",
+      "lastName": "Christensen",
+      "address": {
+        "street": "Provsteparkvej 4",
+        "postalCode": 8270,
+        "city": "Højbjerg",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2258",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "102",
+          "position": "IT konsulent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000007",
+      "firstName": "Wilhelm",
+      "lastName": "von Hase",
+      "address": {
+        "street": "Vegavej 20",
+        "postalCode": 8270,
+        "city": "Højbjerg",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2259",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "103",
+          "position": "IT Konsulent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000008",
+      "firstName": "Helle",
+      "lastName": "Pedersen",
+      "address": {
+        "street": "Selmersvej 18",
+        "postalCode": 8260,
+        "city": "Viby J",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2253",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "101",
+          "position": "IT konsulent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000009",
+      "firstName": "Karl",
+      "lastName": "Hansen",
+      "address": {
+        "street": "Sankt Pauls Gade 15",
+        "postalCode": 8000,
+        "city": "Aarhus",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2823",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "102",
+          "position": "IT konsulent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000010",
+      "firstName": "Per",
+      "lastName": "Oskarsson",
+      "address": {
+        "street": "Kresten Kolds Vej 22",
+        "postalCode": 8230,
+        "city": "Aarhus",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2260",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "101",
+          "position": "Assistent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        },
+        {
+          "employeeNumber": "2265",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "102",
+          "position": "Assistent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000011",
+      "firstName": "Birger Poul",
+      "lastName": "Reumert",
+      "address": {
+        "street": "Lyngsiesvej 4",
+        "postalCode": 8210,
+        "city": "Aarhus",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2261",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "103",
+          "position": "Assistent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    },
+    {
+      "cpr": "0000000012",
+      "firstName": "Maria Dolora",
+      "lastName": "Beteka",
+      "address": {
+        "street": "Mejlgade 41",
+        "postalCode": 8000,
+        "city": "Aarhus",
+        "addressProtected": false
+      },
+      "employments": [
+        {
+          "employeeNumber": "2262",
+          "fromDate": "2006-12-15",
+          "orgUnitId": "10",
+          "position": "Assistent",
+          "manager": false,
+          "extraNumber": 0,
+          "employmentType": 3
+        }
+      ]
+    }
+  ]
+}

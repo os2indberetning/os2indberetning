@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<div id="wrapper wrapper-content">
+    <div class="col-sm-12">
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-sm-8">
+                <h1>Personlige ruter</h1>
+            </div>
+        </div>
+        <p>
+            Her kan du oprette, redigere eller slette personlige ruter til senere brug i dine indberetninger
+        </p>
+        <button type="button" class="btn btn-primary" style="float: right; margin-bottom: 10px" onclick="personalRouteService.openCreateModal();">Opret</button>
+        <div class="table-responsive">
+            <table style="padding-right:0px !important;" id="personalRoutesTable" class="table table-striped table-bordered table-hover" >
+                <thead>
+                <tr>
+                    <th>Beskrivelse</th>
+                    <th>Fra</th>
+                    <th>Til</th>
+                    <th>Har flere delmål</th>
+                    <th>Muligheder</th>
+                </tr>
+                </thead>
+                <tfoot style="display: table-row-group">
+                <tr>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                </tr>
+                </tfoot>
+                <tbody>
+                    <tr th:each="personalRoute: ${personalRoutes}">
+                        <td th:text="${personalRoute.description}"></td>
+                        <td th:text="${personalRoute?.start}"></td>
+                        <td th:text="${personalRoute?.end}"></td>
+                        <td th:switch="${personalRoute?.personalRouteAddressMappings?.size()}">
+                            <span th:case="2"></span>
+                            <span th:case="*">
+                                <i class="fa fa-check" aria-hidden="true"></i>
+                            </span>
+                        </td>
+                        </td>
+                        <td style="display: flex">
+                            <ul style="display: none;" th:id="${'street' + personalRoute.getId()}">
+                                <li th:each="addrMapping, iStat : ${personalRoute.personalRouteAddressMappings}" class="form-group row" th:data-lat="${addrMapping.getAddress().getLatitude()}" th:data-lng="${addrMapping.getAddress().getLongitude()}" th:text="${addrMapping.getAddress().getAddressString()}"></li>
+                            </ul>
+                            <a href="#personalRoutes" th:data-id="${personalRoute.id}" th:data-start="${personalRoute.start}" th:data-size="${personalRoute.personalRouteAddressMappings.size()}" th:data-end="${personalRoute.end}" th:data-description="${personalRoute.description}" th:data-addresses="${personalRoute.addressesAsStrings}" th:onclick="personalRouteService.openCreateModal(this)" style="color: black; margin-left: 10%" title="Rediger"><em class="fa fa-lg fa-pencil"></em></a>
+                            <a href="#personalRoutes" th:data-id="${personalRoute.id}" th:onclick="personalRouteService.openDeleteModal(this)" style="color: black; margin-left: 10%;" title="Slet"><em class="fa fa-lg fa-times"></em></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="createModal" tabindex="1" role="dialog" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content animated fadeIn">
+                <div class="modal-header">
+                    <h4 class="modal-title">Tilføj personlige rute</h4>
+                    <div class="modal-body">
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" style="text-align:left;">Beskrivelse</label>
+                            <div class="col-sm-9">
+                                <input class="form-control" type="text" id="descriptionInput" placeholder="Skriv beskrivelse">
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" style="text-align:left;">Fra (Vælg adresse)</label>
+                            <div class="col-sm-9">
+                                <input class="addressinput form-control" type="text" id="startField" placeholder="Indtast adresse her" autocomplete="off" list="startFieldList" th:value="${dto?.first?.address}">
+                                <dataList id="startFieldList"></dataList>
+                            </div>
+                        </div>
+
+                        <div id="waypointDiv">
+                            <div th:each="coord, iStat : ${dto?.coords}" class="form-group row">
+                                <label class="col-sm-3 col-form-label" style="text-align:left;">
+                                    <p style="text-align:left;">Via</p>
+                                    <i class="fa fa-lg fa-trash" th:data-id="${iStat.index + 1}" onclick="personalRouteService.deleteWaymarker(this)"></i>
+                                </label>
+                                <div class="col-sm-9">
+                                    <input class="addressinput form-control waymarker" type="text" th:id="${'waymarker' + (iStat.index + 1)}" th:value="${coord.address}" th:data-listid="${iStat.index + 1}" autocomplete="off" th:list="${'waymarker' + (iStat.index + 1) + 'List'}">
+                                    <dataList th:id="${'waymarker' + (iStat.index + 1) + 'List'}"></dataList>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-3 col-form-label" style="text-align:left;">Til (Vælg adresse)</label>
+                            <div class="col-sm-9">
+                                <input class="addressinput form-control" type="text" id="endField" placeholder="Indtast adresse her" autocomplete="off" list="endFieldList" th:value="${dto?.last?.address}">
+                                <dataList id="endFieldList"></dataList>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="offset-sm-3 col-sm-2">
+                                <button type="button" class="btn btn-lg btn-primary" onclick="personalRouteService.onAddWaymarkerPressed()">Tilføj delmål</button>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <div class="col-sm 12" style="height:85%; min-height: 450px">
+                                <div id="mapRoute" th:data-lat="${primaryAddress.latitude}" th:data-lng="${primaryAddress.longitude}" style="height: 400px;"></div>
+                                <input type="hidden" id="editMapRoute" th:value="${dto?.routeGeometry}">
+                                <div class="form-group row" style="margin-top:15px;">
+                                    <label class="col-sm-2 col-form-label" style="text-align:left;">Afstand i km:</label>
+                                    <input class="col-sm-2 form-control" type="text" id="distanceFieldKm" disabled/>
+                                    <input class="col-sm-2 form-control" type="text" id="rawDistanceFieldKm" style="display:none;"/>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: flex">
+                            <button type="button" class="btn btn-block btn-danger" style="margin: 5px" onclick="personalRouteService.closeModal()">Luk</button>
+                            <button type="button" class="btn btn-block btn-success" id="butCreate" style="margin: 5px" onclick="personalRouteService.createRoute()">Opret/rediger</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" th:src="@{/js/addressService.js}"></script>
+</body>
+</html>

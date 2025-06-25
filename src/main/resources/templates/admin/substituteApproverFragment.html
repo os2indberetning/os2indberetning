@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html>
+<div id="wrapper">
+    <div class="col-sm-12">
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-sm-8">
+                <h4>Stedfortræder</h4>
+            </div>
+            <div class="col-sm-4">
+                <button th:unless="${noLeadershipPositions}" type="button" style="float: right" class="btn btn-w-m btn-primary" onclick="approverService.openSubModal(this)">Opret</button>
+            </div>
+        </div>
+        <input class="form-control" th:if="${approver != null}" id="preSelectedApprover" style="display:none;" th:data-value="${approver.id}" th:data-text="${approver.getName()}">
+        <div class="table-responsive">
+            <table style="padding-right:0px !important;" id="substituteTable"
+                   class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>Stedfortrædere</th>
+                    <th>Stedfortræder for</th>
+                    <th>Organisationsenhed</th>
+                    <th>Opsat af</th>
+                    <th>Fra</th>
+                    <th>Til</th>
+                    <th>Overtag indberetninger for oprindelig leder</th>
+                    <th>Handlinger</th>
+                </tr>
+
+                </thead>
+                <tfoot style="display: table-row-group">
+                <tr>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="date" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="date" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+
+                    <td class="input-filter">
+                        <select class="form-control">
+                            <option selected="selected" value="">Alle</option>
+                            <option th:value="true" th:text="ja"></option>
+                            <option th:value="false" th:text="nej"></option>
+                        </select>
+                    </td>
+                </tr>
+                </tfoot>
+                <tbody>
+                <tr th:each="sub: ${substitutes}">
+                    <th:block th:if="${sub.finished == true}">
+                        <td><i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.sub.terminated'))}" class="fa fa-lg fa-exclamation-triangle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.sub.terminated')}"></i>&nbsp;&nbsp;<span th:text="${sub.substitute.name}"></span></td>
+                    </th:block>
+                    <th:block th:if="${sub.finished == false}">
+                        <td th:text="${sub.substitute.name}"></td>
+                    </th:block>
+                    <td th:text="${sub.substituteFor.name}"></td>
+                    <td th:text="${sub.orgUnit.longDescription}"></td>
+                    <td th:text="${sub.createdBy.name}"></td>
+                    <td th:text="${sub.startDate}"></td>
+                    <td th:switch="${sub.endDate}">
+                        <i th:case="null">På ubestemt tid</i>
+                        <i th:case="*" th:text="${sub.endDate}" th:value="${sub.endDate}"></i>
+                    </td>
+                    <td th:switch="${sub.substituteExclusiveMode}">
+                        <i th:case="true" class="fa fa-lg fa-check" aria-hidden="true">
+                            <span th:text="true" style="display: none"></span>
+                        </i>
+                        <i th:case="false" class="fa fa-lg fa-times" aria-hidden="true">
+                            <span th:text="false" style="display: none"></span>
+                        </i>
+                    </td>
+                    <td>
+                        <a th:if="${noLeadershipPositions != true && (approver == null || approver.id == sub.getSubstituteFor().id)}" th:data-ou="${sub.getOrgUnit().id}" th:data-for="${sub.getSubstituteFor().id}" th:data-sub="${sub.getSubstitute().id}" th:data-start="${sub.startDate}" th:data-end="${sub.endDate}" th:data-id="${sub.id}" th:data-exclusive="${sub.substituteExclusiveMode}" onclick="approverService.openSubModal(this)">
+                            <em style="color: #212529" class="fa fa-lg fa-pencil"></em>
+                        </a>
+                        <a th:if="${noLeadershipPositions != true && (approver == null || approver.id == sub.getSubstituteFor().id)}" th:data-id="${sub.id}" data-type="org" onclick="approverService.openDeleteModal(this)">
+                            <em style="color: #212529; padding-left: 10px" class="fa fa-lg fa-times"></em>
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="row" style="margin-bottom:10px;">
+            <div class="col-sm-8">
+                <h4>Personlige godkendere &nbsp; <i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.personal.approver'))}" class="fa fa-info" style="font-size: 20px;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="left" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.personal.approver')}"></i></h4>
+            </div>
+            <div class="col-sm-4">
+                <button th:unless="${noLeadershipPositions}" type="button" class="btn btn-w-m btn-primary" onclick="approverService.openPersonalModal(this)" style="float: right">
+                    Opret
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table style="padding-right:0px !important;" id="personalSubTable"
+                   class="table table-striped table-bordered table-hover">
+                <thead>
+                <tr>
+                    <th>Godkender</th>
+                    <th>Godkender for</th>
+                    <th>Opsat af</th>
+                    <th>Fra</th>
+                    <th>Til</th>
+                    <th>Handlinger</th>
+                </tr>
+                </thead>
+                <tfoot style="display: table-row-group">
+                <tr>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="date" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                    <td class="input-filter"><input type="date" class="form-control input-sm" style="width: 100%;" placeholder="Søg" /></td>
+                </tr>
+                </tfoot>
+                <tbody>
+                <tr th:each="pSub: ${personalSub}">
+                    <th:block th:if="${pSub.finished == true}">
+                        <td><i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.sub.terminated'))}" class="fa fa-lg fa-exclamation-triangle" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.sub.terminated')}"></i>&nbsp;&nbsp;<span th:text="${pSub.substitute.name}"></span></td>
+                    </th:block>
+                    <th:block th:if="${pSub.finished == false}">
+                        <td th:text="${pSub.substitute.name}"></td>
+                    </th:block>
+                    <td th:text="${pSub.substituteFor.getName()}"></td>
+                    <td th:text="${pSub.getCreatedBy().getName()}"></td>
+                    <td th:text="${pSub.startDate}"></td>
+                    <td th:switch="${pSub.endDate}">
+                        <i th:case="null">På ubestemt tid</i>
+                        <i th:case="*" th:text="${pSub.endDate}"></i>
+                    <td>
+                    <a th:unless="${noLeadershipPositions}" th:data-for="${pSub.getSubstituteFor().id}" th:data-sub="${pSub.getSubstitute().id}" th:data-start="${pSub.startDate}" th:data-end="${pSub.endDate}" th:data-id="${pSub.id}" onclick="approverService.openPersonalModal(this)">
+                        <em style="color: #212529" class="fa fa-lg fa-pencil"></em>
+                    </a>
+                    <a th:unless="${noLeadershipPositions}" th:data-id="${pSub.id}" data-type="personal" onclick="approverService.openDeleteModal(this)">
+                        <em style="color: #212529; padding-left: 10px" class="fa fa-lg fa-times"></em>
+                    </a>
+                </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="modal inmodal" id="substituteModal" role="dialog" style="display: none;" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <H4>Opret/rediger en ny stedfortræder</H4>
+                    </div>
+                    <div class="modal-body" id="test">
+                        <form>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Stedfortræder:</label>
+                                <div class="col-lg-6">
+                                    <select class="form-control" id="inputSubstitute" style="width: 100%;">
+                                        <option>Indtast navn</option> <!-- Empty option for placeholder -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Stedfortræder For:</label>
+                                <div class="col-lg-6">
+                                    <select class="form-control" id="inputSubFor" style="width: 100%;">
+                                        <option th:if="${approver == null}">Indtast navn</option> <!-- Empty option for placeholder -->
+                                        <option th:if="${approver != null}" th:value="${approver.id}" th:text="${approver.getName()}" selected="selected"></option> <!-- Empty option for placeholder -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Organisationsenhed:</label>
+                                <div class="col-md-4">
+                                    <select class="form-control" id="dropDownList" onchange="approverService.getLeaderForOrgUnits()">
+                                        <option value="0">Vælg organisationsenhed</option>
+                                        <option id="selectOptionCreate" th:each="orgUnit : ${orgUnits}" th:value="${orgUnit.id}" th:text="${orgUnit.longDescription}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Fra:</label>
+                                <div class="col-lg-4">
+                                    <input type="date" class="form-control" value="03/04/2014" id="startDateSub">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Til:</label>
+                                <div class="col-lg-4">
+                                    <span>
+                                        <input type="date" class="form-control" value="03/04/2014" id="endDateSub">
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">På ubestemt tid:</label>
+                                <div class="col-lg-4">
+                                    <input type="checkbox" id="noEndDateSub" class="i-checks">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Overtag indberetninger for oprindelig leder:</label>
+                                <div class="col-lg-4">
+                                    <input type="checkbox" id="isSubstituteExclusive" class="i-checks">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <div style="display: flex">
+                            <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px" onclick="approverService.createOrEditSub(this)">Gem</button>
+                            <button type="button" class="btn btn-w-m btn-danger" style="margin: 10px" onclick="approverService.closeSubModal()">Anuller</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal inmodal" id="personalModal" role="dialog" style="display: none" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content animated fadeIn">
+                    <div class="modal-header">
+                        <H4>Opret en ny personlig godkender</H4>
+                    </div>
+                    <div class="modal-body" id="personalModalBody">
+                        <form>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Personlig godkender:</label>
+                                <div class="col-lg-6">
+                                    <select class="form-control" id="inputPersonalSub" style="width: 100%;">
+                                        <option>Indtast navn</option> <!-- Empty option for placeholder -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Personlig godkender For:</label>
+                                <div class="col-lg-6">
+                                    <select class="form-control" id="inputPersonalSubFor" style="width: 100%;">
+                                        <option th:if="${approver == null}">Indtast navn</option> <!-- Empty option for placeholder -->
+                                        <option th:if="${approver != null}" th:value="${approver.id}" th:text="${approver.getName()}" selected="selected"></option> <!-- Empty option for placeholder -->
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Fra:</label>
+                                <div class="col-lg-4">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="date" class="form-control" value="03/04/2014" id="startDatePersonalSub">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">Til:</label>
+                                <div class="col-lg-4">
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="date" class="form-control" value="03/04/2014" id="endDatePersonalSub">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-lg-4 col-form-label">På ubestemt tid:</label>
+                                <div class="col-lg-4">
+                                    <input type="checkbox" id="noEndDatePersonalSub" class="i-checks">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <div style="display: flex">
+                            <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px" onclick="approverService.createOrEditPersonal(this)">Gem</button>
+                            <button type="button" class="btn btn-w-m btn-danger" style="margin: 10px" onclick="approverService.closePersonalModal()">Anuller</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

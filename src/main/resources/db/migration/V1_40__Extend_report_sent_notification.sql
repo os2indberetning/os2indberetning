@@ -1,0 +1,1 @@
+ALTER TABLE reports ADD COLUMN notification_sent BOOLEAN NOT NULL DEFAULT FALSE;

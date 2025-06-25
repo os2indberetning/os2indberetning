@@ -1,0 +1,2 @@
+ALTER TABLE orgunits ADD COLUMN four_km_rule_allowed BOOLEAN NOT NULL DEFAULT TRUE;
+ALTER TABLE orgunits ADD COLUMN calculation_type VARCHAR(255) NOT NULL;

@@ -110,15 +110,15 @@
                             <div class="form-group row" style="display: flex; align-items: center; justify-content: center;">
                                 <button type="button" id="closeButton" class="btn btn-lg btn-danger" style="margin: 2%;" onclick="addressWashService.closeModal()">Luk</button>
                                 <button type="button" id="resetButton" class="btn btn-lg btn-warning" style="margin: 2%;" onclick="addressWashService.edit(this)">Nulstil</button>
-                                <button type="button" id="toLatLngButton" class="btn btn-lg btn-primary" style="margin: 2%;" onclick="addressWashService.toLatLng()">
+                                <button type="button" id="toLatLngButton" class="btn btn-lg btn-success" style="margin: 2%;" onclick="addressWashService.toLatLng()">
                                     Adresse til kort
-                                    <a th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.address.wash.address.to.map'))}" class="fa fa-lg fa-info" style="padding-left: 5px; background-color: #2da5de !important;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.address.wash.address.to.map')}"></a>
+                                    <a th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.address.wash.address.to.map'))}" class="fa fa-lg fa-info" style="padding-left: 5px; background-color: #1c84c6 !important;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.address.wash.address.to.map')}"></a>
                                 </button>
-                                <button type="button" id="toAddressButton" class="btn btn-lg btn-primary" style="margin: 2%;" onclick="addressWashService.toAddr()">
+                                <button type="button" id="toAddressButton" class="btn btn-lg btn-success" style="margin: 2%;" onclick="addressWashService.toAddr()">
                                     Kort til adresse
-                                    <a th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.address.wash.map.to.address'))}" class="fa fa-lg fa-info" style="padding-left: 5px; background-color: #2da5de !important;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.address.wash.map.to.address')}"></a>
+                                    <a th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.address.wash.map.to.address'))}" class="fa fa-lg fa-info" style="padding-left: 5px; background-color: #1c84c6 !important;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.address.wash.map.to.address')}"></a>
                                 </button>
-                                <button type="button" id="saveButton" class="btn btn-lg btn-success" style="margin: 2%;" onclick="addressWashService.save()">Gem</button>
+                                <button type="button" id="saveButton" class="btn btn-lg btn-primary" style="margin: 2%;" onclick="addressWashService.save()">Gem</button>
                             </div>
                         </div>
                     </div>

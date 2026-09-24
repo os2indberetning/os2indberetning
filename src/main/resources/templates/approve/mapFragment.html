@@ -12,6 +12,11 @@
             <div th:each="ipoint: ${interestpoints}" th:data-lat="${ipoint.latitude}" th:data-lng="${ipoint.longitude}" th:data-address="${ipoint.address}"></div>
         </div>
     </div>
+    <div th:if="${estimatedTravelTime != null}" class="form-group row" style="margin-top: 5px;">
+        <label class="col-sm-2 col-form-label" style="text-align:left;">Estimeret køretid:</label>
+        <input class="col-sm-4 form-control" type="text" id="estimatedTimeOfTravel" th:value="${estimatedTravelTime}" disabled/>
+    </div>
+
     <div class="form-group row" style="margin-top: 15px;">
         <div class="ibox" style="min-width: 770px;">
             <div class="ibox-title">

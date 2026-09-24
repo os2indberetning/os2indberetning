@@ -183,6 +183,11 @@ function ApproverService() {
 
         $('#personalModal').modal("show");
 
+        $('#personalModal .i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+        });
+
         id = $(obj).data("id");
         if (id) {
             editMode = true;
@@ -263,6 +268,11 @@ function ApproverService() {
         $('#isSubstituteExclusive').iCheck("uncheck");
 
         $('#substituteModal').modal("show");
+
+        $('#substituteModal .i-checks').iCheck({
+            checkboxClass: 'icheckbox_square-blue',
+            radioClass: 'iradio_square-blue',
+        });
 
         id = $(obj).data("id");
         if (id) {

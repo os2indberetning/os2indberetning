@@ -107,3 +107,8 @@ eslint.config.mjs
 node_modules/
 package-lock.json
 package.json
+
+# Claude Code - local personal overrides
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/CLAUDE.local.md

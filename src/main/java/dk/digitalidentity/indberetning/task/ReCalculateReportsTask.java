@@ -3,7 +3,6 @@ package dk.digitalidentity.indberetning.task;
 import com.google.maps.internal.ratelimiter.Stopwatch;
 import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
 import dk.digitalidentity.indberetning.service.OnetimePaymentsCalculatorService;
-import dk.digitalidentity.indberetning.service.SubstituteService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

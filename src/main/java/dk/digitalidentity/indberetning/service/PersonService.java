@@ -1,15 +1,20 @@
 package dk.digitalidentity.indberetning.service;
 
-import dk.digitalidentity.indberetning.model.entity.Person;
-import dk.digitalidentity.indberetning.model.dao.PersonDao;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import dk.digitalidentity.indberetning.model.dao.PersonDao;
+import dk.digitalidentity.indberetning.model.entity.Person;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +34,19 @@ public class PersonService {
 	public List<Person> findByReceiveEmailTrueAndReceivePersonalMailTrue() {
 		return personDao.findByReceiveEmailTrueAndReceivePersonalMailTrue();
 	}
+
 	public List<Person> getAll() {
 		return personDao.findAll();
+	}
+
+	@Transactional(readOnly = true)
+	public List<Person> getAllWithEmploymentsAndAddresses() {
+		List<Person> persons = personDao.findAll();
+		for (Person p : persons) {
+			p.getEmployments().size();
+			p.getAddresses().size();
+		}
+		return persons;
 	}
 
 	public Person save(Person person) {
@@ -41,7 +57,20 @@ public class PersonService {
 		return personDao.findByReceiveEmailAndReceivePersonalMailAndEmailNotNull(true, true);
 	}
 
+	public List<Person> findByLastEdited(LocalDateTime lastEdited) {
+		return personDao.findByLastEditedBefore(lastEdited);
+	}
+
+	public List<Person> findByLastEditedBeforeAndInactive(LocalDateTime lastEdited) {
+		return personDao.findByLastEditedBeforeAndActiveFalse(lastEdited);
+	}
+
 	public List<Person> save(List<Person> toBeSaved) {
+		return personDao.saveAll(toBeSaved);
+	}
+
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public List<Person> saveAllInIsolatedTransaction(List<Person> toBeSaved) {
 		return personDao.saveAll(toBeSaved);
 	}
 
@@ -62,5 +91,14 @@ public class PersonService {
 
 	public List<Person> getAllAdmins() {
 		return personDao.findByAdminIsTrue();
+	}
+
+	public void deleteAll(List<Person> persons) {
+		personDao.deleteAll(persons);
+	}
+
+	public void deleteAllInAud(List<Person> persons) {
+		ArrayList<Long> ids = persons.stream().map(Person::getId).collect(Collectors.toCollection(ArrayList::new));
+		personDao.deleteInAud(ids);
 	}
 }

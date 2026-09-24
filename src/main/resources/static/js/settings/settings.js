@@ -284,14 +284,16 @@ function appLoginService() {
         var appLogPassConf = $("#passwordConfirm").val();
 
         if (!appLogUsername) {
+
             toastr.warning("Brugernavn skal være udfyldt!");
             return;
         }
-
         if (appLogPassProp != appLogPassConf) {
             toastr.warning("De to kodeord skal være ens!");
             return;
         }
+
+        $("#butAppCrea").prop('disabled', true);
 
         $.ajax({
             method : "POST",

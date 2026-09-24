@@ -168,6 +168,23 @@ function ReportService() {
             if(reportService.ifReady() === true) { reportService.drawRoute("reportService.initFragment"); }
         });
 
+        // Delegated handlers for Thymeleaf-rendered waypoint search inputs (edit mode)
+        $(document).on('input', '.waymarker-search', function() {
+            reportService.onSearch($(this).data('idx'));
+        });
+        $(document).on('click', '.waymarker-search', function() {
+            reportService.triggerSearchOnClick($(this).data('idx'));
+        });
+        $(document).on('keydown', '.waymarker-search', function(e) {
+            reportService.handleKeyNavigation(e, $(this).data('idx'));
+        });
+        $(document).on('focusin', '.waymarker-search', function() {
+            reportService.onSearch($(this).data('idx'));
+        });
+        $(document).on('click', '.waymarker-search-init', function() {
+            reportService.initSearch($(this).data('idx'));
+        });
+
         $('.i-checks').iCheck({
             checkboxClass: 'icheckbox_square-blue',
             radioClass: 'iradio_square-blue',
@@ -177,7 +194,12 @@ function ReportService() {
             $("#fourKmDistanceDiv").attr('hidden', !$("#fourKmCheck").prop('checked'));
         });
 
+        if ($('#allowTimePickerFlag').val() === 'true') {
+            reportService.initClockpickers();
+        }
+
         $("#roundTripCheck").on('ifToggled', function(){
+            reportService.updateWaypointTimePickers();
             if($("#calculationType").val() === "1") {
                 $("#distanceFieldKm").val(Math.round(($("#distanceFieldKmRead").val()*1000)/10*(1+$("#roundTripCheck").prop('checked'))+Number.EPSILON)/100);
             }
@@ -278,7 +300,7 @@ function ReportService() {
             $(".waymarker").each(function( index, element) {
                 reportService.routeMarkerAddresses[index + 1] = addressService.addressWash($(element).val());
                 let waymark = addressService.addressToLtLg(reportService.routeMarkerAddresses[index + 1]);
-                reportService.routeMarkers[index + 1] = L.marker([waymark[0].lat, waymark[0].lng],{draggable: true, autoPan: true}).addTo(map)
+                reportService.routeMarkers[index + 1] = L.marker([waymark.lat, waymark.lng],{draggable: true, autoPan: true}).addTo(map)
 
             });
 
@@ -301,8 +323,8 @@ function ReportService() {
         reportService.markerEndAddress = addressService.addressWash($("#endField").val());
         var pointEnd = addressService.addressToLtLg(reportService.markerEndAddress);
 
-        reportService.routeMarkers[0] = L.marker([pointStart[0].lat, pointStart[0].lng],{draggable: true, autoPan: true, title: $("#startField").val()}).addTo(map)
-        reportService.markerEnd = L.marker([pointEnd[0].lat, pointEnd[0].lng],{draggable: true, autoPan: true, title: $("#endField").val()}).addTo(map)
+        reportService.routeMarkers[0] = L.marker([pointStart.lat, pointStart.lng],{draggable: true, autoPan: true, title: $("#startField").val()}).addTo(map)
+        reportService.markerEnd = L.marker([pointEnd.lat, pointEnd.lng],{draggable: true, autoPan: true, title: $("#endField").val()}).addTo(map)
 
         reportService.routeMarkers[0].on('dragend', function(e) {
             reportService.routeMarkerCoords[0] = this.getLatLng();
@@ -312,7 +334,7 @@ function ReportService() {
         });
         this.markerEnd.on('dragend', function(e) {
             reportService.markerEndAddress = addressService.latLngToAddress(this.getLatLng());
-            $("#endField").val(addressService.addressString(reportService.markerEndAddress.address));
+            $("#endField").val(addressService.addressString(reportService.markerEndAddress));
             reportService.drawRoute("reportService.drawInitialRoute");
         });
     }
@@ -362,10 +384,91 @@ function ReportService() {
             else {
                 $('#rawDistanceFieldKm').val(rawDistanceFieldKM);
             }
+            $('#displayDurationField').val(reportService.formatDuration(this.route.estimatedTravelTime * ($("#roundTripCheck").prop('checked') ? 2 : 1)));
+            $('#hiddenDurationField').val(this.route.estimatedTravelTime);
+            if ($('#allowTimePickerFlag').val() === 'true') { reportService.updateWaypointTimePickers(this.route.legDurations); }
             readyToPost = true;
             addressService.getDeltaDistance();
         }
     }
+
+    // Stores the last-known leg durations so round-trip toggle can recompute without a new route call
+    var lastLegDurations = [];
+
+    this.initClockpickers = function() {
+        // When the user manually edits the start time, cascade estimated times forward
+        $('#waypointTime0').on('change input', function() {
+            reportService.updateWaypointTimePickers();
+        });
+        // Mark any via/end picker as user-edited when changed manually
+        $(document).on('change input', '.waypoint-time:not(#waypointTime0)', function() {
+            $(this).data('user-edited', true);
+        });
+    }
+
+    // Called after a route is drawn (with fresh legDurations) or when round-trip toggles
+    this.updateWaypointTimePickers = function(legDurations) {
+        if (legDurations !== undefined) {
+            lastLegDurations = legDurations;
+        }
+
+        // Update total duration display
+        const totalSeconds = parseFloat($('#hiddenDurationField').val());
+        const isRoundTrip = $("#roundTripCheck").prop('checked');
+        if (!isNaN(totalSeconds)) {
+            const effective = totalSeconds * (isRoundTrip ? 2 : 1);
+            $('#displayDurationField').val(reportService.formatDuration(effective));
+        }
+
+        if ($('#allowTimePickerFlag').val() !== 'true') { return; }
+
+        const startVal = $('#waypointTime0').val();
+        if (!startVal || lastLegDurations.length === 0) { return; }
+
+        const [startH, startM] = startVal.split(':').map(Number);
+        let accumulatedMinutes = startH * 60 + startM;
+
+        // Set each intermediate + end waypoint time based on accumulated leg durations
+        // waypointTime0 = start, waypointTime1..N-1 = via points, waypointTimeEnd = end
+        const legs = lastLegDurations;
+
+        // Intermediate waypoints: indices 1..(legs.length - 1), end = after last leg
+        for (let i = 0; i < legs.length; i++) {
+            accumulatedMinutes += Math.round(legs[i] / 60);
+            const h = Math.floor(accumulatedMinutes / 60) % 24;
+            const m = accumulatedMinutes % 60;
+            const timeStr = String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0');
+
+            if (i < legs.length - 1) {
+                // Intermediate waypoint
+                const field = $('#waypointTime' + (i + 1));
+                if (field.length && !field.data('user-edited')) {
+                    field.val(timeStr);
+                }
+            } else {
+                // End waypoint
+                const endField = $('#waypointTimeEnd');
+                if (endField.length && !endField.data('user-edited')) {
+                    endField.val(timeStr);
+                }
+            }
+        }
+    }
+
+    this.formatDuration = function (durationSeconds) {
+        const totalMinutes = Math.round(durationSeconds / 60);
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+
+        if (hours === 0) {
+            return `${minutes} minut${minutes === 1 ? '' : 'ter'}`;
+        } else if (minutes === 0) {
+            return `${hours} time${hours === 1 ? '' : 'r'}`;
+        } else {
+            return `${hours} time${hours === 1 ? '' : 'r'} og ${minutes} minut${minutes === 1 ? '' : 'ter'}`;
+        }
+    }
+
 
     this.ifReady = function() {
         let addressFilled = true;
@@ -408,7 +511,7 @@ function ReportService() {
                         else {
                             reportService.routeMarkerAddresses[i] = addressService.addressWash(data.addresses[i]);
                             let waymark = addressService.addressToLtLg(reportService.routeMarkerAddresses[i]);
-                            reportService.routeMarkers[i] = L.marker([waymark[0].lat, waymark[0].lng],{draggable: true, autoPan: true}).addTo(map)
+                            reportService.routeMarkers[i] = L.marker([waymark.lat, waymark.lng],{draggable: true, autoPan: true}).addTo(map)
 
                             reportService.routeMarkers[i].on('dragend', function(e) {
                                 reportService.routeMarkerCoords[i] = this.getLatLng();
@@ -467,7 +570,7 @@ function ReportService() {
         var newLatLng = reportService.routeMarkers[reportService.routeMarkers.length-1]._latlng;
         reportService.routeMarkerCoords[listId] = newLatLng;
         reportService.routeMarkerAddresses[listId] = undefined;
-        reportService.routeMarkers[listId] = L.marker([newLatLng.lat, newLatLng.lng],{draggable: true, autoPan: true, title: addressService.addressString(addressService.latLngToAddress(reportService.routeMarkerCoords[listId])), listId: listId}).addTo(map);
+        reportService.routeMarkers[listId] = L.marker([newLatLng.lat, newLatLng.lng],{draggable: true, autoPan: true, title: addressService.addressString(reportService.routeMarkerAddresses[listId-1]), listId: listId}).addTo(map);
 
         reportService.routeMarkers[listId].on('dragend', function(e) {
             reportService.routeMarkerCoords[this.options.listId] = this.getLatLng();
@@ -612,6 +715,9 @@ function ReportService() {
         if(!($("#calculationType").val() === "1")) {
             var data = this.route.coordinates;
         }
+        // Collect waypoint times BEFORE createAddressList(), which mutates routeMarkers
+        const waypointTimes = ($('#allowTimePickerFlag').val() === 'true' && !($("#calculationType").val() === "1"))
+            ? reportService.collectWaypointTimes() : null;
         var body = JSON.stringify({
             "id": !!($("#reportEditId").val()) ? $("#reportEditId").val() : 0 ,
             "driveDate": $("#driveDate").val(),
@@ -628,7 +734,9 @@ function ReportService() {
             "rawDistance": $("#calculationType").val() === "1" ? $("#distanceFieldKmRead").val() : $("#rawDistanceFieldKm").val(),
             "comment": $("#calculationType").val() === "1" ? $("#commentField").val() : "",
             "homeToBorder": $("#fourKmCheck").prop('checked') === true ? $("#fourKmDistance").val() : -1.0,
-            "addressList": !($("#calculationType").val() === "1") ? reportService.createAddressList() : []
+            "addressList": !($("#calculationType").val() === "1") ? reportService.createAddressList() : [],
+            "estimatedTravelTime": !($("#calculationType").val() === "1") ? parseFloat($("#hiddenDurationField").val()) || null : null,
+            "waypointTimes": waypointTimes
         });
         $('#saveButton').prop("disabled", true);
         $('#editSaveButton').prop("disabled", true);
@@ -660,22 +768,30 @@ function ReportService() {
                 continue;
             }
 
+            const allowTimePicker = $('#allowTimePickerFlag').val() === 'true';
+            const timePickerHtml = allowTimePicker
+                ? '<input type="time" class="form-control waypoint-time" id="waypointTime' + i + '" style="width:110px; flex-shrink:0;"/>'
+                : '';
+
             var waypoint =
                 '<div class="form-group row">' +
-                '    <label class="col-sm-3 col-form-label" style="text-align:left;">' +
-                '        <p style="text-align:left;">Via</p>' +
-                '        <label class="col-form-row" style="text-align:left;">' +
+                '    <label class="col-3 col-form-label">' +
+                '        <p>Via</p>' +
+                '        <label class="col-form-row">' +
                 '           <i class="fa fa-trash-o" data-id="' + i + '" onclick="reportService.deleteWaymarker(this)" title="Slet"></i>' +
                 '           <i class="fa fa-arrow-up" data-id="' + i + '" onclick="reportService.moveWaymarker(true, this)" title="Flyt op"></i>' +
                 '           <i class="fa fa-arrow-down" data-id="' + i + '" onclick="reportService.moveWaymarker(false, this)" title="Flyt ned"></i>' +
                 '       </label>' +
                 '    </label>' +
-                '    <div class="col-sm-9">' +
-                '        <input class="addressinput form-control" type="text" id="waymarker' + i + '" value="' + (reportService.routeMarkerAddresses[i] === undefined ? '' : addressService.addressString(reportService.routeMarkerAddresses[i])) + '" placeholder="Indtast addresse her" data-listid="' + i + '" autocomplete="off" list="waymarker' + i + 'List">' +
+                '    <div class="col-9">' +
+                '        <div class="d-flex gap-2">' +
+                '            <input class="addressinput form-control" type="text" id="waymarker' + i + '" value="' + (reportService.routeMarkerAddresses[i] === undefined ? '' : addressService.addressString(reportService.routeMarkerAddresses[i])) + '" placeholder="Indtast addresse her" data-listid="' + i + '" autocomplete="off" list="waymarker' + i + 'List">' +
+                             timePickerHtml +
+                '        </div>' +
                 '        <dataList id="waymarker' + i + 'List"></dataList>' +
                 '        <div class="form-group">' +
                 '           <div class="input-group">' +
-                '               <input class="form-control" id="searchAddresses' + i + '" placeholder="Eller vælg adresse fra liste" oninput="reportService.onSearch(' + i + ')" onclick="reportService.triggerSearchOnClick(' + i + ')" onkeydown="reportService.handleKeyNavigation(event, ' + i + ')" onfocusin="reportService.onSearch(' + i + ')">' +
+                '               <input class="form-control form-control-sm" id="searchAddresses' + i + '" placeholder="Eller vælg adresse fra liste" oninput="reportService.onSearch(' + i + ')" onclick="reportService.triggerSearchOnClick(' + i + ')" onkeydown="reportService.handleKeyNavigation(event, ' + i + ')" onfocusin="reportService.onSearch(' + i + ')">' +
                 '               <span class="input-group-addon">' +
                 '                   <span class="fa fa-arrow-down" onclick="reportService.initSearch(' + i + ')"></span>' +
                 '               </span>' +
@@ -755,7 +871,7 @@ function ReportService() {
         map.removeLayer(reportService.routeMarkers[i]);
         reportService.routeMarkerAddresses[i] = addressService.addressWash($('#waymarker' + i).val());
         var wpLoc = addressService.addressToLtLg(reportService.routeMarkerAddresses[i]);
-        reportService.routeMarkers[i] = L.marker([wpLoc[0].lat, wpLoc[0].lng], {
+        reportService.routeMarkers[i] = L.marker([wpLoc.lat, wpLoc.lng], {
             draggable: true,
             autoPan: true,
             title: addressService.addressString(reportService.routeMarkerAddresses[i]),
@@ -846,6 +962,21 @@ function ReportService() {
         return JSON.parse(jsonAddressList);
     }
 
+    // Returns an array of "HH:mm" strings matching each address in addressList order.
+    // addressList = [start, ...via points, end] (N entries).
+    // routeMarkers has N-1 entries (start + via points); markerEnd is the Nth.
+    // So: waypointTime0=start, waypointTime1..N-2=via, waypointTimeEnd=end.
+    this.collectWaypointTimes = function() {
+        const times = [];
+        times.push($('#waypointTime0').val() || null);
+        // via points: indices 1 .. routeMarkers.length-1 (before markerEnd is pushed)
+        for (let i = 1; i < reportService.routeMarkers.length; i++) {
+            times.push($('#waypointTime' + i).val() || null);
+        }
+        times.push($('#waypointTimeEnd').val() || null);
+        return times;
+    }
+
     this.cancel = function() {
          window.location.href = "/report";
     }
@@ -855,17 +986,27 @@ function ReportService() {
 
         var fourKmRuleAllowed = opt.data("four-km-rule");
         var defaultCalculationType = opt.data("default-calculation-type");
+        var defaultRateType = opt.data("default-rate-type");
 
         if (fourKmRuleAllowed) {
+
             $("#fourKmDiv").attr('hidden', false);
         } else {
             $("#fourKmDiv").attr('hidden', true);
             $("#fourKmCheck").iCheck('uncheck');
             $("#fourKmDistance").val(null);
         }
-
         if (!$("#reportEditId").val()) {
             $("#calculationType").val(defaultCalculationType).change();
+            if (defaultRateType) {
+                $("#rateSelect option").filter(function() {
+                    return $(this).data("rate-type-id") == defaultRateType;
+                }).prop("selected", true).change();
+            } else {
+                $("#rateSelect option").filter(function() {
+                    return $(this).data("prime") == true;
+                }).prop("selected", true).change();
+            }
         }
     }
 

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<body>
 <div id="wrapper">
     <div class="col-sm-12">
         <div class="row" style="margin-bottom:10px;">
@@ -128,14 +129,15 @@
                     <td th:switch="${pSub.endDate}">
                         <i th:case="null">På ubestemt tid</i>
                         <i th:case="*" th:text="${pSub.endDate}"></i>
+                    </td>
                     <td>
-                    <a th:unless="${noLeadershipPositions}" th:data-for="${pSub.getSubstituteFor().id}" th:data-sub="${pSub.getSubstitute().id}" th:data-start="${pSub.startDate}" th:data-end="${pSub.endDate}" th:data-id="${pSub.id}" onclick="approverService.openPersonalModal(this)">
-                        <em style="color: #212529" class="fa fa-lg fa-pencil"></em>
-                    </a>
-                    <a th:unless="${noLeadershipPositions}" th:data-id="${pSub.id}" data-type="personal" onclick="approverService.openDeleteModal(this)">
-                        <em style="color: #212529; padding-left: 10px" class="fa fa-lg fa-times"></em>
-                    </a>
-                </td>
+                        <a th:unless="${noLeadershipPositions}" th:data-for="${pSub.getSubstituteFor().id}" th:data-sub="${pSub.getSubstitute().id}" th:data-start="${pSub.startDate}" th:data-end="${pSub.endDate}" th:data-id="${pSub.id}" onclick="approverService.openPersonalModal(this)">
+                            <em style="color: #212529" class="fa fa-lg fa-pencil"></em>
+                        </a>
+                        <a th:unless="${noLeadershipPositions}" th:data-id="${pSub.id}" data-type="personal" onclick="approverService.openDeleteModal(this)">
+                            <em style="color: #212529; padding-left: 10px" class="fa fa-lg fa-times"></em>
+                        </a>
+                    </td>
                 </tr>
                 </tbody>
             </table>
@@ -144,7 +146,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content animated fadeIn">
                     <div class="modal-header">
-                        <H4>Opret/rediger en ny stedfortræder</H4>
+                        <h4>Opret/rediger en ny stedfortræder</h4>
                     </div>
                     <div class="modal-body" id="test">
                         <form>
@@ -204,8 +206,8 @@
                     </div>
                     <div class="modal-footer">
                         <div style="display: flex">
-                            <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px" onclick="approverService.createOrEditSub(this)">Gem</button>
                             <button type="button" class="btn btn-w-m btn-danger" style="margin: 10px" onclick="approverService.closeSubModal()">Anuller</button>
+                            <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px" onclick="approverService.createOrEditSub(this)">Gem</button>
                         </div>
                     </div>
                 </div>
@@ -216,7 +218,7 @@
             <div class="modal-dialog modal-lg">
                 <div class="modal-content animated fadeIn">
                     <div class="modal-header">
-                        <H4>Opret en ny personlig godkender</H4>
+                        <h4>Opret en ny personlig godkender</h4>
                     </div>
                     <div class="modal-body" id="personalModalBody">
                         <form>
@@ -240,18 +242,12 @@
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Fra:</label>
                                 <div class="col-lg-4">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
                                     <input type="date" class="form-control" value="03/04/2014" id="startDatePersonalSub">
                                 </div>
                             </div>
                             <div class="form-group row">
                                 <label class="col-lg-4 col-form-label">Til:</label>
                                 <div class="col-lg-4">
-                                    <span class="input-group-addon">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
                                     <input type="date" class="form-control" value="03/04/2014" id="endDatePersonalSub">
                                 </div>
                             </div>
@@ -265,8 +261,8 @@
                     </div>
                     <div class="modal-footer">
                         <div style="display: flex">
-                            <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px" onclick="approverService.createOrEditPersonal(this)">Gem</button>
                             <button type="button" class="btn btn-w-m btn-danger" style="margin: 10px" onclick="approverService.closePersonalModal()">Anuller</button>
+                            <button type="button" class="btn btn-w-m btn-primary" style="margin: 10px" onclick="approverService.createOrEditPersonal(this)">Gem</button>
                         </div>
                     </div>
                 </div>

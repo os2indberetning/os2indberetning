@@ -73,9 +73,10 @@ public class Employment {
 
 	@Column(name = "institution_code")
 	private String institutionCode;
+
 	@JsonIgnore
-	@OneToMany(mappedBy = "employment")
 	@NotAudited
+	@OneToMany(mappedBy = "employment")
 	private Set<Report> reports = new LinkedHashSet<>();
 
 	@Column(name = "home_to_work_distance_override", nullable = true)

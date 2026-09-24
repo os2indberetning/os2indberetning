@@ -3,6 +3,7 @@ package dk.digitalidentity.indberetning.controller.rest;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.google.maps.model.LatLng;
 import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
+import dk.digitalidentity.indberetning.exceptions.AddressLookupRuntimeException;
 import dk.digitalidentity.indberetning.model.entity.AppLogin;
 import dk.digitalidentity.indberetning.model.entity.GpsCoordinate;
 import dk.digitalidentity.indberetning.model.entity.LicensePlate;
@@ -43,7 +44,6 @@ import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.UUID;
 
 @Hidden
@@ -67,7 +67,7 @@ public class AppUserReportRestController {
     public record RequestRec(AuthUuidRequest Authorization, DriveRec DriveReport) {}
     public record AuthUuidRequest(UUID GuId) {}
     public record DriveRec(UUID Uuid, String Purpose, long EmploymentId, long RateId, String ManualEntryRemark, boolean StartsAtHome, boolean EndsAtHome, boolean FourKmRule, String Date, double HomeToBorderDistance, RouteRec route, long ProfileId) {}
-    public record GPSCoordinatesRec(double Latitude, double Longitude, boolean IsViaPoint) {}
+    public record GPSCoordinatesRec(double Latitude, double Longitude, boolean IsViaPoint, LocalDateTime createdAt) {}
     public record RouteRec(double TotalDistance, ArrayList<GPSCoordinatesRec> GPSCoordinates) {}
 
     // If its not transactional, we might end up saving in DB regardless of the outcome
@@ -119,6 +119,7 @@ public class AppUserReportRestController {
 
             report.setKmRate(rate.getRatePerKm());
             report.setKmRateType(rate.getRateType().getName());
+            report.setKmRateTypeId(rate.getRateType().getId());
             report.setPayType(rate.getRateType().getPayType());
             report.setSequentialNumber(rate.getRateType().getSequentialNumber());
             report.setActiveYear(driveDate.getYear());
@@ -162,7 +163,8 @@ public class AppUserReportRestController {
                     report,
                     true,
                     false,
-                    0
+                    0,
+					configuration.isEnableCreationTimeStampOnGps() ? first.createdAt : null
             ));
 
             // Add via points
@@ -177,7 +179,8 @@ public class AppUserReportRestController {
 							report,
 							false,
 							false,
-                            pointNumber
+                            pointNumber,
+							configuration.isEnableCreationTimeStampOnGps() ? coordinate.createdAt : null
 					));
                     pointNumber++;
 				}
@@ -192,7 +195,8 @@ public class AppUserReportRestController {
                     report,
                     false,
                     true,
-                    gpsCoordinates.size()
+                    gpsCoordinates.size(),
+					configuration.isEnableCreationTimeStampOnGps() ? last.createdAt : null
             ));
             for (GpsCoordinate gpsCoordinate : gpsCoordinates) {
                 if (gpsCoordinate.getAddress() == null || gpsCoordinate.getAddress().isEmpty()) {
@@ -238,7 +242,13 @@ public class AppUserReportRestController {
     }
 
     public String getStreetAddress(double lat, double lng) {
-        RouteService.AddressDTO address = routeService.latLngToAddressObj(lat, lng);
+        RouteService.AddressDTO address;
+        try {
+            address = routeService.latLngToAddressObj(lat, lng);
+        } catch (AddressLookupRuntimeException e) {
+            log.warn("Could not reverse geocode ({}, {}): {}", lat, lng, e.getMessage());
+            return null;
+        }
         if (address == null) {
             log.warn("The address is null");
             return null;

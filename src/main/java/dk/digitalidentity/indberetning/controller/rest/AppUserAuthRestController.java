@@ -7,9 +7,11 @@ import dk.digitalidentity.indberetning.model.entity.Rate;
 import dk.digitalidentity.indberetning.security.NoRoleRequired;
 import dk.digitalidentity.indberetning.service.AppLoginService;
 import dk.digitalidentity.indberetning.service.AuditLogService;
+import dk.digitalidentity.indberetning.service.EmploymentService;
 import dk.digitalidentity.indberetning.service.RateService;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.time.ZoneId;
@@ -26,6 +29,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Hidden
 @RestController
 @NoRoleRequired
@@ -35,6 +39,7 @@ public class AppUserAuthRestController {
     private final RateService rateService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuditLogService auditLogService;
+	private final EmploymentService employmentService;
 
     public record AuthUserRequest(String UserName, String Password) {}
     public record AuthUuidRequest(UUID GuId) {}
@@ -50,10 +55,12 @@ public class AppUserAuthRestController {
     public ResponseEntity<UserInfoRec> auth(@RequestBody AuthUserRequest aReq) {
         AppLogin appLogin = appLoginService.getByUsername(aReq.UserName);
         if (appLogin == null) {
+			log.warn("The app-user with name: {} does not exists", aReq.UserName);
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
         if (!passwordEncoder.matches(aReq.Password, appLogin.getPassword())) {
+			log.warn("The app-user with name: {} and id: {} does not match the right password", aReq.UserName, appLogin.getId());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
@@ -72,8 +79,20 @@ public class AppUserAuthRestController {
 
     private UserInfoRec generateUserInfo(AppLogin appLogin) {
         Person person = appLogin.getPerson();
-        List<Employment> employmentsProper = person.getEmployments();
-        List<EmploymentRec> employmentRecs = employmentsProper.stream().map(employment -> new EmploymentRec(employment.getId(), employment.getPosition(), employment.getEmployeeNumber(), ldtToLong(employment.getStartDate()), ldtToLong(employment.getStopDate()), new OrgUnitRec(employment.getOrgUnit().getId(), employment.getOrgUnit().getFourKmRuleAllowed() != null && employment.getOrgUnit().getFourKmRuleAllowed()))).toList();
+        List<Employment> employments = employmentService.getEmploymentsByPersonAndDriveDate(person, LocalDate.now());
+        List<EmploymentRec> employmentRecs = employments.stream()
+			.map(employment -> new EmploymentRec(
+							employment.getId(), 
+							employment.getPosition(), 
+							employment.getEmployeeNumber(), 
+							ldtToLong(employment.getStartDate()), 
+							ldtToLong(employment.getStopDate()), 
+							new OrgUnitRec(
+								employment.getOrgUnit().getId(), 
+								employment.getOrgUnit().getFourKmRuleAllowed() != null && employment.getOrgUnit().getFourKmRuleAllowed()
+							)
+						))
+			.toList();
         if (appLogin.getUuid() == null) {
             appLoginService.setNewUuid(appLogin);
         }

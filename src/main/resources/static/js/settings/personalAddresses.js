@@ -112,8 +112,8 @@ function PersonalAddressService() {
         if (this.addressMarker) { personalAddressMap.removeLayer(this.addressMarker); }
         this.addressMarkerAddress = addressService.addressWash($(field).val())
         this.addressMarkerCoord = addressService.addressToLtLg(this.addressMarkerAddress);
-        this.addressMarker = L.marker([this.addressMarkerCoord[0].lat, this.addressMarkerCoord[0].lng],{draggable: true, autoPan: true}).addTo(personalAddressMap);
-        personalAddressMap.flyTo([this.addressMarkerCoord[0].lat, this.addressMarkerCoord[0].lng], 16, {animate: false});
+        this.addressMarker = L.marker([this.addressMarkerCoord.lat, this.addressMarkerCoord.lng],{draggable: true, autoPan: true}).addTo(personalAddressMap);
+        personalAddressMap.flyTo([this.addressMarkerCoord.lat, this.addressMarkerCoord.lng], 16, {animate: false});
 
         this.addressMarker.on('dragend', function(e) {
             this.addressMarkerCoord = this.getLatLng();
@@ -187,9 +187,9 @@ function PersonalAddressService() {
             "parentId" : element.dataset.parentid || null,
             "description": element.dataset.field == "addressField" ? $("#descriptionField").val() : null,
             "type": element.dataset.type || "ALTERNATIVE",
-            "lat": this.addressMarkerCoord[0].lat || "",
-            "lng": this.addressMarkerCoord[0].lng || "",
-            "lon": this.addressMarkerCoord[0].lng || "",
+            "lat": this.addressMarkerCoord.lat || "",
+            "lng": this.addressMarkerCoord.lng || "",
+            "lon": this.addressMarkerCoord.lng || "",
             "house_number": parsedAddr.husnr || "",
             "road": parsedAddr.vejstykke.navn || "",
             "town": parsedAddr.postnummer.navn || "",
@@ -239,9 +239,9 @@ function PersonalAddressService() {
             "parentId": element.dataset.parentid || null,
             "description": element.dataset.field == "addressField" ? $("#descriptionField").val() : null,
             "type": element.dataset.type || "ALTERNATIVE",
-            "lat": this.addressMarkerCoord[0].lat || "",
-            "lng": this.addressMarkerCoord[0].lng || "",
-            "lon": this.addressMarkerCoord[0].lng || "",
+            "lat": this.addressMarkerCoord.lat || "",
+            "lng": this.addressMarkerCoord.lng || "",
+            "lon": this.addressMarkerCoord.lng || "",
             "house_number": parsedAddr.husnr || "",
             "road": parsedAddr.vejstykke.navn || "",
             "town": parsedAddr.postnummer.navn || "",

@@ -1,9 +1,12 @@
 package dk.digitalidentity.indberetning.controller.rest;
 
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -16,6 +19,7 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipOutputStream;
 
 import dk.digitalidentity.indberetning.model.entity.OrgUnit;
+import dk.digitalidentity.indberetning.model.entity.dto.ReportViewDTO;
 import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
 import dk.digitalidentity.indberetning.security.NoRoleRequired;
 import dk.digitalidentity.indberetning.security.RequireAdministrator;
@@ -37,6 +41,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
+import dk.digitalidentity.indberetning.config.ReportConstants;
 import dk.digitalidentity.indberetning.model.datatable.dao.ReportDatatableDao;
 import dk.digitalidentity.indberetning.model.entity.Address;
 import dk.digitalidentity.indberetning.model.entity.Employment;
@@ -80,8 +85,7 @@ import lombok.extern.slf4j.Slf4j;
 @RestController
 @RequiredArgsConstructor
 public class ReportRestController {
-
-    private final EmploymentService employmentService;
+	private final EmploymentService employmentService;
     private final GpsCoordinateService gpsCoordinateService;
     private final LicensePlateService licensePlateService;
     private final OnetimePaymentsCalculatorService calculatorService;
@@ -97,7 +101,7 @@ public class ReportRestController {
     private final AddressService addressService;
 
     public record AddressRecord(String road, String house_number, int postcode, String town, double lat, double lng) {}
-    public record ReportRecord(long id, String driveDate, long employmentId, long rateTypeId, long licensePlateId, String purpose, String routeGeometry, boolean fourKmRule, boolean roundTrip, boolean startsAtHome, boolean endsAtHome, CalculationType calculationType, String rawDistance, String comment, double homeToBorder, List<AddressRecord> addressList) {}
+    public record ReportRecord(long id, String driveDate, long employmentId, long rateTypeId, long licensePlateId, String purpose, String routeGeometry, boolean fourKmRule, boolean roundTrip, boolean startsAtHome, boolean endsAtHome, CalculationType calculationType, String rawDistance, String comment, double homeToBorder, List<AddressRecord> addressList, Double estimatedTravelTime, List<String> waypointTimes) {}
     public record ApproveRecord(long reportId, OverridePaymentType type, String value) {}
 
     @Transactional(rollbackOn = Exception.class)
@@ -105,8 +109,15 @@ public class ReportRestController {
     public ResponseEntity<String> createReport(@RequestBody ReportRecord newRep) {
         // Sanity checks:
         if (!StringUtils.hasLength(newRep.purpose)) {
+			log.warn("Purpose was empty");
             return ResponseEntity.badRequest().build();
         }
+
+		if(newRep.purpose.length() > ReportConstants.REPORT_PURPOSE_MAX_LENGTH) {
+			log.warn("Purpose was {} long, limit is {}", newRep.purpose.length(), ReportConstants.REPORT_PURPOSE_MAX_LENGTH);
+			return ResponseEntity.badRequest().build();
+		}
+
         Rate rate = rateService.getById(newRep.rateTypeId);
         if (rate == null) {
             return ResponseEntity.badRequest().build();
@@ -147,6 +158,7 @@ public class ReportRestController {
         newReport.setFullName(person.getName());
         newReport.setKmRate(rate.getRatePerKm());
         newReport.setKmRateType(rate.getRateType().getName());
+        newReport.setKmRateTypeId(rate.getRateType().getId());
         newReport.setPayType(rate.getRateType().getPayType());
         newReport.setSequentialNumber(rate.getRateType().getSequentialNumber());
         newReport.setActiveYear(rate.getActiveYear());
@@ -168,11 +180,30 @@ public class ReportRestController {
         if (!CalculationType.READ.equals(newReport.getCalculationType())) {
             Route route = new Route();
             route.setRouteGeometry(routeService.routeEncoder(newRep.routeGeometry));
+            Double travelTime = newRep.estimatedTravelTime();
+            if (travelTime != null && (travelTime < 0 || travelTime.isNaN() || travelTime.isInfinite())) {
+                log.warn("Invalid estimatedTravelTime value, storing null: {}", travelTime);
+                travelTime = null;
+            }
+            route.setEstimatedTravelTime(travelTime);
             routeService.save(route);
             newReport.setRoute(route);
         } else {
             newReport.setStartsAtHome(newRep.startsAtHome);
             newReport.setEndsAtHome(newRep.endsAtHome);
+
+
+			if(!StringUtils.hasLength(newRep.comment)) {
+				log.warn("Comment was empty");
+				return ResponseEntity.badRequest().build();
+			}
+
+			if(newRep.comment.length() > ReportConstants.REPORT_COMMENT_MAX_LENGTH) {
+				log.warn("Comment was {} long, limit is {}", newRep.purpose.length(), ReportConstants.REPORT_COMMENT_MAX_LENGTH);
+				return ResponseEntity.badRequest().build();
+			}
+
+
             newReport.setComment(newRep.comment);
         }
 
@@ -190,10 +221,11 @@ public class ReportRestController {
         reportService.save(newReport);
         List<Report> reports = reportService.getByPersonAndDriveDate(person, newReport.getDriveDate());
 
+		ArrayList<GpsCoordinate> toBeDeleted = new ArrayList<>();
         List<GpsCoordinate> coords = new ArrayList<>();
-        List<GpsCoordinate> toBeDeleted = new ArrayList<>();
         if (newRep.id != 0L) {
-            toBeDeleted = newReport.getCoords();
+			toBeDeleted = new ArrayList<>(newReport.getCoords());
+			newReport.getCoords().clear();
         }
         if (newRep.addressList() != null && !newRep.addressList().isEmpty()) {
             for (int i = 0; i < newRep.addressList.size(); i++) {
@@ -205,6 +237,17 @@ public class ReportRestController {
                 gps.setAddress(addr.road + " " + addr.house_number + ", " + addr.postcode + " " + addr.town);
                 gps.setWaypoint(true);
                 gps.setPointNumber(i);
+                if (newRep.waypointTimes() != null && i < newRep.waypointTimes().size()) {
+                    String timeStr = newRep.waypointTimes().get(i);
+                    if (StringUtils.hasLength(timeStr)) {
+                        try {
+                            gps.setCreatedAt(driveDate.atTime(LocalTime.parse(timeStr)));
+                        } catch (DateTimeParseException e) {
+                            log.warn("Invalid waypoint time format submitted: {}", timeStr);
+                            return ResponseEntity.badRequest().build();
+                        }
+                    }
+                }
                 coords.add(gps);
             }
             GpsCoordinate first = coords.getFirst();
@@ -220,10 +263,13 @@ public class ReportRestController {
                 last.setEndPoint(true);
             }
 
-            newReport.setCoords(coords);
         }
 
-        gpsCoordinateService.deleteAll(toBeDeleted);
+		if (!coords.isEmpty()) {
+			newReport.getCoords().addAll(coords);
+		}
+
+		gpsCoordinateService.deleteAll(toBeDeleted);
         gpsCoordinateService.saveAll(coords);
 
         // All Reports from a day can have an influence on calculations for each other,
@@ -402,14 +448,18 @@ public class ReportRestController {
     @ModelAttribute
     @RequestMapping("rest/reportCard/getReports")
     public ResponseEntity<?> getReports(@RequestBody RequestReportDTO requestReportDTO) {
-        List<Employment> employments = employmentService.getByPersonAndOrgUnit(personService.getById(requestReportDTO.personId), orgUnitService.findById(requestReportDTO.orgUnitId));
+        Person byId = personService.getById(requestReportDTO.personId);
+        if (byId == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        List<Employment> employments = employmentService.getByPersonAndOrgUnit(byId, orgUnitService.findById(requestReportDTO.orgUnitId));
         if (employments == null) {
             return ResponseEntity.badRequest().build();
         }
 
         List<Report> reports = new ArrayList<>();
         for (Employment employment : employments) {
-            reports.addAll(reportService.getByPersonAndOrgUnitAndDriveDate(personService.getById(requestReportDTO.personId), employment.getEmployeeNumber(), requestReportDTO.from, requestReportDTO.to));
+            reports.addAll(reportService.getByPersonAndOrgUnitAndDriveDate(byId, employment.getEmployeeNumber(), requestReportDTO.from, requestReportDTO.to));
         }
 
         Set<String> licensePlates = new HashSet<>();
@@ -444,7 +494,7 @@ public class ReportRestController {
             reponseReportDTOs.add(reportDTO);
         }
 
-        ResponseDTO res = new ResponseDTO(personService.getById(requestReportDTO.personId).getName(), orgUnitService.findById(requestReportDTO.orgUnitId).getLongDescription(), requestReportDTO.from, requestReportDTO.to, LocalDate.now(), licensePlates, reponseReportDTOs);
+        ResponseDTO res = new ResponseDTO(byId.getName(), orgUnitService.findById(requestReportDTO.orgUnitId).getLongDescription(), requestReportDTO.from, requestReportDTO.to, LocalDate.now(), licensePlates, reponseReportDTOs);
 
         return ResponseEntity.ok(res);
     }
@@ -495,7 +545,7 @@ public class ReportRestController {
     @PostMapping("/reportCard/downloadReport")
     public ResponseEntity<StreamingResponseBody> downloadReportSelection(HttpServletRequest request, HttpServletResponse response, @RequestBody RequestReportDTO dto) {
         return ResponseEntity.ok().header("Content-Disposition", "attachment; filename=\"Rapporteringer.zip\"").body(out -> {
-            var zipOutputStream = new ZipOutputStream(out);
+            var zipOutputStream = new ZipOutputStream(out, StandardCharsets.UTF_8);
             reportService.addFilesToZipCsv(dto.personId, dto.orgUnitId, dto.from, dto.to, zipOutputStream, "rapport");
             zipOutputStream.close();
         });
@@ -604,7 +654,7 @@ public class ReportRestController {
     // Used by the select2
     @RequireApprover
     @GetMapping("reportCard/getPersonsByApprover")
-    public ResponseEntity<?> getPersonsByApprover(@RequestParam("q") String prefix, @RequestParam("orgUnitId") String orgUnitId) {
+    public ResponseEntity<?> getPersonsByApprover(@RequestParam("q") String prefix, @RequestParam(value = "orgUnitId", required = false, defaultValue = "") String orgUnitId) {
         List<Select2Result> results = new ArrayList<>();
         if (!StringUtils.hasLength(prefix)) {
             return new ResponseEntity<>(new Select2Results(results), HttpStatus.OK);
@@ -618,7 +668,7 @@ public class ReportRestController {
 			throw new AssertionError();
         }
 
-        if (!orgUnitId.isEmpty()) {
+        if (StringUtils.hasText(orgUnitId)) {
             var id = Long.parseLong(orgUnitId);
             employmentSet = employmentSet.stream()
                 .filter(employment -> employment.getOrgUnit().getId() == id)
@@ -720,13 +770,14 @@ public class ReportRestController {
     }
 
     @PostMapping("/rest/personal/report/list")
-    public DataTablesOutput<ReportView> paginatingTable(@RequestBody DataTablesInput input, @RequestParam(name = "status") ReportStatus status, @RequestParam(name = "startDate", required = false) LocalDate startDate, @RequestParam(name = "endDate", required = false) LocalDate endDate, @RequestParam(name = "orgUnitId", required = false) Long orgUnitId) {
+    public DataTablesOutput<ReportViewDTO> paginatingTable(@RequestBody DataTablesInput input, @RequestParam(name = "status") ReportStatus status, @RequestParam(name = "startDate", required = false) LocalDate startDate, @RequestParam(name = "endDate", required = false) LocalDate endDate, @RequestParam(name = "orgUnitId", required = false) Long orgUnitId) {
         Person loggedInPerson = securityUtil.getPerson();
         if (loggedInPerson == null) {
             return null;
         }
         Specification<ReportView> spec = DatatableSpecBuilderUtil.getReportViewSpecification(status, startDate, endDate, loggedInPerson.getId(), null);
-        return reportDatatableDao.findAll(input, spec);
+        DataTablesOutput<ReportView> all = reportDatatableDao.findAll(input, spec);
+        return gpsCoordinateService.addGpsToReports(all);
     }
 
     record AvailableAddressResponse(List<AvailableAddressDTO> addresses, String deltaDistance, String maxDistanceToSubtract, String fourKmWithdrawn) {}
@@ -746,7 +797,7 @@ public class ReportRestController {
         double deltaDistance = 0.00;
         double fourKmWithdrawn = 0.00;
         LocalDate driveDate = LocalDate.parse(date);
-        List<Report> reportsFromGivenDay = reportService.getByPersonAndDriveDate(loggedInPerson, driveDate);
+        List<Report> reportsFromGivenDay = reportService.getByPersonAndDriveDateAndStatusNotEqual(loggedInPerson, driveDate, ReportStatus.REJECTED, ReportStatus.REJECTED_AFTER_INVOICE);
         if (!reportsFromGivenDay.isEmpty()) {
             for (Report report : reportsFromGivenDay) {
                 // Round trip is not actually taken into account for rawDistance so we adjust the value for it
@@ -781,11 +832,7 @@ public class ReportRestController {
             }
 
         }
-        ArrayList<Employment> employments = loggedInPerson.getEmployments().stream()
-                .filter(Objects::nonNull)
-                .filter(employment -> employment.getStartDate() == null || employment.getStartDate().minusDays(1).isBefore(driveDate.atStartOfDay()))
-                .filter(employment -> employment.getStopDate() == null || employment.getStopDate().plusDays(1).isBefore(driveDate.atStartOfDay()))
-                .collect(Collectors.toCollection(ArrayList::new));
+        final List<Employment> employments = employmentService.getEmploymentsByPersonAndDriveDate(loggedInPerson, driveDate);
 		double maxDistanceToSubtract = calculatorService.getMaxDistanceToSubtractByAllEmployments(employments, driveDate);
 
         try {

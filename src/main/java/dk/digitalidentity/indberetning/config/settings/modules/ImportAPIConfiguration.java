@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class ImportAPIConfiguration {
 	private String apiKey;
+	private int maxUnknownOUs = 10;
 }

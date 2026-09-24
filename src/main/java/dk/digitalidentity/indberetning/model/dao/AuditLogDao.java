@@ -1,7 +1,6 @@
 package dk.digitalidentity.indberetning.model.dao;
 
 import dk.digitalidentity.indberetning.model.entity.AuditLog;
-import dk.digitalidentity.indberetning.model.entity.enums.LogAction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

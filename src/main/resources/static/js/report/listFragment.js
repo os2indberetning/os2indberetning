@@ -217,7 +217,7 @@ function ReportListFragmentService() {
                                 }
                                 text += modText[0] + "<br>Til:  ";
 
-                                if (row.endsAtHome && !row.isRoundTrip) {
+                                if (row.endsAtHome && !row.roundTrip) {
                                   text += '<i class="fa fa-fw fa-home" aria-hidden="true"></i>'
                                 }
                                 text += modText[modText.length-1];
@@ -266,11 +266,11 @@ function ReportListFragmentService() {
                             htmlString += '<i class="fa fa-fw fa-2x fa-comment" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="' + row.comment + '"></i>';
                         }
 
-                        if (row.isFromApp) {
+                        if (row.fromApp) {
                             htmlString += '<i class="fa fa-fw fa-2x fa-mobile" aria-hidden="true"></i>';
                         }
 
-                        if (row.isDivergentAddress) {
+                        if (row.divergentAddress) {
                             htmlString += '<i class="fa fa-fw fa-2x fa-tag" aria-hidden="true"></i>';
                         }
 
@@ -278,10 +278,13 @@ function ReportListFragmentService() {
                             htmlString += '<i class="fa fa-fw fa-2x fa-user-times" aria-hidden="true" title="Begrundelse for afvisning:\n' + row.userComment + '"></i>';
                         }
 
-                        if (row.isRoundTrip) {
+                        if (row.roundTrip) {
                             htmlString += '<i class="fa fa-fw fa-2x fa-exchange" aria-hidden="true" title="Ruten er tur/retur"></i>';
                         }
 
+                        if (row.error_code != null) {
+                            htmlString += '<i class="fa fa-fw fa-2x fa-exclamation-triangle"  style="color: #FFCC00" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="" data-original-title="Der er sket fejl ved indsendelse af din rapport til OPUS, venligst kontakt din IT-Afdeling for flere informationer"></i>';
+                        }
                         return htmlString;
 
                     }
@@ -364,7 +367,7 @@ function ReportListFragmentService() {
 
                             } else {
                                 if ($("#allowNewReportingToggle").val() != "false") {
-                                    if (row.isFromApp) {
+                                    if (row.fromApp) {
                                         htmlString += `<a style="color: black; margin-left: 5%" title="Rediger" onclick="reportListFragmentService.openMobileReport(${row.id})"><em class="fa fa-fw fa-lg fa-pencil"></em></a>`;
                                     }
                                     else {
@@ -393,7 +396,7 @@ function ReportListFragmentService() {
                             if (isPersonal) {
                                 if (row.status === "REJECTED") {
                                     if ($("#allowNewReportingToggle").val() != "false") {
-                                        if (row.isFromApp) {
+                                        if (row.fromApp) {
                                             htmlString += `<a style="color: black; margin-left: 5%" title="Rediger" onclick="reportListFragmentService.openMobileReport(${row.id})"><em class="fa fa-fw fa-lg fa-pencil"></em></a>`;
                                         }
                                         else {
@@ -413,15 +416,15 @@ function ReportListFragmentService() {
                     }
                 },
                 {
-                    "data": 'addresses',
+                    "data": 'id',
                     'visible': false
                 },
                 {
-                    "data": 'isFromApp',
+                    "data": 'fromApp',
                     "visible": false
                 },
                 {
-                    "data": 'isDivergentAddress',
+                    "data": 'divergentAddress',
                     "visible": false
                 }
                 ]
@@ -577,11 +580,15 @@ function ReportListFragmentService() {
                 confirmButtonColor: "red",
                 confirmButtonText: "Ja",
                 cancelButtonText: "Nej",
-                closeOnConfirm: true,
+                closeOnConfirm: false,
                 closeOnCancel: true
             },
             function (inputValue) {
                 if (inputValue) {
+                    if (inputValue.length > 255) {  // Handle too long input
+                        swal.showInputError("Du må maks angive 255 tegn");
+                        return false;
+                    }
                     $.ajax({
                         method: "POST",
                         url: "/rest/report/rejectInvoiced/" + obj,
@@ -738,6 +745,10 @@ function ReportListFragmentService() {
 
             if (inputValue === "") {  // Handle empty input
                 swal.showInputError("Du skal angive en begrundelse!");
+                return false;
+            }
+            if (inputValue.length > 255) {
+                swal.showInputError("Din afvisninstekst skal må ikke være mere end 255 tegn")
                 return false;
             }
 

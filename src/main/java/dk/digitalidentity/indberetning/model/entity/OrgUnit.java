@@ -47,6 +47,11 @@ public class OrgUnit {
 	@Column(name = "four_km_rule_allowed")
 	private Boolean fourKmRuleAllowed;
 
+	@JoinColumn(name = "default_rate_type_id")
+	@NotAudited
+	@ManyToOne
+	private RateType defaultRateType;
+
 	@Column(name = "calculation_type")
 	@Enumerated(EnumType.STRING)
 	private CalculationType defaultCalculationType;
@@ -66,4 +71,6 @@ public class OrgUnit {
 	@NotAudited
 	private Set<Address> addresses = new LinkedHashSet<>();
 
+	@Column
+	private boolean excludeFromMaxDistanceToSubtract;
 }

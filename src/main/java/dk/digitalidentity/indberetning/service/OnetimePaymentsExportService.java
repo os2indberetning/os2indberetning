@@ -81,6 +81,7 @@ public class OnetimePaymentsExportService {
 	}
 
 	public List<Engangsydelser> readOnetimePayments(String employeeNumber, LocalDateTime fromDate, LocalDateTime toDate) throws KMDOnetimeException {
+		log.info("readOnetimePayments: employeeNumber={}, from={}, to={}", employeeNumber, fromDate, toDate);
 		String fromDateStr = fromDate != null ? fromDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT) : "";
 		String toDateStr = toDate != null ? toDate.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT) : "";
 
@@ -91,7 +92,7 @@ public class OnetimePaymentsExportService {
 				.build();
 
 		if (log.isTraceEnabled()) {
-			log.trace("ReadOnetimePaymentsRequest = " + requestBody);
+			log.trace("ReadOnetimePaymentsRequest = {}", requestBody);
 		}
 
 		try {
@@ -118,7 +119,7 @@ public class OnetimePaymentsExportService {
 				throw new KMDOnetimeException(msg);
 			}
 			if (log.isDebugEnabled()) {
-				log.debug("body = " + body);
+				log.debug("body = {}", body);
 			}
 
 			if (body.Header() == null) {
@@ -132,12 +133,13 @@ public class OnetimePaymentsExportService {
 			return body.Engangsydelser();
 		}
 		catch (HttpClientErrorException e) {
-			log.info("e.getStatusCode() = " + e.getStatusCode());
+			log.warn("readOnetimePayments: HTTP exception for employee {}: {}", employeeNumber, e.getStatusCode(), e);
 		}
 		return null;
 	}
 
 	public boolean updateOnetimePayments(String employeeNumber, List<UpdateEngangsydelser> onetimePayments) {
+		log.info("updateOnetimePayments: employeeNumber={}, payments={}", employeeNumber, onetimePayments.size());
 
 		UpdateRequestHeader.UpdateRequestHeaderBuilder builder = UpdateRequestHeader.builder();
 		builder.ClientID(configuration.getOpus().getMunicipalityCode());
@@ -164,7 +166,7 @@ public class OnetimePaymentsExportService {
 		
 		auditLogService.saveSystem(LogAction.CREATE_OR_UPDATE_ONETIME_PAYMENT_REQ, "", requestBody);
 		if (log.isDebugEnabled()) {
-			log.debug("UpdateOnetimePaymentsRequest: " + requestBody);
+			log.debug("UpdateOnetimePaymentsRequest: {}", requestBody);
 		}
 
 		try {
@@ -186,7 +188,7 @@ public class OnetimePaymentsExportService {
 					.body(UpdateOnetimePaymentResponse.class);
 
 			if (body == null) {
-				String msg = "UpdateOnetimePayments: Empty body in response!";
+				String msg = "UpdateOnetimePayments: Empty body in response for employee: " + employeeNumber;
 				log.warn(msg);
 				throw new KMDOnetimeException(msg);
 			}
@@ -216,25 +218,31 @@ public class OnetimePaymentsExportService {
 							.findFirst()
 							.orElse(null);
 
-					if(failingPayment != null) {
-						errorLog.setReport(reportService.getById(failingPayment.reportId()));
+					if (failingPayment != null) {
+						Report report = reportService.getById(failingPayment.reportId());
+						errorLog.setReport(report);
 						errorLog = fixErrorUpdateOnetimePayments(errorLog);
+						report.setErrorLog(errorLog);
+						errorLogService.save(errorLog);
+						reportService.save(report);
 					}
-
-					errorLogService.save(errorLog);
+					else {
+						log.warn("Could not match error message to payment: {}", meddelelse.Tekst());
+						errorLogService.save(errorLog);
+					}
 				});
-				log.warn("UpdateOnetimePayments: response unsuccessful = \n" + sb);
+				log.warn("UpdateOnetimePayments: response unsuccessful for employee {} = {}", employeeNumber, sb.toString());
 				return false;
 			}
 
 			if (log.isDebugEnabled()) {
-				log.debug("body = " + body);
+				log.debug("body = {}", body);
 			}
 
 			return !configuration.getOpus().isOnlyValidateUpdates();
 		}
 		catch (HttpClientErrorException e) {
-			log.info("e.getStatusCode() = " + e.getStatusCode());
+			log.warn("updateOnetimePayments: HTTP exception for employee {}: {}", employeeNumber, e.getStatusCode(), e);
 			return false;
 		}
 	}
@@ -363,19 +371,23 @@ public class OnetimePaymentsExportService {
 	}
 
 	public void sendReports() {
+		log.info("sendReports: fetching unprocessed reports");
 		List<Report> unprocessed = reportService.getUnprocessed();
+		log.info("sendReports: found {} unprocessed reports", unprocessed.size());
 
 		if (unprocessed.isEmpty()) {
 			return;
 		}
 
-		log.info("Processing " + unprocessed.size() + " unprocessed reports to Opus Onetime Payments API");
 		HashMap<String, HashMap<String, List<Report>>> map = organiseReportsByEmployeeNumberAndMonth(unprocessed);
+		log.info("Processing {} unprocessed reports and {} unique employees to Opus Onetime Payments API", unprocessed.size(), map.size());
 
 		for (Map.Entry<String, HashMap<String, List<Report>>> entry : map.entrySet()) {
 			String employeeNumber = entry.getKey();
+			log.info("sendReports: processing employee={}, months={}", employeeNumber, entry.getValue().size());
 
 			List<UpdateEngangsydelser> updates = processOneMonth(entry, employeeNumber);
+			log.info("sendReports: employee={} produced {} payment updates", employeeNumber, updates.size());
 
 			List<Report> allReports = new ArrayList<>();
 			entry.getValue().values().forEach(allReports::addAll);
@@ -388,8 +400,10 @@ public class OnetimePaymentsExportService {
 			for (int i = 0; i < totalSize; i += batchSize) {
 				int end = Math.min(totalSize, i + batchSize);
 				List<UpdateEngangsydelser> batch = updates.subList(i, end);
+				log.info("sendReports: sending batch [{}-{}] of {} for employee={}", i, end, totalSize, employeeNumber);
 				// Call the API with the current batch
 				boolean success = updateOnetimePayments(employeeNumber, batch);
+				log.info("sendReports: batch [{}-{}] for employee={} success={}", i, end, employeeNumber, success);
 				if (success) {
 					for (UpdateEngangsydelser updateEngangsydelser : batch) {
 						finishedReports.add(reportsMap.get(updateEngangsydelser.reportId()));
@@ -402,16 +416,19 @@ public class OnetimePaymentsExportService {
 				report.setStatus(ReportStatus.REJECTED_AFTER_INVOICE.equals(report.getStatus()) ? ReportStatus.REJECTED : ReportStatus.INVOICED);
 			});
 
+			log.info("sendReports: saving {} completed reports for employee={}", finishedReports.size(), employeeNumber);
 			reportService.saveAll(finishedReports);
-
 		}
 	}
 
 	private @NotNull List<UpdateEngangsydelser> processOneMonth(Map.Entry<String, HashMap<String, List<Report>>> entry, String employeeNumber) {
+		log.info("processOneMonth: employeeNumber={}, months={}", employeeNumber, entry.getValue().size());
 		List<UpdateEngangsydelser> updates = new ArrayList<>();
 
 		for (Map.Entry<String, List<Report>> perMonthReports : entry.getValue().entrySet()) {
-			LocalDate date = LocalDate.parse(perMonthReports.getKey(), YEAR_AND_MONTH_FORMATTER);
+			String month = perMonthReports.getKey();
+			log.info("processOneMonth: processing employeeNumber={}, month={}, reports={}", employeeNumber, month, perMonthReports.getValue().size());
+			LocalDate date = LocalDate.parse(month, YEAR_AND_MONTH_FORMATTER);
 			LocalDate beginningOfMonth = date.withDayOfMonth(1);
 			LocalDate endOfMonth = date.withDayOfMonth(date.getMonth().length(date.isLeapYear()));
 
@@ -419,7 +436,9 @@ public class OnetimePaymentsExportService {
 			boolean isFirstReportOfMonth = true;
 
 			// Get entire onetimePayments for the month of the updated report.
+			log.info("processOneMonth: reading existing payments from OPUS for employeeNumber={}, month={}", employeeNumber, month);
 			List<Engangsydelser> registeredPayments = readOnetimePayments(employeeNumber, beginningOfMonth.atStartOfDay(), endOfMonth.atTime(23, 59, 59, 999_999_999));
+			log.info("processOneMonth: found {} existing payments in OPUS for employeeNumber={}, month={}", registeredPayments != null ? registeredPayments.size() : 0, employeeNumber, month);
 			HashMap<String, List<Engangsydelser>> registeredMap = new HashMap<>();
 			if (registeredPayments != null && !registeredPayments.isEmpty()) {
 
@@ -456,8 +475,12 @@ public class OnetimePaymentsExportService {
 					if (!Objects.equals(reportedAmount, registeredAmount)) {
 						double difference = reportedAmount - registeredAmount;
 						if (difference != 0) {
+							log.info("processOneMonth: reportId={}, employeeNumber={} - already in OPUS, sending difference={} (registered={}, reported={})", report.getId(), employeeNumber, difference, registeredAmount, reportedAmount);
 							updates.add(createOnetimePaymentRequest(report, difference, dateToReport));
 						}
+					}
+					else {
+						log.info("processOneMonth: reportId={}, employeeNumber={} - already in OPUS with correct amount={}, skipping", report.getId(), employeeNumber, registeredAmount);
 					}
 				}
 				else {
@@ -468,12 +491,18 @@ public class OnetimePaymentsExportService {
 					}
 
 					// This specific report has never been sent to OPUS send the full amount.
-					if (getDistance(report) != 0) {
+					double distance = getDistance(report);
+					if (distance != 0) {
+						log.info("processOneMonth: reportId={}, employeeNumber={} - new report, sending full amount={}", report.getId(), employeeNumber, distance);
 						updates.add(createOnetimePaymentRequest(report, report.getDistance(), dateToReport));
+					}
+					else {
+						log.info("processOneMonth: reportId={}, employeeNumber={} - skipping, distance=0", report.getId(), employeeNumber);
 					}
 				}
 			}
 		}
+		log.info("processOneMonth: employeeNumber={} - total updates produced: {}", employeeNumber, updates.size());
 		return updates;
 	}
 

@@ -21,4 +21,11 @@ public class AddressLookupRuntimeException extends RuntimeException {
 		this.statusCode = statusCode;
 		this.headers = headers;
 	}
+
+	public AddressLookupRuntimeException(String message) {
+		super(message);
+		this.message = message;
+		this.statusCode = null;
+		this.headers = null;
+	}
 }

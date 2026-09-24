@@ -48,4 +48,9 @@ public class ScheduledConfiguration {
 
 	private boolean cleanupOldAuditlogEnabled = true;
 	private String cleanupOldAuditlogCron;
+
+	private boolean cleanUpOldDataEnabled = true;
+	private String cleanUpOldDataCron;
+
+	private boolean cleanUpTaskDryRun = true;
 }

@@ -5,7 +5,6 @@ import dk.digitalidentity.indberetning.model.entity.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface LicensePlateDao extends JpaRepository<LicensePlate, Long> {
     LicensePlate findByRegistrationNumber(String registrationNumber);

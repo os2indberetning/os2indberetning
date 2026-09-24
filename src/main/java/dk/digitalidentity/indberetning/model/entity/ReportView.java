@@ -9,6 +9,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.criteria.Predicate;
+import lombok.Getter;
 import lombok.ToString;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -17,7 +18,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-
+@Getter
 @ToString
 @Entity(name = "view_reports")
 public class ReportView {
@@ -98,26 +99,22 @@ public class ReportView {
 	@JsonProperty("orgunitName")
 	@Column(name = "orgunit_name")
 	private String orgunitName;
-	
-	@JsonProperty("addresses")
-	@Column(name = "addresses")
-	private String addresses;
-	
+
 	@JsonProperty("routeGeometry")
 	@Column(name = "route_geometry")
 	private String routeGeometry;
 	
-	@JsonProperty("isFromApp")
-	@Column(name = "is_from_app")
-	private boolean isFromApp;
+	@JsonProperty("fromApp")
+	@Column(name = "from_app")
+	private boolean fromApp;
 	
-	@JsonProperty("isDivergentAddress")
-	@Column(name = "is_divergent_address")
-	private boolean isDivergentAddress;
+	@JsonProperty("divergentAddress")
+	@Column(name = "divergent_address")
+	private boolean divergentAddress;
 
-	@JsonProperty("isRoundTrip")
-	@Column(name = "is_round_trip")
-	private boolean isRoundTrip;
+	@JsonProperty("roundTrip")
+	@Column(name = "round_trip")
+	private boolean roundTrip;
 
 	@JsonProperty("userComment")
 	@Column(name = "user_comment")
@@ -140,6 +137,10 @@ public class ReportView {
 	@JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 	@JsonProperty("closedDate")
 	private LocalDateTime closedDate;
+
+	@Column
+	@JsonProperty("error_code")
+	private String errorCode;
 
 	public static Specification<ReportView> getByStatus(ReportStatus status) {
 		return (root, query, criteriaBuilder) -> criteriaBuilder.in(root.get("status")).value(status);

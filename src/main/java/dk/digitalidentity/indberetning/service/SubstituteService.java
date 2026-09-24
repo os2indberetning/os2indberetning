@@ -18,8 +18,6 @@ import org.springframework.util.StopWatch;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.chrono.ChronoLocalDate;
-import java.time.chrono.ChronoLocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -100,7 +98,7 @@ public class SubstituteService {
                                 .filter(employment -> !employment.isLeader())
                                 .toList());
             }
-            result.addAll(orgUnitService.findAllEmploymentsILead(ou.getChildren(), ousWithExclusiveSubstitutes, false));
+            result.addAll(orgUnitService.findAllEmploymentsILead(ou.getChildren(), ousWithExclusiveSubstitutes, false, date));
         }
     }
 
@@ -124,7 +122,7 @@ public class SubstituteService {
                         ou.getEmployments().stream()
                                 .filter(employment -> !employment.isLeader())
                                 .toList());
-                result.addAll(orgUnitService.findAllEmploymentsILead(ou.getChildren(), new HashSet<>(), true));
+                result.addAll(orgUnitService.findAllEmploymentsILead(ou.getChildren(), new HashSet<>(), true, date));
             }
         }
     }
@@ -220,7 +218,7 @@ public class SubstituteService {
                         .filter(employment -> employment.getStopDate() == null || employment.getStopDate().isAfter(LocalDateTime.now()))
                         .map(employment -> employment.getOrgUnit()).collect(Collectors.toList());
 
-                if ((activeEmployments == null || activeEmployments.isEmpty()) || !activeEmployments.contains(subAssignment.getOrgUnit())) {
+                if ((activeEmployments == null || activeEmployments.isEmpty()) || (!activeEmployments.contains(subAssignment.getOrgUnit()) && subAssignment.getOrgUnit() != null)) {
                     if (!subAssignment.isFinished()) {
                         subAssignment.setFinished(true);
                         terminated.add(subAssignment);

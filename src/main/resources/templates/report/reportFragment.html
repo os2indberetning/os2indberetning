@@ -2,7 +2,7 @@
 <html>
     <div class="wrapper wrapper-content" onclick="reportService.closeAll()">
         <div class="row">
-            <div class="col-md-12">
+            <div class="col-12">
                 <div class="ibox">
                     <div class="ibox-title">
                         <h5><em class="fa fa-car fa-lg"></em> &nbsp; Indberet tjenestekørsel</h5>
@@ -10,26 +10,25 @@
 
                     <div class="ibox-content wrapper-content" onclick="reportService.closeAll()">
                         <div class="row">
-                            <div class="col-md-12 col-lg-7">
+                            <div class="col-12 col-lg-6">
                                 <input class="form-control" name="id" id="reportEditId" style="display:none;" th:value="${dto?.id}">
 
                                 <div class="form-group row">
                                     <div class="col row">
-                                        <label class="col-sm-6 col-form-label" style="text-align:left;">Dato for tjenestekørsel</label>
-                                        <div class="col-sm-6">
+                                        <label class="col-6 col-form-label">Dato for tjenestekørsel</label>
+                                        <div class="col-6">
                                             <input class="form-control" type="date" id="driveDate" th:value="${dto?.driveDate} ? ${dto?.driveDate} : ${date}">
                                             <p id="driveDateErrorLabel" class="text-danger" hidden></p>
                                         </div>
                                     </div>
                                     <div class="col row">
-                                        <label class="col-sm-4 col-form-label" style="text-align:left;">
+                                        <label class="col-4 col-form-label">
                                             Nummerplade
-                                            &nbsp;
                                             <th:block th:if="${#lists.isEmpty(plates)}">
                                                 <i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.license.plate.not.registered'))}" class="fa fa-lg fa-exclamation" style="color:red;" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.license.plate.not.registered')}"></i>
                                             </th:block>
                                         </label>
-                                        <div class="col-sm-8">
+                                        <div class="col-8">
                                             <select class="form-control" id="plateSelect">
                                                 <option th:if="${#lists.isEmpty(plates)}" value="" >Ingen nummerplade registreret</option>
                                                 <option th:each="plates: ${plates}" th:value="${plates.id}" th:text="${plates.registrationNumber + ' (' + plates.description + ')'}" th:selected="${(dto != null && plates.registrationNumber == dto?.licensePlate) || (dto == null && plates.prime)}"></option>
@@ -38,37 +37,42 @@
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <div class="col-sm-3 col-form-label">
-                                        <label style="text-align:left;">Formål med tjenestekørsel</label>
-                                        &nbsp;
+                                    <div class="col-3 col-form-label">
+                                        <label>Formål med tjenestekørsel</label>
                                         <i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.report.purpose'))}" class="fa fa-lg fa-info" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.report.purpose')}"></i>
                                     </div>
-                                    <div class="col-sm-9">
+                                    <div class="col-9">
                                         <input class="form-control input-sm" type="text" placeholder="Skriv formålet med din tjenestekørsel" id="purposeField" th:value="${dto?.purpose}">
                                     </div>
                                 </div>
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label" style="text-align:left;">Stilling og ansættelsessted</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-3 col-form-label">Stilling og ansættelsessted</label>
+                                    <div class="col-9">
                                         <select class="form-control" id="employmentSelect">
                                             <option th:if="${#lists.isEmpty(employments)}" value="">Ingen ansættelse valgt</option>
-                                            <option th:each="employment: ${employments}" th:value="${employment.id}" th:data-four-km-rule="${employment.orgUnit.fourKmRuleAllowed}" th:data-default-calculation-type="${employment.orgUnit.defaultCalculationType.ordinal()}" th:text="|${employment.position} ved ${employment.orgUnit.longDescription}|" th:selected="${employment.id == dto?.employmentId}"></option>
+                                            <option th:each="employment: ${employments}" th:value="${employment.id}" th:data-four-km-rule="${employment.orgUnit.fourKmRuleAllowed}" th:data-default-calculation-type="${employment.orgUnit.defaultCalculationType.ordinal()}" th:data-default-rate-type="${employment.orgUnit.defaultRateType?.id}" th:text="|${employment.position} ved ${employment.orgUnit.longDescription}|" th:selected="${employment.id == dto?.employmentId}"></option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group row">
                                     <div class="col row">
-                                        <label class="col-sm-6 col-form-label" style="text-align:left;">Takst</label>
-                                        <div class="col-sm-6">
+                                        <label class="col-6 col-form-label">Takst</label>
+                                        <div class="col-6">
                                             <select class="form-control" id="rateSelect">
                                                 <option value="">Ingen takst valgt</option>
-                                                <option th:each="rate: ${rates}" th:value="${rate.id}" th:text="|${rate.rateType.name}|" th:selected="${(dto?.rate?.id == rate.id) || (activeRate?.id == rate?.id) || (activeRate == null && dto == null && rate?.rateType?.prime)}"></option>
+                                                <option th:each="rate: ${rates}"
+                                                        th:value="${rate.id}"
+                                                        th:data-rate-type-id="${rate.rateType.id}"
+                                                        th:data-prime="${rate.rateType.prime}"
+                                                        th:text="|${rate.rateType.name}|"
+                                                        th:selected="${(dto?.rate?.id == rate.id) || (activeRate?.id == rate?.id) || (activeRate == null && dto == null && rate?.rateType?.prime)}">
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col row">
-                                        <label class="col-sm-4 col-form-label" style="text-align:left;">Kilometeropgørelse</label>
-                                        <div class="col-sm-8">
+                                        <label class="col-4 col-form-label">Kilometeropgørelse</label>
+                                        <div class="col-8">
                                             <select class="form-control" id="calculationType" onchange="addressService.getDeltaDistance()">
                                                 <option th:each="type : ${T(dk.digitalidentity.indberetning.model.entity.enums.CalculationType).values()}" th:text="${type.message}" th:value="${type.ordinal()}" th:selected="${dto?.calculationType != null && dto?.calculationType?.name == type.name}"></option>
                                             </select>
@@ -80,29 +84,29 @@
 
                                 <div id="calculationTypeReadFields" hidden="hidden">
                                     <div class="form-group row" id="distanceFieldKmReadDiv">
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Antal kørete kilometer</label>
-                                        <div class="col-sm-9">
+                                        <label class="col-3 col-form-label">Antal kørete kilometer</label>
+                                        <div class="col-9">
                                             <input id="distanceFieldKmRead" class="form-control input-sm" type="number" min="0" th:value="${dto?.rawDistance}">
                                         </div>
                                     </div>
 
                                     <div class="form-group row" id="commentDiv" >
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Bemærkninger til ruten</label>
-                                        <div class="col-sm-9">
+                                        <label class="col-3 col-form-label">Bemærkninger til ruten</label>
+                                        <div class="col-9">
                                             <input class="form-control input-sm" type="text" placeholder="Ydeligere kommentarer til ruten" id="commentField" th:value="${dto?.comment}">
                                         </div>
                                     </div>
 
                                     <div class="form-group row" id="startsAtHomeDiv">
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Startede hjemme</label>
-                                        <div class="col-sm-9">
+                                        <label class="col-3 col-form-label">Startede hjemme</label>
+                                        <div class="col-9">
                                             <input class="i-checks" type="checkbox" name="Startede hjemme" id="startsAtHome" th:checked="${dto?.startsAtHome}">
                                         </div>
                                     </div>
 
                                     <div class="form-group row" id="endsAtHomeDiv">
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Sluttede hjemme</label>
-                                        <div class="col-sm-9">
+                                        <label class="col-3 col-form-label" >Sluttede hjemme</label>
+                                        <div class="col-9">
                                             <input class="i-checks" type="checkbox" name="Sluttede hjemme" id="endsAtHome" th:checked="${dto?.endsAtHome}">
                                         </div>
                                     </div>
@@ -110,8 +114,8 @@
 
                                 <div id="calculationTypeCalculatedFields">
                                     <div class="form-group row">
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Vælg personlig rute </label>
-                                        <div class="col-sm-9">
+                                        <label class="col-3 col-form-label" >Vælg personlig rute </label>
+                                        <div class="col-9">
                                             <select class="form-control" id="selectKnownRoute" onchange="reportService.personalRouteInputChange(this)">
                                                 <option value="">Vælg personlig rute</option>
                                                 <option th:each="personalRoute: ${personalRoutes}"
@@ -123,13 +127,17 @@
                                         </div>
                                     </div>
                                     <div class="form-group row" id="fromRow">
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Fra (Vælg adresse)</label>
-                                        <div class="col-sm-9">
-                                            <input class="addressinput form-control" type="text" id="startField" placeholder="Indtast adresse her" autocomplete="off" list="startFieldList" th:value="${dto?.first?.address}">
+                                        <label class="col-3 col-form-label">Fra (Vælg adresse)</label>
+                                        <div class="col-9">
+                                            <div class="d-flex gap-2">
+                                                <input class="addressinput form-control" type="text" id="startField" placeholder="Indtast adresse her" autocomplete="off" list="startFieldList" th:value="${dto?.first?.address}">
+                                                <input th:if="${allowTimePicker}" type="time" class="form-control waypoint-time" id="waypointTime0" style="width:110px; flex-shrink:0;"
+                                                       th:value="${dto?.first?.createdAt != null ? #temporals.format(dto.first.createdAt, 'HH:mm') : ''}"/>
+                                            </div>
                                             <dataList id="startFieldList"></dataList>
                                             <div class="form-group">
                                                 <div class="input-group">
-                                                    <input class="form-control" id="searchAddressesStart" placeholder="Eller vælg adresse fra liste" oninput="reportService.onSearch('Start')" onclick="reportService.triggerSearchOnClick('Start')" onkeydown="reportService.handleKeyNavigation(event, 'Start')" onfocusin="reportService.onSearch('Start')">
+                                                    <input class="form-control form-control-sm" id="searchAddressesStart" placeholder="Eller vælg adresse fra liste" oninput="reportService.onSearch('Start')" onclick="reportService.triggerSearchOnClick('Start')" onkeydown="reportService.handleKeyNavigation(event, 'Start')" onfocusin="reportService.onSearch('Start')">
                                                     <span class="input-group-addon">
                                                         <span class="fa fa-arrow-down" onclick="reportService.initSearch('Start')"></span>
                                                     </span>
@@ -141,29 +149,46 @@
 
                                     <div id="waypointDiv">
                                         <div th:each="coord, iStat : ${dto?.coords}" class="form-group row">
-                                            <label class="col-sm-3 col-form-label" style="text-align:left;">
-                                                <p style="text-align:left;">Via</p>
+                                            <label class="col-3 col-form-label" >
+                                                <p>Via</p>
                                                 <i class="fa fa-lg fa-trash" th:data-id="${iStat.index + 1}" onclick="reportService.deleteWaymarker(this)"></i>
                                                 <i class="fa fa-lg fa-arrow-up" th:data-id="${iStat.index + 1}" onclick="reportService.moveWaymarker(true, this)"></i>
                                                 <i class="fa fa-lg fa-arrow-down" th:data-id="${iStat.index + 1}" onclick="reportService.moveWaymarker(false, this)"></i>
                                             </label>
-                                            <div class="col-sm-9">
-                                                <input class="addressinput form-control waymarker" type="text" th:id="${'waymarker' + (iStat.index + 1)}" th:value="${coord.address}" th:data-listid="${iStat.index + 1}" autocomplete="off" th:list="${'waymarker' + (iStat.index + 1) + 'List'}">
+                                            <div class="col-9">
+                                                <div class="d-flex gap-2">
+                                                    <input class="addressinput form-control waymarker" type="text" th:id="${'waymarker' + (iStat.index + 1)}" th:value="${coord.address}" th:data-listid="${iStat.index + 1}" autocomplete="off" th:list="${'waymarker' + (iStat.index + 1) + 'List'}">
+                                                    <input th:if="${allowTimePicker}" type="time" class="form-control waypoint-time" th:id="${'waypointTime' + (iStat.index + 1)}" style="width:110px; flex-shrink:0;"
+                                                           th:value="${coord.createdAt != null ? #temporals.format(coord.createdAt, 'HH:mm') : ''}"/>
+                                                </div>
                                                 <dataList th:id="${'waymarker' + (iStat.index + 1) + 'List'}"></dataList>
-                                                <select class="form-control" th:id="${'waymarker' + (iStat.index + 1) + 'Select'}" th:data-id="${'waymarker' + iStat.index + 1}" onclick="reportService.selectAddress(this)">
-                                                </select>
+                                                <div class="form-group">
+                                                    <div class="input-group">
+                                                        <input class="form-control form-control-sm waymarker-search" th:id="${'searchAddresses' + (iStat.index + 1)}"
+                                                               th:data-idx="${iStat.index + 1}"
+                                                               placeholder="Eller vælg adresse fra liste">
+                                                        <span class="input-group-addon">
+                                                            <span class="fa fa-arrow-down waymarker-search-init" th:data-idx="${iStat.index + 1}"></span>
+                                                        </span>
+                                                    </div>
+                                                    <div th:id="${'searchResults' + (iStat.index + 1)}" class="list-group resultContainer" style="position: absolute; z-index: 1000; width: 95.5%; background: white; border: 1px solid #ccc; box-shadow: 0px 40px 6px rgba(0, 0, 0, 0.02);"></div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="form-group row" id="toRow">
-                                        <label class="col-sm-3 col-form-label" style="text-align:left;">Til (Vælg adresse)</label>
-                                        <div class="col-sm-9">
-                                            <input class="addressinput form-control" type="text" id="endField" placeholder="Indtast adresse her" autocomplete="off" list="endFieldList" th:value="${dto?.last?.address}">
+                                        <label class="col-3 col-form-label">Til (Vælg adresse)</label>
+                                        <div class="col-9">
+                                            <div class="d-flex gap-2">
+                                                <input class="addressinput form-control" type="text" id="endField" placeholder="Indtast adresse her" autocomplete="off" list="endFieldList" th:value="${dto?.last?.address}">
+                                                <input th:if="${allowTimePicker}" type="time" class="form-control waypoint-time" id="waypointTimeEnd" style="width:110px; flex-shrink:0;"
+                                                       th:value="${dto?.last?.createdAt != null ? #temporals.format(dto.last.createdAt, 'HH:mm') : ''}"/>
+                                            </div>
                                             <dataList id="endFieldList"></dataList>
                                             <div class="form-group">
                                                 <div class="input-group">
-                                                    <input class="form-control" id="searchAddressesEnd" placeholder="Eller vælg adresse fra liste" oninput="reportService.onSearch('End')" onclick="reportService.triggerSearchOnClick('End')" onkeydown="reportService.handleKeyNavigation(event, 'End')" onfocusin="reportService.onSearch('End')">
+                                                    <input class="form-control form-control-sm" id="searchAddressesEnd" placeholder="Eller vælg adresse fra liste" oninput="reportService.onSearch('End')" onclick="reportService.triggerSearchOnClick('End')" onkeydown="reportService.handleKeyNavigation(event, 'End')" onfocusin="reportService.onSearch('End')">
                                                     <span class="input-group-addon">
                                                         <span class="fa fa-arrow-down" onclick="reportService.initSearch('End')"></span>
                                                     </span>
@@ -173,40 +198,39 @@
                                         </div>
                                     </div>
                                     <div class="form-group row" id="moreWayPointsButton">
-                                        <div class="offset-sm-3 col-sm-2">  
+                                        <div class="offset-3 col-2">
                                             <button type="button" class="btn btn-lg btn-secondary" onclick="reportService.onAddWaymarkerPressed()">Tilføj delmål</button>
                                         </div>
                                     </div>
+                                    <input type="hidden" id="allowTimePickerFlag" th:value="${allowTimePicker}"/>
                                 </div>
 
                                 <hr/>
 
                                 <div class="form-group row" id="fourKmDiv">
-                                    <label class="col-sm-3 col-form-label" style="text-align:left;">
+                                    <label class="col-3 col-form-label">
                                         4 Km-reglen
-                                        &nbsp;
                                         <i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.four.km.rule'))}" class="fa fa-lg fa-info" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.four.km.rule')}"></i>
                                     </label>
-                                    <div class="col-sm-1">
+                                    <div class="col-1">
                                         <input class="i-checks" type="checkbox" name="Jeg bruger 4 Km-reglen" id="fourKmCheck" th:checked="${dto?.fourKmRule}"/>
                                     </div>
-                                    <div class="col-sm-8 form-group row" style="padding-right:0px;" id="fourKmDistanceDiv" hidden="hidden">
-                                        <div class="col-form-label col-sm-5">
+                                    <div class="col-8 form-group row" style="padding-right:0px;" id="fourKmDistanceDiv" hidden="hidden">
+                                        <div class="col-form-label col-5">
                                             <label>
-                                                Afstand i Km fra kommunegrænsen:
-                                                &nbsp;
+                                                Afstand i Km (fra hjem til kommunegrænsen):
                                                 <i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.four.km.rule.value'))}" class="fa fa-lg fa-info" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.four.km.rule.value')}"></i>
                                             </label>
                                         </div>
-                                        <div class="col-sm-7" style="padding-right:0px;">
+                                        <div class="col-7" style="padding-right:0px;">
                                             <input class="form-control input-sm" type="number" id="fourKmDistance" min="0" th:value="${dto?.homeToBorderDistance}">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="form-group row">
-                                    <label class="col-sm-3 col-form-label" style="text-align:left;">Tur + retur</label>
-                                    <div class="col-sm-9">
+                                    <label class="col-3 col-form-label">Tur + retur</label>
+                                    <div class="col-9">
                                         <input class="i-checks" type="checkbox" name="Tur + retur" id="roundTripCheck" th:checked="${dto?.roundTrip}">
                                     </div>
                                 </div>
@@ -216,40 +240,52 @@
                                 <hr/>
 
                                 <div class="form-group row">
-                                    <div class="col-sm-12">
+                                    <div class="col-12">
                                         <input class="btn btn-danger" style="margin-right:10px;" type="button" onclick="reportService.cancel()" value="Annuller">
                                         <input th:if="${dto == null}" class="btn btn-primary" style="margin-right:10px;" type="button" id="saveButton" onclick="reportService.save()" value="Indberet">
                                         <input th:if="${dto != null}" class="btn btn-warning" style="margin-right:10px;" id="editSaveButton" type="button" onclick="reportService.save()" value="Gem Indberetning">
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-12 col-lg-5">
-                                <div class="row h-75">
-                                    <div  class="col-sm-12" id="map" th:data-lat="${primaryAddress.latitude}" th:data-lng="${primaryAddress.longitude}"></div>
+                            <div class="col-12 col-lg-6">
+                                <div class="row" id="mapFragmentReportPage">
+                                    <div class="col-12" id="map" th:data-lat="${primaryAddress.latitude}" th:data-lng="${primaryAddress.longitude}"></div>
                                 </div>
-                                <div class="row h-25" style="padding-top:15px;">
+                                <div class="form-group row pt-3">
                                     <input type="hidden" id="editMapRoute" th:value="${dto?.routeGeometry}">
-                                    <div class="col-sm-12 col-xl-6" >
+                                    <div class="col-12">
                                         <div class="form-group row">
                                             <input type="text" id="rawDistanceFieldKm" style="display:none;" th:value="${dto == null ? 0 : dto?.rawDistance}"/>
                                             <input type="text" id="maxDistanceToSubtract" style="display:none;"/>
                                             <input type="text" id="subtractedBySavedReports" style="display:none;"/>
                                             <input type="text" id="fourKmWithdrawnBySavedReports" style="display:none;"/>
 
-                                            <label class="col-sm-8 col-form-label" style="text-align:left;">Afstand i km:</label>
-                                            <input class="col-sm-4 form-control" type="text" id="distanceFieldKm" disabled th:value="${dto == null ? 0 : dto?.rawDistance}"/>
+                                            <label class="col-4 col-form-label">Afstand i km:</label>
+                                            <input class="col-8 form-control" type="text" id="distanceFieldKm" disabled th:value="${dto == null ? 0 : dto?.rawDistance}"/>
                                         </div>
                                     </div>
-                                    <div class="col-xl-6 col-sm-12">
+
+                                    <div class="col-12">
                                         <div class="form-group row">
-                                            <label class="col-sm-8 col-form-label" style="text-align:left;">
+                                            <label class="col-4 col-form-label">
                                                 Merkørselsfradrag for dato i km:
-                                                &nbsp;
                                                 <i th:unless="${#strings.isEmpty(@cmsMessageBundle.getText('cms.help.extra.distance'))}" class="fa fa-lg fa-info" aria-hidden="true" data-toggle="tooltip" data-html="true" data-placement="top" title="" th:data-original-title="${@cmsMessageBundle.getText('cms.help.extra.distance')}"></i>
                                             </label>
-                                            <input class="col-sm-4 form-control" type="text" id="deltaDistance" disabled/>
+                                            <input class="col-8 form-control" type="text" id="deltaDistance" disabled/>
                                         </div>
                                     </div>
+
+                                    <div th:if="${allowTimePicker}" class="col-12">
+                                        <div class="form-group row">
+                                            <label class="col-4 col-form-label">Estimeret tid: </label>
+                                            <input class="col-8 form-control" type="text" id="displayDurationField" disabled/>
+                                            <input class="col-8 form-control" type="text" id="hiddenDurationField" hidden/>
+                                        </div>
+                                    </div>
+                                    <th:block th:unless="${allowTimePicker}">
+                                        <input type="text" id="displayDurationField" hidden/>
+                                        <input type="text" id="hiddenDurationField" hidden/>
+                                    </th:block>
                                 </div>
                             </div>
                         </div>

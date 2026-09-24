@@ -1,6 +1,7 @@
 package dk.digitalidentity.indberetning.controller.mvc;
 
 import com.google.maps.model.EncodedPolyline;
+import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
 import dk.digitalidentity.indberetning.model.entity.Employment;
 import dk.digitalidentity.indberetning.model.entity.Report;
 import dk.digitalidentity.indberetning.security.NoRoleRequired;
@@ -33,6 +34,7 @@ public class MapController {
 	private final SecurityUtil securityUtil;
 	private final SubstituteService substituteService;
 	private final EmploymentService employmentService;
+	private final OS2indberetningConfiguration configuration;
 
 	@GetMapping("/approve/mapFragment/{id}")
 	public String  mapFragment(Model model, @PathVariable(name = "id") long id){
@@ -55,6 +57,15 @@ public class MapController {
 		model.addAttribute("distance", report.isRoundTrip() ? report.getRawDistance() * 2 : report.getRawDistance());
 		model.addAttribute("interestpoints", gpsCoordinateService.getByReport(report));
 		model.addAttribute("primaryAddress", addressService.getPrimary());
+		boolean allowTimePicker = configuration.isAllowTimePickerAndTimeEstimation();
+		model.addAttribute("allowTimePicker", allowTimePicker);
+		Double estimatedTravelTime = report.getRoute().getEstimatedTravelTime();
+		if (allowTimePicker && estimatedTravelTime != null) {
+			if (report.isRoundTrip()) {
+				estimatedTravelTime = estimatedTravelTime * 2;
+			}
+			model.addAttribute("estimatedTravelTime", routeService.formatDuration(estimatedTravelTime));
+		}
 		return "approve/mapFragment";
 	}
 }

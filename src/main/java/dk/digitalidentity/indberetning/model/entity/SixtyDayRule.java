@@ -27,7 +27,7 @@ public class SixtyDayRule {
 
     @ManyToOne(optional = false)
     @JsonIgnore
-    @JoinColumn(name = "person", nullable = false)
+    @JoinColumn(name = "person_id", nullable = false)
     private Person person;
 
     @Column(name = "address")

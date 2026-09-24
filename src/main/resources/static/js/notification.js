@@ -22,7 +22,8 @@ function NotificationService() {
                 }
                 swal({
                         title: "System besked",
-                        text: data.replace(/<\/p>/g, "\n").replace(/<[^>]+>/g, "").trim(),
+                        html: true,
+                        text: data,
                         confirmButtonColor: "#1ab394",
                         confirmButtonText: "Forstået",
                         closeOnConfirm: true,

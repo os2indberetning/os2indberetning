@@ -4,14 +4,17 @@ import dk.digitalidentity.indberetning.model.dao.OrgUnitDao;
 import dk.digitalidentity.indberetning.model.entity.Employment;
 import dk.digitalidentity.indberetning.model.entity.OrgUnit;
 import dk.digitalidentity.indberetning.model.entity.Person;
+import dk.digitalidentity.indberetning.model.entity.dto.RestOrgUnitDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -25,6 +28,10 @@ public class OrgUnitService {
 
 	public List<OrgUnit> getAll() {
 		return orgUnitDao.findAll();
+	}
+
+	public List<OrgUnit> getAllWithAddresses() {
+		return orgUnitDao.findAllWithAddresses();
 	}
 	public List<OrgUnit> saveAll(List<OrgUnit> toBeCreated) {
 		return orgUnitDao.saveAll(toBeCreated);
@@ -93,35 +100,37 @@ public class OrgUnitService {
 		return inclusiveBegin && inclusiveEnd;
 	}
 
-	public List<Person> findAllLeaders() {
-		List<Person> result = new ArrayList<>();
+	public Set<Person> findAllValidLeaders() {
+		Set<Person> result = new HashSet<>();
 
 		List<OrgUnit> orgUnit = getAll();
 		for (OrgUnit unit : orgUnit) {
 			if (orgUnit == null) {
 				log.warn("No OrgUnits have been found!");
+				continue;
 			}
-			else {
-				for (Employment employment : unit.getEmployments()) {
-					if (employment.isLeader()) {
-						result.add(employment.getPerson());
-					}
-				}
-			}
+
+			List<Person> employments = unit.getEmployments().stream()
+				.filter(Employment::isLeader)
+				.filter(e -> e.getStopDate() == null || e.getStopDate().isAfter(LocalDateTime.now()))
+				.map(Employment::getPerson)
+				.toList();
+
+			result.addAll(employments);
 		}
 		return result;
 	}
 
 	// This code assumes you lead ALL employments in an OU, even if they have stopped. Giving you access to lookups and the like.
-	public List<Employment> findAllEmploymentsILead(Set<OrgUnit> orgUnits, Set<Long> substituteExclusiveModeOUs, boolean ignoreExclusiveMode) {
+	public List<Employment> findAllEmploymentsILead(Set<OrgUnit> orgUnits, Set<Long> substituteExclusiveModeOUs, boolean ignoreExclusiveMode, LocalDate date) {
 		ArrayList<Employment> result = new ArrayList<>();
 		if (orgUnits != null && !orgUnits.isEmpty()) {
 
 			for (OrgUnit orgUnit : orgUnits) {
-				List<Employment> leaders = orgUnit.getEmployments().stream().filter(Employment::isLeader).toList();
+				List<Employment> leaders = orgUnit.getEmployments().stream().filter(employment -> employment.isLeader() && DateUtil.dateTimeBetweenInclusive(date, employment.getStartDate(), employment.getStopDate())).toList();
 				if (leaders.isEmpty() && (ignoreExclusiveMode || !substituteExclusiveModeOUs.contains(orgUnit.getId()))) {
 					result.addAll(orgUnit.getEmployments());
-					result.addAll(findAllEmploymentsILead(orgUnit.getChildren(), substituteExclusiveModeOUs, ignoreExclusiveMode));
+					result.addAll(findAllEmploymentsILead(orgUnit.getChildren(), substituteExclusiveModeOUs, ignoreExclusiveMode, date));
 				}
 				else {
 					result.addAll(leaders);
@@ -136,5 +145,16 @@ public class OrgUnitService {
 	}
 	public OrgUnit findByOrgId(String orgId) {
 		return orgUnitDao.findByOrgId(orgId);
+	}
+
+	@Transactional
+	public void updateOrgUnit(final long id, final RestOrgUnitDTO dto) {
+		OrgUnit orgUnit = orgUnitDao.findById(id).orElseThrow();
+
+		if(dto.getExcludeMaxDistanceToSubtract() != null) {
+			orgUnit.setExcludeFromMaxDistanceToSubtract(dto.getExcludeMaxDistanceToSubtract());
+		}
+
+		save(orgUnit);
 	}
 }

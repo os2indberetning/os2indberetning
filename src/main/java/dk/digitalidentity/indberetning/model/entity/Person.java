@@ -11,10 +11,12 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @Audited
 @EntityListeners(AuditingEntityListener.class)
 public class Person {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
@@ -76,23 +79,30 @@ public class Person {
 	@OneToMany(mappedBy = "person")
 	@NotAudited
 	private Set<Report> reports = new LinkedHashSet<>();
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "actualLeader")
 	@NotAudited
 	private Set<Report> reportsActualLeader = new LinkedHashSet<>();
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "approvedBy")
 	@NotAudited
 	private Set<Report> reportsApproved = new LinkedHashSet<>();
+	
 	@JsonIgnore
 	@OneToMany(mappedBy = "personId", orphanRemoval = true)
 	@NotAudited
 	private Set<PersonalRoute> personalRoutes = new LinkedHashSet<>();
+
 	@JsonIgnore
 	@OneToMany(mappedBy = "person", orphanRemoval = true)
 	@NotAudited
 	private Set<Address> addresses = new LinkedHashSet<>();
 
+	@UpdateTimestamp
+	@Column(name = "last_edited")
+	private LocalDateTime lastEdited;
 
     @JsonIgnore
 	public String getEmployeeNumbers() {

@@ -48,7 +48,7 @@ function AddressWashService() {
         washingMap = L.map('washingMap').setView([$("#washingMap").data('lat'), $("#washingMap").data('lng')], 14);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: false
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(washingMap);
         this.marker = L.marker([0, 0]);
 
@@ -259,7 +259,7 @@ function AddressWashService() {
     this.toLatLng = function() {
         var coord = addressService.addressToLtLg(addressService.addressWash($("#dirtyStreet").val() + " " + $("#dirtyNumber").val() + ", " + $("#dirtyZip").val()));
         if(this.marker) { washingMap.removeLayer(this.marker); }
-        this.marker = L.marker([coord[0].lat, coord[0].lng],{draggable: true, autoPan: true, title: "lokation"}).addTo(washingMap);
+        this.marker = L.marker([coord.lat, coord.lng],{draggable: true, autoPan: true, title: "lokation"}).addTo(washingMap);
         washingMap.flyTo(this.marker.getLatLng(), 15, {animate: false});
     }
 

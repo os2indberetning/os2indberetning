@@ -8,7 +8,7 @@ function AddressService() {
         let map = L.map(mapId).setView(startView, 14);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
-          attribution: false
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           }).addTo(map);
         return map;
     }
@@ -42,7 +42,7 @@ function AddressService() {
 
     var addressLatLngErrorTimer;
     this.addressToLtLg = function(addr) {
-        var ltLgJSON;
+        let ltLgJSON = {};
         $.ajax({
             method: "GET",
             url: "/routeapi/addressToLatLng/" + addr.vejstykke.navn + ',' + addr.husnr + ',' + addr.postnummer.nr,
@@ -52,12 +52,15 @@ function AddressService() {
                 'X-CSRF-TOKEN': token
             },
             success: function(data, textStatus, jqXHR) {
-                ltLgJSON = JSON.parse(data);
-                ltLgJSON[0].lat = ltLgJSON[0].adgangspunkt.koordinater[1];
-                ltLgJSON[0].lon = ltLgJSON[0].adgangspunkt.koordinater[0];
-                ltLgJSON[0].lng = ltLgJSON[0].lon; // ads a lng to json for consistency
+                ltLgJSON.lat = data.lat;
+                ltLgJSON.lon = data.lon;
+                ltLgJSON.lng = data.lon;
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                if(jqXHR.status === 400) {
+                    return;
+                }
+
                 clearTimeout(addressLatLngErrorTimer);
                 addressLatLngErrorTimer = setTimeout(() => {
                     toastr.warning(jqXHR.responseText ? jqXHR.responseText : "Der er opstået en teknisk fejl");
@@ -69,7 +72,7 @@ function AddressService() {
 
     var latLngAddressErrorTimer;
     this.latLngToAddress = function(coord) {
-        var parsedResponse;
+        let responseData;
         $.ajax({
             method: "GET",
             url: "/routeapi/latLngToAddress/" + coord.lat + ',' + coord.lng,
@@ -79,8 +82,7 @@ function AddressService() {
                 'X-CSRF-TOKEN': token
             },
             success: function(data, textStatus, jqXHR) {
-                parsedResponse = JSON.parse(data);
-                parsedResponse.address = parsedResponse;
+                responseData = data;
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 clearTimeout(latLngAddressErrorTimer);
@@ -88,16 +90,19 @@ function AddressService() {
                     toastr.warning(jqXHR.responseText ? jqXHR.responseText : "Der er opstået en teknisk fejl");
                 }, 250);
             }
-        })
-        return parsedResponse;
+        });
+
+        return responseData;
     }
 
+    // a failed address lookup yields undefined, so callers must not be able to break on it
     this.addressString = function(parsedJson) {
+        if (!parsedJson) { return ""; }
         var addString = "";
-        if (parsedJson.vejstykke.navn != null) { addString += parsedJson.vejstykke.navn + ' '; }
+        if (parsedJson.vejstykke && parsedJson.vejstykke.navn != null) { addString += parsedJson.vejstykke.navn + ' '; }
         if (parsedJson.husnr != null) { addString += parsedJson.husnr + ', ' }
-        if (parsedJson.postnummer.nr != null) { addString += parsedJson.postnummer.nr + ' '; }
-        if (parsedJson.postnummer.navn != null) { addString += parsedJson.postnummer.navn; }
+        if (parsedJson.postnummer && parsedJson.postnummer.nr != null) { addString += parsedJson.postnummer.nr + ' '; }
+        if (parsedJson.postnummer && parsedJson.postnummer.navn != null) { addString += parsedJson.postnummer.navn; }
         return addString;
     }
 

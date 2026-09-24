@@ -19,28 +19,22 @@ SELECT
     END) AS extra_distance_amount,
     r.four_km_rule,
     r.user_comment,
-    r.is_round_trip,
+    r.is_round_trip AS round_trip,
     CONCAT(p.first_name, ' ', p.last_name) AS approved_by_name,
     ou.short_description AS orgunit_initials,
     ou.long_description AS orgunit_name,
-    (
-        SELECT
-            GROUP_CONCAT(gps.address ORDER BY gps.point_number ASC SEPARATOR '
-')
-        FROM gps_coordinates gps
-        WHERE gps.report_id = r.id
-    ) AS addresses,
     route.route_geometry AS route_geometry,
-    r.is_from_app,
+    r.is_from_app AS from_app,
     r.potential_approvers,
-    r.is_divergent_address,
+    r.is_divergent_address AS divergent_address,
     r.starts_at_home,
     r.ends_at_home,
     r.processed_date,
-    r.closed_date
+    r.closed_date,
+    el.error_code AS error_code
 FROM reports r
 LEFT JOIN routes route ON route.id = r.route_id
 LEFT JOIN persons p ON r.approved_by_id = p.id
 LEFT JOIN employments emp ON r.employment_id = emp.id
 LEFT JOIN orgunits ou ON emp.orgunit_id = ou.id
-GROUP BY r.id
+LEFT JOIN error_logs el ON r.error_log_id = el.id;

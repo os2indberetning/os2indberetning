@@ -31,10 +31,19 @@ function OuService() {
         // values from orgunit
         rule = $(obj).data("rule");
         id = $(obj).data("orgid");
+        let rate = $(obj).data("rate");
         let type = $(obj).data("type");
 
         // adjust the default-values
         $('#calculationTypeSelect').val(type);
+
+        // Set rate type - handle null/undefined
+        if (rate) {
+            $('#rateTypeSelectOuEdit').val(rate);
+        } else {
+            $('#rateTypeSelectOuEdit').prop('selectedIndex', 0);
+        }
+
         if (rule) {
             $('#kmRuleCheck').iCheck('check');
         }
@@ -43,7 +52,6 @@ function OuService() {
         }
 
         $("#orgUnitModal").modal("show");
-
     }
 
     this.closeModal = function () {
@@ -90,20 +98,22 @@ function OuService() {
             });
         });
     }
+
     this.saveChanges = function () {
         var rule = $('#kmRuleCheck').is(":checked");
         var type = $('#calculationTypeSelect option:selected').val();
-
+        var rate = $('#rateTypeSelectOuEdit option:selected').val();
 
         var data = {
-                orgId: id,
-                kmRule: rule,
-                calculationType: type
+            orgId: id,
+            kmRule: rule,
+            calculationType: type,
+            rateTypeId: (rate && rate !== '') ? parseInt(rate) : null
         }
 
         $.ajax({
             method : "POST",
-            url: "admin/orgunit-edit/" + id,
+            url: "admin/orgunit-edit",
             contentType: 'application/json',
             headers: {
                 'X-CSRF-TOKEN': token
@@ -113,6 +123,7 @@ function OuService() {
             success: function(data, textStatus, jqXHR){
                 ouService.closeModal();
                 toastr.success("Afdeling redigeret...");
+                ouService.loadFragment();
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 errorResponse(jqXHR);

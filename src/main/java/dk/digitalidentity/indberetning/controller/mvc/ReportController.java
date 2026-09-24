@@ -12,6 +12,7 @@ import dk.digitalidentity.indberetning.model.entity.Report;
 import dk.digitalidentity.indberetning.model.entity.RateType;
 import dk.digitalidentity.indberetning.model.entity.Route;
 import dk.digitalidentity.indberetning.model.entity.enums.ReportStatus;
+import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
 import dk.digitalidentity.indberetning.security.NoRoleRequired;
 import dk.digitalidentity.indberetning.security.SecurityUtil;
 import dk.digitalidentity.indberetning.service.AddressService;
@@ -26,7 +27,6 @@ import dk.digitalidentity.indberetning.service.RouteService;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -56,12 +56,14 @@ public class ReportController {
     private final RateTypeService rateTypeService;
     private final RouteService routeService;
     private final PersonalRouteService personalRouteService;
+    private final OS2indberetningConfiguration configuration;
 
     record RequestReportDTO(long personId, long orgUnitId, LocalDate from, LocalDate to) {}
 
     @GetMapping("/report")
     public String report(Model model) {
         model.addAttribute("dto", null);
+        model.addAttribute("allowTimePicker", configuration.isAllowTimePickerAndTimeEstimation());
         return "report/report";
     }
 
@@ -69,6 +71,7 @@ public class ReportController {
     @GetMapping("/report/{id}")
     public String report(@PathVariable long id, Model model) {
         model.addAttribute("dto", new InitialReportDTO(id));
+        model.addAttribute("allowTimePicker", configuration.isAllowTimePickerAndTimeEstimation());
         return "report/report";
     }
 
@@ -77,7 +80,7 @@ public class ReportController {
     public String reportFragment(Model model) {
         Person currentUser = securityUtil.getPerson();
 
-        List<Employment> employments = employmentService.getByPersonButNotAfter14Days(currentUser);
+        final List<Employment> employments = employmentService.getByPersonButNotAfterCloseDelay(currentUser);
         employments.sort(Comparator.comparing(Employment::getPosition, Comparator.nullsFirst(Comparator.naturalOrder())));
         model.addAttribute("employments", employments);
 
@@ -90,8 +93,8 @@ public class ReportController {
         activeRates.sort(Comparator.comparing(Rate::getRatePerKm, Comparator.nullsFirst(Comparator.naturalOrder())));
         model.addAttribute("rates", activeRates);
 
-		if (activeRates != null) {
-            Optional<Rate> primeActiveRate = getPreSelectedRate(activeRates, currentUser);
+		if (activeRates != null && !employments.isEmpty()) {
+            Optional<Rate> primeActiveRate = rateService. getPreSelectedRate(activeRates, currentUser, employments.stream().findFirst().orElse(null));
             model.addAttribute("activeRate", primeActiveRate.orElse(null));
 		}
 
@@ -101,21 +104,9 @@ public class ReportController {
         List<PersonalRoute> personalRoutes = personalRouteService.findByPerson(currentUser);
         personalRoutes.sort(Comparator.comparing(PersonalRoute::getDescription, Comparator.nullsFirst(Comparator.naturalOrder())));
         model.addAttribute("personalRoutes", personalRoutes);
+        model.addAttribute("allowTimePicker", configuration.isAllowTimePickerAndTimeEstimation());
 
         return "report/reportFragment";
-    }
-
-    @NotNull
-    private Optional<Rate> getPreSelectedRate(List<Rate> activeRates, Person currentUser) {
-        Optional<Rate> primeActiveRate = activeRates.stream().filter(rate -> rate.getRateType().isPrime()).findAny();
-        if (primeActiveRate.isEmpty()) {
-            Optional<Report> latestReportByPerson = reportService.findLatestReportByPerson(currentUser);
-            if (latestReportByPerson.isPresent()) {
-                String kmRateType = latestReportByPerson.get().getKmRateType();
-                primeActiveRate = activeRates.stream().filter(rate -> Objects.equals(rate.getRateType().getName(), kmRateType)).findAny();
-            }
-        }
-        return primeActiveRate;
     }
 
     @Builder
@@ -161,7 +152,10 @@ public class ReportController {
         builder.startsAtHome(toBeEdited.isStartsAtHome());
         builder.endsAtHome(toBeEdited.isEndsAtHome());
 
-        RateType rateType = rateTypeService.getByName(toBeEdited.getKmRateType());
+        // Fallback to name for reports created before V1_51
+        RateType rateType = toBeEdited.getKmRateTypeId() != null
+                ? rateTypeService.getById(toBeEdited.getKmRateTypeId())
+                : rateTypeService.getByName(toBeEdited.getKmRateType());
         if (rateType != null) {
             builder.rate(rateService.getByYearAndType(toBeEdited.getDriveDate().getYear(), rateType));
         }
@@ -175,8 +169,8 @@ public class ReportController {
 
         List<GpsCoordinate> coords = toBeEdited.getCoords();
         if (coords != null && !coords.isEmpty()) {
+            coords.sort(Comparator.comparingInt(GpsCoordinate::getPointNumber));
             GpsCoordinate first = coords.stream().filter(GpsCoordinate::isStartPoint).findFirst().orElse(null);
-
 
             builder.first(first);
             GpsCoordinate last = toBeEdited.isRoundTrip() ? coords.stream().max(Comparator.comparingInt(GpsCoordinate::getPointNumber)).orElse(null) : coords.stream().filter(GpsCoordinate::isEndPoint).findFirst().orElse(null);
@@ -195,6 +189,7 @@ public class ReportController {
         List<PersonalRoute> personalRoutes = personalRouteService.findByPerson(currentUser);
         personalRoutes.sort(Comparator.comparing(PersonalRoute::getDescription, Comparator.nullsFirst(Comparator.naturalOrder())));
         model.addAttribute("personalRoutes", personalRoutes);
+        model.addAttribute("allowTimePicker", configuration.isAllowTimePickerAndTimeEstimation());
 
         return "report/reportFragment";
     }

@@ -1,99 +1,94 @@
 package dk.digitalidentity.indberetning.service;
 
-import dk.digitalidentity.indberetning.controller.api.OrganisationAPIController;
-import dk.digitalidentity.indberetning.exceptions.UnprocessableContentException;
-import dk.digitalidentity.indberetning.model.dao.ApiTimeStampDao;
-import dk.digitalidentity.indberetning.model.entity.Address;
-import dk.digitalidentity.indberetning.model.entity.ApiTimeStamp;
-import dk.digitalidentity.indberetning.model.entity.Employment;
-import dk.digitalidentity.indberetning.model.entity.OrgUnit;
-import dk.digitalidentity.indberetning.model.entity.Person;
-import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
-import dk.digitalidentity.indberetning.model.entity.enums.CalculationType;
-import dk.digitalidentity.indberetning.model.entity.enums.LogAction;
-import dk.digitalidentity.indberetning.service.dto.AddressDTO;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StopWatch;
-import org.springframework.util.StringUtils;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+
+import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
+import dk.digitalidentity.indberetning.controller.api.OrganisationAPIController;
+import dk.digitalidentity.indberetning.exceptions.UnprocessableContentException;
+import dk.digitalidentity.indberetning.model.entity.Address;
+import dk.digitalidentity.indberetning.model.entity.Employment;
+import dk.digitalidentity.indberetning.model.entity.OrgUnit;
+import dk.digitalidentity.indberetning.model.entity.Person;
+import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
+import dk.digitalidentity.indberetning.model.entity.enums.CalculationType;
+import dk.digitalidentity.indberetning.service.dto.AddressDTO;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class OrganisationService {
-
+	private final OS2indberetningConfiguration configuration;
 	private final OrgUnitService orgUnitService;
 	private final PersonService personService;
 	private final EmploymentService employmentService;
 	private final AddressService addressService;
-	private final AuditLogService auditLogService;
 	private final ApiTimeStampService apiTimeStampService;
 
 	@Getter
 	@Setter
 	private List<Long> watchList = new ArrayList<>();
 
-	private record LogPersonRecord(int peopleUpdated, int employmentsUpdated, int addressesUpdated) {}
-	private record UpdateOrgRecord(String elapsedTime, int peopleUpdated, int employmentsUpdated, int addressesUpdated) {}
+	public record LogPersonRecord(int peopleUpdated, int employmentsUpdated, int addressesUpdated) {}
+	public record UpdateOrgRecord(String elapsedTime, int peopleUpdated, int employmentsUpdated, int addressesUpdated) {}
 
+	@Transactional(readOnly = true)
+	public LogPersonRecord updatePersons(List<OrganisationAPIController.PersonDTO> dto, Map<String, OrgUnit> dbOuMap) {
+		log.info("updatePersons - entry");
 
-	public void updateOrganisation(OrganisationAPIController.OrganizationDTO organizationDTO) throws UnprocessableContentException {
-		StopWatch watch = new StopWatch();
-		watch.start();
-
-		List<OrgUnit> ous = updateOrgUnits(organizationDTO.orgUnits());
-
-		// Update persons
-		LogPersonRecord personsUpdateRecord = updatePersons(organizationDTO.persons(), orgUnitService.getAll());
-
-		watch.stop();
-		double totalTimeSeconds = watch.getTotalTimeSeconds();
-		setWatchList(new ArrayList<>());
-		log.info("update organisation took " + totalTimeSeconds + " seconds.");
-		auditLogService.saveSystem(LogAction.API_UPDATE_ORG, "Organisation og personer indlæst", new UpdateOrgRecord(Double.toString(totalTimeSeconds), personsUpdateRecord.peopleUpdated, personsUpdateRecord.employmentsUpdated(), personsUpdateRecord.addressesUpdated()));
-	}
-
-	private LogPersonRecord updatePersons(List<OrganisationAPIController.PersonDTO> dto, List<OrgUnit> orgUnits) {
-		List<Person> existingPersons = personService.getAll();
+		List<Person> existingPersons = personService.getAllWithEmploymentsAndAddresses();
 		Map<String, Person> dbPersons = existingPersons.stream().collect(Collectors.toMap(Person::getCpr, Function.identity()));
 		Map<String, OrganisationAPIController.PersonDTO> dtoPersons = dto.stream().collect(Collectors.toMap(personDTO -> personDTO.cpr(), Function.identity()));
-		Map<String, OrgUnit> dbOuMap = orgUnits.stream().collect(Collectors.toMap(OrgUnit::getOrgId, Function.identity()));
+		long updateCount = 0, createCount = 0, deleteCount = 0;
 
+		log.info("updatePersons - existingPersons " + existingPersons.size());
 
 		// Create / Update
 		ArrayList<Person> toBeSaved = new ArrayList<>();
 		ArrayList<Employment> employmentsToBeSaved = new ArrayList<>();
 		ArrayList<Address> addressesToBeSaved = new ArrayList<>();
+
 		for (OrganisationAPIController.PersonDTO personDTO : dto) {
 			Person person = dbPersons.get(personDTO.cpr());
 			if (person != null) {
 				boolean updated = updatePerson(person, personDTO, employmentsToBeSaved, dbOuMap, addressesToBeSaved);
 				if (updated) {
+					updateCount++;
 					toBeSaved.add(person);
 				}
 			}
 			else {
+				createCount++;
 				toBeSaved.add(createPerson(personDTO, employmentsToBeSaved, dbOuMap, addressesToBeSaved));
 			}
 		}
 
+		log.info("updatePerson - done perform update/create");
 
 		// Delete
 		for (Person person : existingPersons) {
+			// ignore already deleted persons :)
+			if (!person.isActive()) {
+				continue;
+			}
+			
 			if (!dtoPersons.containsKey(person.getCpr())) {
+				deleteCount++;
 				person.setActive(false);
 				toBeSaved.add(person);
 
@@ -102,28 +97,23 @@ public class OrganisationService {
 						.forEach(employment -> employment.setStopDate(LocalDateTime.now()));
 			}
 		}
+		
+		log.info("updatePerson - done perform delete");
+		
+		log.info("updatePerson - createCount = " + createCount + ", updateCount=" + updateCount + ", deleteCount=" + deleteCount);
 
-		log.info("personsToBeSaved = " + toBeSaved.size());
-		List<Person> saved = personService.save(toBeSaved);
+		log.info("updatePerson - personsToBeSaved = " + toBeSaved.size());
+		List<Person> saved = personService.saveAllInIsolatedTransaction(toBeSaved);
 
-		log.info("addressesToBeSaved = " + addressesToBeSaved.size());
-		List<Address> addr = addressService.saveAll(addressesToBeSaved);
+		log.info("updatePerson - addressesToBeSaved = " + addressesToBeSaved.size());
+		List<Address> addr = addressService.saveAllInIsolatedTransaction(addressesToBeSaved);
 
-		log.info("employmentsToBeSaved = " + employmentsToBeSaved.size());
-		List<Employment> emp = employmentService.save(employmentsToBeSaved);
+		log.info("updatePerson - employmentsToBeSaved = " + employmentsToBeSaved.size());
+		List<Employment> emp = employmentService.saveAllInIsolatedTransaction(employmentsToBeSaved);
 
-		setLastUpdatedTimestamp();
+		apiTimeStampService.setLastUpdated();
+
 		return new LogPersonRecord(toBeSaved.size(), emp.size(), addressesToBeSaved.size());
-	}
-
-	private void setLastUpdatedTimestamp() {
-		ApiTimeStamp apiTimeStamp = apiTimeStampService.find();
-		if (apiTimeStamp == null) {
-			apiTimeStamp = new ApiTimeStamp();
-		}
-		apiTimeStamp.setLastUpdated(LocalDate.now());
-
-		apiTimeStampService.save(apiTimeStamp);
 	}
 
 	private Person createPerson(OrganisationAPIController.PersonDTO dto, ArrayList<Employment> employmentsToBeSaved, Map<String, OrgUnit> orgUnits, ArrayList<Address> addressesToBeSaved) {
@@ -175,6 +165,7 @@ public class OrganisationService {
 
 	private boolean updatePerson(Person person, OrganisationAPIController.PersonDTO dto, ArrayList<Employment> employmentsToBeSaved, Map<String, OrgUnit> orgUnits, ArrayList<Address> addressesToBeSaved) {
 		boolean updated = false;
+
 		// Update from DTO
 		if (!Objects.equals(person.getFirstName(), dto.firstName())) {
 			if (watchList.contains(person.getId())) {
@@ -193,7 +184,7 @@ public class OrganisationService {
 		}
 
 		// Email is not necessarily supplied from DTO, sometimes we get it from SAML login, so no overwriting with empty value
-		if (StringUtils.hasLength(dto.email()) && Objects.equals(person.getEmail(), dto.email())) {
+		if (StringUtils.hasLength(dto.email()) && !Objects.equals(person.getEmail(), dto.email())) {
 			if (watchList.contains(person.getId())) {
 				log.info("Email: " + person.getEmail() + " -> " + dto.email());
 			}
@@ -204,14 +195,14 @@ public class OrganisationService {
 		employmentsToBeSaved.addAll(updateEmployments(person, dto, orgUnits));
 
 		LocalDateTime now = LocalDateTime.now();
-		Address currentAddress = addressService.getHomeAddressByDate(person, now);
-
+		Address currentAddress = addressService.getHomeAddressByDate(person, now);		
 		AddressDTO addressDTO = dto.address();
 
 		if (isAddressChanged(currentAddress, addressDTO)) {
 			if (watchList.contains(person.getId())) {
 				log.info("The address of: " + person.getName() + " has changed!");
 			}
+
 			// Address has changed!
 			if (currentAddress != null) {
 				if (watchList.contains(person.getId())) {
@@ -247,6 +238,7 @@ public class OrganisationService {
 			address.setType(AddressType.HOME);
 			address.setPerson(person);
 			addressesToBeSaved.add(address);
+
 			if (watchList.contains(person.getId())) {
 				log.info("NewAddress: " + address.getAddressString() + " start date: " + now);
 			}
@@ -306,19 +298,41 @@ public class OrganisationService {
 					continue; // We ignore already finished employments, no need to change them.
 				}
 
-
 				boolean matchingDTO =  dto.employments() != null && dto.employments().stream().anyMatch(employmentDTO -> Objects.equals(employmentDTO.employeeNumber(), existingEmployment.getEmployeeNumber()));
 				if (!matchingDTO) {
 					existingEmployment.setStopDate(LocalDateTime.now());
+					log.info("Setting stopDate to today on employment: " + existingEmployment.getId());
 					toBeUpdated.add(existingEmployment);
 				}
 			}
 		}
 
+
 		// Create/Update employments
 		if (dto.employments() != null) {
-			for (OrganisationAPIController.EmploymentDTO employmentDTO : dto.employments()) {
-				// TODO refactor this to use a shared hash to check for changes and then override ALL fields instead of change-checking all individually
+			AtomicInteger unknownOUs = new AtomicInteger();
+			ArrayList<OrganisationAPIController.EmploymentDTO> filteredEmployments = dto.employments().stream().filter(employmentDTO -> {
+				if (!StringUtils.hasText(employmentDTO.orgUnitId()) || "0".equals(employmentDTO.orgUnitId())) {
+					log.error("Employment {} has empty or invalid orgUnitId: {}", employmentDTO.employeeNumber(), employmentDTO.orgUnitId());
+					unknownOUs.getAndIncrement();
+					return false;
+				}
+				if (!orgUnits.containsKey(employmentDTO.orgUnitId())) {
+					log.error("Employment {} references non-existent OU: {}", employmentDTO.employeeNumber(), employmentDTO.orgUnitId());
+					unknownOUs.getAndIncrement();
+					return false;
+				}
+				return true;
+			}).collect(Collectors.toCollection(ArrayList::new));
+
+			int maxUnknownOUs = configuration.getApi().getMaxUnknownOUs();
+			if (unknownOUs.get() > maxUnknownOUs) {
+				throw new RuntimeException("Too many unknown OUs aborting: " + unknownOUs.get() + " (max: " + maxUnknownOUs + ")");
+			}
+
+			for (OrganisationAPIController.EmploymentDTO employmentDTO : filteredEmployments) {
+
+
 				boolean changed = false;
 				Employment employment = existingEmploymentMap.get(employmentDTO.employeeNumber());
 
@@ -338,6 +352,7 @@ public class OrganisationService {
 						String ouName = employment.getOrgUnit() != null ? employment.getOrgUnit().getLongDescription() : "null";
 						log.info("Employment OU: " + ouName + " -> " + orgUnits.get(employmentDTO.orgUnitId()).getLongDescription());
 					}
+					// OU existence is validated in the filter above, so this is guaranteed to exist
 					employment.setOrgUnit(orgUnits.get(employmentDTO.orgUnitId()));
 				}
 
@@ -425,9 +440,13 @@ public class OrganisationService {
 		return toBeUpdated;
 	}
 
-	private List<OrgUnit> updateOrgUnits(List<OrganisationAPIController.OrgUnitDTO> orgUnitDTOS) throws UnprocessableContentException {
-		List<OrgUnit> orgUnits = orgUnitService.getAll();
+	// TODO: should recode this to only be transactional on the parts that need it
+	@Transactional
+	public Map<String, OrgUnit> updateOrgUnits(List<OrganisationAPIController.OrgUnitDTO> orgUnitDTOS, List<OrgUnit> orgUnits) throws UnprocessableContentException {
 		Map<String, OrgUnit> dbOuMap = orgUnits.stream().collect(Collectors.toMap(OrgUnit::getOrgId, Function.identity()));
+
+		log.info("orgUnits from DTOs " + orgUnitDTOS.size());
+		log.info("orgUnits from database " + orgUnits.size());
 
 		List<OrganisationAPIController.OrgUnitDTO> rootOUs = orgUnitDTOS.stream()
 				.filter(orgUnitDTO -> !StringUtils.hasLength(orgUnitDTO.parentId()))
@@ -453,13 +472,15 @@ public class OrganisationService {
 		}
 
 		buildOUTree(rootOU, orgUnitDTOS, dbOuMap, toBeSaved, addressesToBeSaved);
+
 		log.info("orgUnitsTobeSaved = " + toBeSaved.size());
 		List<OrgUnit> savedOus = orgUnitService.saveAll(toBeSaved);
+		savedOus.forEach(ou -> dbOuMap.put(ou.getOrgId(), ou));
 
 		log.info("OUaddressesToBeSaved = " + addressesToBeSaved.size());
 		addressService.saveAll(addressesToBeSaved);
 
-		return savedOus;
+		return dbOuMap;
 	}
 
 
@@ -528,7 +549,7 @@ public class OrganisationService {
 			updated = true;
 			ouToUpdate.setParent(parentOU);
 		}
-		else if (!Objects.equals(ouToUpdate.getParent().getOrgId(), dto.parentId())) {
+		else if (ouToUpdate.getParent() != null && !Objects.equals(ouToUpdate.getParent().getOrgId(), dto.parentId())) {
 			updated = true;
 			ouToUpdate.setParent(parentOU);
 		}

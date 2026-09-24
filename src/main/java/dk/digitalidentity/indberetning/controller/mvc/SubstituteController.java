@@ -235,7 +235,7 @@ public class SubstituteController {
 
     @GetMapping("/substitute/getAllLeaders")
     public ResponseEntity<?> getAllLeaders(@RequestParam("q") String prefix) {
-        List<Person> leaders = orgUnitService.findAllLeaders();
+        Set<Person> leaders = orgUnitService.findAllValidLeaders();
         List<Select2Result> result = new ArrayList<>();
 
         for (Person leader : leaders) {

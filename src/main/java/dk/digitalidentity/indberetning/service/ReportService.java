@@ -1,31 +1,12 @@
 package dk.digitalidentity.indberetning.service;
 
-import dk.digitalidentity.emailService.service.EmailQueueService;
-import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
-import dk.digitalidentity.indberetning.model.dao.ReportDao;
-import dk.digitalidentity.indberetning.model.entity.Employment;
-import dk.digitalidentity.indberetning.model.entity.OrgUnit;
-import dk.digitalidentity.indberetning.model.entity.Person;
-import dk.digitalidentity.indberetning.model.entity.RateType;
-import dk.digitalidentity.indberetning.model.entity.Report;
-import dk.digitalidentity.indberetning.model.entity.Substitute;
-import dk.digitalidentity.indberetning.model.entity.enums.ReportStatus;
-import dk.digitalidentity.indberetning.security.SecurityUtil;
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
-
+import java.io.OutputStreamWriter;
 import java.math.RoundingMode;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +22,30 @@ import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.ui.Model;
+import org.springframework.util.StringUtils;
+
+import dk.digitalidentity.emailService.service.EmailQueueService;
+import dk.digitalidentity.indberetning.model.dao.ReportDao;
+import dk.digitalidentity.indberetning.model.entity.Employment;
+import dk.digitalidentity.indberetning.model.entity.OrgUnit;
+import dk.digitalidentity.indberetning.model.entity.Person;
+import dk.digitalidentity.indberetning.model.entity.Report;
+import dk.digitalidentity.indberetning.model.entity.Route;
+import dk.digitalidentity.indberetning.model.entity.Substitute;
+import dk.digitalidentity.indberetning.model.entity.enums.ReportStatus;
+import dk.digitalidentity.indberetning.security.SecurityUtil;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -51,11 +56,12 @@ public class ReportService {
     private final EmploymentService employmentService;
     private final PersonService personService;
     private final OrgUnitService orgUnitService;
-    private final OS2indberetningConfiguration configuration;
     private final SubstituteService substituteService;
     private final EmailQueueService emailQueueService;
+	private final RouteService routeService;
+	private final ReportDaoTransactionService reportDaoTransactionService;
 
-    public List<Report> getByIdIn(List<Long> reportIds) {
+	public List<Report> getByIdIn(List<Long> reportIds) {
         return reportDao.findByIdIn(reportIds);
     }
 
@@ -146,51 +152,60 @@ public class ReportService {
                 zipOutputStream.write(0xBB);
                 zipOutputStream.write(0xBF);
 
-                headerBuilder.append("\"").append("Dato for kørsel").append("\";");
-                headerBuilder.append("\"").append("Dato for indberetning").append("\";");
-                headerBuilder.append("\"").append("Medarbejder").append("\";");
-                headerBuilder.append("\"").append("MA. NR.").append("\";");
-                headerBuilder.append("\"").append("Org. Enhed").append("\";");
-                headerBuilder.append("\"").append("Formål").append("\";");
-                headerBuilder.append("\"").append("Rute").append("\";");
-                headerBuilder.append("\"").append("Retur").append("\";");
-                headerBuilder.append("\"").append("MK").append("\";");
-                headerBuilder.append("\"").append("4-km").append("\";");
-                headerBuilder.append("\"").append("Km til kommunegrænse").append("\";");
-                headerBuilder.append("\"").append("60-dage").append("\";");
-                headerBuilder.append("\"").append("KM til udbetaling").append("\";");
-                headerBuilder.append("\"").append("Beløb").append("\";");
-                headerBuilder.append("\"").append("Taksttype").append("\";");
-                headerBuilder.append("\"").append("Takst").append("\";");
-                headerBuilder.append("\"").append("Status").append("\";");
-                headerBuilder.append("\"").append("Godkendt/Afvist dato").append("\";");
-                headerBuilder.append("\"").append("Godkendt/Afvist af").append("\"\n");
-                zipOutputStream.write(headerBuilder.toString().getBytes(StandardCharsets.UTF_8));
+				CSVFormat format = CSVFormat.EXCEL.builder()
+						.setDelimiter(";")
+						.setHeader(
+								"Dato for kørsel",
+								"Dato for indberetning",
+								"Medarbejder",
+								"MA. NR.",
+								"Org. Enhed",
+								"Formål",
+								"Rute",
+								"Retur",
+								"MK",
+								"4-km",
+								"Km til kommunegrænse",
+								"60-dage",
+								"KM til udbetaling",
+								"Beløb",
+								"Taksttype",
+								"Takst",
+								"Status",
+								"Godkendt/Afvist dato",
+								"Godkendt/Afvist af"
+						)
+						.get();
 
-                for (Report report : reports) {
-                    StringBuilder rowBuilder = new StringBuilder();
-                    rowBuilder.append("\"").append(report.getDriveDate()).append("\";");
-                    rowBuilder.append("\"").append(report.getCreatedDate().toLocalDate()).append("\";");
-                    rowBuilder.append("\"").append(report.getPerson() != null ? report.getPerson().getName() : "").append("\";");
-                    rowBuilder.append("\"").append(report.getEmployeeNumber()).append("\";");
-                    rowBuilder.append("\"").append(report.getEmployment().getOrgUnit().getLongDescription()).append("\";");
-                    rowBuilder.append("\"").append(report.getPurpose()).append("\";");
-                    rowBuilder.append("\"").append(report.getAddressesString().replace('\n', ' ')).append("\";");
-                    rowBuilder.append("\"").append(report.isRoundTrip() ? "Ja" : "Nej").append("\";");
-                    rowBuilder.append("\"").append(report.isExtraDistance() ? "Ja" : "Nej").append("\";");
-                    rowBuilder.append("\"").append(report.isFourKmRule() ? "Ja" : "Nej").append("\";");
-                    rowBuilder.append("\"").append(report.getHomeToBorderDistance()).append("\";");
-                    rowBuilder.append("\"").append(report.isSixtyDaysRule() ? "Ja" : "Nej").append("\";");
-                    rowBuilder.append("\"").append(roundValue(report.getDistance())).append("\";");
-                    rowBuilder.append("\"").append(roundValue(report.getAmountToReimburse())).append("\";");
-                    rowBuilder.append("\"").append(report.getKmRateType()).append("\";");
-                    rowBuilder.append("\"").append(roundValue(report.getKmRate())).append(" øre/km").append("\";");
-                    rowBuilder.append("\"").append(report.getStatus().getText()).append("\";");
-                    rowBuilder.append("\"").append(report.getClosedDate() != null ? report.getClosedDate().toLocalDate() : "").append("\";");
-                    rowBuilder.append("\"").append(report.getApprovedBy() != null ? report.getApprovedBy().getName() : "").append("\"\n");
-                    zipOutputStream.write(rowBuilder.toString().getBytes(StandardCharsets.UTF_8));
-                }
-                zipOutputStream.closeEntry();
+				OutputStreamWriter writer = new OutputStreamWriter(zipOutputStream, StandardCharsets.UTF_8);
+				CSVPrinter printer = new CSVPrinter(writer, format);
+
+				for (Report report : reports) {
+					printer.printRecord(
+							report.getDriveDate(),
+							report.getCreatedDate().toLocalDate(),
+							report.getPerson() != null ? report.getPerson().getName() : "",
+							report.getEmployeeNumber(),
+							report.getEmployment().getOrgUnit().getLongDescription(),
+							report.getPurpose(),
+							report.getAddressesString().replace('\n', ' '),
+							report.isRoundTrip() ? "Ja" : "Nej",
+							report.isExtraDistance() ? "Ja" : "Nej",
+							report.isFourKmRule() ? "Ja" : "Nej",
+							roundValue(report.getHomeToBorderDistance()),
+							report.isSixtyDaysRule() ? "Ja" : "Nej",
+							roundValue(report.getDistance()),
+							roundValue(report.getAmountToReimburse()),
+							report.getKmRateType(),
+							roundValue(report.getKmRate()) + " øre/km",
+							report.getStatus().getText(),
+							report.getClosedDate() != null ? report.getClosedDate().toLocalDate() : "",
+							report.getApprovedBy() != null ? report.getApprovedBy().getName() : ""
+					);
+				}
+
+				printer.flush();
+				zipOutputStream.closeEntry();
             }
 
             log.info("Done rendering logs from " + from + " to " + to);
@@ -207,7 +222,7 @@ public class ReportService {
     private static String roundValue(double distance) {
         double roundedValue = DoubleUtil.round(distance);
         DecimalFormatSymbols decimalFormatSymbols = DecimalFormatSymbols.getInstance();
-        decimalFormatSymbols.setDecimalSeparator('.');
+        decimalFormatSymbols.setDecimalSeparator(',');
         DecimalFormat decimalFormat = new DecimalFormat("#########0.##", decimalFormatSymbols);
         decimalFormat.setRoundingMode(RoundingMode.DOWN); // Truncate no rounding, already done
         return decimalFormat.format(roundedValue);
@@ -220,13 +235,25 @@ public class ReportService {
     public List<Report> getByApprovedBy(Person person) { return reportDao.findByApprovedById(person); }
 
     public List<Report> getByPerson(Person person) { return reportDao.findByPersonId(person); }
-    
+
+    public boolean hasReports(Person person) {
+        return reportDao.existsByPerson(person);
+    }
+
+    public boolean hasReports(Employment employment) {
+        return reportDao.existsByEmployment(employment);
+    }
+
     public List<Report> getByPersonAndStatusAndPage(Person person, ReportStatus status, int pageNr) {
         Pageable pageable = PageRequest.of(pageNr, 20);
         return reportDao.findByPersonAndStatus(person, status, pageable);
     }
     
     public List<Report> getByPersonAndDriveDate(Person person, LocalDate date) { return reportDao.findByPersonAndDriveDate(person, date); }
+
+    public List<Report> getByPersonAndDriveDateAndStatusNotEqual(Person person, LocalDate date, ReportStatus status, ReportStatus status2) {
+        return reportDao.findByPersonAndDriveDateAndStatusNotAndStatusNot(person, date, status, status2);
+    }
 
     public void delete(long id) {
         reportDao.deleteById(id);
@@ -246,7 +273,8 @@ public class ReportService {
         List<Report> result = new ArrayList<>();
         result.addAll(unProcessed);
         result.addAll(toBeRefunded);
-        return result;
+        ArrayList<Report> collect = result.stream().filter(report -> report.getErrorLog() == null).collect(Collectors.toCollection(ArrayList::new));
+        return collect;
     }
 
     public Report save(Report report) {
@@ -303,6 +331,7 @@ public class ReportService {
         HashSet<Person> approvers = new HashSet<>();
 
         OrgUnit orgUnit = report.getEmployment().getOrgUnit();
+        OrgUnit reportOrgUnit = orgUnit;
         Person leader = orgUnitService.findLeaderOfOrgUnit(orgUnit);
 
         // If a report is made by the leader OR if no direct leader is found on OU,
@@ -328,7 +357,9 @@ public class ReportService {
         else if (leader != null && orgUnit != null) {
             // We are now checking the leader we found above (either direct leader or nearest)
             // and seeing if any substitutes has been defined for them.
-            List<Substitute> subWithOrgUnits = substituteService.findWhoSubsPerson(leader, orgUnit, report.getDriveDate());
+            // Use the report's original OU, not the leader's OU, since substitutes are assigned
+            // to the OU where the report was made (which may differ when walking up the hierarchy).
+            List<Substitute> subWithOrgUnits = substituteService.findWhoSubsPerson(leader, reportOrgUnit, report.getDriveDate());
             subWithOrgUnits = subWithOrgUnits.stream()
                     .filter(substitute -> substitute.getEndDate() == null || substitute.getEndDate().isAfter(report.getDriveDate()))
                     .toList();
@@ -354,36 +385,98 @@ public class ReportService {
         return approvers;
     }
 
-    @Transactional
-    public void updateApproversForPending() {
-        List<Report> allPending = getByStatus(ReportStatus.PENDING);
-        List<Report> allUpdated = new ArrayList<>();
+	@Transactional(readOnly = true)
+	public void updateApproversForPending() {
+		List<Report> allPending = getByStatus(ReportStatus.PENDING);
+		List<Report> allUpdated = new ArrayList<>();
 
-        for (Report report : allPending) {
-            String allApproversString = null;
-            List<Person> allApprovers = new ArrayList<>(findApprovers(report));
-            if (!allApprovers.isEmpty()) {
-                StringBuilder sb = new StringBuilder(allApprovers.removeFirst().getName());
-                for (Person approver : allApprovers) {
-                    sb.append(", ").append(approver.getName());
-                }
-                allApproversString = sb.toString();
-            }
+		log.info("Starting approver update for {} pending reports", allPending.size());
 
-            if (!Objects.equals(report.getPotentialApprovers(), allApproversString)) {
-                report.setPotentialApprovers(allApproversString);
-                allUpdated.add(report);
-            }
-        }
+		int count = 0;
+		for (Report report : allPending) {
+			if (++count % 500 == 0) {
+				log.info("Processed " + count + " reports");
+			}
 
-        if (!allUpdated.isEmpty()) {
-            if (log.isDebugEnabled()) {
-                log.debug("Updated the approvers of {} reports!", allUpdated.size());
-            }
-            saveAll(allUpdated);
-        }
-        substituteService.setChanged(false);
-    }
+			// Log initial state of each report
+			Long initialRouteId = report.getRoute() != null ? report.getRoute().getId() : null;
+			
+			log.debug("Processing report ID: {}, route_id: {}, current approvers: '{}'", report.getId(), initialRouteId, report.getPotentialApprovers());
+
+			String allApproversString = null;
+			List<Person> allApprovers = new ArrayList<>(findApprovers(report));
+			if (!allApprovers.isEmpty()) {
+				// ensure the string is always generated in the same way
+				allApprovers.sort(Comparator.comparing(Person::getName));
+
+				StringBuilder sb = new StringBuilder(allApprovers.removeFirst().getName());
+				for (Person approver : allApprovers) {
+					sb.append(", ").append(approver.getName());
+				}
+				allApproversString = sb.toString();
+			}
+
+			if (!Objects.equals(report.getPotentialApprovers(), allApproversString)) {
+				log.info("Report {} approvers changing from '{}' to '{}'", report.getId(), report.getPotentialApprovers(), allApproversString);
+
+				report.setPotentialApprovers(allApproversString);
+				allUpdated.add(report);
+			}
+		}
+
+		if (!allUpdated.isEmpty()) {
+			log.info("About to save {} updated reports", allUpdated.size());
+
+			// Critical logging right before save - no try-catch, let it fail naturally
+			for (Report report : allUpdated) {
+				Long routeId = report.getRoute() != null ? report.getRoute().getId() : null;
+				boolean routeExists = false;
+				if (routeId != null) {
+					routeExists = routeService.existsById(routeId);
+				}
+
+				log.info("Report {} - route_id: {}, route_exists: {}, new_approvers: '{}'", report.getId(), routeId, routeExists, report.getPotentialApprovers());
+			}
+
+			// Check for orphaned route references right before save
+			List<Long> routeIds = allUpdated.stream()
+					.map(r -> r.getRoute() != null ? r.getRoute().getId() : null)
+					.filter(Objects::nonNull)
+					.distinct()
+					.toList();
+
+			if (!routeIds.isEmpty()) {
+				List<Long> existingRouteIds = routeService.findAllById(routeIds)
+						.stream()
+						.map(Route::getId)
+						.toList();
+
+				List<Long> missingRouteIds = routeIds.stream()
+						.filter(id -> !existingRouteIds.contains(id))
+						.toList();
+
+				if (!missingRouteIds.isEmpty()) {
+					log.info("About to save reports with non-existent routes: {}", missingRouteIds);
+
+					// Log which specific reports reference missing routes
+					allUpdated.stream()
+							.filter(r -> r.getRoute() != null && missingRouteIds.contains(r.getRoute().getId()))
+							.forEach(r -> log.info("Report {} references missing route {}",
+									r.getId(), r.getRoute().getId()));
+				}
+			}
+
+			log.info("Executing saveAll for reports: {}", allUpdated.stream().map(Report::getId).toList());
+
+			if (log.isDebugEnabled()) {
+				log.debug("Updated the approvers of {} reports!", allUpdated.size());
+			}
+
+			reportDaoTransactionService.saveAllWithTransaction(allUpdated);
+		}
+
+		substituteService.setChanged(false);
+	}
 
     @Transactional
     public void sendRejectedEmails() {
@@ -442,4 +535,37 @@ public class ReportService {
             emailQueueService.queueEmail(person.getEmail(), emailHeader, emailText.toString());
         }
     }
+
+    public List<Report> findByProcessedDateBefore(LocalDateTime date) {
+        return reportDao.findByProcessedDateBefore(date);
+    }
+
+    public void deleteAll(List<Report> reports) {
+        reportDao.deleteAll(reports);
+    }
+
+    public List<Report> checkForExpiredReports() {
+		LocalDateTime fiveYearsAgo = LocalDateTime.now().minusYears(5);
+		return reportDao.findByCreatedDateBeforeAndProcessedDateBeforeAndClosedDateBeforeAndDriveDateBefore(fiveYearsAgo, fiveYearsAgo, fiveYearsAgo, fiveYearsAgo.toLocalDate());
+	}
+
+	public Page<Report> getByStatusesAndDriveDateBetween(Collection<ReportStatus> statuses, LocalDate from, LocalDate to, Long orgUnitId, Pageable pageable) {
+		Page<Long> idPage;
+		if (orgUnitId != null) {
+			idPage = reportDao.findIdsByStatusInAndDriveDateBetweenAndOrgUnit(statuses, from, to, orgUnitId, pageable);
+		} else {
+			idPage = reportDao.findIdsByStatusInAndDriveDateBetween(statuses, from, to, pageable);
+		}
+
+		List<Long> ids = idPage.getContent();
+		List<Report> reports = ids.isEmpty() ? List.of() : reportDao.findWithCoordsByIdIn(ids);
+		return new PageImpl<>(reports, pageable, idPage.getTotalElements());
+	}
+
+	public Set<Long> getRouteReportIds(Collection<Long> reportIds) {
+		if (reportIds.isEmpty()) {
+			return Set.of();
+		}
+		return reportDao.findRouteReportIds(reportIds);
+	}
 }

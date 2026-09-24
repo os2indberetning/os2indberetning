@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head th:replace="~{fragments/header :: header}"></head>
+<body class="top-navigation">
+<div id="wrapper">
+    <div id="page-wrapper" class="gray-bg">
+        <div th:replace="~{fragments/navbar :: topbar}"></div>
+
+        <div class="wrapper wrapper-content">
+			<div class="m-t middle-box text-center" style="margin-top: -20px">
+				<p style="font-size: 30px;">Vælg login</p>
+                <div th:with="IdentityProviderType=${T(dk.digitalidentity.indberetning.security.enums.IdentityProviderType)}">
+                    <a th:href="@{/saml2/authenticate/{id}(id=${identityProviders.get(IdentityProviderType.NORMAL).loginId})}" class="btn btn-white block full-width m-b">
+                        <div class="row">
+                            <div class="col-sm-5 d-md-block">
+                                <em class="fa fa-fw fa-5x fa-user left-icon"></em>
+                            </div>
+                            <div class="col-sm-12 col-md-7 right-text-block">
+                                <b class="logo_uni">
+                                    <h2>
+                                        Kommunal Login
+                                    </h2>
+                                </b>
+                                <p></p>
+                            </div>
+                        </div>
+                    </a>
+                    <a th:href="@{/saml2/authenticate/{id}(id=${identityProviders.get(IdentityProviderType.MITID).loginId})}" class="btn btn-white block full-width m-b">
+                        <div class="row">
+                            <div class="col-sm-5 d-md-block">
+                                <em class="fa fa-fw fa-5x fa-id-card-o left-icon"></em>
+                            </div>
+                            <div class="col-sm-12 col-md-7 right-text-block">
+                                <b>
+                                    <h2>
+                                        MitId Login
+                                    </h2>
+                                </b>
+                                <p></p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+			</div>
+        </div>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: scripts}"></div>
+</body>
+</html>

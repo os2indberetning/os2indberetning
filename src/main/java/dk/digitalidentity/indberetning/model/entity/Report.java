@@ -3,6 +3,7 @@
 import com.fasterxml.jackson.annotation.JsonFormat;
 import dk.digitalidentity.indberetning.model.entity.enums.CalculationType;
 import dk.digitalidentity.indberetning.model.entity.enums.ReportStatus;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -82,6 +83,9 @@ public class Report {
     @Column(name = "km_rate_type")
     private String kmRateType;
 
+	@Column(name = "km_rate_type_id")
+	private Long kmRateTypeId;
+
     @Column(name = "km_rate")
     private double kmRate;
 
@@ -111,7 +115,7 @@ public class Report {
     @JoinColumn(name = "route_id")
     private Route route;
 
-    @OneToMany(mappedBy = "report")
+    @OneToMany(mappedBy = "report", orphanRemoval = true, cascade = CascadeType.ALL)
     private List<GpsCoordinate> coords = new LinkedList<>();
 
     // The following fields are set when calculating reimbursement for an existing report
@@ -183,6 +187,10 @@ public class Report {
 
     @Column(name = "recalculate")
     private boolean recalculate;
+
+    @OneToOne
+    @JoinColumn(name = "error_log_id", nullable = true)
+    private ErrorLog errorLog;
 
     public String getAddressesString() {
         StringBuilder b = new StringBuilder();

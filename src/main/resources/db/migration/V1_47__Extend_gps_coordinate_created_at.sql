@@ -1,0 +1,1 @@
+ALTER TABLE gps_coordinates ADD COLUMN created_at TIMESTAMP NULL DEFAULT NULL;

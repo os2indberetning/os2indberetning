@@ -14,6 +14,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDateTime;
+
 @ToString
 @Getter
 @Setter
@@ -52,7 +54,10 @@ public class GpsCoordinate {
     @Column(name = "address")
     private String address;
 
-    public GpsCoordinate(double latitude, double longitude, boolean waypoint, String address, Report report, boolean startPoint, boolean endPoint, int pointNumber) {
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
+
+    public GpsCoordinate(double latitude, double longitude, boolean waypoint, String address, Report report, boolean startPoint, boolean endPoint, int pointNumber, LocalDateTime createdAt) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.waypoint = waypoint;
@@ -61,6 +66,7 @@ public class GpsCoordinate {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
         this.pointNumber = pointNumber;
+		this.createdAt = createdAt;
     }
 
     public String toString() {

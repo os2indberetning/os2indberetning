@@ -1,37 +1,42 @@
 package dk.digitalidentity.indberetning.controller.api;
 
-import dk.digitalidentity.indberetning.exceptions.UnprocessableContentException;
-import dk.digitalidentity.indberetning.model.dao.PersonDao;
-import dk.digitalidentity.indberetning.model.entity.Person;
-import dk.digitalidentity.indberetning.security.NoRoleRequired;
-import dk.digitalidentity.indberetning.service.AuditLogService;
-import dk.digitalidentity.indberetning.service.OrganisationService;
-import dk.digitalidentity.indberetning.service.PersonService;
-import dk.digitalidentity.indberetning.service.dto.AddressDTO;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StopWatch;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import dk.digitalidentity.indberetning.exceptions.UnprocessableContentException;
+import dk.digitalidentity.indberetning.model.entity.OrgUnit;
+import dk.digitalidentity.indberetning.model.entity.enums.LogAction;
+import dk.digitalidentity.indberetning.security.NoRoleRequired;
+import dk.digitalidentity.indberetning.service.AuditLogService;
+import dk.digitalidentity.indberetning.service.OrganisationService;
+import dk.digitalidentity.indberetning.service.OrganisationService.LogPersonRecord;
+import dk.digitalidentity.indberetning.service.OrganisationService.UpdateOrgRecord;
+import dk.digitalidentity.indberetning.service.OrgUnitService;
+import dk.digitalidentity.indberetning.service.PersonService;
+import dk.digitalidentity.indberetning.service.dto.AddressDTO;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @NoRoleRequired
 @RequiredArgsConstructor
 public class OrganisationAPIController {
-
+	private final AuditLogService auditLogService;
 	private final OrganisationService organisationService;
+	private final OrgUnitService orgUnitService;
 	private final PersonService personService;
 
 	public record EmploymentDTO(String employeeNumber, LocalDate fromDate, LocalDate toDate, String orgUnitId, String position, long costCenter, boolean manager, int extraNumber, int employmentType, String instituteCode) {}
@@ -51,15 +56,30 @@ public class OrganisationAPIController {
 	)
 	public ResponseEntity<?> updateOrganization(@RequestBody OrganizationDTO organizationDTO) {
 		try {
-			organisationService.updateOrganisation(organizationDTO);
+			StopWatch watch = new StopWatch();
+			watch.start();
+
+			List<OrgUnit> orgUnits = orgUnitService.getAllWithAddresses();
+
+			Map<String, OrgUnit> dbOuMap = organisationService.updateOrgUnits(organizationDTO.orgUnits(), orgUnits);
+
+			// Update persons
+			LogPersonRecord personsUpdateRecord = organisationService.updatePersons(organizationDTO.persons(), dbOuMap);
+
+			organisationService.setWatchList(new ArrayList<>());
+
+			watch.stop();			
+			double totalTimeSeconds = watch.getTotalTimeSeconds();
+
+			log.info("update organisation took " + totalTimeSeconds + " seconds.");
+			auditLogService.saveSystem(LogAction.API_UPDATE_ORG, "Organisation og personer indlæst", new UpdateOrgRecord(Double.toString(totalTimeSeconds), personsUpdateRecord.peopleUpdated(), personsUpdateRecord.employmentsUpdated(), personsUpdateRecord.addressesUpdated()));
+
 			return ResponseEntity.ok().build();
 		}
 		catch (UnprocessableContentException e) {
 			return ResponseEntity.unprocessableEntity().body(e.getMessage());
 		}
 	}
-
-
 
 	@GetMapping("/api/GetReportsToPayroll")
 	public void getReportsToPayroll() {

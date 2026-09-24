@@ -1,6 +1,13 @@
 package dk.digitalidentity.indberetning.model.entity;
 
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.BatchSize;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.util.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,14 +23,11 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
-import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.util.StringUtils;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
+@BatchSize(size = 128)
 @Table(name = "addresses")
 public class Address {
 

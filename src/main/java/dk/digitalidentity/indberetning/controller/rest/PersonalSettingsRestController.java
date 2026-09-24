@@ -1,31 +1,13 @@
 package dk.digitalidentity.indberetning.controller.rest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import dk.digitalidentity.indberetning.exceptions.AddressLookupRuntimeException;
-import dk.digitalidentity.indberetning.model.entity.Address;
-import dk.digitalidentity.indberetning.model.entity.GpsCoordinate;
-import dk.digitalidentity.indberetning.model.entity.LicensePlate;
-import dk.digitalidentity.indberetning.model.entity.PersonalRoute;
-import dk.digitalidentity.indberetning.model.dao.PersonDao;
-import dk.digitalidentity.indberetning.model.entity.Person;
-import dk.digitalidentity.indberetning.model.entity.PersonalRouteAddressMapping;
-import dk.digitalidentity.indberetning.model.entity.QGpsCoordinate;
-import dk.digitalidentity.indberetning.model.entity.Report;
-import dk.digitalidentity.indberetning.security.NoRoleRequired;
-import dk.digitalidentity.indberetning.security.Roles;
-import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
-import dk.digitalidentity.indberetning.security.SecurityUtil;
-import dk.digitalidentity.indberetning.service.AddressService;
-import dk.digitalidentity.indberetning.service.GpsCoordinateService;
-import dk.digitalidentity.indberetning.service.LicensePlateService;
-import dk.digitalidentity.indberetning.service.OnetimePaymentsCalculatorService;
-import dk.digitalidentity.indberetning.service.PersonalRouteService;
-import dk.digitalidentity.indberetning.service.ReportService;
-import dk.digitalidentity.indberetning.service.RouteService;
-import io.swagger.v3.oas.annotations.Hidden;
-import dk.digitalidentity.indberetning.service.cms.CmsMessageBundle;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Objects;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,14 +17,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.Objects;
+import dk.digitalidentity.indberetning.exceptions.AddressLookupRuntimeException;
+import dk.digitalidentity.indberetning.model.dao.PersonDao;
+import dk.digitalidentity.indberetning.model.entity.Address;
+import dk.digitalidentity.indberetning.model.entity.LicensePlate;
+import dk.digitalidentity.indberetning.model.entity.Person;
+import dk.digitalidentity.indberetning.model.entity.PersonalRoute;
+import dk.digitalidentity.indberetning.model.entity.PersonalRouteAddressMapping;
+import dk.digitalidentity.indberetning.model.entity.Report;
+import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
+import dk.digitalidentity.indberetning.model.geometry.Point;
+import dk.digitalidentity.indberetning.security.NoRoleRequired;
+import dk.digitalidentity.indberetning.security.Roles;
+import dk.digitalidentity.indberetning.security.SecurityUtil;
+import dk.digitalidentity.indberetning.service.AddressLookupService;
+import dk.digitalidentity.indberetning.service.AddressService;
+import dk.digitalidentity.indberetning.service.LicensePlateService;
+import dk.digitalidentity.indberetning.service.PersonalRouteService;
+import dk.digitalidentity.indberetning.service.ReportService;
+import dk.digitalidentity.indberetning.service.RouteService;
+import dk.digitalidentity.indberetning.service.cms.CmsMessageBundle;
+import dk.digitalidentity.indberetning.service.dto.AddressLookupDTO;
+import io.swagger.v3.oas.annotations.Hidden;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Hidden
 @Slf4j
@@ -57,8 +55,8 @@ public class PersonalSettingsRestController {
     private final RouteService routeService;
     private final PersonalRouteService personalRouteService;
     private final ReportService reportService;
-    private final GpsCoordinateService gpsCoordinateService;
     private final CmsMessageBundle cmsMessageBundle;
+	private final AddressLookupService addressLookupService;
 
     //plate post mappings
     public record PlateRecord(long id, String registrationNumber, String description, boolean prime) {}
@@ -313,7 +311,7 @@ public class PersonalSettingsRestController {
     }
     record PersonalRouteRecord(long id, String description, String startAddress, String stopAddress, String routeGeometry, List<AddressRecord> addressList) {}
     @PostMapping("/rest/personalRoutes/create")
-    public ResponseEntity<?> createPersonalRoute(@RequestBody PersonalRouteRecord personalRouteRecord) throws JsonProcessingException {
+    public ResponseEntity<?> createPersonalRoute(@RequestBody PersonalRouteRecord personalRouteRecord) {
         PersonalRoute personalRoute = new PersonalRoute();
         personalRoute.setPersonId(securityUtil.getPerson());
         personalRoute.setDescription(personalRouteRecord.description);
@@ -327,18 +325,21 @@ public class PersonalSettingsRestController {
         ArrayList<Address> addresses = new ArrayList<>();
         for (int i = 0; i < personalRouteRecord.addressList.size(); i++) {
             AddressRecord addressRecord = personalRouteRecord.addressList.get(i);
+			Point coordinates;
+			try {
+				coordinates = addressLookupService.lookupCoordinatesForAddress(new AddressLookupDTO(addressRecord.road, addressRecord.house_number, String.valueOf(addressRecord.postcode)));
+			} catch(AddressLookupRuntimeException e) {
+				log.warn("Failed to create personal route", e);
+				return ResponseEntity.badRequest().body("Datafordeleren er utilgængelig: Prøv igen senere");
+			}
+
             Address address = new Address();
             address.setStreetName(addressRecord.road);
             address.setStreetNumber(addressRecord.house_number);
             address.setZipCode(addressRecord.postcode);
             address.setTown(addressRecord.town);
-            try {
-                address = addressService.populateAddressLatLng(address, new HashMap<>());
-            } catch (JsonProcessingException ex) {
-                return ResponseEntity.badRequest().build();
-            } catch (AddressLookupRuntimeException ex) {
-                return ResponseEntity.badRequest().body(ex.getMessage());
-            }
+			address.setLatitude(coordinates.lat());
+			address.setLongitude(coordinates.lon());
 
             address.setPerson(securityUtil.getPerson());
             address.setType(AddressType.PERSONAL_ROUTE_POINT);
@@ -374,7 +375,7 @@ public class PersonalSettingsRestController {
     }
 
     @PostMapping("/rest/personalRoutes/edit")
-    public ResponseEntity<String> editPersonalRoute(@RequestBody PersonalRouteRecord personalRouteRecord) throws JsonProcessingException {
+    public ResponseEntity<String> editPersonalRoute(@RequestBody PersonalRouteRecord personalRouteRecord) {
         PersonalRoute personalRoute = personalRouteService.findById(personalRouteRecord.id);
 
         if (personalRoute == null) {

@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import dk.digitalidentity.indberetning.security.SecurityUtil;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -21,12 +20,12 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestClient;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import dk.digitalidentity.indberetning.config.settings.OS2indberetningConfiguration;
@@ -38,6 +37,9 @@ import dk.digitalidentity.indberetning.model.entity.OrgUnit;
 import dk.digitalidentity.indberetning.model.entity.Person;
 import dk.digitalidentity.indberetning.model.entity.PersonalRoute;
 import dk.digitalidentity.indberetning.model.entity.enums.AddressType;
+import dk.digitalidentity.indberetning.model.geometry.Point;
+import dk.digitalidentity.indberetning.security.SecurityUtil;
+import dk.digitalidentity.indberetning.service.dto.AddressLookupDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -56,6 +58,7 @@ public class AddressService {
     @Autowired
     private SecurityUtil securityUtil;
 
+	private final AddressLookupService addressLookupService;
 
 	public void delete(long id) {
 		addressDao.deleteById(id);
@@ -129,6 +132,14 @@ public class AddressService {
 			address.setLongitude(10.14476);
 			return address;
 		});
+	}
+
+    public List<Address> findByEndDateBefore(LocalDateTime date) {
+		return addressDao.findByEndDateBefore(date);
+    }
+
+	public void deleteAll(List<Address> addresses) {
+		addressDao.deleteAll(addresses);
 	}
 
 	// Work addresses
@@ -259,6 +270,11 @@ public class AddressService {
 		return addressDao.saveAllAndFlush(addresses);
 	}
 
+	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
+	public List<Address> saveAllInIsolatedTransaction(List<Address> addresses) {
+		return addressDao.saveAllAndFlush(addresses);
+	}
+
 	public List<Address> getAvailableAddresses(Person person, boolean includeStandard) {
 		List<Address> availableAddresses = new ArrayList<>();
 		availableAddresses.addAll(addressDao.findByPerson(person));
@@ -309,12 +325,13 @@ public class AddressService {
 
     public Address getDeviations(Person person, Address deviatee, LocalDateTime dateTime) {
 		List<Address> deviations = addressDao.findByDeviatingAddressAndPerson(deviatee, person);
-
+		
 		Optional<Address> deviation = deviations.stream()
                 .filter(address -> address.getStartDate() == null || address.getStartDate().isEqual(dateTime) || address.getStartDate().isBefore(dateTime))
                 .filter(address -> address.getEndDate() == null || address.getEndDate().isAfter(dateTime))
                 .max(Comparator.comparing(Address::getStartDate,Comparator.nullsFirst(Comparator.naturalOrder())
         ));
+		
         return deviation.orElse(deviatee);
     }
 
@@ -328,7 +345,7 @@ public class AddressService {
 
 
 	//backend operations
-	public Address populateAddressLatLng(Address address, Map<String, Address> lookupTable) throws JsonProcessingException, AddressLookupRuntimeException {
+	public Address populateAddressLatLng(Address address, Map<String, Address> lookupTable) {
 		if(address == null) {
 			return null;
 		}
@@ -345,89 +362,18 @@ public class AddressService {
 			return address;
 		}
 
-		String addressString = addressToLatLng(address.getStreetName(), address.getStreetNumber(), String.valueOf(address.getZipCode()), true);
-		if (!StringUtils.hasLength(addressString)) {
-			log.warn("AddressToLatLng returned nothing: " + toBePopulatedAddressString);
-			address.setDirty(true);
-			return address;
-		}
-
-		ObjectMapper mapper = new ObjectMapper();
-		JsonNode addressJson = mapper.readTree(addressString);
-		log.trace("");
-		log.trace("addressJson = " + addressJson);
-
-		if (addressJson == null || addressJson.isEmpty()) {
+		try {
+			final Point coordinates = addressLookupService.lookupCoordinatesForAddress(new AddressLookupDTO(address.getStreetName(), 
+																											address.getStreetNumber(), 
+																											String.valueOf(address.getZipCode())));
+			address.setLongitude(coordinates.lon());
+			address.setLatitude(coordinates.lat());
+		} catch(AddressLookupRuntimeException e) {
 			log.warn("No addresses found from supplied address: " + toBePopulatedAddressString);
 			address.setDirty(true);
-			return address;
 		}
-
-		JsonNode accessAddress = addressJson.get(0);
-		if (accessAddress == null) {
-			log.warn("No addresses found from supplied address: " + toBePopulatedAddressString);
-			address.setDirty(true);
-			return address;
-		}
-
-		if (accessAddress.get("dirty") != null) {
-			address.setDirty(true);
-		}
-
-		JsonNode accessPoint = accessAddress.get("adgangspunkt");
-		if (accessPoint == null) {
-			log.error("Address missing accessPoint information");
-			return address;
-		}
-
-		JsonNode coordinates = accessPoint.get("koordinater");
-		if (coordinates == null || coordinates.size() != 2) {
-			log.error("Address missing coordinate information");
-			return address;
-		}
-
-		address.setLatitude(Double.parseDouble(coordinates.get(1).toString()));
-		address.setLongitude(Double.parseDouble(coordinates.get(0).toString()));
 
 		return address;
-	}
-
-	@Nullable
-	public String addressToLatLng(String road, String houseNumber, String postcode) {
-		return addressToLatLng(road, houseNumber, postcode, false);
-	}
-
-	public String addressToLatLng(String road, String houseNumber, String postcode, boolean retry) {
-		JsonNode req = null ;
-		try {
-			if (houseNumber.contains(",")) {
-				String[] split = houseNumber.split(",", 2);
-				String potentialHouseNumber = split[0].trim();
-				houseNumber = StringUtils.hasLength(potentialHouseNumber) ? potentialHouseNumber : houseNumber;
-			}
-
-			req = restClient.get()
-					.uri(configuration.getMap().getMapServiceBaseUrl() + "adgangsadresser?vejnavn=" + road + "&husnr=" + houseNumber + "&postnr=" + postcode)
-					.retrieve()
-					.onStatus(HttpStatusCode::isError, (request, response) -> {
-						throw new AddressLookupRuntimeException("Dataforsyningens kortservice er utilgængelig", response.getStatusCode(), response.getHeaders());
-					})
-					.body(JsonNode.class);
-
-			if (retry) {
-				if (req == null || req.isEmpty() || req.get(0) == null) {
-					req = getBestWashedResult(road, houseNumber, postcode);
-					return req != null ? req.toString() : null;
-				}
-			}
-		}
-		catch (AddressLookupRuntimeException ex) {
-			// If address lookup fails with a 4xx error we try to wash the address automatically and try to find coords based on the washed address.
-			// If the washed address does not turn op any good data we mark the address as dirty so it can be washed manually.
-			req = getBestWashedResult(road, houseNumber, postcode);
-		}
-
-		return req != null ? req.toString() : null;
 	}
 
 	@Nullable

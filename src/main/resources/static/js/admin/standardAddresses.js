@@ -101,8 +101,8 @@ function StandardAddressService() {
         if (this.addressMarker) { standardAddressMap.removeLayer(this.addressMarker); }
         this.addressMarkerAddress = addressService.addressWash($("#standardAddressField").val());
         this.addressMarkerCoord = addressService.addressToLtLg(this.addressMarkerAddress);
-        this.addressMarker = L.marker([this.addressMarkerCoord[0].lat, this.addressMarkerCoord[0].lng],{draggable: true, autoPan: true}).addTo(standardAddressMap);
-        standardAddressMap.flyTo([this.addressMarkerCoord[0].lat, this.addressMarkerCoord[0].lng], 16, {animate: false});
+        this.addressMarker = L.marker([this.addressMarkerCoord.lat, this.addressMarkerCoord.lng],{draggable: true, autoPan: true}).addTo(standardAddressMap);
+        standardAddressMap.flyTo([this.addressMarkerCoord.lat, this.addressMarkerCoord.lng], 16, {animate: false});
 
         this.addressMarker.on('dragend', function(e) {
             this.addressMarkerCoord = this.getLatLng();

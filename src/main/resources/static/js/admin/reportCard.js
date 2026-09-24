@@ -126,7 +126,7 @@ function ReportCardService() {
     }
 
     this.getReport = function () {
-        if ($('#inputWorkerName').val() == "Indtast navn") {
+        if ($('#inputWorkerName').val() == "Indtast navn" || !$('#inputWorkerName').val()) {
             toastr.warning("Mangler navn på medarbejderen");
             return;
         }

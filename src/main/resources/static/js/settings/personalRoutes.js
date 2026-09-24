@@ -67,7 +67,7 @@ function PersonalRouteService() {
         mapRoute = L.map('mapRoute').setView([$("#mapRoute").data('lat'), $("#mapRoute").data('lng')], 14);
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
-            attribution: false
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(mapRoute);
 
         $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
@@ -138,7 +138,7 @@ function PersonalRouteService() {
             $(".waymarker").each(function(index, element) {
                 personalRouteService.routeMarkerAddresses[index + 1] = addressService.addressWash($(element).val());
                 let waymark = addressService.addressToLtLg(personalRouteService.routeMarkerAddresses[index + 1]);
-                personalRouteService.routeMarkers[index + 1] = L.marker([waymark[0].lat, waymark[0].lng],{draggable: true, autoPan: true}).addTo(mapRoute)
+                personalRouteService.routeMarkers[index + 1] = L.marker([waymark.lat, waymark.lng],{draggable: true, autoPan: true}).addTo(mapRoute)
 
             });
             personalRouteService.drawRoute(true, "personalRouteService.openCreateModal");
@@ -199,7 +199,7 @@ function PersonalRouteService() {
             $(".waymarker").each(function( index, element) {
                 personalRouteService.routeMarkerAddresses[index + 1] = addressService.addressWash($(element).val());
                 let waymark = addressService.addressToLtLg(personalRouteService.routeMarkerAddresses[index + 1].address);
-                personalRouteService.routeMarkers[index + 1] = L.marker([waymark[0].lat, waymark[0].lng],{draggable: true, autoPan: true}).addTo(mapRoute)
+                personalRouteService.routeMarkers[index + 1] = L.marker([waymark.lat, waymark.lng],{draggable: true, autoPan: true}).addTo(mapRoute)
 
             });
             // not sure if this code is ever called
@@ -266,8 +266,8 @@ function PersonalRouteService() {
         }
         var pointEnd = addressService.addressToLtLg(personalRouteService.markerEndAddress);
 
-        personalRouteService.routeMarkers[0] = L.marker([pointStart[0].lat, pointStart[0].lng],{draggable: true, autoPan: true, title: $("#startField").val()}).addTo(mapRoute)
-        personalRouteService.markerEnd = L.marker([pointEnd[0].lat, pointEnd[0].lng],{draggable: true, autoPan: true, title: $("#endField").val()}).addTo(mapRoute)
+        personalRouteService.routeMarkers[0] = L.marker([pointStart.lat, pointStart.lng],{draggable: true, autoPan: true, title: $("#startField").val()}).addTo(mapRoute)
+        personalRouteService.markerEnd = L.marker([pointEnd.lat, pointEnd.lng],{draggable: true, autoPan: true, title: $("#endField").val()}).addTo(mapRoute)
 
         personalRouteService.routeMarkers[0].on('dragend', function(e) {
             personalRouteService.routeMarkerCoords[0] = this.getLatLng();
@@ -277,7 +277,7 @@ function PersonalRouteService() {
         });
         this.markerEnd.on('dragend', function(e) {
             personalRouteService.markerEndAddress = addressService.latLngToAddress(this.getLatLng());
-            $("#endField").val(addressService.addressString(personalRouteService.markerEndAddress.address));
+            $("#endField").val(addressService.addressString(personalRouteService.markerEndAddress));
             personalRouteService.drawRoute("personalRouteService.drawInitialRoute");
         });
     }
@@ -303,7 +303,7 @@ function PersonalRouteService() {
         if (personalRouteService.routeMarkers[i]) { mapRoute.removeLayer(personalRouteService.routeMarkers[i]); }
         personalRouteService.routeMarkerAddresses[i] = addressService.addressWash($('#waymarker' + i).val());
         var wpLoc = addressService.addressToLtLg(personalRouteService.routeMarkerAddresses[i]);
-        personalRouteService.routeMarkers[i] = L.marker([wpLoc[0].lat, wpLoc[0].lng],{draggable: true, autoPan: true, title: addressService.addressString(personalRouteService.routeMarkerAddresses[i]), listId: i}).addTo(mapRoute);
+        personalRouteService.routeMarkers[i] = L.marker([wpLoc.lat, wpLoc.lng],{draggable: true, autoPan: true, title: addressService.addressString(personalRouteService.routeMarkerAddresses[i]), listId: i}).addTo(mapRoute);
 
         personalRouteService.routeMarkers[i].on('dragend', function(e) {
             personalRouteService.routeMarkerCoords[this.options.listId] = this.getLatLng();
@@ -451,7 +451,7 @@ function PersonalRouteService() {
         var newLatLng = personalRouteService.routeMarkers[personalRouteService.routeMarkers.length-1]._latlng;
         personalRouteService.routeMarkerCoords[listId] = newLatLng;
         personalRouteService.routeMarkerAddresses[listId] = undefined;
-        personalRouteService.routeMarkers[listId] = L.marker([newLatLng.lat, newLatLng.lng],{draggable: true, autoPan: true, title: addressService.addressString(addressService.latLngToAddress(personalRouteService.routeMarkerCoords[listId])), listId: listId}).addTo(mapRoute);
+        personalRouteService.routeMarkers[listId] = L.marker([newLatLng.lat, newLatLng.lng],{draggable: true, autoPan: true, title: addressService.addressString(personalRouteService.routeMarkerAddresses[listId-1]), listId: listId}).addTo(mapRoute);
         personalRouteService.drawRoute("personalRouteService.onAddWaymarkerPressed");
 
         personalRouteService.routeMarkers[listId].on('dragend', function(e) {
@@ -542,6 +542,7 @@ function PersonalRouteService() {
         else {
             url = "rest/personalRoutes/create"
         }
+        $('#butCreate').prop('disabled', true);
         $.ajax({
             method : "POST",
             url : url,
@@ -557,7 +558,8 @@ function PersonalRouteService() {
                 personalRouteService.init();
             },
             error: function(kqXHR, textStatus, errorThrown) {
-                toastr.warning("Der er opstået en teknisk fejl");
+                toastr.warning(kqXHR.responseText ? kqXHR.responseText : "Der er opstået en teknisk fejl");
+                $('#butCreate').prop('disabled', false);
             }
         });
 

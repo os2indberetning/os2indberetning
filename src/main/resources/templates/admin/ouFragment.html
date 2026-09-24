@@ -16,6 +16,7 @@
                     <th>Navn</th>
                     <th>Kan benytte 4km-regel</th>
                     <th>Standard kilometeropgørelse</th>
+                    <th>Standard takst</th>
 <!--                    <th>Adresse</th>-->
                     <th>Rediger</th>
                 </tr>
@@ -24,6 +25,7 @@
                     <tr>
                         <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Id" /></td>
                         <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Navn" /></td>
+                        <td></td>
                         <td></td>
                         <td></td>
 <!--                        <td class="input-filter"><input type="text" class="form-control input-sm" style="width: 100%;" placeholder="Dato" /></td>-->
@@ -40,8 +42,15 @@
                     </td>
                     <td th:text="${ou.defaultCalculationType.message}"></td>
 <!--                    <td th:text="${ou.address?.getAddressString()}"></td>-->
+                    <td th:text="${ou.defaultRateType?.name ?: ''}"></td>
                     <td>
-                        <a th:data-orgid="${ou.orgId}" th:data-rule="${ou.fourKmRuleAllowed}" th:data-type="${ou.defaultCalculationType.name()}" onclick="ouService.openModal(this)"><em style="color: #212529" class="fa fa-pencil"></em></a>
+                        <a th:data-orgid="${ou.orgId}"
+                           th:data-rule="${ou.fourKmRuleAllowed}"
+                           th:data-rate="${ou.defaultRateType?.id ?: ''}"
+                           th:data-type="${ou.defaultCalculationType.name()}"
+                           onclick="ouService.openModal(this)">
+                            <em style="color: #212529" class="fa fa-pencil"></em>
+                        </a>
                     </td>
                 </tr>
                 </tbody>
@@ -60,6 +69,15 @@
                             <div class="col-sm-7">
                                 <select class="form-control" id="calculationTypeSelect">
                                     <option th:each="type : ${T(dk.digitalidentity.indberetning.model.entity.enums.CalculationType).values()}" th:text="${type.message}" th:value="${type.name()}"></option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-5 col-form-label" style="text-align:left;">Standard takst for medarbejdere</label>
+                            <div class="col-sm-7">
+                                <select class="form-control" id="rateTypeSelectOuEdit">
+                                    <option value="">-- Vælg takst --</option>
+                                    <option th:each="rt : ${rateTypes}" th:text="${rt.name}" th:value="${rt.id}"></option>
                                 </select>
                             </div>
                         </div>

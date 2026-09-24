@@ -23,6 +23,9 @@ public class Route {
     @Column(name = "route_geometry")
     private String routeGeometry;
 
+    @Column(name = "estimated_travel_time")
+    private Double estimatedTravelTime;
+
     @OneToOne(mappedBy = "route", optional = false)
     private Report report;
 }

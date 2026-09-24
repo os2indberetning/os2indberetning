@@ -49,10 +49,11 @@ public class SixtyDayRuleService {
 
 	public void processIndividualSixtyDayRule(Report report, Person person, List<GpsCoordinate> coords, LocalDate driveDate) {
 		if (report.isEndsAtHome() || report.isStartsAtHome()) {
-			List<SixtyDayRule> entryList = findByPersonAndAddress(person, coords.getLast().getAddress());
+			String homeAddress = (report.isStartsAtHome() ? coords.getFirst().getAddress() : coords.getLast().getAddress()).trim();
+			List<SixtyDayRule> entryList = findByPersonAndAddress(person, homeAddress);
 			if (entryList == null || entryList.isEmpty()) {
 				SixtyDayRule newEntry = new SixtyDayRule();
-				newEntry.setAddress(coords.get(coords.size()-1).getAddress());
+				newEntry.setAddress(homeAddress);
 				newEntry.setPerson(person);
 				newEntry.setCount(1);
 				newEntry.setLastDriveDate(driveDate);

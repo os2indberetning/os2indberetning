@@ -3,7 +3,6 @@ package dk.digitalidentity.indberetning.config.settings.modules;
 import dk.digitalidentity.indberetning.service.BaseURLUtil;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.util.StringUtils;
 
 @Getter
 @Setter

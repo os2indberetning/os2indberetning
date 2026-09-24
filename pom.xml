@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.5</version>
+		<version>3.5.7</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>dk.digitalidentity</groupId>
@@ -17,7 +17,6 @@
 		<java.version>21</java.version>
 	</properties>
 
-
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -26,7 +25,6 @@
 		<dependency>
 			<groupId>org.apache.httpcomponents.client5</groupId>
 			<artifactId>httpclient5</artifactId>
-			<version>5.3.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -40,7 +38,7 @@
 		<dependency>
 			<groupId>dk.digitalidentity</groupId>
 			<artifactId>saml-module</artifactId>
-			<version>4.0.10</version>
+			<version>4.4.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.modulith</groupId>
@@ -107,8 +105,7 @@
 			<artifactId>inspinia-webjar-lib</artifactId>
 			<version>1.0.3</version>
 		</dependency>
-
-		<dependency>
+	<dependency>
 			<groupId>com.google.maps</groupId>
 			<artifactId>google-maps-services</artifactId>
 			<version>2.2.0</version>
@@ -150,14 +147,9 @@
 			<scope>runtime</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-testcontainers</artifactId>
-			<scope>test</scope>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.14.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
@@ -174,19 +166,9 @@
 			<scope>test</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.reflections</groupId>
 			<artifactId>reflections</artifactId>
 			<version>0.10.2</version>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.testcontainers</groupId>
-			<artifactId>mariadb</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -203,7 +185,52 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
-
+		<dependency>
+			<groupId>io.github.resilience4j</groupId>
+			<artifactId>resilience4j-spring-boot3</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-aop</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-graphql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jspecify</groupId>
+			<artifactId>jspecify</artifactId>
+			<version>1.0.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.locationtech.proj4j</groupId>
+			<artifactId>proj4j</artifactId>
+			<version>1.4.3</version>
+		</dependency>
+		<dependency>
+			<groupId>org.locationtech.proj4j</groupId>
+			<artifactId>proj4j-epsg</artifactId>
+			<version>1.4.3</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-cache</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.github.davidmoten</groupId>
+			<artifactId>geo</artifactId>
+			<version>0.8.1</version>
+		</dependency>
+		<dependency>
+				<groupId>dk.digitalidentity</groupId>
+				<artifactId>reporter</artifactId>
+				<version>1.0.10</version>
+		</dependency>
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
@@ -211,6 +238,13 @@
 				<groupId>org.springframework.modulith</groupId>
 				<artifactId>spring-modulith-bom</artifactId>
 				<version>1.2.0</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.testcontainers</groupId>
+				<artifactId>testcontainers-bom</artifactId>
+				<version>1.21.4</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -234,20 +268,40 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>io.github.git-commit-id</groupId>
+				<artifactId>git-commit-id-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 				<configuration>
 					<layout>ZIP</layout>
 					<addResources>true</addResources>
-					<directories>
-						<directory>${basedir}/config</directory>
-					</directories>
+					<additionalClasspathElements>
+						<additionalClasspathElement>${basedir}/config</additionalClasspathElement>
+					</additionalClasspathElements>
 					<excludes>
 						<exclude>
 							<groupId>org.projectlombok</groupId>
 							<artifactId>lombok</artifactId>
 						</exclude>
 					</excludes>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>com.diffplug.spotless</groupId>
+				<artifactId>spotless-maven-plugin</artifactId>
+				<version>2.45.0</version>
+				<configuration>
+					<ratchetFrom>origin/master</ratchetFrom>
+					<java>
+						<toggleOffOn />
+<!--						<endWithNewline />-->
+						<removeUnusedImports />
+						<removeWildcardImports />
+						<lineEndings>PRESERVE</lineEndings> <!-- You can also use: UNIX, WINDOWS, MAC_CLASSIC, PLATFORM_NATIVE, PRESERVE, GIT_ATTRIBUTES, (default:) GIT_ATTRIBUTES_FAST_ALLSAME -->
+					</java>
 				</configuration>
 			</plugin>
 		</plugins>

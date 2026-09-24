@@ -68,6 +68,8 @@
     border-color: #c3cbd3 !important;
 }
 
+
+
 .icheckbox_square-green:not(.checked, :hover) {
     background-image: none;
     border: 1px solid #c3cbd3;
@@ -229,6 +231,25 @@ body {
 .error-field {
     background-color: #FFD6E4 !important;
 }
+.footer.fixed .no-p-wrap a {
+    background-color: #2e6d84 !important;
+    color: white !important;
+}
+
+/*Default*/
+#mapFragmentReportPage {
+    height: 42vh;
+}
+
+/*ON PHONES*/
+@media screen and (max-width: 767px) {
+    #mapFragmentReportPage {
+        max-height: 200px !important;
+        height: auto !important;
+        overflow: hidden;
+    }
+}
+
 
 /* HiDPI support */
 @media (-o-min-device-pixel-ratio: 5/4), (-webkit-min-device-pixel-ratio: 1.25), (min-resolution: 120dpi) {

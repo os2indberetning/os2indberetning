@@ -42,6 +42,7 @@ public class DefaultController implements ErrorController {
 				return "redirect:/report/list";
 			}
 		}
+
 		return "index";
 	}
 
@@ -55,7 +56,8 @@ public class DefaultController implements ErrorController {
 				return "redirect:/report/list";
 			}
 		}
-        return "index";
+
+        return "redirect:/discovery";
     }
 
 	@RequestMapping(value = "/error", produces = "text/html")

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
 
 @Slf4j
 @Service
@@ -47,7 +48,7 @@ public class OnetimePaymentsCalculatorService {
 		// This is calculated as the biggest distance homeToWork that any of the used employments of the day has times two.
 		// We cannot draw above this maximum, for any reason.
 		LocalDate driveDate = !reports.isEmpty() ? reports.getFirst().getDriveDate() : null;
-		Double maxDistanceToSubtract = getMaxDistanceToSubtract(reports, driveDate);
+		Double maxDistanceToSubtract = getMaxDistanceToSubtractFromReports(reports, driveDate);
 
 		// We sort the list so that the start and end point form a route regardless of when they were sent in.
 		// This makes sure that the list is calculated in a consistent way
@@ -526,19 +527,18 @@ public class OnetimePaymentsCalculatorService {
 		return new StartsOrEndsHome(startsHome, endsHome);
 	}
 
-	public double getMaxDistanceToSubtract(List<Report> reports, LocalDate driveDate) {
-       	// TODO verify how this works in regards to sorting
-        return reports.stream()
-                .map(Report::getEmployment)
-                .filter(Objects::nonNull)
-                .map(employment -> calculateDistanceBetweenHomeAndWork(employment, driveDate))
-                .max(Comparator.naturalOrder())
-                .orElse(0.0) * 2.0;
+	private double getMaxDistanceToSubtractFromReports(List<Report> reports, LocalDate driveDate) {
+		return getMaxDistanceToSubtract(reports, Report::getEmployment, driveDate);
 	}
 
 	public double getMaxDistanceToSubtractByAllEmployments(List<Employment> employments, LocalDate driveDate) {
-		return employments.stream()
+		return getMaxDistanceToSubtract(employments, em -> em, driveDate);
+	}
+
+	private <T> double getMaxDistanceToSubtract(List<T> list, Function<T, Employment> mapper, LocalDate driveDate) {
+		return list.stream()
 				.filter(Objects::nonNull)
+				.map(mapper)
 				.map(employment -> calculateDistanceBetweenHomeAndWork(employment, driveDate))
 				.max(Comparator.naturalOrder())
 				.orElse(0.0) * 2.0;

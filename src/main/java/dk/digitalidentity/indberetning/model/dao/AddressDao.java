@@ -12,7 +12,6 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public interface AddressDao extends JpaRepository<Address, Long> {
     List<Address> findByDirtyStringAndType(String dirtyString, AddressType type);
@@ -67,4 +66,7 @@ public interface AddressDao extends JpaRepository<Address, Long> {
                     )
                 LIMIT 10""")
     List<Address> findAddressByOrgUnitNameLike(@Param("name") String input, @Param("personId") long personId);
+
+    List<Address> findByEndDateBefore(LocalDateTime date);
+
 }

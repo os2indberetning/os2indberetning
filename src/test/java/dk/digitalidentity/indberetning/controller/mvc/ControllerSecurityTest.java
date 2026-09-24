@@ -18,7 +18,6 @@ import java.util.Set;
 
 import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 // Tests to ensure that our MVC controllers are protected with the right annotations
@@ -68,6 +67,11 @@ class ControllerSecurityTest {
     public void assertUrlProtected(final String url) throws Exception {
         mockMvc.perform(get(url))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("http://localhost/saml2/authenticate/IdP"));
-    }
+           .andExpect(result -> {
+			   String redirectUrl = result.getResponse().getRedirectedUrl();
+			   if (!"http://localhost/saml2/authenticate/IdP".equals(redirectUrl) && !"http://localhost/discovery".equals(redirectUrl)) {
+				   throw new AssertionError("Unexpected redirect URL: " + redirectUrl);
+			   }
+       });
+	}
 }

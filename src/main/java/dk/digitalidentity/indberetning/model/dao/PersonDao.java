@@ -1,8 +1,8 @@
 package dk.digitalidentity.indberetning.model.dao;
 
 import dk.digitalidentity.indberetning.model.entity.Person;
-import dk.digitalidentity.indberetning.model.entity.enums.ReportStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -34,4 +34,13 @@ public interface PersonDao extends JpaRepository<Person, Long> {
 	List<Person> findByReceiveEmailTrueAndReportsNotEmpty();
 
 	List<Person> findByReceiveEmailTrueAndReceivePersonalMailTrue();
+
+	@Modifying
+	@Query(nativeQuery = true, value = "DELETE FROM persons_aud WHERE id IN ?1 LIMIT 5000")
+	void deleteInAud(@Param("personIds") List<Long> personIds);
+
+    List<Person> findByLastEditedBefore(LocalDateTime lastEdited);
+
+	List<Person> findByLastEditedBeforeAndActiveFalse(LocalDateTime lastEdited);
+
 }

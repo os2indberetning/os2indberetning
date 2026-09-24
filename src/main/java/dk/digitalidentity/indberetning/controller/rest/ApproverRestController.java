@@ -1,11 +1,18 @@
 package dk.digitalidentity.indberetning.controller.rest;
 
 import dk.digitalidentity.indberetning.model.datatable.dao.ReportDatatableDao;
-import dk.digitalidentity.indberetning.model.entity.*;
+import dk.digitalidentity.indberetning.model.entity.Employment;
+import dk.digitalidentity.indberetning.model.entity.OrgUnit;
+import dk.digitalidentity.indberetning.model.entity.ReportView;
+import dk.digitalidentity.indberetning.model.entity.dto.ReportViewDTO;
 import dk.digitalidentity.indberetning.model.entity.enums.ReportStatus;
 import dk.digitalidentity.indberetning.security.RequireApprover;
 import dk.digitalidentity.indberetning.security.SecurityUtil;
-import dk.digitalidentity.indberetning.service.*;
+import dk.digitalidentity.indberetning.service.DatatableSpecBuilderUtil;
+import dk.digitalidentity.indberetning.service.EmploymentService;
+import dk.digitalidentity.indberetning.service.GpsCoordinateService;
+import dk.digitalidentity.indberetning.service.OrgUnitService;
+import dk.digitalidentity.indberetning.service.SubstituteService;
 import io.swagger.v3.oas.annotations.Hidden;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.datatables.mapping.DataTablesInput;
@@ -17,7 +24,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 @Hidden
 @RestController
@@ -29,9 +37,10 @@ public class ApproverRestController {
 	private final OrgUnitService orgUnitService;
 	private final SecurityUtil securityUtil;
 	private final EmploymentService employmentService;
+	private final GpsCoordinateService gpsCoordinateService;
 
 	@PostMapping("/rest/approve/report/list")
-	public DataTablesOutput<ReportView> paginatingTable(@RequestBody DataTablesInput input, @RequestParam(name = "status") ReportStatus status, @RequestParam(name = "startDate", required = false) LocalDate startDate,
+	public DataTablesOutput<ReportViewDTO> paginatingTable(@RequestBody DataTablesInput input, @RequestParam(name = "status") ReportStatus status, @RequestParam(name = "startDate", required = false) LocalDate startDate,
 														@RequestParam(name = "endDate", required = false) LocalDate endDate,
 														@RequestParam(name = "employeeSearch", required = false) Long personId,
 														@RequestParam(name = "orgUnitSearch", required = false) String orgUnitId) {
@@ -54,6 +63,11 @@ public class ApproverRestController {
 				.toList();
 		Specification<ReportView> approverFilter = (root, query, criteriaBuilder) -> root.get("employeeNumber").in(employeeNumbers);
 		spec = spec.and(approverFilter);
-		return reportDatatableDao.findAll(input, spec);
+		DataTablesOutput<ReportView> all = reportDatatableDao.findAll(input, spec);
+		return toDTO(all);
+	}
+
+	private DataTablesOutput<ReportViewDTO> toDTO(DataTablesOutput<ReportView> all) {
+		return gpsCoordinateService.addGpsToReports(all);
 	}
 }
